@@ -202,7 +202,7 @@ export default function TourTable({
 
       {/* 2. COMPACT TABLE VIEW */}
       {viewMode === 'table' && (
-        <div className="tour-table-responsive-container">
+        <div className="tour-table-responsive-container hide-on-mobile">
           <table className="editorial-tour-table" aria-label="Tours Catalog">
             <thead>
               <tr>
@@ -374,6 +374,103 @@ export default function TourTable({
               })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {viewMode === 'table' && (
+        <div className="tour-mobile-cards-list hide-on-desktop">
+          {tours.map((tour) => {
+            const isProcessing = actionLoadingId === tour.id;
+            const thumbUrl = getMediaUrl(tour.featured_image);
+            const isPublished = tour.status === 'published';
+
+            return (
+              <div key={tour.id} className="tour-mobile-card">
+                <div className="tour-mobile-card-media">
+                  {thumbUrl ? (
+                    <img src={thumbUrl} alt={tour.title} className="tour-mobile-card-img" loading="lazy" />
+                  ) : (
+                    <div className="tour-table-thumb-placeholder" aria-label="No image">🧭</div>
+                  )}
+                </div>
+
+                <div className="tour-mobile-card-body">
+                  <div className="tour-table-title-row">
+                    {canEdit ? (
+                      <Link to={`/admin/tours/${tour.id}/edit`} className="tour-table-name-link">
+                        {tour.title}
+                      </Link>
+                    ) : (
+                      <strong className="tour-table-name">{tour.title}</strong>
+                    )}
+                    {Boolean(tour.is_featured) && (
+                      <span className="tour-badge-featured" title="Featured Tour Spotlight">⭐</span>
+                    )}
+                  </div>
+
+                  <div className="mobile-meta-row">
+                    <span className="mobile-meta-label">Destination:</span>
+                    <span className="mobile-meta-value">📍 {tour.destination?.name || 'Unassigned'}</span>
+                  </div>
+                  <div className="mobile-meta-row">
+                    <span className="mobile-meta-label">Duration:</span>
+                    <span className="mobile-meta-value">
+                      ⏱ {tour.duration_days} Day{tour.duration_days === 1 ? '' : 's'}
+                    </span>
+                  </div>
+                  <div className="mobile-meta-row">
+                    <span className="mobile-meta-label">Price:</span>
+                    <span className="mobile-meta-value">
+                      <strong>{formatPrice(tour.base_price, tour.currency)}</strong>
+                    </span>
+                  </div>
+                  <div className="mobile-meta-row">
+                    <span className="mobile-meta-label">Status:</span>
+                    <span className={`tour-status-pill status-${tour.status}`}>
+                      <span className="status-dot" aria-hidden="true" />
+                      {tour.status === 'published' ? 'Published' : tour.status === 'draft' ? 'Draft' : tour.status}
+                    </span>
+                  </div>
+
+                  <div className="tour-row-actions mobile-card-actions">
+                    <a
+                      href={`/tours/${tour.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-action-icon view-action"
+                    >
+                      ↗ View
+                    </a>
+                    {canEdit && (
+                      <Link to={`/admin/tours/${tour.id}/edit`} className="btn-action-icon edit-action">
+                        ✏️ Edit
+                      </Link>
+                    )}
+                    {canPublish && (
+                      <button
+                        type="button"
+                        className={`btn-action-icon ${isPublished ? 'unpublish-action' : 'publish-action'}`}
+                        disabled={isProcessing}
+                        onClick={() => onPublishToggle(tour)}
+                      >
+                        {isProcessing ? '⏳...' : isPublished ? 'Draft' : 'Publish'}
+                      </button>
+                    )}
+                    {canDelete && (
+                      <button
+                        type="button"
+                        className="btn-action-icon delete-action"
+                        disabled={isProcessing}
+                        onClick={() => onDeleteClick(tour)}
+                      >
+                        🗑️
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

@@ -1299,6 +1299,16 @@ button {
   display: inline-flex;
 }
 
+/* Inverse of .hide-on-mobile — for mobile-only card fallbacks of desktop
+   tables (e.g. BookingTable, TourTable). Was previously referenced by
+   BookingTable.jsx with no matching rule at all, so its mobile card list
+   rendered duplicated alongside the desktop table at every viewport width. */
+@media (min-width: 641px) {
+  .hide-on-desktop {
+    display: none !important;
+  }
+}
+
 @media (max-width: 1024px) {
   .footer-grid {
     grid-template-columns: 1fr 1fr;
@@ -23714,6 +23724,49 @@ button {
   border-collapse: collapse;
   text-align: left;
   font-size: 13.5px;
+}
+
+/* Mobile card fallback for the tour table view (paired with .hide-on-mobile
+   on .tour-table-responsive-container above via .hide-on-desktop) — the
+   960px min-width table has no usable narrow-viewport layout otherwise. */
+.tour-mobile-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: 16px;
+}
+
+.tour-mobile-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.tour-mobile-card-media {
+  width: 100%;
+  height: 160px;
+  background: #f1f5f9;
+}
+
+.tour-mobile-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.tour-mobile-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.tour-mobile-card-body .mobile-card-actions {
+  flex-wrap: wrap;
+  margin-top: var(--space-2);
 }
 
 .editorial-tour-table th {
