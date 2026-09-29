@@ -17,7 +17,10 @@ export default function Footer() {
   const contactEmail = getSetting('contact_email', 'contact@tramaxtours.in');
   const contactAddress = getSetting('contact_address', 'Chennai, Tamil Nadu, India');
   const contactHours = language === 'de' ? 'Mo - So: 08:00 - 21:00 Uhr IST' : getSetting('contact_business_hours', 'Mon - Sun: 08:00 AM - 09:00 PM IST');
-  const copyright = `© ${new Date().getFullYear()} ${siteName}. ${t('footer_rights', 'All rights reserved.')}`;
+  const logoUrl = getSetting('site_logo_url', '') || '/logo.png';
+  const copyright =
+    getSetting('footer_copyright', '') ||
+    `© ${new Date().getFullYear()} ${siteName}. ${t('footer_rights', 'All rights reserved.')}`;
 
   const usefulLinks = footerColumns['useful_links'] || [];
   const policyLinks = footerColumns['policy_pages'] || [];
@@ -30,7 +33,7 @@ export default function Footer() {
           {/* Column 1: Brand & Contact Information */}
           <div className="footer-column brand-column">
             <Link to="/" className="footer-brand-link">
-              <img src="/logo.png" alt={siteName} className="footer-brand-logo-img" />
+              <img src={logoUrl} alt={siteName} className="footer-brand-logo-img" />
             </Link>
             <p className="footer-about-text">{footerAbout}</p>
 

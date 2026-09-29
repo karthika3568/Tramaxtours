@@ -5,6 +5,7 @@ import { useToast } from '../../context/ToastContext';
 import { updatePageMeta } from '../../utils/metadata';
 import MediaPickerModal from '../../components/admin/media/MediaPickerModal';
 import Loading from '../../components/ui/Loading';
+import { getMediaUrl } from '../../utils/media';
 
 export default function AdminSettingsPage() {
   const toast = useToast();
@@ -17,6 +18,7 @@ export default function AdminSettingsPage() {
     site_tagline: 'Dream. Travel. Discover.',
     meta_description: 'Discover South India with Tramax Tours. Handcrafted tour packages, private cabs, spiritual pilgrimage & hill station getaways.',
     contact_phone: '+91 98400 00000',
+    contact_whatsapp: '+91 98400 00000',
     contact_email: 'contact@tramaxtours.in',
     contact_address: 'Chennai, Tamil Nadu, India',
     contact_business_hours: 'Mon - Sun: 08:00 AM - 09:00 PM IST',
@@ -24,6 +26,8 @@ export default function AdminSettingsPage() {
     header_cta_url: '/tours',
     default_currency: 'INR',
     footer_about: 'Tramax Tours provides premium guided excursions, private temple pilgrimages, and cultural day trips across South India.',
+    footer_copyright: '',
+    site_logo_url: '',
   });
 
   useEffect(() => {
@@ -61,6 +65,11 @@ export default function AdminSettingsPage() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setSettings((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleLogoSelected = (media) => {
+    setSettings((prev) => ({ ...prev, site_logo_url: getMediaUrl(media) }));
+    setIsMediaPickerOpen(false);
   };
 
   const handleSave = async (e) => {
@@ -157,6 +166,26 @@ export default function AdminSettingsPage() {
               onChange={handleChange}
             />
           </div>
+
+          <div className="form-group" style={{ marginTop: '16px' }}>
+            <label className="form-label">Site Logo</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              {settings.site_logo_url && (
+                <img
+                  src={settings.site_logo_url}
+                  alt="Site logo preview"
+                  style={{ height: '48px', width: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', padding: '4px' }}
+                />
+              )}
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={() => setIsMediaPickerOpen(true)}
+              >
+                🖼️ {settings.site_logo_url ? 'Change Logo' : 'Select Logo'}
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Contact & Support Information Box */}
@@ -193,6 +222,18 @@ export default function AdminSettingsPage() {
           </div>
 
           <div className="form-grid-2col" style={{ marginTop: '16px' }}>
+            <div className="form-group">
+              <label className="form-label">WhatsApp Number</label>
+              <input
+                type="text"
+                name="contact_whatsapp"
+                className="form-input"
+                value={settings.contact_whatsapp}
+                onChange={handleChange}
+                placeholder="+91 98400 00000"
+              />
+            </div>
+
             <div className="form-group">
               <label className="form-label">Physical Address / Office Location</label>
               <input
@@ -235,6 +276,19 @@ export default function AdminSettingsPage() {
             />
           </div>
 
+          <div className="form-group" style={{ marginTop: '16px' }}>
+            <label className="form-label">Footer Copyright Line</label>
+            <input
+              type="text"
+              name="footer_copyright"
+              className="form-input"
+              value={settings.footer_copyright}
+              onChange={handleChange}
+              placeholder={`© ${new Date().getFullYear()} Tramax Tours. All rights reserved.`}
+            />
+            <span className="form-hint">Leave blank to auto-generate from the site name and current year.</span>
+          </div>
+
           <div className="form-grid-2col" style={{ marginTop: '16px' }}>
             <div className="form-group">
               <label className="form-label">Header Call-to-Action Label</label>
@@ -267,6 +321,14 @@ export default function AdminSettingsPage() {
           </button>
         </div>
       </form>
+
+      <MediaPickerModal
+        isOpen={isMediaPickerOpen}
+        onClose={() => setIsMediaPickerOpen(false)}
+        onSelect={handleLogoSelected}
+        title="Select Site Logo"
+        typeFilter="image"
+      />
     </div>
   );
 }

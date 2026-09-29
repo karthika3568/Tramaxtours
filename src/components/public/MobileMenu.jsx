@@ -6,6 +6,7 @@ import { useSiteSettings } from '../../context/SiteSettingsContext';
 import { useLanguage } from '../../context/LanguageContext';
 import useAuth from '../../hooks/useAuth';
 import SocialLinks from './SocialLinks';
+import { isAdminRole } from '../../utils/roles';
 
 export default function MobileMenu({ isOpen, onClose }) {
   const { getSetting } = useSiteSettings();
@@ -15,7 +16,7 @@ export default function MobileMenu({ isOpen, onClose }) {
 
   const siteName = getSetting('site_name', 'Tramax Tours');
   const siteTagline = getSetting('site_tagline', 'Curated Luxury & Adventure Travel');
-  const isAdmin = user?.role && ['super_admin', 'admin', 'editor', 'moderator', 'staff'].includes(user.role);
+  const isAdmin = isAdminRole(user?.role);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -80,14 +81,6 @@ export default function MobileMenu({ isOpen, onClose }) {
         </div>
 
         <div className="mobile-menu-cta" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <Link
-            to="/tours"
-            className="btn btn-primary btn-full"
-            onClick={onClose}
-          >
-            {t('nav_explore_tours', 'Explore Tours')} &rarr;
-          </Link>
-
           {isAuthenticated ? (
             <>
               {isAdmin ? (
