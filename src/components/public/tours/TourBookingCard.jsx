@@ -147,8 +147,25 @@ export default function TourBookingCard({ tour }) {
     `Hello Tramax Tours! I am interested in booking "${tour.title}" for ${adults} Adults, ${children} Children on ${selectedDate} (${selectedTimeSlot}). Total: ${currencySymbol}${totalPrice.toLocaleString()}. Please provide availability and confirmation.`
   );
 
-  const handleDownloadReceipt = () => {
-    window.print();
+  const handleDownloadReceipt = async () => {
+    const bookingId = bookingSuccess?.id;
+    if (!bookingId) {
+      window.print();
+      return;
+    }
+    try {
+      const blob = await bookingService.downloadReceipt(bookingId);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `TramaxTours-Receipt-${bookingSuccess.order_number || bookingId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      toast.error('Failed to download receipt. Please try again.', 'Download Error');
+    }
   };
 
   const handleShareWhatsAppReceipt = () => {
@@ -431,11 +448,22 @@ export default function TourBookingCard({ tour }) {
                     <button
                       type="button"
                       className="btn btn-outline btn-sm"
-                      onClick={() => toast.success(`Receipt sent to ${customerEmail}!`, 'Email Confirmation Sent')}
+                      onClick={async () => {
+                        try {
+                          await bookingService.resendConfirmation(bookingSuccess.id);
+                          toast.success(`Confirmation resent to ${customerEmail}.`, 'Email Sent');
+                        } catch (err) {
+                          toast.error(err?.message || 'Failed to resend confirmation email.', 'Email Error');
+                        }
+                      }}
                     >
-                      ✉️ Email Receipt
+                      ✉️ Resend Email Receipt
                     </button>
                   </div>
+
+                  <p style={{ fontSize: '11.5px', color: '#64748b', marginBottom: '12px' }}>
+                    A confirmation with your PDF receipt has already been emailed to <strong>{customerEmail}</strong>.
+                  </p>
 
                   {isAuthenticated && (
                     <Link

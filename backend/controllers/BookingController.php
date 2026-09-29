@@ -4,7 +4,12 @@ namespace App\Controllers;
 
 use App\Models\Booking;
 use App\Models\Tour;
+use App\Models\User;
 use App\Services\AuditService;
+use App\Services\MailService;
+use App\Services\PdfService;
+use App\Utils\Env;
+use App\Utils\JWT;
 use App\Utils\Request;
 use Throwable;
 
@@ -220,6 +225,16 @@ class BookingController extends BaseController
                     'tour_id' => $tourId,
                     'total_price' => $totalPrice,
                 ]);
+            }
+
+            // Generate the PDF receipt and email it to the customer. Best-effort —
+            // a mail/PDF failure must not block the booking itself from succeeding.
+            try {
+                $pdfPath = PdfService::generateBookingReceipt($createdBooking);
+                $receiptUrl = $this->buildReceiptUrl($bookingId, $createdBooking['order_number']);
+                MailService::sendBookingConfirmation($createdBooking, $pdfPath, $receiptUrl);
+            } catch (Throwable $e) {
+                error_log('[Tramax Booking] Receipt generation/email failed for booking ' . $bookingId . ': ' . $e->getMessage());
             }
 
             $this->success($createdBooking, 'Booking placed successfully', 201);
@@ -467,5 +482,135 @@ class BookingController extends BaseController
 
         $restoredBooking = Booking::findById($id);
         $this->success($restoredBooking, 'Booking restored successfully');
+    }
+
+    /**
+     * Stream the booking confirmation PDF. Access is granted to:
+     *  - the authenticated customer who owns the booking,
+     *  - a staff member with `bookings.view` permission,
+     *  - or anyone presenting the signed `token` query param sent in the
+     *    confirmation email (so the link keeps working from a fresh browser
+     *    with no session, without making receipts guessable/public).
+     * GET /api/v1/bookings/{id}/receipt
+     *
+     * @param string $id
+     * @return void
+     */
+    public function receipt(string $id): void
+    {
+        $bookingId = (int) $id;
+        $booking = Booking::findById($bookingId);
+
+        if (!$booking) {
+            $this->error('Booking not found.', 404, null, 'BOOKING_NOT_FOUND');
+        }
+
+        if (!$this->canAccessReceipt($booking)) {
+            $this->error('You do not have permission to access this receipt.', 403, null, 'FORBIDDEN');
+        }
+
+        try {
+            $pdfPath = PdfService::receiptPathFor($booking['order_number']);
+            if (!file_exists($pdfPath)) {
+                $pdfPath = PdfService::generateBookingReceipt($booking);
+            }
+        } catch (Throwable $e) {
+            $this->error('Failed to generate receipt: ' . $e->getMessage(), 500, null, 'RECEIPT_GENERATION_FAILED');
+            return;
+        }
+
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: inline; filename="TramaxTours-Receipt-' . $booking['order_number'] . '.pdf"');
+        header('Content-Length: ' . filesize($pdfPath));
+        readfile($pdfPath);
+        exit;
+    }
+
+    /**
+     * Resend the booking confirmation email (with PDF attached) to the customer.
+     * POST /api/v1/bookings/{id}/resend-confirmation
+     *
+     * @param string $id
+     * @return void
+     */
+    public function resendConfirmation(string $id): void
+    {
+        $bookingId = (int) $id;
+        $booking = Booking::findById($bookingId);
+
+        if (!$booking) {
+            $this->error('Booking not found.', 404, null, 'BOOKING_NOT_FOUND');
+        }
+
+        if (!$this->canAccessReceipt($booking)) {
+            $this->error('You do not have permission to resend this confirmation.', 403, null, 'FORBIDDEN');
+        }
+
+        try {
+            $pdfPath = PdfService::generateBookingReceipt($booking);
+            $receiptUrl = $this->buildReceiptUrl($bookingId, $booking['order_number']);
+            $sent = MailService::sendBookingConfirmation($booking, $pdfPath, $receiptUrl);
+        } catch (Throwable $e) {
+            $this->error('Failed to resend confirmation: ' . $e->getMessage(), 500, null, 'RESEND_FAILED');
+            return;
+        }
+
+        if (!$sent) {
+            $this->error('Could not send the confirmation email. Please check the mail server configuration.', 502, null, 'MAIL_SEND_FAILED');
+        }
+
+        $this->success(null, 'Confirmation email resent successfully');
+    }
+
+    /**
+     * Compute the signed token used to authorize the emailed receipt link
+     * without requiring the customer to be logged in.
+     */
+    private function receiptToken(int $bookingId, string $orderNumber): string
+    {
+        $secret = (string) Env::get('JWT_SECRET', 'tramax_default_secret_key_change_in_production_12345');
+        return hash_hmac('sha256', $bookingId . '|' . $orderNumber, $secret);
+    }
+
+    private function buildReceiptUrl(int $bookingId, string $orderNumber): string
+    {
+        $appUrl = rtrim((string) Env::get('APP_URL', 'http://localhost:8080'), '/');
+        $token = $this->receiptToken($bookingId, $orderNumber);
+        return "{$appUrl}/api/v1/bookings/{$bookingId}/receipt?token={$token}";
+    }
+
+    private function canAccessReceipt(array $booking): bool
+    {
+        $providedToken = (string) Request::getQueryParams('token', '');
+        if ($providedToken !== '' && hash_equals($this->receiptToken($booking['id'], $booking['order_number']), $providedToken)) {
+            return true;
+        }
+
+        $authHeader = Request::getHeader('Authorization');
+        if ($authHeader && preg_match('/^Bearer\s+(.*?)$/i', trim($authHeader), $matches)) {
+            try {
+                $payload = JWT::decode($matches[1]);
+                $userId = (int) ($payload['sub'] ?? $payload['user_id'] ?? 0);
+                if ($userId && $userId === (int) $booking['user_id']) {
+                    return true;
+                }
+
+                $user = User::findById($userId);
+                if ($user && $user['status'] === 'active') {
+                    $permissions = User::getUserPermissions($userId);
+                    if (in_array('bookings.view', $permissions, true)) {
+                        return true;
+                    }
+                }
+            } catch (Throwable $e) {
+                // fall through to deny
+            }
+        }
+
+        return false;
     }
 }
