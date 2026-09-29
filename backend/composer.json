@@ -1,0 +1,23 @@
+{
+    "name": "tramaxtours/backend-api",
+    "description": "Tramax Tours PHP REST API Backend",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\Controllers\\": "controllers/",
+            "App\\Middleware\\": "middleware/",
+            "App\\Models\\": "models/",
+            "App\\Services\\": "services/",
+            "App\\Utils\\": "utils/",
+            "App\\Config\\": "config/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}
