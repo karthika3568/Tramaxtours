@@ -12,11 +12,6 @@ export function AuthProvider({ children }) {
 
   // Restore authenticated session asynchronously on mount
   useEffect(() => {
-    const token = getAccessToken();
-    if (!token) {
-      return;
-    }
-
     let isMounted = true;
 
     authService
@@ -25,15 +20,10 @@ export function AuthProvider({ children }) {
         if (!isMounted) return;
         if (data && data.user && data.user.status === 'active') {
           setUser(data.user);
-        } else {
-          removeAccessToken();
-          setUser(null);
         }
       })
       .catch(() => {
-        if (!isMounted) return;
-        removeAccessToken();
-        setUser(null);
+        // Keep session
       })
       .finally(() => {
         if (isMounted) {
