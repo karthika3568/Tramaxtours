@@ -155,9 +155,9 @@ export default function AdminHomePageManager() {
   const [navSettings, setNavSettings] = useState({
     site_name: 'TRAMAX TOURS',
     site_tagline: 'TRAVEL MADE SIMPLE & MEMORABLE',
-    phone: '+91 98400 00000',
+    phone: '+91 8072566010',
     email: 'contact@tramaxtours.in',
-    whatsapp: '+91 98400 00000',
+    whatsapp: '+91 8072566010',
     business_hours: 'Mon - Sun: 08:00 AM - 09:00 PM IST',
     cta_label: 'Explore Tours',
     cta_url: '/tours',

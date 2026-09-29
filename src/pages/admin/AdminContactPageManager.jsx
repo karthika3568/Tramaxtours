@@ -11,7 +11,7 @@ export default function AdminContactPageManager() {
   const [saving, setSaving] = useState(false);
 
   const [contactData, setContactData] = useState({
-    contact_phone: '+91 98400 00000',
+    contact_phone: '+91 8072566010',
     contact_email: 'contact@tramaxtours.in',
     contact_address: 'Chennai, Tamil Nadu, India',
     contact_business_hours: 'Monday - Sunday: 08:00 AM - 09:00 PM IST',

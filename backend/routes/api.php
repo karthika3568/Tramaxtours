@@ -9,6 +9,7 @@ use App\Controllers\FooterLinkController;
 use App\Controllers\HealthController;
 use App\Controllers\HomeBenefitController;
 use App\Controllers\HomeHeroSlideController;
+use App\Controllers\InquiryController;
 use App\Controllers\MediaController;
 use App\Controllers\PageController;
 use App\Controllers\ReviewController;
@@ -461,6 +462,32 @@ $router->group('/api/v1', function (Router $router) {
         // List all system permissions grouped (Permission: roles.view)
         $router->get('', [RoleController::class, 'permissions'], [new PermissionMiddleware('roles.view')]);
     });
+
+    // Customer Inquiries & Contact Messages Routes
+    $router->group('/inquiries', function (Router $router) {
+        // Public Inquiry Submission
+        $router->post('', [InquiryController::class, 'store']);
+
+        // Admin: List Inquiries (Permission: contact.view or bookings.view)
+        $router->get('', [InquiryController::class, 'index'], [new PermissionMiddleware('contact.view')]);
+
+        // Admin: Inquiry Stats
+        $router->get('/stats', [InquiryController::class, 'stats'], [new PermissionMiddleware('contact.view')]);
+
+        // Admin: Single Inquiry Detail
+        $router->get('/{id}', [InquiryController::class, 'show'], [new PermissionMiddleware('contact.view')]);
+
+        // Admin: Update Status / Notes
+        $router->put('/{id}', [InquiryController::class, 'update'], [new PermissionMiddleware('contact.manage')]);
+        $router->patch('/{id}', [InquiryController::class, 'update'], [new PermissionMiddleware('contact.manage')]);
+        $router->post('/{id}/status', [InquiryController::class, 'update'], [new PermissionMiddleware('contact.manage')]);
+
+        // Admin: Delete Inquiry
+        $router->delete('/{id}', [InquiryController::class, 'destroy'], [new PermissionMiddleware('contact.manage')]);
+    });
+
+    // Public Contact Form alias
+    $router->post('/contact-messages', [InquiryController::class, 'store']);
 });
 
 

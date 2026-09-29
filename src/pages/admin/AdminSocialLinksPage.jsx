@@ -5,7 +5,7 @@ import { updatePageMeta } from '../../utils/metadata';
 import Loading from '../../components/ui/Loading';
 
 const PLATFORM_PRESETS = [
-  { platform: 'whatsapp', name: 'WhatsApp', icon: '💬', defaultUrl: 'https://wa.me/919840000000' },
+  { platform: 'whatsapp', name: 'WhatsApp', icon: '💬', defaultUrl: 'https://wa.me/918072566010' },
   { platform: 'facebook', name: 'Facebook', icon: '📘', defaultUrl: 'https://facebook.com/tramaxtours' },
   { platform: 'instagram', name: 'Instagram', icon: '📸', defaultUrl: 'https://instagram.com/tramaxtours' },
   { platform: 'youtube', name: 'YouTube', icon: '📺', defaultUrl: 'https://youtube.com/@tramaxtours' },

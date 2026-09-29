@@ -4,7 +4,7 @@ import SocialLinks from '../SocialLinks';
 export default function ContactInfo({ className = '' }) {
   const { getSetting, socialLinks } = useSiteSettings();
 
-  const phone = getSetting('contact_phone', '+91 98400 00000');
+  const phone = getSetting('contact_phone', '+91 8072566010');
   const email = getSetting('contact_email', 'contact@tramaxtours.in');
   const address = getSetting('contact_address', 'Chennai, Tamil Nadu, India');
   const businessHours = getSetting('contact_business_hours', 'Monday - Sunday: 08:00 AM - 09:00 PM IST');

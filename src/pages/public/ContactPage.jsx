@@ -3,25 +3,36 @@ import { useSearchParams } from 'react-router-dom';
 import PageHero from '../../components/public/common/PageHero';
 import { updatePageMeta } from '../../utils/metadata';
 import { useToast } from '../../context/ToastContext';
+import { useSiteSettings } from '../../context/SiteSettingsContext';
+import { inquiryService } from '../../services/inquiryService';
+import { formatWhatsAppUrl } from '../../utils/whatsapp';
 
 export default function ContactPage() {
   const [searchParams] = useSearchParams();
   const prefilledTour = searchParams.get('tour') || '';
+  const prefilledDest = searchParams.get('destination') || '';
   const prefilledDate = searchParams.get('date') || '';
   const toast = useToast();
+  const { getSetting } = useSiteSettings();
+
+  const contactPhone = getSetting('contact_phone', '+91 8072566010');
+  const contactWhatsApp = getSetting('contact_whatsapp', '+91 8072566010');
+  const contactEmail = getSetting('contact_email', 'contact@tramaxtours.in');
+  const contactAddress = getSetting('contact_address', 'Chennai, Tamil Nadu, India');
 
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     tour: prefilledTour,
+    destination: prefilledDest,
     travelers: '2',
     travelDate: prefilledDate,
     message: '',
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submittedInquiry, setSubmittedInquiry] = useState(null);
 
   useEffect(() => {
     updatePageMeta({
@@ -36,27 +47,54 @@ export default function ContactPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name.trim() || !formData.email.trim() || !formData.phone.trim()) {
-      toast.warning('Please provide your name, email, and contact number.', 'Details Required');
+    if (!formData.name.trim()) {
+      toast.warning('Please enter your full name.', 'Name Required');
+      return;
+    }
+    if (!formData.email.trim() || !formData.email.includes('@')) {
+      toast.warning('Please enter a valid email address.', 'Valid Email Required');
+      return;
+    }
+    if (!formData.phone.trim()) {
+      toast.warning('Please enter your contact phone or WhatsApp number.', 'Phone Required');
       return;
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSubmitted(true);
+    try {
+      const payload = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        tour: formData.tour.trim() || null,
+        destination: formData.destination.trim() || null,
+        travelDate: formData.travelDate || null,
+        travelers: parseInt(formData.travelers, 10) || 2,
+        message: formData.message.trim() || 'Website travel inquiry submitted.',
+      };
+
+      const res = await inquiryService.createInquiry(payload);
+      setSubmittedInquiry(res?.data || res || { id: 'New' });
       toast.success(
         'Thank you! Your travel inquiry has been received. Our coordinator will contact you shortly.',
         'Inquiry Submitted'
       );
-    }, 500);
+    } catch (err) {
+      toast.error(
+        err?.message || 'Failed to submit your inquiry. Please check your details or reach us directly on WhatsApp.',
+        'Submission Error'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const whatsappInquiryMsg = encodeURIComponent(
-    `Hello Tramax Tours! I would like to inquire about planning a trip.\n\nName: ${formData.name || 'Traveler'}\nEmail: ${formData.email || 'N/A'}\nPhone: ${formData.phone || 'N/A'}\nTour: ${formData.tour || 'Custom Journey'}\nTravelers: ${formData.travelers} Guests\nDate: ${formData.travelDate || 'Flexible'}\nMessage: ${formData.message || 'Please provide itinerary options and pricing.'}`
-  );
+  const whatsappInquiryMsg =
+    `Hello Tramax Tours! I would like to inquire about planning a trip.\n\nName: ${formData.name || 'Traveler'}\nEmail: ${formData.email || 'N/A'}\nPhone: ${formData.phone || 'N/A'}\nDestination: ${formData.destination || 'South India'}\nTour: ${formData.tour || 'Custom Journey'}\nTravelers: ${formData.travelers} Guests\nDate: ${formData.travelDate || 'Flexible'}\nMessage: ${formData.message || 'Please provide itinerary options and pricing.'}`;
+
+  const whatsappLink = formatWhatsAppUrl(contactWhatsApp, whatsappInquiryMsg);
 
   return (
     <div className="contact-page-luxury-root" style={{ background: '#f8fafc', color: '#0B1329', minHeight: '80vh' }}>
@@ -88,10 +126,10 @@ export default function ContactPage() {
                 marginBottom: '12px',
               }}
             >
-              We're Here for You
+              We&apos;re Here for You
             </span>
             <h2 style={{ fontSize: '30px', fontWeight: '800', color: '#0B1329', marginBottom: '16px' }}>
-              Let's Plan Your Next Unforgettable Journey
+              Let&apos;s Plan Your Next Unforgettable Journey
             </h2>
             <p style={{ fontSize: '15px', color: '#64748b', lineHeight: 1.7, marginBottom: '30px' }}>
               Have questions regarding tour pricing, route customization, vehicle options, or hotel stays? Our team is available 7 days a week.
@@ -101,7 +139,7 @@ export default function ContactPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '30px' }}>
               {/* WhatsApp Action Card */}
               <a
-                href={`https://wa.me/919840000000?text=${whatsappInquiryMsg}`}
+                href={whatsappLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -120,7 +158,7 @@ export default function ContactPage() {
                 <span style={{ fontSize: '32px' }}>💬</span>
                 <div>
                   <strong style={{ fontSize: '16px', display: 'block' }}>Chat Instantly on WhatsApp</strong>
-                  <span style={{ fontSize: '13px', opacity: 0.9 }}>+91 98400 00000 • Quick Response</span>
+                  <span style={{ fontSize: '13px', opacity: 0.9 }}>{contactWhatsApp} • Quick Response</span>
                 </div>
               </a>
 
@@ -139,7 +177,7 @@ export default function ContactPage() {
                 <span style={{ fontSize: '26px' }}>📞</span>
                 <div>
                   <small style={{ color: '#64748b', display: 'block', fontSize: '12px' }}>Helpline Hotline</small>
-                  <strong style={{ fontSize: '15px', color: '#0B1329' }}>+91 98400 00000</strong>
+                  <strong style={{ fontSize: '15px', color: '#0B1329' }}>{contactPhone}</strong>
                 </div>
               </div>
 
@@ -158,7 +196,7 @@ export default function ContactPage() {
                 <span style={{ fontSize: '26px' }}>✉️</span>
                 <div>
                   <small style={{ color: '#64748b', display: 'block', fontSize: '12px' }}>Email Support</small>
-                  <strong style={{ fontSize: '15px', color: '#0B1329' }}>contact@tramaxtours.in</strong>
+                  <strong style={{ fontSize: '15px', color: '#0B1329' }}>{contactEmail}</strong>
                 </div>
               </div>
 
@@ -177,7 +215,7 @@ export default function ContactPage() {
                 <span style={{ fontSize: '26px' }}>📍</span>
                 <div>
                   <small style={{ color: '#64748b', display: 'block', fontSize: '12px' }}>Registered Headquarters</small>
-                  <strong style={{ fontSize: '15px', color: '#0B1329' }}>Chennai, Tamil Nadu, India</strong>
+                  <strong style={{ fontSize: '15px', color: '#0B1329' }}>{contactAddress}</strong>
                 </div>
               </div>
             </div>
@@ -200,20 +238,20 @@ export default function ContactPage() {
               Fill out the details below and we will prepare a personalized quote within 2 hours.
             </p>
 
-            {isSubmitted ? (
+            {submittedInquiry ? (
               <div style={{ textAlign: 'center', padding: '30px 10px' }}>
                 <div style={{ fontSize: '48px', marginBottom: '12px' }}>🎉</div>
                 <h4 style={{ fontSize: '20px', fontWeight: '800', color: '#01AA90', margin: '0 0 8px' }}>
                   Inquiry Received!
                 </h4>
                 <p style={{ color: '#64748b', fontSize: '14px', lineHeight: 1.6, marginBottom: '24px' }}>
-                  Thank you, <strong>{formData.name}</strong>. Our tour coordinator has received your travel inquiry and will contact you at <strong>{formData.phone || formData.email}</strong>.
+                  Thank you, <strong>{formData.name}</strong>. Your travel inquiry has been received (Reference ID: #{submittedInquiry.id || 'Confirmed'}). Our senior tour coordinator will contact you at <strong>{formData.phone || formData.email}</strong>.
                 </p>
                 <button
                   type="button"
                   onClick={() => {
-                    setIsSubmitted(false);
-                    setFormData({ name: '', email: '', phone: '', tour: '', travelers: '2', travelDate: '', message: '' });
+                    setSubmittedInquiry(null);
+                    setFormData({ name: '', email: '', phone: '', tour: '', destination: '', travelers: '2', travelDate: '', message: '' });
                   }}
                   className="btn btn-outline btn-sm"
                 >
@@ -254,7 +292,7 @@ export default function ContactPage() {
                       type="tel"
                       name="phone"
                       required
-                      placeholder="e.g. +91 98400 00000"
+                      placeholder="e.g. +91 80725 66010"
                       value={formData.phone}
                       onChange={handleChange}
                       className="form-control"
@@ -283,27 +321,48 @@ export default function ContactPage() {
                     >
                       <option value="1">1 Solo Traveler</option>
                       <option value="2">2 Travelers (Couple)</option>
-                      <option value="3-4">3 - 4 Travelers (Family)</option>
-                      <option value="5-8">5 - 8 Travelers (Small Group)</option>
-                      <option value="9+">9+ Group Expedition</option>
+                      <option value="3">3 Travelers</option>
+                      <option value="4">4 Travelers (Family)</option>
+                      <option value="5">5 Travelers</option>
+                      <option value="6">6 Travelers</option>
+                      <option value="8">8 Travelers (Small Group)</option>
+                      <option value="10">10+ Group Expedition</option>
                     </select>
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label" style={{ fontWeight: '700', fontSize: '13px' }}>Interested Tour / Destination</label>
-                  <input
-                    type="text"
-                    name="tour"
-                    placeholder="e.g. Mahabalipuram Day Tour, Kerala Houseboat, Ooty Hills..."
-                    value={formData.tour}
-                    onChange={handleChange}
-                    className="form-control"
-                  />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                  <div className="form-group">
+                    <label className="form-label" style={{ fontWeight: '700', fontSize: '13px' }}>Destination</label>
+                    <select
+                      name="destination"
+                      value={formData.destination}
+                      onChange={handleChange}
+                      className="form-control"
+                    >
+                      <option value="">Select Destination (Optional)</option>
+                      <option value="Tamil Nadu">Tamil Nadu</option>
+                      <option value="Kerala">Kerala</option>
+                      <option value="Karnataka">Karnataka</option>
+                      <option value="Goa">Goa</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" style={{ fontWeight: '700', fontSize: '13px' }}>Specific Tour / Itinerary</label>
+                    <input
+                      type="text"
+                      name="tour"
+                      placeholder="e.g. Mahabalipuram Day Tour, Munnar Hills..."
+                      value={formData.tour}
+                      onChange={handleChange}
+                      className="form-control"
+                    />
+                  </div>
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label" style={{ fontWeight: '700', fontSize: '13px' }}>Special Requests / Notes</label>
+                  <label className="form-label" style={{ fontWeight: '700', fontSize: '13px' }}>Special Requests / Message</label>
                   <textarea
                     name="message"
                     rows="3"
@@ -320,7 +379,7 @@ export default function ContactPage() {
                   className="btn btn-primary btn-block btn-lg"
                   style={{ marginTop: '8px' }}
                 >
-                  {isSubmitting ? 'Submitting Inquiry...' : 'Submit Inquiry & Get Free Quote &rarr;'}
+                  {isSubmitting ? 'Submitting Inquiry...' : 'Submit Inquiry & Get Free Quote →'}
                 </button>
               </form>
             )}

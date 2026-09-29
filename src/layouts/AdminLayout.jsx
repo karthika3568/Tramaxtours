@@ -61,6 +61,7 @@ export default function AdminLayout() {
     {
       groupTitle: 'Operations & Catalog',
       items: [
+        { label: 'Inquiries & Leads', path: '/admin/inquiries', permission: 'contact.view', icon: '📩' },
         { label: 'Bookings & Orders', path: '/admin/bookings', permission: 'bookings.view', icon: '📋' },
         { label: 'Curated Tours', path: '/admin/tours', permission: 'tours.view', icon: '🗺️' },
         { label: 'Destinations', path: '/admin/destinations', permission: 'destinations.view', icon: '📍' },

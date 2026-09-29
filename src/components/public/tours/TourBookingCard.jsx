@@ -2,13 +2,17 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import bookingService from '../../../services/bookingService';
 import { useToast } from '../../../context/ToastContext';
+import { useSiteSettings } from '../../../context/SiteSettingsContext';
 import useAuth from '../../../hooks/useAuth';
+import { formatWhatsAppUrl } from '../../../utils/whatsapp';
 
 export default function TourBookingCard({ tour }) {
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated } = useAuth();
+  const { getSetting } = useSiteSettings();
+  const businessWhatsApp = getSetting('contact_whatsapp', '+91 8072566010');
 
   const deadlineDays = tour?.booking_deadline_days ?? 1;
 
@@ -350,7 +354,7 @@ export default function TourBookingCard({ tour }) {
           )}
 
           <a
-            href={`https://wa.me/919840000000?text=${whatsappMessage}`}
+            href={formatWhatsAppUrl(businessWhatsApp, `Hello Tramax Tours! I am interested in booking "${tour.title}" for ${adults} Adults, ${children} Children on ${selectedDate} (${selectedTimeSlot}). Total: ${currencySymbol}${totalPrice.toLocaleString()}. Please provide availability and confirmation.`)}
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-whatsapp btn-block"

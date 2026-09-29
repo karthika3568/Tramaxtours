@@ -39,6 +39,7 @@ import {
   AdminPagesPage,
   AdminPageFormPage,
   AdminBookingsPage,
+  AdminInquiriesPage,
   AdminUsersPage,
   AdminUserFormPage,
   AdminRolesPage,
@@ -285,6 +286,16 @@ export default function AppRouter() {
             element={
               <PermissionRoute permission="bookings.view">
                 <AdminBookingsPage />
+              </PermissionRoute>
+            }
+          />
+
+          {/* Customer Inquiries & Leads Management */}
+          <Route
+            path="inquiries"
+            element={
+              <PermissionRoute permission="contact.view">
+                <AdminInquiriesPage />
               </PermissionRoute>
             }
           />

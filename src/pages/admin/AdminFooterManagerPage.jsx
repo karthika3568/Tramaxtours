@@ -23,7 +23,7 @@ export default function AdminFooterManagerPage() {
     site_tagline: 'Curated Luxury & Adventure Travel',
     footer_about: 'Tramax Tours specializes in international tourist safaris, private sightseeing, cultural expeditions, and custom itineraries across premier destinations.',
     footer_copyright: `© ${new Date().getFullYear()} Tramax Tours. All rights reserved.`,
-    contact_phone: '+91 98400 00000',
+    contact_phone: '+91 8072566010',
     contact_email: 'contact@tramaxtours.in',
     contact_address: 'Chennai, Tamil Nadu, India',
   });

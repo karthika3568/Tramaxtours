@@ -13,7 +13,7 @@ export default function Footer() {
     ? t('footer_about')
     : getSetting('footer_about', t('footer_about'));
 
-  const contactPhone = getSetting('contact_phone', '+91 98400 00000');
+  const contactPhone = getSetting('contact_phone', '+91 8072566010');
   const contactEmail = getSetting('contact_email', 'contact@tramaxtours.in');
   const contactAddress = getSetting('contact_address', 'Chennai, Tamil Nadu, India');
   const contactHours = language === 'de' ? 'Mo - So: 08:00 - 21:00 Uhr IST' : getSetting('contact_business_hours', 'Mon - Sun: 08:00 AM - 09:00 PM IST');
