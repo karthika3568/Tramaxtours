@@ -30,9 +30,9 @@ export default function AdminFooterManagerPage() {
 
   // Link Form
   const [linkFormData, setLinkFormData] = useState({
-    title: '',
+    label: '',
     url: '',
-    column_key: 'useful_links',
+    column_name: 'useful_links',
     display_order: 0,
     status: 'active',
     is_external: false,
@@ -116,9 +116,9 @@ export default function AdminFooterManagerPage() {
   const handleOpenCreateLink = (columnKey = 'useful_links') => {
     setEditingLink(null);
     setLinkFormData({
-      title: '',
+      label: '',
       url: '/',
-      column_key: columnKey,
+      column_name: columnKey,
       display_order: footerLinks.length + 1,
       status: 'active',
       is_external: false,
@@ -129,9 +129,9 @@ export default function AdminFooterManagerPage() {
   const handleOpenEditLink = (link) => {
     setEditingLink(link);
     setLinkFormData({
-      title: link.title || '',
+      label: link.label || '',
       url: link.url || '',
-      column_key: link.column_key || link.column || 'useful_links',
+      column_name: link.column_name || 'useful_links',
       display_order: link.display_order ?? 0,
       status: link.status || 'active',
       is_external: Boolean(link.is_external),
@@ -141,7 +141,7 @@ export default function AdminFooterManagerPage() {
 
   const handleSaveLink = async (e) => {
     e.preventDefault();
-    if (!linkFormData.title.trim() || !linkFormData.url.trim()) {
+    if (!linkFormData.label.trim() || !linkFormData.url.trim()) {
       toast.warning('Please enter link title and URL');
       return;
     }
@@ -149,9 +149,9 @@ export default function AdminFooterManagerPage() {
     try {
       setSubmittingLink(true);
       const payload = {
-        title: linkFormData.title.trim(),
+        label: linkFormData.label.trim(),
         url: linkFormData.url.trim(),
-        column_key: linkFormData.column_key,
+        column_name: linkFormData.column_name,
         display_order: Number(linkFormData.display_order) || 0,
         status: linkFormData.status,
         is_external: linkFormData.is_external ? 1 : 0,
@@ -175,7 +175,7 @@ export default function AdminFooterManagerPage() {
   };
 
   const handleDeleteLink = async (link) => {
-    if (!window.confirm(`Delete footer link "${link.title}"?`)) return;
+    if (!window.confirm(`Delete footer link "${link.label}"?`)) return;
     try {
       await footerLinksService.deleteFooterLink(link.id);
       toast.success('Footer link removed');
@@ -185,8 +185,8 @@ export default function AdminFooterManagerPage() {
     }
   };
 
-  const usefulLinks = footerLinks.filter((l) => (l.column_key || l.column) === 'useful_links');
-  const policyLinks = footerLinks.filter((l) => (l.column_key || l.column) === 'policy_pages');
+  const usefulLinks = footerLinks.filter((l) => l.column_name === 'useful_links');
+  const policyLinks = footerLinks.filter((l) => l.column_name === 'policy_pages');
 
   if (loading) {
     return <Loading message="Loading Footer Management System..." />;
@@ -198,7 +198,7 @@ export default function AdminFooterManagerPage() {
       <div className="admin-page-header-visual">
         <div className="admin-header-main">
           <div className="admin-breadcrumbs">
-            <Link to="/admin/website" className="breadcrumb-link">Website Management</Link>
+            <Link to="/admin" className="breadcrumb-link">Dashboard</Link>
             <span className="breadcrumb-separator">/</span>
             <span className="breadcrumb-current">Footer Management</span>
           </div>
@@ -267,7 +267,7 @@ export default function AdminFooterManagerPage() {
                 ) : (
                   usefulLinks.map((l) => (
                     <li key={l.id} className="v-foot-link-item">
-                      <span>{l.title}</span>
+                      <span>{l.label}</span>
                       <div className="v-link-actions">
                         <button type="button" onClick={() => handleOpenEditLink(l)} title="Edit">✎</button>
                         <button type="button" onClick={() => handleDeleteLink(l)} title="Delete">🗑</button>
@@ -297,7 +297,7 @@ export default function AdminFooterManagerPage() {
                 ) : (
                   policyLinks.map((l) => (
                     <li key={l.id} className="v-foot-link-item">
-                      <span>{l.title}</span>
+                      <span>{l.label}</span>
                       <div className="v-link-actions">
                         <button type="button" onClick={() => handleOpenEditLink(l)} title="Edit">✎</button>
                         <button type="button" onClick={() => handleDeleteLink(l)} title="Delete">🗑</button>
@@ -415,11 +415,11 @@ export default function AdminFooterManagerPage() {
                 ) : (
                   footerLinks.map((link) => (
                     <tr key={link.id}>
-                      <td className="font-semibold">{link.title}</td>
+                      <td className="font-semibold">{link.label}</td>
                       <td className="font-mono text-sm text-teal">{link.url}</td>
                       <td>
                         <span className="badge-column">
-                          {(link.column_key || link.column) === 'useful_links' ? 'Quick Navigation' : 'Policies & Info'}
+                          {link.column_name === 'useful_links' ? 'Quick Navigation' : 'Policies & Info'}
                         </span>
                       </td>
                       <td>
@@ -458,7 +458,7 @@ export default function AdminFooterManagerPage() {
       <Modal
         isOpen={isLinkModalOpen}
         onClose={() => setIsLinkModalOpen(false)}
-        title={editingLink ? `Edit Link: ${editingLink.title}` : 'Add Footer Link'}
+        title={editingLink ? `Edit Link: ${editingLink.label}` : 'Add Footer Link'}
         size="md"
       >
         <form onSubmit={handleSaveLink} className="admin-form-luxury">
@@ -471,8 +471,8 @@ export default function AdminFooterManagerPage() {
               type="text"
               className="form-input"
               placeholder="e.g. Terms & Conditions"
-              value={linkFormData.title}
-              onChange={(e) => setLinkFormData({ ...linkFormData, title: e.target.value })}
+              value={linkFormData.label}
+              onChange={(e) => setLinkFormData({ ...linkFormData, label: e.target.value })}
               required
             />
           </div>
@@ -498,8 +498,8 @@ export default function AdminFooterManagerPage() {
               <select
                 id="link-col"
                 className="form-select"
-                value={linkFormData.column_key}
-                onChange={(e) => setLinkFormData({ ...linkFormData, column_key: e.target.value })}
+                value={linkFormData.column_name}
+                onChange={(e) => setLinkFormData({ ...linkFormData, column_name: e.target.value })}
               >
                 <option value="useful_links">Quick Navigation (Column 2)</option>
                 <option value="policy_pages">Policies & Info (Column 3)</option>

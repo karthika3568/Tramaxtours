@@ -132,6 +132,11 @@ $router->group('/api/v1', function (Router $router) {
         $router->patch('/{id}/publish', [TourController::class, 'publish'], [new PermissionMiddleware('tours.publish')]);
         $router->post('/{id}/unpublish', [TourController::class, 'unpublish'], [new PermissionMiddleware('tours.publish')]);
         $router->patch('/{id}/unpublish', [TourController::class, 'unpublish'], [new PermissionMiddleware('tours.publish')]);
+
+        // Date-based Seat Availability (List: Public / Authenticated, Manage: Permission tours.edit)
+        $router->get('/{id}/availability', [TourController::class, 'availability']);
+        $router->post('/{id}/availability', [TourController::class, 'upsertAvailability'], [new PermissionMiddleware('tours.edit')]);
+        $router->delete('/{id}/availability/{date}', [TourController::class, 'deleteAvailability'], [new PermissionMiddleware('tours.edit')]);
     });
 
     // Tour Categories Directory (Public / Authenticated)
@@ -387,6 +392,12 @@ $router->group('/api/v1', function (Router $router) {
 
         // Get Single Booking Detail by ID or Order Number (Permission: bookings.view)
         $router->get('/{id}', [BookingController::class, 'show'], [new PermissionMiddleware('bookings.view')]);
+
+        // Download/View the PDF Receipt (owner, staff with bookings.view, or signed email token)
+        $router->get('/{id}/receipt', [BookingController::class, 'receipt']);
+
+        // Resend the booking confirmation email (owner, staff with bookings.view, or signed email token)
+        $router->post('/{id}/resend-confirmation', [BookingController::class, 'resendConfirmation']);
 
         // Update Booking Notes / Info (Permission: bookings.edit_status)
         $router->put('/{id}', [BookingController::class, 'update'], [new PermissionMiddleware('bookings.edit_status')]);

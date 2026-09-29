@@ -58,6 +58,8 @@ export default function AdminBookingsPage() {
   const [tourId, setTourId] = useState('all');
   const [sortBy, setSortBy] = useState('created_at');
   const [order, setOrder] = useState('DESC');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [page, setPage] = useState(1);
   const [reloadTrigger, setReloadTrigger] = useState(0);
 
@@ -107,8 +109,8 @@ export default function AdminBookingsPage() {
       try {
         setLoadingStats(true);
         const res = await bookingService.getBookingStats();
-        if (isMounted && res?.data) {
-          setStats(res.data);
+        if (isMounted && res) {
+          setStats(res);
         }
       } catch {
         // Non-fatal error fallback
@@ -139,6 +141,8 @@ export default function AdminBookingsPage() {
           status: status !== 'all' ? status : undefined,
           payment_status: paymentStatus !== 'all' ? paymentStatus : undefined,
           tour_id: tourId !== 'all' ? tourId : undefined,
+          date_from: dateFrom || undefined,
+          date_to: dateTo || undefined,
           sort_by: sortBy,
           order,
         };
@@ -146,13 +150,13 @@ export default function AdminBookingsPage() {
         const res = await bookingService.getBookings(params);
 
         if (isMounted) {
-          if (res?.data) {
-            setBookings(res.data);
+          if (res?.items) {
+            setBookings(res.items);
             setPagination(
               res.pagination || {
                 page: 1,
                 limit: 15,
-                total: res.data.length,
+                total: res.items.length,
                 total_pages: 1,
               }
             );
@@ -174,7 +178,7 @@ export default function AdminBookingsPage() {
     return () => {
       isMounted = false;
     };
-  }, [page, debouncedSearch, status, paymentStatus, tourId, sortBy, order, reloadTrigger]);
+  }, [page, debouncedSearch, status, paymentStatus, tourId, dateFrom, dateTo, sortBy, order, reloadTrigger]);
 
   // Filter Reset Handlers
   const handleResetFilters = () => {
@@ -183,9 +187,24 @@ export default function AdminBookingsPage() {
     setStatus('all');
     setPaymentStatus('all');
     setTourId('all');
+    setDateFrom('');
+    setDateTo('');
     setSortBy('created_at');
     setOrder('DESC');
     setPage(1);
+  };
+
+  const handleFilterChange = (partial) => {
+    if ('search' in partial) setSearch(partial.search);
+    if ('status' in partial) setStatus(partial.status);
+    if ('payment_status' in partial) setPaymentStatus(partial.payment_status);
+    if ('tour_id' in partial) setTourId(partial.tour_id || 'all');
+    if ('date_from' in partial) setDateFrom(partial.date_from);
+    if ('date_to' in partial) setDateTo(partial.date_to);
+    if ('sort_by' in partial) setSortBy(partial.sort_by);
+    if ('order' in partial) setOrder(partial.order);
+    if ('page' in partial) setPage(partial.page);
+    else setPage(1);
   };
 
   const handlePageChange = (newPage) => {
@@ -302,31 +321,16 @@ export default function AdminBookingsPage() {
       {/* Search & Filter Bar */}
       <BookingFilters
         search={search}
-        onSearchChange={setSearch}
         status={status}
-        onStatusChange={(val) => {
-          setStatus(val);
-          setPage(1);
-        }}
-        tourId={tourId}
-        onTourChange={(val) => {
-          setTourId(val);
-          setPage(1);
-        }}
         paymentStatus={paymentStatus}
-        onPaymentStatusChange={(val) => {
-          setPaymentStatus(val);
-          setPage(1);
-        }}
+        tourId={tourId === 'all' ? '' : tourId}
+        dateFrom={dateFrom}
+        dateTo={dateTo}
         sortBy={sortBy}
         order={order}
-        onSortChange={({ sortBy: s, order: o }) => {
-          setSortBy(s);
-          setOrder(o);
-          setPage(1);
-        }}
         toursList={toursList}
-        onReset={handleResetFilters}
+        onFilterChange={handleFilterChange}
+        onResetFilters={handleResetFilters}
       />
 
       {/* Main Content Area */}

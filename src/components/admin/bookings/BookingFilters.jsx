@@ -1,47 +1,23 @@
-import { useState, useEffect } from 'react';
-import tourService from '../../../services/tourService';
-
 export default function BookingFilters({
   search = '',
   status = 'all',
   paymentStatus = 'all',
   tourId = '',
+  dateFrom = '',
+  dateTo = '',
   sortBy = 'created_at',
   order = 'DESC',
+  toursList = [],
   onFilterChange,
   onResetFilters,
 }) {
-  const [toursList, setToursList] = useState([]);
-  const [loadingTours, setLoadingTours] = useState(false);
-
-  // Load tours for the dropdown
-  useEffect(() => {
-    let mounted = true;
-    async function loadTours() {
-      try {
-        setLoadingTours(true);
-        const res = await tourService.getTours({ limit: 100, status: 'all' });
-        if (mounted) {
-          const items = res.items || res.data || [];
-          setToursList(items);
-        }
-      } catch {
-        // Silently handle
-      } finally {
-        if (mounted) setLoadingTours(false);
-      }
-    }
-    loadTours();
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
   const hasActiveFilters =
     Boolean(search) ||
     status !== 'all' ||
     paymentStatus !== 'all' ||
     Boolean(tourId) ||
+    Boolean(dateFrom) ||
+    Boolean(dateTo) ||
     sortBy !== 'created_at' ||
     order !== 'DESC';
 
@@ -96,7 +72,6 @@ export default function BookingFilters({
             className="form-select form-select-sm"
             value={tourId}
             onChange={(e) => onFilterChange({ tour_id: e.target.value, page: 1 })}
-            disabled={loadingTours}
           >
             <option value="">All Tours</option>
             {toursList.map((t) => (
@@ -124,6 +99,33 @@ export default function BookingFilters({
             <option value="failed">Payment Failed</option>
             <option value="refunded">Refunded</option>
           </select>
+        </div>
+
+        {/* Travel Date Range */}
+        <div className="filter-group">
+          <label htmlFor="booking-date-from" className="filter-label">
+            Travel Date From
+          </label>
+          <input
+            type="date"
+            id="booking-date-from"
+            className="form-input form-input-sm"
+            value={dateFrom}
+            onChange={(e) => onFilterChange({ date_from: e.target.value, page: 1 })}
+          />
+        </div>
+
+        <div className="filter-group">
+          <label htmlFor="booking-date-to" className="filter-label">
+            Travel Date To
+          </label>
+          <input
+            type="date"
+            id="booking-date-to"
+            className="form-input form-input-sm"
+            value={dateTo}
+            onChange={(e) => onFilterChange({ date_to: e.target.value, page: 1 })}
+          />
         </div>
 
         {/* Sort */}

@@ -4,7 +4,9 @@ namespace App\Controllers;
 
 use App\Models\Destination;
 use App\Models\Media;
+use App\Models\User;
 use App\Services\AuditService;
+use App\Utils\JWT;
 use App\Utils\Request;
 use Throwable;
 
@@ -65,7 +67,48 @@ class DestinationController extends BaseController
             $this->error('Destination not found.', 404, null, 'DESTINATION_NOT_FOUND');
         }
 
+        // Draft/archived destinations are only visible to a signed-in admin with
+        // permission to manage destinations — this lets the existing "View public
+        // page" / Preview link work against unpublished drafts without a separate
+        // preview endpoint, while keeping the public site published-only.
+        if ($destination['status'] !== 'published' && !$this->canPreviewUnpublished()) {
+            $this->error('Destination not found.', 404, null, 'DESTINATION_NOT_FOUND');
+        }
+
         $this->success($destination, 'Destination details retrieved successfully');
+    }
+
+    /**
+     * Best-effort check for an authenticated admin with destination view/edit
+     * permission, without requiring authentication on this otherwise-public route.
+     *
+     * @return bool
+     */
+    private function canPreviewUnpublished(): bool
+    {
+        $authHeader = Request::getHeader('Authorization');
+        if (!$authHeader || !preg_match('/^Bearer\s+(.*?)$/i', trim($authHeader), $matches)) {
+            return false;
+        }
+
+        try {
+            $payload = JWT::decode($matches[1]);
+            $userId = $payload['sub'] ?? $payload['user_id'] ?? null;
+            if (!$userId) {
+                return false;
+            }
+
+            $user = User::findById((int) $userId);
+            if (!$user || $user['status'] !== 'active') {
+                return false;
+            }
+
+            $permissions = User::getUserPermissions((int) $user['id']);
+            return in_array('destinations.view', $permissions, true)
+                || in_array('destinations.edit', $permissions, true);
+        } catch (Throwable $e) {
+            return false;
+        }
     }
 
     /**
@@ -153,6 +196,7 @@ class DestinationController extends BaseController
                 'language' => $body['language'] ?? null,
                 'currency' => $body['currency'] ?? null,
                 'religion' => $body['religion'] ?? null,
+                'heritage' => $body['heritage'] ?? null,
                 'timezone' => $body['timezone'] ?? null,
                 'latitude' => isset($body['latitude']) && $body['latitude'] !== '' ? (float) $body['latitude'] : null,
                 'longitude' => isset($body['longitude']) && $body['longitude'] !== '' ? (float) $body['longitude'] : null,

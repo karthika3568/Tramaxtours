@@ -1,4 +1,9 @@
 import client from '../api/client';
+import { getAccessToken } from '../utils/storage';
+
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8080/api/v1'
+).replace(/\/+$/, '');
 
 export const bookingService = {
   /**
@@ -7,7 +12,7 @@ export const bookingService = {
    * @returns {Promise<{items: Array, pagination: Object}>}
    */
   getBookings: async (params = {}) => {
-    const res = await client.get('/bookings', { params });
+    const res = await client.get('/bookings', params);
     return {
       items: res.data || [],
       pagination: res.pagination || { total: 0, page: 1, limit: 20, total_pages: 1 },
@@ -125,6 +130,33 @@ export const bookingService = {
    */
   restoreBooking: async (id) => {
     const res = await client.post(`/bookings/${id}/restore`);
+    return res.data;
+  },
+
+  /**
+   * Download the booking's PDF receipt as a Blob (requires the caller to be
+   * authenticated as the booking's owner, or staff with bookings.view).
+   * @param {number} id
+   * @returns {Promise<Blob>}
+   */
+  downloadReceipt: async (id) => {
+    const token = getAccessToken();
+    const response = await fetch(`${API_BASE_URL}/bookings/${id}/receipt`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!response.ok) {
+      throw new Error('Failed to download receipt.');
+    }
+    return response.blob();
+  },
+
+  /**
+   * Resend the booking confirmation email (with PDF receipt attached).
+   * @param {number} id
+   * @returns {Promise<Object>}
+   */
+  resendConfirmation: async (id) => {
+    const res = await client.post(`/bookings/${id}/resend-confirmation`);
     return res.data;
   },
 };

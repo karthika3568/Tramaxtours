@@ -6,6 +6,7 @@ import TourHighlightsManager from './TourHighlightsManager';
 import TourItineraryManager from './TourItineraryManager';
 import TourPricingManager from './TourPricingManager';
 import TourExtrasManager from './TourExtrasManager';
+import TourAvailabilityManager from './TourAvailabilityManager';
 import { getMediaUrl } from '../../../utils/media';
 import destinationService from '../../../services/destinationService';
 import tourService, { ALLOWED_TOUR_TYPES } from '../../../services/tourService';
@@ -380,6 +381,17 @@ export default function TourForm({
         >
           8. Pricing Tiers ({pricingTiers.length})
         </button>
+        {mode === 'edit' && initialData?.id && (
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'availability'}
+            className={`tour-tab-btn ${activeTab === 'availability' ? 'active' : ''}`}
+            onClick={() => setActiveTab('availability')}
+          >
+            Seat Availability
+          </button>
+        )}
         <button
           type="button"
           role="tab"
@@ -1117,6 +1129,13 @@ export default function TourForm({
             currency={currency}
             onChange={setPricingTiers}
           />
+        </div>
+      )}
+
+      {/* TAB: Date-based Seat Availability (edit mode only — needs a saved tour id) */}
+      {activeTab === 'availability' && mode === 'edit' && initialData?.id && (
+        <div className="tour-form-section-card">
+          <TourAvailabilityManager tourId={initialData.id} defaultTotalSeats={parseInt(totalSeats, 10) || 20} />
         </div>
       )}
 

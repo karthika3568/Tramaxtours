@@ -1,26 +1,65 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import PageHero from '../../components/public/common/PageHero';
+import BenefitsSection from '../../components/public/home/BenefitsSection';
+import pageService from '../../services/pageService';
 import { updatePageMeta } from '../../utils/metadata';
+import { getMediaUrl } from '../../utils/media';
+
+const DEFAULT_ABOUT = {
+  title: 'About Tramax Tours',
+  subtitle: 'Dedicated to fulfilling your personal travel dreams and making each journey simple, memorable, and safe.',
+  hero_media_url: '/uploads/media/demo_carousel_kerala.jpg',
+  content:
+    '<p>We believe that your personal trip requires your own personal travel guide. We know that plans can evolve as you explore, and your chauffeur guide should be easily adjustable to help you modify your itinerary on the go.</p>' +
+    '<p>Whether you are an explorer on an epic journey, looking for a refreshing short weekend getaway, or dreaming of a life-changing adventure, our tour offerings are crafted to fulfill your unique personal travel dreams and ensure each moment is unforgettable.</p>' +
+    '<p>The integrity of our team and the quality of services provided by Tramax Tours is guided in principle by professionalism and an uncompromising commitment to engage every traveler in authentic cultural immersion.</p>',
+};
 
 export default function AboutPage() {
+  const [about, setAbout] = useState(DEFAULT_ABOUT);
+
   useEffect(() => {
     updatePageMeta({
       title: 'About Us — Tramax Tours | Travel Made Simple & Memorable',
       description:
         'Discover Tramax Tours. Specialized in private chauffeur sightseeing, sacred temple expeditions, cultural immersions, hill station safaris, and bespoke South Indian holidays.',
     });
+
+    async function loadAboutPage() {
+      try {
+        const data = await pageService.getPage('about-us');
+        if (data && data.status === 'published') {
+          setAbout({
+            title: data.title || DEFAULT_ABOUT.title,
+            subtitle: data.subtitle || DEFAULT_ABOUT.subtitle,
+            hero_media_url: data.hero_media ? getMediaUrl(data.hero_media) : DEFAULT_ABOUT.hero_media_url,
+            content: data.content?.trim() || DEFAULT_ABOUT.content,
+          });
+          if (data.seo_title || data.seo_description) {
+            updatePageMeta({
+              title: data.seo_title || 'About Us — Tramax Tours',
+              description: data.seo_description || undefined,
+            });
+          }
+        }
+      } catch {
+        // Keep default content if the CMS page isn't published yet
+      }
+    }
+
+    loadAboutPage();
   }, []);
 
   return (
     <div className="about-page-luxury-root" style={{ background: '#f8fafc', color: '#0B1329' }}>
       {/* 1. HERO BANNER */}
       <PageHero
-        title="About Tramax Tours"
-        subtitle="Dedicated to fulfilling your personal travel dreams and making each journey simple, memorable, and safe."
+        title={about.title}
+        subtitle={about.subtitle}
         badge="Our Heritage & Philosophy"
         breadcrumbs={[{ label: 'About Us' }]}
-        heroMedia={{ url: '/uploads/media/demo_carousel_kerala.jpg' }}
+        heroMedia={{ url: about.hero_media_url }}
       />
 
       {/* 2. WHO WE ARE SECTION */}
@@ -46,15 +85,11 @@ export default function AboutPage() {
             <h2 style={{ fontSize: '34px', fontWeight: '800', lineHeight: 1.25, color: '#0B1329', marginBottom: '18px' }}>
               We Believe Planning Your Journey Should Be as Enjoyable as the Trip Itself.
             </h2>
-            <p style={{ fontSize: '15.5px', lineHeight: 1.7, color: '#475569', marginBottom: '16px' }}>
-              We believe that your personal trip requires your <strong>own personal travel guide</strong>. We know that plans can evolve as you explore, and your chauffeur guide should be easily <strong>adjustable to help you modify your itinerary on the go</strong>.
-            </p>
-            <p style={{ fontSize: '15.5px', lineHeight: 1.7, color: '#475569', marginBottom: '16px' }}>
-              Whether you are an explorer on an epic journey, looking for a refreshing short weekend getaway, or dreaming of a life-changing adventure, our tour offerings are crafted <strong>to fulfill your unique personal travel dreams</strong> and ensure each moment is unforgettable.
-            </p>
-            <p style={{ fontSize: '15.5px', lineHeight: 1.7, color: '#475569' }}>
-              The integrity of our team and the quality of services provided by <strong>Tramax Tours is guided in principle</strong> by professionalism and an uncompromising commitment to engage every traveler in authentic cultural immersion.
-            </p>
+            <div
+              className="about-story-content"
+              style={{ fontSize: '15.5px', lineHeight: 1.7, color: '#475569' }}
+              dangerouslySetInnerHTML={{ __html: about.content }}
+            />
           </div>
 
           <div style={{ position: 'relative' }}>
@@ -67,7 +102,7 @@ export default function AboutPage() {
               }}
             >
               <img
-                src="/uploads/media/demo_kerala_munnar.jpg"
+                src={about.hero_media_url}
                 alt="Tramax Tours Travel Experience"
                 style={{ width: '100%', height: '420px', objectFit: 'cover' }}
               />
@@ -120,61 +155,9 @@ export default function AboutPage() {
             </p>
           </div>
 
-          {/* 3 Large Value Pillars */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '28px', marginBottom: '40px' }}>
-            {/* Pillar 1: TRUSTED */}
-            <div
-              style={{
-                background: '#f8fafc',
-                borderRadius: '16px',
-                padding: '36px 28px',
-                border: '1px solid #e2e8f0',
-                textAlign: 'center',
-                transition: 'all 0.2s ease',
-              }}
-            >
-              <div style={{ fontSize: '42px', marginBottom: '14px' }}>👍</div>
-              <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#01AA90', marginBottom: '10px' }}>TRUSTED</h3>
-              <p style={{ color: '#64748b', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
-                Verified licensed operators with hundreds of approved 5-star traveler testimonials and guaranteed financial peace of mind.
-              </p>
-            </div>
-
-            {/* Pillar 2: QUALITY */}
-            <div
-              style={{
-                background: '#f8fafc',
-                borderRadius: '16px',
-                padding: '36px 28px',
-                border: '1px solid #e2e8f0',
-                textAlign: 'center',
-                transition: 'all 0.2s ease',
-              }}
-            >
-              <div style={{ fontSize: '42px', marginBottom: '14px' }}>🏆</div>
-              <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#01AA90', marginBottom: '10px' }}>QUALITY</h3>
-              <p style={{ color: '#64748b', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
-                Immaculate, air-conditioned private vehicles, polite English-speaking chauffeurs, and hand-selected itinerary stops.
-              </p>
-            </div>
-
-            {/* Pillar 3: RELIABLE */}
-            <div
-              style={{
-                background: '#f8fafc',
-                borderRadius: '16px',
-                padding: '36px 28px',
-                border: '1px solid #e2e8f0',
-                textAlign: 'center',
-                transition: 'all 0.2s ease',
-              }}
-            >
-              <div style={{ fontSize: '42px', marginBottom: '14px' }}>😊</div>
-              <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#01AA90', marginBottom: '10px' }}>RELIABLE</h3>
-              <p style={{ color: '#64748b', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
-                24/7 round-the-clock coordinator hotline, instant WhatsApp assistance, and free cancellation up to 48 hours before travel.
-              </p>
-            </div>
+          {/* Admin-managed benefit cards (Website Management → Homepage Sections → Why Us) */}
+          <div style={{ marginBottom: '40px' }}>
+            <BenefitsSection />
           </div>
 
           {/* Key Advantages Checklist Grid */}

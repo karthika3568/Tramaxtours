@@ -140,6 +140,39 @@ export const tourService = {
     const response = await client.get('/tour-categories');
     return response.data || [];
   },
+
+  /**
+   * List date-specific seat availability for a tour
+   * @param {string|number} tourId
+   * @param {boolean} [upcomingOnly=false]
+   * @returns {Promise<any[]>}
+   */
+  getAvailability: async (tourId, upcomingOnly = false) => {
+    const response = await client.get(`/tours/${encodeURIComponent(tourId)}/availability`, upcomingOnly ? { upcoming_only: 'true' } : {});
+    return response.data || [];
+  },
+
+  /**
+   * Create or update the seat capacity/status for one travel date
+   * @param {string|number} tourId
+   * @param {Object} data - { travel_date, total_seats, is_closed, booking_cutoff_hours }
+   * @returns {Promise<any>}
+   */
+  upsertAvailability: async (tourId, data) => {
+    const response = await client.post(`/tours/${encodeURIComponent(tourId)}/availability`, data);
+    return response.data;
+  },
+
+  /**
+   * Remove a configured travel date
+   * @param {string|number} tourId
+   * @param {string} date - YYYY-MM-DD
+   * @returns {Promise<any>}
+   */
+  deleteAvailability: async (tourId, date) => {
+    const response = await client.delete(`/tours/${encodeURIComponent(tourId)}/availability/${encodeURIComponent(date)}`);
+    return response.data;
+  },
 };
 
 export default tourService;

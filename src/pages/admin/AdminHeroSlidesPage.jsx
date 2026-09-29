@@ -210,7 +210,7 @@ export default function AdminHeroSlidesPage() {
       <div className="admin-page-header-visual">
         <div className="admin-header-main">
           <div className="admin-breadcrumbs">
-            <Link to="/admin/website" className="breadcrumb-link">Website Management</Link>
+            <Link to="/admin" className="breadcrumb-link">Dashboard</Link>
             <span className="breadcrumb-separator">/</span>
             <Link to="/admin/website/home" className="breadcrumb-link">Home Page</Link>
             <span className="breadcrumb-separator">/</span>

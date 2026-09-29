@@ -81,6 +81,68 @@ class Booking extends BaseModel
             ? $bookingData['payment_status']
             : 'pending';
 
+        $tourId = (int) $bookingData['tour_id'];
+        $bookingDate = !empty($bookingData['booking_date']) ? $bookingData['booking_date'] : date('Y-m-d');
+
+        Database::beginTransaction();
+
+        try {
+            // Date-specific seat reservation — only enforced for tours the admin has
+            // opted into date-based availability for (see TourAvailability). Tours with
+            // no configured dates keep their existing unrestricted booking behaviour.
+            if (TourAvailability::tourUsesDateAvailability($tourId)) {
+                if (!TourAvailability::reserveSeats($tourId, $bookingDate, $ticketsCount)) {
+                    throw new \RuntimeException(
+                        'The selected travel date is fully booked, closed, or past the booking cutoff. Please choose another date.',
+                        409
+                    );
+                }
+            }
+
+            $bookingId = self::insertBookingRecords($bookingData, $customerData, $billingData, $paymentData, [
+                'order_number' => $orderNumber,
+                'tour_id' => $tourId,
+                'booking_date' => $bookingDate,
+                'tickets_count' => $ticketsCount,
+                'unit_price' => $unitPrice,
+                'subtotal' => $subtotal,
+                'tax_amount' => $taxAmount,
+                'discount_amount' => $discountAmount,
+                'total_price' => $totalPrice,
+                'currency' => $currency,
+                'booking_status' => $bookingStatus,
+                'payment_method' => $paymentMethod,
+                'payment_status' => $paymentStatus,
+            ]);
+
+            Database::commit();
+            return $bookingId;
+        } catch (\Throwable $e) {
+            Database::rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Insert the 5 related rows for a new booking (bookings, customer details, billing
+     * address, status history, payment). Split out of create() so the date-availability
+     * reservation above stays inside the same transaction as these inserts.
+     *
+     * @return int
+     */
+    private static function insertBookingRecords(
+        array $bookingData,
+        array $customerData,
+        array $billingData,
+        ?array $paymentData,
+        array $computed
+    ): int {
+        ['order_number' => $orderNumber, 'tour_id' => $tourId, 'booking_date' => $bookingDate,
+         'tickets_count' => $ticketsCount, 'unit_price' => $unitPrice, 'subtotal' => $subtotal,
+         'tax_amount' => $taxAmount, 'discount_amount' => $discountAmount, 'total_price' => $totalPrice,
+         'currency' => $currency, 'booking_status' => $bookingStatus, 'payment_method' => $paymentMethod,
+         'payment_status' => $paymentStatus] = $computed;
+
         $sql = 'INSERT INTO `bookings` (
             `order_number`, `user_id`, `tour_id`, `pricing_tier_id`, `booking_date`,
             `tickets_count`, `unit_price`, `subtotal`, `tax_amount`, `discount_amount`,
@@ -243,8 +305,12 @@ class Booking extends BaseModel
             return false;
         }
 
-        // Get previous status
-        $prevStatus = (string) self::fetchColumn('SELECT `booking_status` FROM `bookings` WHERE `id` = :id', [':id' => $id]);
+        // Get previous status + booking details (needed to release reserved seats below)
+        $existing = self::fetchOne(
+            'SELECT `booking_status`, `tour_id`, `booking_date`, `tickets_count` FROM `bookings` WHERE `id` = :id',
+            [':id' => $id]
+        );
+        $prevStatus = (string) ($existing['booking_status'] ?? '');
 
         $updateSql = 'UPDATE `bookings` SET `booking_status` = :status, `updated_at` = NOW() WHERE `id` = :id AND `deleted_at` IS NULL';
         $affected = self::execute($updateSql, [':id' => $id, ':status' => $newStatus]);
@@ -262,6 +328,17 @@ class Booking extends BaseModel
                 ':changed_by' => $changedBy,
                 ':notes' => $notes,
             ]);
+
+            // Releasing the date-specific seat reservation on cancel/reject (idempotent —
+            // only fires on the transition into a cancelled state, not if already there).
+            $cancelledLike = ['cancelled', 'rejected'];
+            if (in_array($newStatus, $cancelledLike, true) && !in_array($prevStatus, $cancelledLike, true) && $existing) {
+                $tourId = (int) $existing['tour_id'];
+                if (TourAvailability::tourUsesDateAvailability($tourId)) {
+                    TourAvailability::releaseSeats($tourId, $existing['booking_date'], (int) $existing['tickets_count']);
+                }
+            }
+
             return true;
         }
 

@@ -1,41 +1,8 @@
-import { useEffect } from 'react';
-import { updatePageMeta } from '../utils/metadata';
-
-function AdminPlaceholderView({ title, description, domainName }) {
-  useEffect(() => {
-    updatePageMeta({
-      title: `Admin - ${title}`,
-      description: `Manage ${domainName} in Tramax Tours administration portal`,
-    });
-  }, [title, domainName]);
-
-  return (
-    <div className="admin-module-placeholder">
-      <div className="admin-module-header">
-        <div>
-          <span className="placeholder-badge">Admin Domain: {domainName}</span>
-          <h1 className="admin-page-title">{title}</h1>
-        </div>
-      </div>
-
-      <div className="placeholder-card">
-        <p className="placeholder-subtitle">{description}</p>
-        <div className="placeholder-info">
-          <p>
-            Backend APIs for <strong>{domainName}</strong> are verified (Phases 1–14).
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // Authentication & Core Dashboards
 export { default as AdminLoginPage } from '../pages/auth/LoginPage';
 export { default as AdminDashboardPage } from '../pages/admin/AdminDashboardPage';
 
 // Visual Website Management Suite (Phase 8N)
-export { default as AdminWebsiteOverviewPage } from '../pages/admin/AdminWebsiteOverviewPage';
 export { default as AdminHomePageManager } from '../pages/admin/AdminHomePageManager';
 export { default as AdminNavigationPage } from '../pages/admin/AdminNavigationPage';
 export { default as AdminHeroSlidesPage } from '../pages/admin/AdminHeroSlidesPage';

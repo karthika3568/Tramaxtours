@@ -6,6 +6,7 @@ import LanguageSwitcher from './LanguageSwitcher';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import { useLanguage } from '../../context/LanguageContext';
 import useAuth from '../../hooks/useAuth';
+import { isAdminRole } from '../../utils/roles';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -14,7 +15,8 @@ export default function Header() {
   const { isAuthenticated, user, logout } = useAuth();
 
   const siteName = getSetting('site_name', 'Tramax Tours');
-  const isAdmin = user?.role && ['super_admin', 'admin', 'editor', 'moderator', 'staff'].includes(user.role);
+  const logoUrl = getSetting('site_logo_url', '') || '/logo.png';
+  const isAdmin = isAdminRole(user?.role);
 
   return (
     <>
@@ -23,7 +25,7 @@ export default function Header() {
         <div className="container header-main-inner">
           {/* Brand Logo */}
           <Link to="/" className="site-brand-link" aria-label={`${siteName} Home`}>
-            <img src="/logo.png" alt={siteName} className="site-brand-logo-img" />
+            <img src={logoUrl} alt={siteName} className="site-brand-logo-img" />
           </Link>
 
           {/* Desktop Navigation */}
@@ -37,10 +39,6 @@ export default function Header() {
             <div className="hide-on-mobile">
               <LanguageSwitcher />
             </div>
-
-            <Link to="/tours" className="btn btn-primary btn-sm header-cta-btn hide-on-mobile">
-              {t('nav_explore_tours', 'Explore Tours')}
-            </Link>
 
             {isAuthenticated ? (
               <div className="header-user-badge-wrap hide-on-mobile">

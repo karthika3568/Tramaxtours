@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import PublicLayout from '../layouts/PublicLayout';
 import AdminLayout from '../layouts/AdminLayout';
@@ -23,7 +23,6 @@ import {
 
 import {
   AdminDashboardPage,
-  AdminWebsiteOverviewPage,
   AdminHomePageManager,
   AdminNavigationPage,
   AdminHeroSlidesPage,
@@ -104,14 +103,11 @@ export default function AppRouter() {
           />
 
           {/* Website Visual CMS Suite (Phase 8N) */}
-          <Route
-            path="website"
-            element={
-              <PermissionRoute permission="pages.manage">
-                <AdminWebsiteOverviewPage />
-              </PermissionRoute>
-            }
-          />
+          {/* The old Website Overview hub page was removed as unnecessary UI
+              (Part 21) — this route now just redirects any existing links to
+              it (nav bookmarks, breadcrumbs) to the main dashboard instead of
+              404ing. */}
+          <Route path="website" element={<Navigate to="/admin" replace />} />
           <Route
             path="website/home"
             element={
