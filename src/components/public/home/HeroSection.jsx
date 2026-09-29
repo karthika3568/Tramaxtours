@@ -53,13 +53,13 @@ export default function HeroSection() {
     setCurrentIndex((prev) => (prev - 1 + totalSlides) % totalSlides);
   }, [totalSlides]);
 
-  // Auto-advance continuous carousel timer (1 second per slide)
+  // Auto-advance continuous carousel timer (5 seconds per slide for relaxed luxury viewing)
   useEffect(() => {
     if (isPaused) return;
 
     timerRef.current = setInterval(() => {
       nextSlide();
-    }, 1000);
+    }, 5000);
 
     return () => {
       if (timerRef.current) {
