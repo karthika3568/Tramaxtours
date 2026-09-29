@@ -224,6 +224,9 @@ class BookingController extends BaseController
 
             $this->success($createdBooking, 'Booking placed successfully', 201);
         } catch (Throwable $e) {
+            if ($e->getCode() === 409) {
+                $this->error($e->getMessage(), 409, null, 'DATE_NOT_AVAILABLE');
+            }
             $this->error('Failed to create booking: ' . $e->getMessage(), 500, null, 'DATABASE_ERROR');
         }
     }

@@ -13,6 +13,10 @@ export default function TourBookingCard({ tour }) {
   const deadlineDays = tour?.booking_deadline_days ?? 1;
 
   const [selectedDate, setSelectedDate] = useState(() => {
+    if (tour?.uses_date_availability) {
+      const firstBookable = (tour.availability_dates || []).find((d) => d.is_bookable);
+      if (firstBookable) return firstBookable.travel_date;
+    }
     const d = new Date();
     d.setDate(d.getDate() + Math.max(1, deadlineDays));
     return d.toISOString().split('T')[0];
@@ -31,17 +35,34 @@ export default function TourBookingCard({ tour }) {
 
   // Auto-fill logged-in customer info
   useEffect(() => {
-    if (user) {
-      if (user.name) setCustomerName(user.name);
-      if (user.email) setCustomerEmail(user.email);
-      if (user.phone) setCustomerPhone(user.phone);
+    function applyUserDefaults() {
+      if (user) {
+        if (user.name) setCustomerName(user.name);
+        if (user.email) setCustomerEmail(user.email);
+        if (user.phone) setCustomerPhone(user.phone);
+      }
     }
+    applyUserDefaults();
   }, [user]);
 
   if (!tour) return null;
 
-  const isFull = tour.available_seats !== undefined && tour.available_seats !== null && Number(tour.available_seats) === 0;
-  const isLowSeats = tour.available_seats !== undefined && tour.available_seats !== null && Number(tour.available_seats) > 0 && Number(tour.available_seats) <= 5;
+  const usesDateAvailability = Boolean(tour.uses_date_availability);
+  const availabilityDates = tour.availability_dates || [];
+
+  // For tours with configured dates, the selected date must be one of the bookable
+  // ones; otherwise fall back to the tour's legacy global seat count.
+  const selectedDateAvailability = usesDateAvailability
+    ? availabilityDates.find((d) => d.travel_date === selectedDate) || null
+    : null;
+
+  const isFull = usesDateAvailability
+    ? (!selectedDateAvailability || !selectedDateAvailability.is_bookable)
+    : (tour.available_seats !== undefined && tour.available_seats !== null && Number(tour.available_seats) === 0);
+  const isLowSeats = usesDateAvailability
+    ? selectedDateAvailability?.status === 'low'
+    : (tour.available_seats !== undefined && tour.available_seats !== null && Number(tour.available_seats) > 0 && Number(tour.available_seats) <= 5);
+  const seatsLeft = usesDateAvailability ? selectedDateAvailability?.available_seats : tour.available_seats;
   const travelDays = tour.travel_days || 'Daily';
   const basePrice = Number(tour.base_price || 0);
   const childPrice = Math.round(basePrice * 0.5);
@@ -56,7 +77,12 @@ export default function TourBookingCard({ tour }) {
 
   const handleOpenBookingModal = () => {
     if (isFull) {
-      toast.warning('This tour package is currently fully booked.', 'Tour Full');
+      toast.warning(
+        usesDateAvailability
+          ? 'This date is fully booked or closed. Please choose another available date.'
+          : 'This tour package is currently fully booked.',
+        'Not Available'
+      );
       return;
     }
 
@@ -152,14 +178,34 @@ export default function TourBookingCard({ tour }) {
           <label htmlFor="booking-date" className="booking-field-label">
             <span className="label-icon">📅</span> Select Travel Date:
           </label>
-          <input
-            id="booking-date"
-            type="date"
-            className="booking-field-input"
-            value={selectedDate}
-            min={new Date().toISOString().split('T')[0]}
-            onChange={(e) => setSelectedDate(e.target.value)}
-          />
+          {usesDateAvailability ? (
+            <select
+              id="booking-date"
+              className="booking-field-select"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+            >
+              {availabilityDates.length === 0 && <option value="">No dates open for booking</option>}
+              {availabilityDates.map((d) => (
+                <option key={d.travel_date} value={d.travel_date} disabled={!d.is_bookable}>
+                  {d.travel_date}
+                  {d.status === 'full' && ' — Fully Booked'}
+                  {(d.status === 'closed' || d.status === 'booking_closed') && ' — Closed'}
+                  {d.is_bookable && ` — ${d.available_seats} seats left`}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              id="booking-date"
+              type="date"
+              className="booking-field-input"
+              value={selectedDate}
+              min={minBookingDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+            />
+          )}
+          <span className="booking-field-hint">Runs: {travelDays}</span>
         </div>
 
         {/* Time Slot Selector */}
@@ -260,17 +306,30 @@ export default function TourBookingCard({ tour }) {
         <div className="booking-widget-actions">
           {isFull ? (
             <div className="alert-box-full" style={{ padding: '14px', borderRadius: '10px', background: '#fee2e2', border: '1px solid #fca5a5', textAlign: 'center', marginBottom: '10px' }}>
-              <strong style={{ color: '#b91c1c', display: 'block', fontSize: '14px' }}>🔴 Fully Booked / Closed</strong>
-              <span style={{ fontSize: '12px', color: '#7f1d1d' }}>All seats for this tour are currently reserved. Please contact our desk for custom dates.</span>
+              <strong style={{ color: '#b91c1c', display: 'block', fontSize: '14px' }}>
+                {usesDateAvailability ? '🔴 Selected Date Unavailable' : '🔴 Fully Booked / Closed'}
+              </strong>
+              <span style={{ fontSize: '12px', color: '#7f1d1d' }}>
+                {usesDateAvailability
+                  ? 'This date is fully booked, closed, or past the booking cutoff. Please choose another date above.'
+                  : 'All seats for this tour are currently reserved. Please contact our desk for custom dates.'}
+              </span>
             </div>
           ) : (
-            <button
-              type="button"
-              className="btn btn-primary btn-block widget-book-btn"
-              onClick={handleOpenBookingModal}
-            >
-              ⚡ Instant Reservation &rarr;
-            </button>
+            <>
+              {isLowSeats && (
+                <div className="alert-box-low-seats" style={{ padding: '8px 12px', borderRadius: '8px', background: '#fef3c7', border: '1px solid #fde68a', textAlign: 'center', marginBottom: '8px', fontSize: '12.5px', color: '#92400e', fontWeight: 600 }}>
+                  ⚡ Only {seatsLeft} seats left for this date
+                </div>
+              )}
+              <button
+                type="button"
+                className="btn btn-primary btn-block widget-book-btn"
+                onClick={handleOpenBookingModal}
+              >
+                ⚡ Instant Reservation &rarr;
+              </button>
+            </>
           )}
 
           <a

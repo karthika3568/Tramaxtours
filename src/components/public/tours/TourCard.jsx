@@ -40,14 +40,40 @@ export default function TourCard({ tour }) {
     return 0;
   });
 
-  const isFull = tour.available_seats !== undefined && tour.available_seats !== null && Number(tour.available_seats) === 0;
-  const isLowSeats = tour.available_seats !== undefined && tour.available_seats !== null && Number(tour.available_seats) > 0 && Number(tour.available_seats) <= 5;
+  // Date-based availability (if the admin has configured specific travel dates) takes
+  // priority over the legacy single global seat count — it reflects the soonest
+  // upcoming bookable date rather than an undifferentiated whole-tour figure.
+  const nextAvailability = tour.uses_date_availability
+    ? (tour.availability_dates || [])[0] || null
+    : null;
+
+  let isFull = false;
+  let isLowSeats = false;
+  let isBookingClosed = false;
+  let seatsLeftLabel = null;
+
+  if (tour.uses_date_availability) {
+    if (!nextAvailability) {
+      isBookingClosed = true;
+    } else {
+      isFull = nextAvailability.status === 'full';
+      isLowSeats = nextAvailability.status === 'low';
+      isBookingClosed = nextAvailability.status === 'closed' || nextAvailability.status === 'booking_closed';
+      seatsLeftLabel = nextAvailability.available_seats;
+    }
+  } else {
+    isFull = tour.available_seats !== undefined && tour.available_seats !== null && Number(tour.available_seats) === 0;
+    isLowSeats = tour.available_seats !== undefined && tour.available_seats !== null && Number(tour.available_seats) > 0 && Number(tour.available_seats) <= 5;
+    seatsLeftLabel = tour.available_seats;
+  }
+
+  const isUnavailable = isFull || isBookingClosed;
   const travelDays = tour.travel_days || 'Daily';
   const basePrice = tour.base_price ? Number(tour.base_price) : null;
   const currencySymbol = tour.currency === 'EUR' ? '€' : tour.currency === 'INR' ? '₹' : (tour.currency || '₹');
 
   return (
-    <article className={`activity-tour-card ${isFull ? 'tour-card-full' : ''}`}>
+    <article className={`activity-tour-card ${isUnavailable ? 'tour-card-full' : ''}`}>
       {/* Top Image Container */}
       <Link to={`/tours/${tour.slug}`} className="activity-card-media" aria-label={tour.title}>
         <img
@@ -57,15 +83,15 @@ export default function TourCard({ tour }) {
           className="activity-card-img"
         />
 
-        {/* Capacity / Full / Low Seat Badges */}
+        {/* Capacity / Full / Closed / Low Seat Badges */}
         <div className="activity-card-top-badges">
           {isFull ? (
-            <span className="card-status-badge badge-full">
-              🔴 FULL / CLOSED
-            </span>
+            <span className="card-status-badge badge-full">🔴 Fully Booked</span>
+          ) : isBookingClosed ? (
+            <span className="card-status-badge badge-full">⛔ Booking Closed</span>
           ) : isLowSeats ? (
             <span className="card-status-badge badge-low-seats">
-              ⚡ Only {tour.available_seats} Seats Left
+              ⚡ Only {seatsLeftLabel} Seats Left
             </span>
           ) : null}
         </div>
@@ -136,10 +162,10 @@ export default function TourCard({ tour }) {
 
             <Link
               to={`/tours/${tour.slug}`}
-              className={`btn ${isFull ? 'btn-secondary' : 'btn-primary'} btn-xs`}
+              className={`btn ${isUnavailable ? 'btn-secondary' : 'btn-primary'} btn-xs`}
               style={{ padding: '6px 14px', fontSize: '12px', borderRadius: '6px' }}
             >
-              {isFull ? 'Details / Closed' : t('card_view_details', 'View Tour')} &rarr;
+              {isUnavailable ? 'View Details' : t('card_view_details', 'View Tour')} &rarr;
             </Link>
           </div>
         )}

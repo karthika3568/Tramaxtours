@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\Destination;
 use App\Models\Media;
 use App\Models\Tour;
+use App\Models\TourAvailability;
 use App\Services\AuditService;
 use App\Utils\Request;
 use Throwable;
@@ -563,6 +564,82 @@ class TourController extends BaseController
         );
 
         $this->success($updated, 'Tour unpublished (reverted to draft) successfully');
+    }
+
+    /**
+     * List date-specific seat availability for a tour.
+     * GET /api/v1/tours/{id}/availability
+     *
+     * @param string $id
+     * @return void
+     */
+    public function availability(string $id): void
+    {
+        $tourId = (int) $id;
+        if (!Tour::findById($tourId)) {
+            $this->error('Tour not found.', 404, null, 'TOUR_NOT_FOUND');
+        }
+
+        $upcomingOnly = strtolower((string) Request::getQueryParams('upcoming_only', 'false')) === 'true';
+        $dates = $upcomingOnly ? TourAvailability::listUpcomingForTour($tourId) : TourAvailability::listForTour($tourId);
+
+        $this->success($dates, 'Tour availability retrieved successfully');
+    }
+
+    /**
+     * Create or update the seat capacity/status for one travel date.
+     * POST /api/v1/tours/{id}/availability
+     *
+     * @param string $id
+     * @return void
+     */
+    public function upsertAvailability(string $id): void
+    {
+        $tourId = (int) $id;
+        if (!Tour::findById($tourId)) {
+            $this->error('Tour not found.', 404, null, 'TOUR_NOT_FOUND');
+        }
+
+        $body = Request::getBody();
+        $date = trim((string) ($body['travel_date'] ?? ''));
+
+        if (!$date || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            $this->error('A valid travel_date (YYYY-MM-DD) is required.', 422, ['travel_date' => 'Required, format YYYY-MM-DD'], 'VALIDATION_ERROR');
+        }
+
+        if (isset($body['total_seats']) && (int) $body['total_seats'] < 0) {
+            $this->error('total_seats cannot be negative.', 422, ['total_seats' => 'Must be zero or greater'], 'VALIDATION_ERROR');
+        }
+
+        $result = TourAvailability::upsert($tourId, $date, $body);
+
+        $userId = Request::getUserId();
+        AuditService::log($userId, 'tour_availability_upsert', 'tour', $tourId, null, $result);
+
+        $this->success($result, 'Tour availability saved successfully');
+    }
+
+    /**
+     * Remove a configured travel date entirely (tour reverts to no restriction on that date).
+     * DELETE /api/v1/tours/{id}/availability/{date}
+     *
+     * @param string $id
+     * @param string $date
+     * @return void
+     */
+    public function deleteAvailability(string $id, string $date): void
+    {
+        $tourId = (int) $id;
+        if (!Tour::findById($tourId)) {
+            $this->error('Tour not found.', 404, null, 'TOUR_NOT_FOUND');
+        }
+
+        TourAvailability::deleteForDate($tourId, $date);
+
+        $userId = Request::getUserId();
+        AuditService::log($userId, 'tour_availability_delete', 'tour', $tourId, ['travel_date' => $date], null);
+
+        $this->success(null, 'Tour availability date removed successfully');
     }
 
     /**

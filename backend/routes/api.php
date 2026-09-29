@@ -132,6 +132,11 @@ $router->group('/api/v1', function (Router $router) {
         $router->patch('/{id}/publish', [TourController::class, 'publish'], [new PermissionMiddleware('tours.publish')]);
         $router->post('/{id}/unpublish', [TourController::class, 'unpublish'], [new PermissionMiddleware('tours.publish')]);
         $router->patch('/{id}/unpublish', [TourController::class, 'unpublish'], [new PermissionMiddleware('tours.publish')]);
+
+        // Date-based Seat Availability (List: Public / Authenticated, Manage: Permission tours.edit)
+        $router->get('/{id}/availability', [TourController::class, 'availability']);
+        $router->post('/{id}/availability', [TourController::class, 'upsertAvailability'], [new PermissionMiddleware('tours.edit')]);
+        $router->delete('/{id}/availability/{date}', [TourController::class, 'deleteAvailability'], [new PermissionMiddleware('tours.edit')]);
     });
 
     // Tour Categories Directory (Public / Authenticated)
