@@ -4,9 +4,10 @@ import useAuth from '../../hooks/useAuth';
 import { useToast } from '../../context/ToastContext';
 import { updatePageMeta } from '../../utils/metadata';
 import Button from '../../components/ui/Button';
+import { ADMIN_ROLES } from '../../utils/roles';
 
 export default function LoginPage() {
-  const { login, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { login, isAuthenticated, isLoading: isAuthLoading, role, roles } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -27,12 +28,11 @@ export default function LoginPage() {
   // If already authenticated, redirect based on role and prior page
   useEffect(() => {
     if (!isAuthLoading && isAuthenticated) {
-      const role = localStorage.getItem('user_role') || '';
-      const isAdmin = ['super_admin', 'admin', 'editor', 'moderator', 'staff'].includes(role);
+      const isAdmin = ADMIN_ROLES.includes(role) || roles.some((r) => ADMIN_ROLES.includes(r));
       const target = location.state?.from?.pathname || (isAdmin ? '/admin' : '/tours');
       navigate(target, { replace: true });
     }
-  }, [isAuthenticated, isAuthLoading, navigate, location.state]);
+  }, [isAuthenticated, isAuthLoading, navigate, location.state, role, roles]);
 
   const validate = () => {
     const errors = {};
@@ -71,9 +71,9 @@ export default function LoginPage() {
     try {
       const data = await login(formData.email.trim().toLowerCase(), formData.password);
       const user = data?.user;
-      const role = user?.role;
-      const isAdmin = role && ['super_admin', 'admin', 'editor', 'moderator', 'staff'].includes(role);
-      
+      const userRole = user?.role;
+      const isAdmin = Boolean(userRole && ADMIN_ROLES.includes(userRole));
+
       let target = '/tours';
       if (isAdmin) {
         const fromAdmin = location.state?.from?.pathname?.startsWith('/admin');
