@@ -18,7 +18,7 @@ export const mediaService = {
    */
   getMedia: async (params = {}) => {
     const query = { sort_by: 'id', order: 'DESC', ...params };
-    const response = await client.get('/media', query);
+    const response = await client.get('/media', query, { requiresAuth: false });
     const items = response.data || [];
     const pagination = response.pagination || {
       total: items.length,
@@ -41,7 +41,7 @@ export const mediaService = {
    * @returns {Promise<any>}
    */
   getMediaById: async (id) => {
-    const response = await client.get(`/media/${encodeURIComponent(id)}`);
+    const response = await client.get(`/media/${encodeURIComponent(id)}`, null, { requiresAuth: false });
     return response.data;
   },
 

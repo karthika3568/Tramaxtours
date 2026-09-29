@@ -59,15 +59,15 @@ $router->group('/api/v1', function (Router $router) {
 
     // Media Library & Asset Management Routes
     $router->group('/media', function (Router $router) {
-        // List Media & Search (Permission: media.view)
-        $router->get('', [MediaController::class, 'index'], [new PermissionMiddleware('media.view')]);
+        // List Media & Search (Public / Authenticated)
+        $router->get('', [MediaController::class, 'index']);
 
         // Upload Media (Permission: media.upload)
         $router->post('/upload', [MediaController::class, 'upload'], [new PermissionMiddleware('media.upload')]);
         $router->post('', [MediaController::class, 'upload'], [new PermissionMiddleware('media.upload')]);
 
-        // Get Single Media Details (Permission: media.view)
-        $router->get('/{id}', [MediaController::class, 'show'], [new PermissionMiddleware('media.view')]);
+        // Get Single Media Details (Public / Authenticated)
+        $router->get('/{id}', [MediaController::class, 'show']);
 
         // Update Media Metadata (Permission: media.upload)
         $router->put('/{id}', [MediaController::class, 'update'], [new PermissionMiddleware('media.upload')]);
