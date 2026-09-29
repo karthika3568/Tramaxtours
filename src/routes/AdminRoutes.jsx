@@ -3,7 +3,6 @@ export { default as AdminLoginPage } from '../pages/auth/LoginPage';
 export { default as AdminDashboardPage } from '../pages/admin/AdminDashboardPage';
 
 // Visual Website Management Suite (Phase 8N)
-export { default as AdminWebsiteOverviewPage } from '../pages/admin/AdminWebsiteOverviewPage';
 export { default as AdminHomePageManager } from '../pages/admin/AdminHomePageManager';
 export { default as AdminNavigationPage } from '../pages/admin/AdminNavigationPage';
 export { default as AdminHeroSlidesPage } from '../pages/admin/AdminHeroSlidesPage';

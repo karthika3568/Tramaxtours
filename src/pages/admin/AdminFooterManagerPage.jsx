@@ -198,7 +198,7 @@ export default function AdminFooterManagerPage() {
       <div className="admin-page-header-visual">
         <div className="admin-header-main">
           <div className="admin-breadcrumbs">
-            <Link to="/admin/website" className="breadcrumb-link">Website Management</Link>
+            <Link to="/admin" className="breadcrumb-link">Dashboard</Link>
             <span className="breadcrumb-separator">/</span>
             <span className="breadcrumb-current">Footer Management</span>
           </div>

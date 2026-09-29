@@ -48,7 +48,6 @@ export default function AdminLayout() {
     {
       groupTitle: 'Website Management',
       items: [
-        { label: 'Website Overview', path: '/admin/website', permission: 'pages.manage', icon: '🌐' },
         { label: 'Home Page', path: '/admin/website/home', permission: 'homepage.manage', icon: '🏠' },
         { label: 'Navigation & Header', path: '/admin/website/navigation', permission: 'settings.view', icon: '🧭' },
         { label: 'Hero Carousel', path: '/admin/website/home/hero', permission: 'homepage.manage', icon: '🌄' },
