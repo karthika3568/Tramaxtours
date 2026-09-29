@@ -1,13 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import adminDashboardService from '../../services/adminDashboardService';
+import bookingService from '../../services/bookingService';
+import BookingDetailModal from '../../components/admin/bookings/BookingDetailModal';
 import Loading from '../../components/ui/Loading';
 import ErrorState from '../../components/ui/ErrorState';
 import { updatePageMeta } from '../../utils/metadata';
 
 export default function AdminDashboardPage() {
   const { user, hasPermission } = useAuth();
+  const navigate = useNavigate();
 
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -58,6 +61,19 @@ export default function AdminDashboardPage() {
     setReloadTrigger((prev) => prev + 1);
   }, []);
 
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  const handleViewBooking = async (bookingSummary) => {
+    try {
+      const full = await bookingService.getBooking(bookingSummary.id);
+      setSelectedBooking(full || bookingSummary);
+    } catch {
+      setSelectedBooking(bookingSummary);
+    }
+    setIsDetailOpen(true);
+  };
+
   // Greeting based on time of day
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -74,6 +90,7 @@ export default function AdminDashboardPage() {
   const pages = overview.pages || {};
   const pendingActions = dashboardData?.pending_actions || {};
   const recentBookings = dashboardData?.recent_bookings || [];
+  const upcomingBookings = dashboardData?.upcoming_bookings || [];
   const recentReviews = dashboardData?.recent_reviews || [];
   const recentTours = dashboardData?.recent_tours || [];
 
@@ -243,6 +260,10 @@ export default function AdminDashboardPage() {
                       <span className="subtext-note">
                         {bookings.confirmed ?? 0} confirmed
                       </span>
+                    </div>
+                    <div className="kpi-stat-subtext" style={{ marginTop: '4px' }}>
+                      <span className="subtext-note">📅 {bookings.today ?? 0} booked today</span>
+                      <span className="subtext-note">🧳 {bookings.upcoming ?? 0} upcoming</span>
                     </div>
                   </div>
                   <div className="kpi-card-footer">
@@ -554,7 +575,12 @@ export default function AdminDashboardPage() {
                         {recentBookings.map((b) => {
                           const travelerInit = b.customer_name ? b.customer_name.charAt(0).toUpperCase() : 'G';
                           return (
-                            <tr key={b.id}>
+                            <tr
+                              key={b.id}
+                              onClick={() => handleViewBooking(b)}
+                              style={{ cursor: 'pointer' }}
+                              title="View booking details"
+                            >
                               <td>
                                 <span className="order-chip">{b.order_number}</span>
                               </td>
@@ -660,6 +686,61 @@ export default function AdminDashboardPage() {
             )}
           </div>
 
+          {/* 5b. Upcoming Bookings — by travel date, not booking-creation date */}
+          {hasPermission('bookings.view') && (
+            <section className="dashboard-section">
+              <div className="section-header-row">
+                <div>
+                  <h2 className="section-title">Upcoming Tours &amp; Bookings</h2>
+                  <p className="section-desc">Confirmed and pending reservations sorted by nearest travel date</p>
+                </div>
+                <Link to="/admin/bookings?sort_by=booking_date&order=ASC" className="section-header-action">
+                  View all &rarr;
+                </Link>
+              </div>
+
+              {upcomingBookings.length > 0 ? (
+                <div className="feed-card">
+                  <div className="reviews-feed-list">
+                    {upcomingBookings.map((b) => (
+                      <button
+                        type="button"
+                        key={b.id}
+                        className="editorial-review-card"
+                        style={{ width: '100%', textAlign: 'left', cursor: 'pointer', border: 'none' }}
+                        onClick={() => handleViewBooking(b)}
+                      >
+                        <div className="review-card-top">
+                          <div className="review-guest">
+                            <div className="guest-avatar">📅</div>
+                            <div className="guest-meta">
+                              <span className="guest-name">
+                                {new Date(b.booking_date).toLocaleDateString(undefined, { day: '2-digit', month: 'short' })}
+                                {' — '}
+                                {b.tour_title || 'Curated Tour'}
+                              </span>
+                              <span className="guest-country">
+                                📍 {b.destination_name || 'Unassigned'} • {b.tickets_count} guest{b.tickets_count === 1 ? '' : 's'}
+                              </span>
+                            </div>
+                          </div>
+                          <span className={`status-pill ${getBookingStatusBadge(b.booking_status)}`}>
+                            {b.booking_status}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="feed-empty-state">
+                  <span className="empty-icon">🧳</span>
+                  <p className="empty-text">No upcoming travel dates booked yet.</p>
+                </div>
+              )}
+            </section>
+          )}
+
           {/* 6. Curated Tour Packages Snapshot */}
           {hasPermission('tours.view') && recentTours.length > 0 && (
             <section className="dashboard-section">
@@ -729,6 +810,26 @@ export default function AdminDashboardPage() {
           )}
         </>
       )}
+
+      <BookingDetailModal
+        booking={selectedBooking}
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        onOpenStatusModal={() => {
+          setIsDetailOpen(false);
+          navigate('/admin/bookings');
+        }}
+        onPrintBooking={() => window.print()}
+        onSaveAdminNotes={async (bookingId, adminNotes) => {
+          try {
+            await bookingService.updateBooking(bookingId, { admin_notes: adminNotes });
+            setSelectedBooking((prev) => (prev ? { ...prev, admin_notes: adminNotes } : prev));
+          } catch {
+            // Detail modal has no toast context here; the notes field simply
+            // won't reflect the change, which is visible to the admin.
+          }
+        }}
+      />
     </div>
   );
 }

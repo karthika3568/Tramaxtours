@@ -215,9 +215,12 @@ export default function AdminBookingsPage() {
   // Modal Open Handlers
   const handleViewDetails = async (booking) => {
     try {
-      // Fetch full details if needed
+      // bookingService.getBooking() already returns the unwrapped booking
+      // object (with nested tour/customer/billing_address/status_history) —
+      // it was previously read as `full?.data`, which is always undefined,
+      // so this silently fell back to the flatter list-row summary every time.
       const full = await bookingService.getBooking(booking.id);
-      setSelectedBooking(full?.data || booking);
+      setSelectedBooking(full || booking);
     } catch {
       setSelectedBooking(booking);
     }
@@ -243,11 +246,22 @@ export default function AdminBookingsPage() {
   const handleSubmitStatus = async ({ bookingId, booking_status, payment_status, notes }) => {
     try {
       setIsSubmittingStatus(true);
-      await bookingService.updateBookingStatus(bookingId, {
-        booking_status,
-        payment_status,
-        notes,
-      });
+
+      // updateBookingStatus(id, status, notes) takes `status` as a plain
+      // string — it was previously passed a whole {booking_status,
+      // payment_status, notes} object, which the backend's status endpoint
+      // rejects with 422 every time (it validates `status` against the
+      // allowed-values enum, and an object never matches). That endpoint
+      // also records booking_status_history and releases date-based seat
+      // holds on cancellation, so booking_status must go through it — not
+      // the generic PUT — to keep that behaviour.
+      await bookingService.updateBookingStatus(bookingId, booking_status, notes);
+
+      // The status endpoint doesn't accept payment_status at all; persist it
+      // separately via the generic update when it actually changed.
+      if (payment_status && payment_status !== selectedBooking?.payment_status) {
+        await bookingService.updateBooking(bookingId, { payment_status });
+      }
 
       toast.success(`Booking #${selectedBooking?.order_number} status updated to ${booking_status}.`);
       setIsStatusOpen(false);

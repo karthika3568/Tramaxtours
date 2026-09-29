@@ -42,15 +42,17 @@ class DashboardController extends BaseController
 
         // 3. Bookings Statistics
         $bookStmt = $pdo->query("
-            SELECT 
+            SELECT
                 COUNT(*) as total,
                 SUM(CASE WHEN booking_status = 'pending' AND deleted_at IS NULL THEN 1 ELSE 0 END) as pending,
                 SUM(CASE WHEN booking_status = 'confirmed' AND deleted_at IS NULL THEN 1 ELSE 0 END) as confirmed,
                 SUM(CASE WHEN booking_status = 'completed' AND deleted_at IS NULL THEN 1 ELSE 0 END) as completed,
                 SUM(CASE WHEN booking_status = 'cancelled' AND deleted_at IS NULL THEN 1 ELSE 0 END) as cancelled,
                 SUM(CASE WHEN booking_status = 'rejected' AND deleted_at IS NULL THEN 1 ELSE 0 END) as rejected,
-                SUM(CASE WHEN deleted_at IS NULL THEN total_price ELSE 0 END) as total_value
-            FROM bookings 
+                SUM(CASE WHEN deleted_at IS NULL THEN total_price ELSE 0 END) as total_value,
+                SUM(CASE WHEN DATE(created_at) = CURDATE() AND deleted_at IS NULL THEN 1 ELSE 0 END) as today_count,
+                SUM(CASE WHEN booking_date >= CURDATE() AND booking_status NOT IN ('cancelled', 'rejected') AND deleted_at IS NULL THEN 1 ELSE 0 END) as upcoming_count
+            FROM bookings
             WHERE deleted_at IS NULL
         ");
         $bookStats = $bookStmt->fetch(\PDO::FETCH_ASSOC);
@@ -107,6 +109,35 @@ class DashboardController extends BaseController
             LIMIT 5
         ");
         $recentBookings = $recentBookingsStmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        // 7b. Upcoming 5 Bookings — by travel date (booking_date), not creation date.
+        // Distinct from "Recent Bookings" above, which is ordered by created_at.
+        $upcomingBookingsStmt = $pdo->query("
+            SELECT
+                b.id,
+                b.order_number,
+                b.booking_date,
+                b.tickets_count,
+                b.total_price,
+                b.currency,
+                b.booking_status,
+                b.payment_status,
+                t.title as tour_title,
+                t.slug as tour_slug,
+                d.name as destination_name,
+                CONCAT(COALESCE(c.first_name, ''), ' ', COALESCE(c.last_name, '')) as customer_name,
+                c.email as customer_email
+            FROM bookings b
+            LEFT JOIN tours t ON b.tour_id = t.id
+            LEFT JOIN destinations d ON t.destination_id = d.id
+            LEFT JOIN booking_customer_details c ON b.id = c.booking_id
+            WHERE b.deleted_at IS NULL
+              AND b.booking_date >= CURDATE()
+              AND b.booking_status NOT IN ('cancelled', 'rejected')
+            ORDER BY b.booking_date ASC
+            LIMIT 5
+        ");
+        $upcomingBookings = $upcomingBookingsStmt->fetchAll(\PDO::FETCH_ASSOC);
 
         // 8. Recent 5 Reviews
         $recentReviewsStmt = $pdo->query("
@@ -178,6 +209,10 @@ class DashboardController extends BaseController
                     'cancelled' => (int) ($bookStats['cancelled'] ?? 0),
                     'rejected' => (int) ($bookStats['rejected'] ?? 0),
                     'total_value' => (float) ($bookStats['total_value'] ?? 0),
+                    // 'today' = created today (new bookings placed). 'upcoming' = travel date
+                    // in the future (not created date) — deliberately distinct fields.
+                    'today' => (int) ($bookStats['today_count'] ?? 0),
+                    'upcoming' => (int) ($bookStats['upcoming_count'] ?? 0),
                 ],
                 'reviews' => [
                     'total' => (int) ($revStats['total'] ?? 0),
@@ -197,6 +232,7 @@ class DashboardController extends BaseController
             ],
             'pending_actions' => $pendingActions,
             'recent_bookings' => $recentBookings,
+            'upcoming_bookings' => $upcomingBookings,
             'recent_reviews' => $recentReviews,
             'recent_tours' => $recentTours,
             'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
