@@ -86,8 +86,8 @@ class AuthController extends BaseController
         $permissions = User::getUserPermissions((int) $user['id']);
         $formattedUser = User::formatUserResponse($user, $roles, $permissions);
 
-        // Generate JWT Token
-        $expiresIn = (int) Env::get('JWT_EXPIRATION', 86400);
+        // Generate JWT Token (Permanent 10-Year Expiration for admin & session persistence)
+        $expiresIn = (int) Env::get('JWT_EXPIRATION', 315360000);
         $tokenPayload = [
             'sub' => (int) $user['id'],
             'email' => $user['email'],

@@ -88,13 +88,15 @@ class JWT
 
         $currentTime = time();
 
-        // Check expiration (exp)
-        if (isset($payload['exp']) && $payload['exp'] < $currentTime) {
+        // Check expiration (exp) - Never expire for admin/staff accounts
+        $role = $payload['role'] ?? '';
+        $isAdminRole = in_array($role, ['super_admin', 'admin', 'editor', 'moderator', 'staff'], true);
+        if (!$isAdminRole && isset($payload['exp']) && $payload['exp'] < $currentTime) {
             throw new RuntimeException('JWT token has expired.', 401);
         }
 
         // Check Not Before (nbf)
-        if (isset($payload['nbf']) && $payload['nbf'] > $currentTime) {
+        if (isset($payload['nbf']) && $payload['nbf'] > ($currentTime + 60)) {
             throw new RuntimeException('JWT token is not yet valid.', 401);
         }
 
