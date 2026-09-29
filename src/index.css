@@ -14918,6 +14918,13 @@ button {
   outline: none;
 }
 
+.booking-field-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 11.5px;
+  color: #64748b;
+}
+
 .booking-guests-selector {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
@@ -17844,8 +17851,8 @@ button {
 
 /* Destination Card */
 .top-dest-card {
-  flex: 0 0 290px;
-  height: 480px;
+  flex: 0 0 320px;
+  height: 520px;
   border-radius: 20px;
   overflow: hidden;
   position: relative;
@@ -17858,8 +17865,8 @@ button {
 
 @media (min-width: 1200px) {
   .top-dest-card {
-    flex: 0 0 310px;
-    height: 510px;
+    flex: 0 0 360px;
+    height: 580px;
   }
 }
 
@@ -22537,6 +22544,8 @@ button {
 
 .activity-tour-card:hover {
   transform: translateY(-6px) !important;
+}
+
 /* ==========================================================================
    DESTINATION DETAIL PAGE V2 (MATCHING TRAMAXTOURS.IN & WANDERER ASSETS)
    ========================================================================== */
@@ -22607,22 +22616,30 @@ button {
   border-radius: 16px;
   padding: 22px 32px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 24px;
   box-shadow: 0 10px 30px rgba(1, 170, 144, 0.2);
-}
-
-@media (max-width: 900px) {
-  .dest-quick-facts-bar {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 20px;
-  }
 }
 
 @media (max-width: 480px) {
   .dest-quick-facts-bar {
     grid-template-columns: 1fr;
     padding: 18px;
+  }
+}
+
+/* Large primary Hero Image card (Part 2A, section 4) */
+.dest-hero-image-section {
+  margin-bottom: 40px;
+}
+
+.dest-hero-media-img {
+  height: 460px;
+}
+
+@media (max-width: 767px) {
+  .dest-hero-media-img {
+    height: 260px;
   }
 }
 
@@ -23865,5 +23882,69 @@ button {
   border: 1px solid #bae6fd;
   padding: 2px 8px;
   border-radius: 6px;
+}
+
+/* ==========================================================================
+   ADMIN: Tour Date-Based Seat Availability Manager
+   ========================================================================== */
+
+.tour-availability-manager .availability-add-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.tour-availability-manager .availability-add-form .form-group {
+  min-width: 160px;
+  margin-bottom: 0;
+}
+
+.availability-table-wrap {
+  overflow-x: auto;
+}
+
+.availability-seats-input {
+  width: 80px;
+}
+
+.empty-state-inline {
+  padding: 24px;
+  text-align: center;
+  color: #64748b;
+  background: #f8fafc;
+  border: 1px dashed #e2e8f0;
+  border-radius: 12px;
+}
+
+.status-badge-available {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.status-badge-low {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.status-badge-full,
+.status-badge-closed {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+@media (max-width: 640px) {
+  .tour-availability-manager .availability-add-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 

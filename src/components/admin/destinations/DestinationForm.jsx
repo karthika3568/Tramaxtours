@@ -44,6 +44,7 @@ export default function DestinationForm({
   const [language, setLanguage] = useState(initialData?.language || '');
   const [currency, setCurrency] = useState(initialData?.currency || '');
   const [religion, setReligion] = useState(initialData?.religion || '');
+  const [heritage, setHeritage] = useState(initialData?.heritage || '');
   const [timezone, setTimezone] = useState(initialData?.timezone || '');
   const [latitude, setLatitude] = useState(
     initialData?.latitude !== null && initialData?.latitude !== undefined
@@ -153,6 +154,7 @@ export default function DestinationForm({
       language: language.trim() || null,
       currency: currency.trim() || null,
       religion: religion.trim() || null,
+      heritage: heritage.trim() || null,
       timezone: timezone.trim() || null,
       latitude: latitude !== '' ? parseFloat(latitude) : null,
       longitude: longitude !== '' ? parseFloat(longitude) : null,
@@ -682,6 +684,22 @@ export default function DestinationForm({
                 value={timezone}
                 onChange={(e) => setTimezone(e.target.value)}
                 placeholder="e.g. East Africa Time (UTC+3)"
+              />
+            </div>
+          </div>
+
+          <div className="form-grid-2col">
+            <div className="form-group">
+              <label htmlFor="dest-heritage" className="form-label">
+                Heritage
+              </label>
+              <input
+                type="text"
+                id="dest-heritage"
+                className="form-input"
+                value={heritage}
+                onChange={(e) => setHeritage(e.target.value)}
+                placeholder="e.g. UNESCO World Heritage Sites"
               />
             </div>
           </div>

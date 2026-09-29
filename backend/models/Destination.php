@@ -84,13 +84,13 @@ class Destination extends BaseModel
         $sql = 'INSERT INTO `destinations` (
             `name`, `slug`, `hero_title`, `hero_subtitle`, `short_description`,
             `intro_heading`, `intro_label`, `intro_content`, `intro_media_id`,
-            `language`, `currency`, `religion`, `timezone`, `latitude`, `longitude`,
+            `language`, `currency`, `religion`, `heritage`, `timezone`, `latitude`, `longitude`,
             `featured_image_id`, `seo_title`, `seo_description`, `og_image_id`,
             `is_featured`, `display_order`, `status`, `created_at`, `updated_at`
         ) VALUES (
             :name, :slug, :hero_title, :hero_subtitle, :short_description,
             :intro_heading, :intro_label, :intro_content, :intro_media_id,
-            :language, :currency, :religion, :timezone, :latitude, :longitude,
+            :language, :currency, :religion, :heritage, :timezone, :latitude, :longitude,
             :featured_image_id, :seo_title, :seo_description, :og_image_id,
             :is_featured, :display_order, :status, NOW(), NOW()
         )';
@@ -108,6 +108,7 @@ class Destination extends BaseModel
             ':language' => $data['language'] ?? null,
             ':currency' => $data['currency'] ?? null,
             ':religion' => $data['religion'] ?? null,
+            ':heritage' => $data['heritage'] ?? null,
             ':timezone' => $data['timezone'] ?? null,
             ':latitude' => isset($data['latitude']) && $data['latitude'] !== '' && $data['latitude'] !== null ? (float) $data['latitude'] : null,
             ':longitude' => isset($data['longitude']) && $data['longitude'] !== '' && $data['longitude'] !== null ? (float) $data['longitude'] : null,
@@ -283,7 +284,7 @@ class Destination extends BaseModel
         $allowedColumns = [
             'name', 'slug', 'hero_title', 'hero_subtitle', 'short_description',
             'intro_heading', 'intro_label', 'intro_content', 'intro_media_id',
-            'language', 'currency', 'religion', 'timezone', 'latitude', 'longitude',
+            'language', 'currency', 'religion', 'heritage', 'timezone', 'latitude', 'longitude',
             'featured_image_id', 'seo_title', 'seo_description', 'og_image_id',
             'is_featured', 'display_order', 'status'
         ];
@@ -577,6 +578,7 @@ class Destination extends BaseModel
             'language' => $row['language'],
             'currency' => $row['currency'],
             'religion' => $row['religion'],
+            'heritage' => $row['heritage'] ?? null,
             'timezone' => $row['timezone'],
             'latitude' => $row['latitude'] !== null ? (float) $row['latitude'] : null,
             'longitude' => $row['longitude'] !== null ? (float) $row['longitude'] : null,
@@ -689,6 +691,7 @@ class Destination extends BaseModel
             'language' => $row['language'],
             'currency' => $row['currency'],
             'religion' => $row['religion'],
+            'heritage' => $row['heritage'] ?? null,
             'timezone' => $row['timezone'],
             'latitude' => $row['latitude'] !== null ? (float) $row['latitude'] : null,
             'longitude' => $row['longitude'] !== null ? (float) $row['longitude'] : null,
