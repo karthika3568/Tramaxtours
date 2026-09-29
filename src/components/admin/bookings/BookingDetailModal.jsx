@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import useAuth from '../../../hooks/useAuth';
+import { getMediaUrl } from '../../../utils/media';
 
 export default function BookingDetailModal({
   booking,
@@ -220,9 +221,9 @@ export default function BookingDetailModal({
               <div className="detail-card tour-detail-card">
                 <h3 className="detail-card-heading">🧭 Tour Package Information</h3>
                 <div className="tour-summary-box">
-                  {booking.tour?.featured_image && (
+                  {booking.tour?.image_path && (
                     <img
-                      src={booking.tour.featured_image}
+                      src={getMediaUrl(booking.tour.image_path)}
                       alt={booking.tour?.title || 'Tour'}
                       className="tour-thumb-img"
                     />
@@ -232,7 +233,7 @@ export default function BookingDetailModal({
                     <p className="tour-summary-sub">
                       <span>Type: {booking.tour?.tour_type || 'Custom Tour'}</span>
                       {booking.tour?.duration_days && <span> • Duration: {booking.tour.duration_days} Days</span>}
-                      {booking.tour?.destination && <span> • Location: {booking.tour.destination}</span>}
+                      {booking.tour?.destination_name && <span> • Location: {booking.tour.destination_name}</span>}
                     </p>
                     {booking.tour?.slug && (
                       <a
