@@ -20,6 +20,7 @@ export default function AdminSocialLinksPage() {
   const [savingId, setSavingId] = useState(null);
   const [editingLink, setEditingLink] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const [formData, setFormData] = useState({
     platform: 'instagram',
@@ -34,16 +35,27 @@ export default function AdminSocialLinksPage() {
       description: 'Manage connected social channels, links, icons, and visibility.',
     });
 
-    loadLinks();
-  }, []);
-
-  const loadLinks = async () => {
-    try {
-      setLoading(true);
-      const res = await socialLinksService.getSocialLinks();
-      const data = res?.items || res?.data || (Array.isArray(res) ? res : []);
-      if (data.length === 0) {
-        // Initialize presets if table is empty
+    async function loadLinks() {
+      try {
+        setLoading(true);
+        const res = await socialLinksService.getSocialLinks();
+        const data = res?.items || res?.data || (Array.isArray(res) ? res : []);
+        if (data.length === 0) {
+          // Initialize presets if table is empty
+          setLinks(
+            PLATFORM_PRESETS.map((p, idx) => ({
+              id: `preset-${idx}`,
+              platform: p.platform,
+              url: p.defaultUrl,
+              display_order: idx + 1,
+              status: 'active',
+            }))
+          );
+        } else {
+          setLinks(data);
+        }
+      } catch {
+        // Fallback presets
         setLinks(
           PLATFORM_PRESETS.map((p, idx) => ({
             id: `preset-${idx}`,
@@ -53,24 +65,13 @@ export default function AdminSocialLinksPage() {
             status: 'active',
           }))
         );
-      } else {
-        setLinks(data);
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      // Fallback presets
-      setLinks(
-        PLATFORM_PRESETS.map((p, idx) => ({
-          id: `preset-${idx}`,
-          platform: p.platform,
-          url: p.defaultUrl,
-          display_order: idx + 1,
-          status: 'active',
-        }))
-      );
-    } finally {
-      setLoading(false);
     }
-  };
+
+    loadLinks();
+  }, [refreshKey]);
 
   const handleOpenAddModal = (preset = null) => {
     setEditingLink(null);
@@ -110,7 +111,7 @@ export default function AdminSocialLinksPage() {
         toast.success('Social link added successfully!');
       }
       setIsModalOpen(false);
-      loadLinks();
+      setRefreshKey((k) => k + 1);
     } catch (err) {
       toast.error(err?.message || 'Failed to save social link');
     }
