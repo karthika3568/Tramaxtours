@@ -9,6 +9,8 @@ import EmptyState from '../../components/ui/EmptyState';
 import ErrorState from '../../components/ui/ErrorState';
 import { updatePageMeta } from '../../utils/metadata';
 
+const QUICK_DESTINATIONS = ['Tamil Nadu', 'Kerala', 'Karnataka', 'Goa'];
+
 export default function DestinationsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
@@ -21,17 +23,32 @@ export default function DestinationsPage() {
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [reloadTrigger, setReloadTrigger] = useState(0);
 
   useEffect(() => {
     updatePageMeta({
-      title: 'Destinations — Explore Sri Lanka & Beyond',
+      title: 'Destinations — Explore South India | Tramax Tours',
       description:
-        'Discover breathtaking travel destinations with Tramax Tours. From tropical golden beaches to misty hill country and wildlife reserves.',
+        'Discover breathtaking travel destinations with Tramax Tours. From Tamil Nadu heritage temples to Kerala backwaters, Karnataka palaces, and Goa beaches.',
     });
   }, []);
 
-  const [reloadTrigger, setReloadTrigger] = useState(0);
+  // Debounce live typing
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (searchQuery !== appliedSearch) {
+        setAppliedSearch(searchQuery.trim());
+        setCurrentPage(1);
+        const newParams = {};
+        if (searchQuery.trim()) newParams.search = searchQuery.trim();
+        newParams.page = '1';
+        setSearchParams(newParams);
+      }
+    }, 350);
+    return () => clearTimeout(handler);
+  }, [searchQuery, appliedSearch, setSearchParams]);
 
+  // Fetch destinations
   useEffect(() => {
     let isMounted = true;
     async function loadDestinations() {
@@ -95,6 +112,17 @@ export default function DestinationsPage() {
     setSearchParams({ page: '1' });
   };
 
+  const handleSelectQuickDest = (name) => {
+    if (appliedSearch.toLowerCase() === name.toLowerCase()) {
+      handleClearSearch();
+    } else {
+      setSearchQuery(name);
+      setAppliedSearch(name);
+      setCurrentPage(1);
+      setSearchParams({ search: name, page: '1' });
+    }
+  };
+
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
     const newParams = {};
@@ -114,11 +142,11 @@ export default function DestinationsPage() {
             <span className="section-badge">World of Wonders</span>
             <h1 className="catalog-page-title">Explore Our Destinations</h1>
             <p className="catalog-page-subtitle">
-              Immerse yourself in rich heritage, pristine coastlines, lush tea plantations, and thrilling safaris curated by local experts.
+              Immerse yourself in ancient Dravidian heritage, palm-fringed emerald backwaters, majestic palaces, and sun-kissed beaches.
             </p>
           </div>
 
-          {/* Search Bar */}
+          {/* Search Bar inside Destination Page */}
           <div className="catalog-search-wrapper">
             <form onSubmit={handleSearchSubmit} className="catalog-search-form" role="search">
               <div className="search-input-group">
@@ -126,7 +154,7 @@ export default function DestinationsPage() {
                 <input
                   type="text"
                   className="search-input"
-                  placeholder="Search destinations by name or region..."
+                  placeholder="Search destinations (e.g. Tamil Nadu, Kerala, Karnataka, Goa)..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   aria-label="Search destinations"
@@ -146,6 +174,38 @@ export default function DestinationsPage() {
                 Search
               </button>
             </form>
+
+            {/* Quick Filter Destination Pills */}
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+              <button
+                type="button"
+                onClick={handleClearSearch}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors ${
+                  !appliedSearch
+                    ? 'bg-teal-600 text-white shadow-sm'
+                    : 'bg-white/80 text-slate-700 hover:bg-white border border-slate-200'
+                }`}
+              >
+                All Destinations
+              </button>
+              {QUICK_DESTINATIONS.map((q) => {
+                const isSelected = appliedSearch.toLowerCase() === q.toLowerCase();
+                return (
+                  <button
+                    type="button"
+                    key={q}
+                    onClick={() => handleSelectQuickDest(q)}
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors ${
+                      isSelected
+                        ? 'bg-teal-600 text-white shadow-sm'
+                        : 'bg-white/80 text-slate-700 hover:bg-white border border-slate-200'
+                    }`}
+                  >
+                    {q}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
@@ -155,59 +215,82 @@ export default function DestinationsPage() {
         {appliedSearch && (
           <div className="search-filter-status">
             <p>
-              Showing results for: <strong>"{appliedSearch}"</strong>
+              Showing results for: <strong>&quot;{appliedSearch}&quot;</strong>
             </p>
             <button
               type="button"
-              className="btn btn-link reset-link-btn"
+              className="btn btn-ghost btn-sm clear-filter-btn"
               onClick={handleClearSearch}
             >
-              Reset Search
+              Clear Filter
             </button>
           </div>
         )}
 
+        {/* Loading Spinner */}
         {loading && (
-          <div className="catalog-loading-wrapper">
+          <div className="catalog-loading-wrap">
             <Loading message="Fetching destinations..." />
           </div>
         )}
 
+        {/* Error State */}
         {!loading && error && (
-          <ErrorState
-            title="Unable to Load Destinations"
-            message={error}
-            onRetry={handleRetry}
-          />
+          <div className="catalog-error-wrap">
+            <ErrorState
+              title="Unable to Load Destinations"
+              message={error}
+              onRetry={handleRetry}
+            />
+          </div>
         )}
 
+        {/* Empty State */}
         {!loading && !error && destinations.length === 0 && (
-          <EmptyState
-            title="No Destinations Found"
-            message={
-              appliedSearch
-                ? `No destinations match your search term "${appliedSearch}". Try searching for another location.`
-                : 'No published destinations are available at this moment. Please check back soon!'
-            }
-            actionText={appliedSearch ? 'Clear Search' : undefined}
-            onAction={appliedSearch ? handleClearSearch : undefined}
-          />
+          <div className="catalog-empty-wrap">
+            <EmptyState
+              title="No Destinations Found"
+              message={
+                appliedSearch
+                  ? `No destinations match your search term "${appliedSearch}". Try searching for another location like Tamil Nadu, Kerala, Karnataka, or Goa.`
+                  : 'No published destinations are available at this moment. Please check back soon!'
+              }
+              action={
+                appliedSearch ? (
+                  <button
+                    type="button"
+                    className="btn btn-outline btn-sm"
+                    onClick={handleClearSearch}
+                  >
+                    View All Destinations
+                  </button>
+                ) : null
+              }
+            />
+          </div>
         )}
 
+        {/* Destinations Grid */}
         {!loading && !error && destinations.length > 0 && (
           <>
             <div className="destinations-grid">
               {destinations.map((destination) => (
-                <DestinationCard key={destination.id} destination={destination} />
+                <DestinationCard key={destination.slug || destination.id} destination={destination} />
               ))}
             </div>
 
-            <Pagination
-              currentPage={pagination.page || currentPage}
-              totalPages={pagination.total_pages || 1}
-              totalItems={pagination.total || destinations.length}
-              onPageChange={handlePageChange}
-            />
+            {/* Pagination Controls */}
+            {pagination.total_pages > 1 && (
+              <div className="catalog-pagination-wrap">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={pagination.total_pages}
+                  totalItems={pagination.total || destinations.length}
+                  itemsPerPage={9}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            )}
           </>
         )}
       </section>
