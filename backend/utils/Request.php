@@ -104,8 +104,25 @@ class Request
             return $_SERVER[$normalized];
         }
 
+        if (isset($_SERVER['REDIRECT_' . $normalized])) {
+            return $_SERVER['REDIRECT_' . $normalized];
+        }
+
+        if (isset($_SERVER[$headerName])) {
+            return $_SERVER[$headerName];
+        }
+
         if (function_exists('getallheaders')) {
             $headers = getallheaders();
+            foreach ($headers as $key => $value) {
+                if (strcasecmp($key, $headerName) === 0) {
+                    return $value;
+                }
+            }
+        }
+
+        if (function_exists('apache_request_headers')) {
+            $headers = apache_request_headers();
             foreach ($headers as $key => $value) {
                 if (strcasecmp($key, $headerName) === 0) {
                     return $value;
