@@ -190,12 +190,27 @@ class SiteSettingController extends BaseController
             $setting = SiteSetting::findByKey($id);
         }
 
+        $data = Request::getBody();
+
         if (!$setting) {
+            if (!is_numeric($id)) {
+                $settingGroup = strtolower(trim((string) ($data['setting_group'] ?? 'homepage')));
+                if (!in_array($settingGroup, SiteSetting::ALLOWED_GROUPS, true)) {
+                    $settingGroup = 'homepage';
+                }
+                $settingId = SiteSetting::create([
+                    'setting_key' => $id,
+                    'setting_value' => isset($data['setting_value']) ? (string) $data['setting_value'] : null,
+                    'setting_group' => $settingGroup,
+                ]);
+                $created = SiteSetting::findById($settingId);
+                $this->success($created, 'Site setting saved successfully', 200);
+                return;
+            }
             $this->error('Site setting not found.', 404, null, 'SETTING_NOT_FOUND');
         }
 
         $settingId = (int) $setting['id'];
-        $data = Request::getBody();
         $errors = [];
         $updatePayload = [];
 

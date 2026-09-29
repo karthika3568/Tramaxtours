@@ -7,7 +7,7 @@ use PDO;
 
 class SiteSetting extends BaseModel
 {
-    public const ALLOWED_GROUPS = ['general', 'contact', 'footer', 'seo', 'payment'];
+    public const ALLOWED_GROUPS = ['general', 'contact', 'footer', 'seo', 'payment', 'homepage'];
 
     public const SYSTEM_CRITICAL_KEYS = [
         'site_name',

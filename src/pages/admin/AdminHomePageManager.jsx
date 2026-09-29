@@ -143,6 +143,7 @@ export default function AdminHomePageManager() {
 
   // Data States
   const [heroSlides, setHeroSlides] = useState([]);
+  const [deletedSlideIds, setDeletedSlideIds] = useState([]);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const [benefits, setBenefits] = useState([]);
   const [cmsSections, setCmsSections] = useState([]);
@@ -237,6 +238,34 @@ export default function AdminHomePageManager() {
           const gen = setMap.general || {};
           const con = setMap.contact || {};
           const foo = setMap.footer || {};
+          const home = setMap.homepage || {};
+
+          if (home.homepage_section_order) {
+            try {
+              const parsedOrder = typeof home.homepage_section_order === 'string' ? JSON.parse(home.homepage_section_order) : home.homepage_section_order;
+              if (Array.isArray(parsedOrder) && parsedOrder.length > 0) {
+                setSectionOrder(parsedOrder);
+              }
+            } catch {}
+          }
+
+          if (home.homepage_section_visibility) {
+            try {
+              const parsedVis = typeof home.homepage_section_visibility === 'string' ? JSON.parse(home.homepage_section_visibility) : home.homepage_section_visibility;
+              if (parsedVis && typeof parsedVis === 'object') {
+                setSectionVisibility((prev) => ({ ...prev, ...parsedVis }));
+              }
+            } catch {}
+          }
+
+          if (home.search_heading || home.search_subtitle || home.search_btn_text) {
+            setSearchSettings((prev) => ({
+              ...prev,
+              heading: home.search_heading || prev.heading,
+              subtitle: home.search_subtitle || prev.subtitle,
+              btn_text: home.search_btn_text || prev.btn_text,
+            }));
+          }
 
           setNavSettings({
             site_name: gen.site_name || 'TRAMAX TOURS',
@@ -251,11 +280,11 @@ export default function AdminHomePageManager() {
           });
 
           setFooterSettings({
-            about_text: foo.about || 'Tramax Tours specializes in international tourist safaris, private sightseeing, cultural expeditions, and custom itineraries across premier destinations.',
-            address: con.address || 'Chennai, Tamil Nadu, India',
-            phone: con.phone || '+91 98400 00000',
-            email: con.email || 'contact@tramaxtours.in',
-            copyright: foo.copyright || `© ${new Date().getFullYear()} Tramax Tours. All rights reserved.`,
+            about_text: foo.about || foo.footer_about || 'Tramax Tours specializes in international tourist safaris, private sightseeing, cultural expeditions, and custom itineraries across premier destinations.',
+            address: con.address || con.contact_address || 'Chennai, Tamil Nadu, India',
+            phone: con.phone || con.contact_phone || '+91 98400 00000',
+            email: con.email || con.contact_email || 'contact@tramaxtours.in',
+            copyright: foo.copyright || foo.footer_copyright || `© ${new Date().getFullYear()} Tramax Tours. All rights reserved.`,
           });
         }
       } catch {
@@ -362,6 +391,10 @@ export default function AdminHomePageManager() {
     if (heroSlides.length <= 1) {
       toast.warning('At least one hero slide is required.');
       return;
+    }
+    const toDelete = heroSlides[activeSlideIndex];
+    if (toDelete && toDelete.id && !String(toDelete.id).startsWith('temp-')) {
+      setDeletedSlideIds((prev) => [...prev, toDelete.id]);
     }
     const updated = heroSlides.filter((_, idx) => idx !== activeSlideIndex);
     setHeroSlides(updated);
@@ -520,13 +553,27 @@ export default function AdminHomePageManager() {
     try {
       setPublishing(true);
 
-      // 1. Commit Hero Slides
+      // 1. Delete removed hero slides
+      if (deletedSlideIds.length > 0) {
+        for (const delId of deletedSlideIds) {
+          try {
+            await homeHeroService.deleteSlide(delId);
+          } catch (err) {
+            console.warn('Failed to delete removed hero slide ID:', delId, err);
+          }
+        }
+        setDeletedSlideIds([]);
+      }
+
+      // 2. Commit Hero Slides
+      const updatedSlides = [...heroSlides];
       for (let i = 0; i < heroSlides.length; i++) {
         const s = heroSlides[i];
         const payload = {
           title: s.title || 'Untitled Slide',
           subtitle: s.subtitle || null,
           desktop_media_id: s.desktop_media_id ? Number(s.desktop_media_id) : (s.desktop_media?.id ? Number(s.desktop_media.id) : null),
+          mobile_media_id: s.desktop_media_id ? Number(s.desktop_media_id) : (s.desktop_media?.id ? Number(s.desktop_media.id) : null),
           cta_label: s.cta_label || 'Explore Tours',
           cta_url: s.cta_url || '/tours',
           display_order: i + 1,
@@ -534,13 +581,18 @@ export default function AdminHomePageManager() {
         };
 
         if (typeof s.id === 'string' && s.id.startsWith('temp-')) {
-          await homeHeroService.createSlide(payload);
+          const createRes = await homeHeroService.createSlide(payload);
+          const newId = createRes?.id || createRes?.data?.id;
+          if (newId) {
+            updatedSlides[i] = { ...updatedSlides[i], id: newId };
+          }
         } else if (s.id) {
           await homeHeroService.updateSlide(s.id, payload);
         }
       }
+      setHeroSlides(updatedSlides);
 
-      // 2. Commit Benefits
+      // 3. Commit Benefits
       for (const b of benefits) {
         if (b.id) {
           await homeBenefitsService.updateBenefit(b.id, {
@@ -553,7 +605,7 @@ export default function AdminHomePageManager() {
         }
       }
 
-      // 3. Commit CMS Sections
+      // 4. Commit CMS Sections
       for (const c of cmsSections) {
         if (c.id) {
           await cmsSectionService.updateCmsSection(c.id, {
@@ -565,16 +617,21 @@ export default function AdminHomePageManager() {
         }
       }
 
-      // 4. Commit Contact & General Site Settings
+      // 5. Commit Section Order, Visibility & Site Settings
       await Promise.allSettled([
-        siteSettingsService.updateSetting('site_name', { setting_value: navSettings.site_name }),
-        siteSettingsService.updateSetting('site_tagline', { setting_value: navSettings.site_tagline }),
-        siteSettingsService.updateSetting('contact_phone', { setting_value: navSettings.phone }),
-        siteSettingsService.updateSetting('contact_email', { setting_value: navSettings.email }),
-        siteSettingsService.updateSetting('contact_whatsapp', { setting_value: navSettings.whatsapp }),
-        siteSettingsService.updateSetting('contact_business_hours', { setting_value: navSettings.business_hours }),
-        siteSettingsService.updateSetting('footer_about', { setting_value: footerSettings.about_text }),
-        siteSettingsService.updateSetting('footer_copyright', { setting_value: footerSettings.copyright }),
+        siteSettingsService.updateSetting('homepage_section_order', { setting_value: JSON.stringify(sectionOrder), setting_group: 'homepage' }),
+        siteSettingsService.updateSetting('homepage_section_visibility', { setting_value: JSON.stringify(sectionVisibility), setting_group: 'homepage' }),
+        siteSettingsService.updateSetting('search_heading', { setting_value: searchSettings.heading, setting_group: 'homepage' }),
+        siteSettingsService.updateSetting('search_subtitle', { setting_value: searchSettings.subtitle, setting_group: 'homepage' }),
+        siteSettingsService.updateSetting('search_btn_text', { setting_value: searchSettings.btn_text, setting_group: 'homepage' }),
+        siteSettingsService.updateSetting('site_name', { setting_value: navSettings.site_name, setting_group: 'general' }),
+        siteSettingsService.updateSetting('site_tagline', { setting_value: navSettings.site_tagline, setting_group: 'general' }),
+        siteSettingsService.updateSetting('contact_phone', { setting_value: navSettings.phone, setting_group: 'contact' }),
+        siteSettingsService.updateSetting('contact_email', { setting_value: navSettings.email, setting_group: 'contact' }),
+        siteSettingsService.updateSetting('contact_whatsapp', { setting_value: navSettings.whatsapp, setting_group: 'contact' }),
+        siteSettingsService.updateSetting('contact_business_hours', { setting_value: navSettings.business_hours, setting_group: 'contact' }),
+        siteSettingsService.updateSetting('footer_about', { setting_value: footerSettings.about_text, setting_group: 'footer' }),
+        siteSettingsService.updateSetting('footer_copyright', { setting_value: footerSettings.copyright, setting_group: 'footer' }),
       ]);
 
       setHasUnsavedChanges(false);

@@ -3,14 +3,10 @@ import homeHeroService from '../../../services/homeHeroService';
 import { getMediaUrl } from '../../../utils/media';
 
 const FALLBACK_HERO_SLIDES = [
-  { id: 1, title: 'Kerala Backwaters & Houseboats', image: '/uploads/media/demo_carousel_kerala.jpg' },
-  { id: 2, title: 'Munnar Misty Hills & Tea Estates', image: '/uploads/media/demo_kerala_munnar.jpg' },
-  { id: 3, title: 'Karnataka Royal Palaces & Heritage', image: '/uploads/media/demo_carousel_karnataka.jpg' },
-  { id: 4, title: 'Goa Coastal Serenity', image: '/uploads/media/demo_carousel_goa.jpg' },
-  { id: 5, title: 'Pondicherry French Promenade', image: '/uploads/media/demo_carousel_pondicherry.jpg' },
-  { id: 6, title: 'Taj Mahal Iconic Wonders', image: '/uploads/media/demo_carousel_tajmahal.jpg' },
-  { id: 7, title: 'Rajasthan Desert Safaris & Forts', image: '/uploads/media/demo_carousel_rajasthan.jpg' },
-  { id: 8, title: 'Delhi Cultural Monuments', image: '/uploads/media/demo_carousel_delhi.jpg' },
+  { id: 1, title: 'Tamil Nadu Living Heritage & Grand Temples', image: getMediaUrl('/uploads/media/demo_carousel_tamilnadu.jpg') },
+  { id: 2, title: 'Kerala Emerald Backwaters & Wellness', image: getMediaUrl('/uploads/media/demo_carousel_kerala.jpg') },
+  { id: 3, title: 'Karnataka Royal Palaces & UNESCO Hampi', image: getMediaUrl('/uploads/media/demo_carousel_karnataka.jpg') },
+  { id: 4, title: 'Goa Golden Beaches & Coastal Splendor', image: getMediaUrl('/uploads/media/demo_carousel_goa.jpg') },
 ];
 
 export default function HeroSection() {
@@ -28,12 +24,11 @@ export default function HeroSection() {
         const slideList = res?.data?.slides || res?.data || (Array.isArray(res) ? res : []);
         if (isMounted && slideList.length > 0) {
           const mapped = slideList.map((s, idx) => {
-            const mediaUrl = s.desktop_media?.url || (s.desktop_media?.file_path ? getMediaUrl(s.desktop_media.file_path) : (s.media ? getMediaUrl(s.media) : null));
-            const fallback = FALLBACK_HERO_SLIDES[idx % FALLBACK_HERO_SLIDES.length];
+            const mediaUrl = getMediaUrl(s.desktop_media || s.desktop_media?.file_path || s.desktop_media?.url || s.media);
             return {
-              id: s.id || fallback.id,
-              title: s.title || fallback.title,
-              image: mediaUrl || fallback.image,
+              id: s.id || `slide-${idx}`,
+              title: s.title || '',
+              image: mediaUrl || FALLBACK_HERO_SLIDES[idx % FALLBACK_HERO_SLIDES.length].image,
             };
           });
           setSlides(mapped);
