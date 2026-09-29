@@ -24001,3 +24001,19 @@ button {
   }
 }
 
+
+/* About page — admin-authored HTML story content (Part 20 CMS wiring) */
+.about-story-content p {
+  margin-bottom: 16px;
+}
+.about-story-content h2,
+.about-story-content h3 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0B1329;
+  margin: 20px 0 10px;
+}
+.about-story-content ul,
+.about-story-content ol {
+  margin: 0 0 16px 20px;
+}
