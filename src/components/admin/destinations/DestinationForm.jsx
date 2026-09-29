@@ -227,7 +227,7 @@ export default function DestinationForm({
           className={`dest-tab-btn ${activeTab === 'sections' ? 'active' : ''}`}
           onClick={() => setActiveTab('sections')}
         >
-          5. Sections ({sections.length})
+          5. Seasonal Activities ({sections.length})
         </button>
         <button
           type="button"

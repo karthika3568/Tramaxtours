@@ -236,7 +236,7 @@ export default function DestinationDetailPage() {
             </div>
 
             <div className="dest-seasonal-content">
-              <h2 className="dest-section-heading">Seasonal Activities &amp; Travel Insights</h2>
+              <h2 className="dest-section-heading">Seasonal Activities</h2>
               <div className="dest-accordion-group">
                 {seasonalItems.map((item, idx) => {
                   const isOpen = openSeasonalIndex === idx;

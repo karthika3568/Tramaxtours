@@ -7,7 +7,7 @@ use App\Utils\Database;
 
 $pdo = Database::getConnection();
 
-echo "Seeding the 4 official destinations (Tamil Nadu, Kerala, Karnataka, Goa)...\n";
+echo "Seeding the 4 official destinations with exact Seasonal Activities accordion content...\n";
 
 $destinations = [
     [
@@ -29,17 +29,27 @@ $destinations = [
         'status' => 'published',
         'featured_img_path' => 'uploads/media/demo_home_tamilnadu.jpg',
         'intro_img_path' => 'uploads/media/demo_tamilnadu_mahabalipuram.jpg',
-        'faqs' => [
-            ['question' => 'Best Time to Visit Chennai & Tamil Nadu', 'answer' => 'Tamil Nadu can be explored throughout the year, but the most pleasant season is from October to March, when the climate is ideal for temple visits, heritage walks, hill stations, and coastal sightseeing.'],
-            ['question' => 'Comfortable Private Sightseeing', 'answer' => 'Discover Tamil Nadu in comfort with private, air-conditioned transportation and a dedicated chauffeur guide, allowing flexible itineraries across cities, temples, hill stations, and coastal destinations at your own pace.'],
-            ['question' => 'Cultural & Heritage Experiences', 'answer' => 'Experience the soul of South India through ancient temples, UNESCO heritage sites, classical arts, traditional villages, spiritual centers, and vibrant local festivals that reflect Tamil Nadu’s timeless identity.'],
-            ['question' => 'Flexible Tour Across All Seasons', 'answer' => 'Tamil Nadu tours are available year-round, with itineraries customized to suit seasonal conditions, festival calendars, and traveler preferences—perfect for families, pilgrims, culture lovers, and explorers alike.'],
-        ],
         'seasonal' => [
-            ['title' => 'Best Time to Visit Chennai', 'content' => 'Tamil Nadu can be explored throughout the year, but the most pleasant season is from October to March, when the climate is ideal for temple visits, heritage walks, hill stations, and coastal sightseeing.', 'image' => 'uploads/media/demo_tamilnadu_chennai.jpg'],
-            ['title' => 'Comfortable Private Sightseeing', 'content' => 'Discover Tamil Nadu in comfort with private, air-conditioned transportation and a dedicated chauffeur guide, allowing flexible itineraries across cities, temples, hill stations, and coastal destinations at your own pace.', 'image' => 'uploads/media/demo_tamilnadu_pondicherry.jpg'],
-            ['title' => 'Cultural & Heritage Experiences', 'content' => 'Experience the soul of South India through ancient temples, UNESCO heritage sites, classical arts, traditional villages, spiritual centers, and vibrant local festivals that reflect Tamil Nadu’s timeless identity.', 'image' => 'uploads/media/demo_tamilnadu_thanjavur.jpg'],
-            ['title' => 'Flexible Tours Across All Seasons', 'content' => 'Tamil Nadu tours are available year-round, with itineraries customized to suit seasonal conditions, festival calendars, and traveler preferences — perfect for families, pilgrims, culture lovers, and explorers alike.', 'image' => 'uploads/media/demo_tamilnadu_madurai.jpg'],
+            [
+                'title' => 'Best Time to Visit Tamil Nadu',
+                'content' => 'Tamil Nadu can be explored throughout the year, but the most pleasant season is from October to March, when the climate is ideal for temple visits, heritage walks, hill stations, and coastal sightseeing.',
+                'image' => 'uploads/media/demo_tamilnadu_chennai.jpg'
+            ],
+            [
+                'title' => 'Comfortable Private Sightseeing',
+                'content' => 'Explore Tamil Nadu comfortably with private, chauffeur-driven vehicles designed for flexible sightseeing across temples, heritage landmarks, cities, hill stations, and coastal destinations.',
+                'image' => 'uploads/media/demo_tamilnadu_pondicherry.jpg'
+            ],
+            [
+                'title' => 'Cultural & Heritage Experiences',
+                'content' => 'Experience Tamil Nadu through its magnificent temples, UNESCO heritage landmarks, classical Tamil culture, Bharatanatyam, Carnatic music, traditional cuisine, silk weaving, and historic architecture.',
+                'image' => 'uploads/media/demo_tamilnadu_thanjavur.jpg'
+            ],
+            [
+                'title' => 'Flexible Tours Across All Seasons',
+                'content' => 'Tamil Nadu offers flexible travel experiences throughout the year, allowing travelers to combine cultural heritage, temple visits, beaches, hill stations, wildlife, and local experiences according to the season.',
+                'image' => 'uploads/media/demo_tamilnadu_madurai.jpg'
+            ],
         ],
     ],
     [
@@ -61,17 +71,32 @@ $destinations = [
         'status' => 'published',
         'featured_img_path' => 'uploads/media/demo_home_kerala.jpg',
         'intro_img_path' => 'uploads/media/demo_carousel_kerala.jpg',
-        'faqs' => [
-            ['question' => 'Best Time to Visit Kerala', 'answer' => 'The ideal season to explore Kerala is between September and March for cool pleasant backwater cruises, and June to August for authentic monsoon Ayurvedic wellness therapies.'],
-            ['question' => 'Private Houseboat & Chauffeur Safaris', 'answer' => 'Sail along serene backwaters in luxury air-conditioned houseboats with private chef and dedicated guide, complemented by private transfers across tea estates and coastal sanctuaries.'],
-            ['question' => 'Spice Trails & Wildlife Safaris', 'answer' => 'Walk through fragrant cardamom, pepper, and vanilla plantations in Thekkady, and cruise Lake Periyar to view wild elephants, exotic birds, and tropical flora in their natural habitat.'],
-            ['question' => 'Holistic Ayurveda & Classical Arts', 'answer' => 'Experience time-honored Ayurvedic rejuvenation treatments, witness dramatic Kathakali dance performances, and discover Kalaripayattu martial art demonstrations.'],
-        ],
         'seasonal' => [
-            ['title' => 'Best Time to Visit Kerala', 'content' => 'The ideal season to explore Kerala is between September and March for cool pleasant backwater cruises, and June to August for authentic monsoon Ayurvedic wellness therapies.', 'image' => 'uploads/media/demo_kerala_alappuzha.jpg'],
-            ['title' => 'Private Houseboat & Chauffeur Safaris', 'content' => 'Sail along serene backwaters in luxury air-conditioned houseboats with private chef and dedicated guide, complemented by private transfers across tea estates and coastal sanctuaries.', 'image' => 'uploads/media/demo_kerala_munnar.jpg'],
-            ['title' => 'Spice Trails & Wildlife Safaris', 'content' => 'Walk through fragrant cardamom, pepper, and vanilla plantations in Thekkady, and cruise Lake Periyar to view wild elephants, exotic birds, and tropical flora in their natural habitat.', 'image' => 'uploads/media/demo_kerala_nationalparks.jpg'],
-            ['title' => 'Holistic Ayurveda & Classical Arts', 'content' => 'Experience time-honored Ayurvedic rejuvenation treatments, witness dramatic Kathakali dance performances, and discover Kalaripayattu martial art demonstrations.', 'image' => 'uploads/media/demo_kerala_cochin.jpg'],
+            [
+                'title' => 'Best Time to Visit Kerala',
+                'content' => 'The ideal season to explore Kerala is between September and March for cool, pleasant backwater cruises and sightseeing, while June to August offers the best climate for traditional Ayurvedic wellness therapies and lush monsoon landscapes.',
+                'image' => 'uploads/media/demo_kerala_alappuzha.jpg'
+            ],
+            [
+                'title' => 'Comfortable Private Sightseeing',
+                'content' => 'Travel effortlessly across Kerala in private, air-conditioned chauffeur-driven vehicles with dedicated local driver-guides, providing seamless transfers between Kochi, Munnar, Thekkady, Alleppey, and Kovalam.',
+                'image' => 'uploads/media/demo_kerala_munnar.jpg'
+            ],
+            [
+                'title' => 'Backwaters & Nature Experiences',
+                'content' => 'Cruise along tranquil palm-fringed backwaters aboard authentic luxury houseboats in Alleppey and Kumarakom, walk through fragrant tea and spice plantations in Munnar, and explore Periyar Lake wildlife sanctuaries.',
+                'image' => 'uploads/media/demo_kerala_nationalparks.jpg'
+            ],
+            [
+                'title' => 'Cultural & Heritage Experiences',
+                'content' => 'Immerse yourself in Kerala’s rich living heritage with live Kathakali dance dramas, Kalaripayattu martial arts, historic colonial architecture in Fort Kochi, and vibrant temple festivals.',
+                'image' => 'uploads/media/demo_kerala_cochin.jpg'
+            ],
+            [
+                'title' => 'Flexible Tours Across All Seasons',
+                'content' => 'Kerala tours are customizable for every season, offering relaxing backwater retreats, high-altitude hill station escapes, tropical beach getaways, and holistic Ayurvedic rejuvenation all year round.',
+                'image' => 'uploads/media/demo_kerala_varkala.jpg'
+            ],
         ],
     ],
     [
@@ -93,17 +118,32 @@ $destinations = [
         'status' => 'published',
         'featured_img_path' => 'uploads/media/demo_home_karnataka.jpg',
         'intro_img_path' => 'uploads/media/demo_carousel_karnataka.jpg',
-        'faqs' => [
-            ['question' => 'Best Time to Visit Karnataka', 'answer' => 'October to April provides cool, sunny weather perfect for exploring the rock-cut monuments of Hampi, Mysore Palace festivities, and wildlife safaris.'],
-            ['question' => 'Royal Heritage & Architectural Wonders', 'answer' => 'Marvel at the illuminated Mysore Palace, explore the boulder-strewn ruins of the UNESCO Vijayanagara Empire in Hampi, and study the intricate Hoysala temple carvings.'],
-            ['question' => 'Coffee Plantations & Nature Escapes', 'answer' => 'Immerse yourself in lush coffee and spice estates in Coorg and Chikmagalur, staying in luxury plantation bungalows with private nature walks.'],
-            ['question' => 'Wildlife Safaris & Nature Sanctuaries', 'answer' => 'Embark on private guided Jeep safaris in Kabini and Bandipur Tiger Reserve to encounter wild Bengal tigers, leopards, and herds of Asian elephants.'],
-        ],
         'seasonal' => [
-            ['title' => 'Best Time to Visit Karnataka', 'content' => 'October to April provides cool, sunny weather perfect for exploring the rock-cut monuments of Hampi, Mysore Palace festivities, and wildlife safaris.', 'image' => 'uploads/media/demo_karnataka_hampi.jpg'],
-            ['title' => 'Royal Heritage & Architectural Wonders', 'content' => 'Marvel at the illuminated Mysore Palace, explore the boulder-strewn ruins of the UNESCO Vijayanagara Empire in Hampi, and study the intricate Hoysala temple carvings.', 'image' => 'uploads/media/demo_karnataka_mysore.jpg'],
-            ['title' => 'Coffee Plantations & Nature Escapes', 'content' => 'Immerse yourself in lush coffee and spice estates in Coorg and Chikmagalur, staying in luxury plantation bungalows with private nature walks.', 'image' => 'uploads/media/demo_karnataka_coorg.jpg'],
-            ['title' => 'Wildlife Safaris & Nature Sanctuaries', 'content' => 'Embark on private guided Jeep safaris in Kabini and Bandipur Tiger Reserve to encounter wild Bengal tigers, leopards, and herds of Asian elephants.', 'image' => 'uploads/media/demo_karnataka_nationalparks.jpg'],
+            [
+                'title' => 'Best Time to Visit Karnataka',
+                'content' => 'October to April provides the most pleasant and dry weather for exploring the UNESCO ruins of Hampi, the regal palaces of Mysore, wildlife safaris, and the cool coffee hills of Coorg.',
+                'image' => 'uploads/media/demo_karnataka_hampi.jpg'
+            ],
+            [
+                'title' => 'Comfortable Private Sightseeing',
+                'content' => 'Discover Karnataka with private sanitized chauffeur-driven vehicles, ensuring comfortable travel across historic temple circuits, royal heritage cities, wildlife reserves, and scenic Western Ghats destinations.',
+                'image' => 'uploads/media/demo_karnataka_mysore.jpg'
+            ],
+            [
+                'title' => 'Heritage & Historical Experiences',
+                'content' => 'Marvel at the illuminated grandeur of Mysore Palace, walk through the ancient boulder-strewn monuments of the Vijayanagara Empire in Hampi, and admire the stone carvings of Belur and Halebidu.',
+                'image' => 'uploads/media/demo_karnataka_bangalore.jpg'
+            ],
+            [
+                'title' => 'Nature & Wildlife Experiences',
+                'content' => 'Embark on thrilling Jeep safaris in Nagarhole and Bandipur National Parks to spot wild tigers and Asian elephants, and stay in serene coffee estate homestays amidst the misty hills of Coorg and Chikmagalur.',
+                'image' => 'uploads/media/demo_karnataka_coorg.jpg'
+            ],
+            [
+                'title' => 'Flexible Tours Across All Seasons',
+                'content' => 'Karnataka offers varied travel experiences in every season, from winter heritage tours and wildlife expeditions to lush monsoon waterfall journeys and year-round coffee plantation retreats.',
+                'image' => 'uploads/media/demo_karnataka_nationalparks.jpg'
+            ],
         ],
     ],
     [
@@ -125,22 +165,36 @@ $destinations = [
         'status' => 'published',
         'featured_img_path' => 'uploads/media/demo_home_goa.jpg',
         'intro_img_path' => 'uploads/media/demo_carousel_goa.jpg',
-        'faqs' => [
-            ['question' => 'Best Time to Visit Goa', 'answer' => 'November to March is the peak season with sunny skies, warm tropical waters, and vibrant seaside cafe culture.'],
-            ['question' => 'Old Goa & UNESCO Baroque Churches', 'answer' => 'Visit the Basilica of Bom Jesus and Se Cathedral, showcasing magnificent 16th-century Portuguese architecture and sacred art.'],
-            ['question' => 'Spice Plantations & Mandovi River Cruises', 'answer' => 'Take an aromatic walking tour through organic spice plantations followed by private sunset cruises along the Mandovi River.'],
-            ['question' => 'Private Chauffeur Coastal Explorations', 'answer' => 'Travel in sanitized luxury private vehicles to explore hidden beaches in South Goa, historic forts like Fort Aguada and Chapora, and traditional Latin Quarter villas.'],
-        ],
         'seasonal' => [
-            ['title' => 'Best Time to Visit Goa', 'content' => 'November to March is the peak season with sunny skies, warm tropical waters, and vibrant seaside cafe culture.', 'image' => 'uploads/media/demo_goa_beach_2.jpg'],
-            ['title' => 'Old Goa & UNESCO Baroque Churches', 'content' => 'Visit the Basilica of Bom Jesus and Se Cathedral, showcasing magnificent 16th-century Portuguese architecture and sacred art.', 'image' => 'uploads/media/demo_goa_oldgoa.jpg'],
-            ['title' => 'Spice Plantations & Mandovi River Cruises', 'content' => 'Take an aromatic walking tour through organic spice plantations followed by private sunset cruises along the Mandovi River.', 'image' => 'uploads/media/demo_goa_culture.jpg'],
-            ['title' => 'Private Chauffeur Coastal Explorations', 'content' => 'Travel in sanitized luxury private vehicles to explore hidden beaches in South Goa, historic forts like Fort Aguada and Chapora, and traditional Latin Quarter villas.', 'image' => 'uploads/media/demo_goa_margoa.jpg'],
+            [
+                'title' => 'Best Time to Visit Goa',
+                'content' => 'November to March is the peak season with sunny tropical skies, warm waters, and vibrant beach shacks, while June to September offers lush green landscapes and tranquil romantic monsoon getaways.',
+                'image' => 'uploads/media/demo_goa_beach_2.jpg'
+            ],
+            [
+                'title' => 'Comfortable Private Sightseeing',
+                'content' => 'Explore North and South Goa in comfort with private air-conditioned vehicles, tailored for hassle-free sightseeing across historic forts, pristine beaches, spice plantations, and Portuguese quarters.',
+                'image' => 'uploads/media/demo_goa_margoa.jpg'
+            ],
+            [
+                'title' => 'Beaches & Coastal Experiences',
+                'content' => 'Relax on sun-kissed golden sand beaches from lively Baga and Calangute to serene South Goa havens like Palolem and Morjim, enjoy thrilling watersports, and take sunset cruises along the Mandovi River.',
+                'image' => 'uploads/media/demo_goa_beaches.jpg'
+            ],
+            [
+                'title' => 'Cultural & Heritage Experiences',
+                'content' => 'Discover Goa’s rich Indo-Portuguese heritage with visits to the UNESCO Baroque churches of Old Goa including Basilica of Bom Jesus and Se Cathedral, historic Fort Aguada, and the colorful Latin Quarter of Fontainhas.',
+                'image' => 'uploads/media/demo_goa_oldgoa.jpg'
+            ],
+            [
+                'title' => 'Flexible Tours Across All Seasons',
+                'content' => 'Goa offers versatile travel opportunities throughout the year, from vibrant winter beach holidays and heritage sightseeing to peaceful off-season wellness retreats and spice plantation excursions.',
+                'image' => 'uploads/media/demo_goa_culture.jpg'
+            ],
         ],
     ],
 ];
 
-// Helper to get or insert media
 function getOrCreateMedia($pdo, $filePath, $title) {
     $stmt = $pdo->prepare("SELECT id FROM media WHERE file_path = ? OR filename = ? LIMIT 1");
     $stmt->execute([$filePath, basename($filePath)]);
@@ -155,7 +209,7 @@ function getOrCreateMedia($pdo, $filePath, $title) {
 $validSlugs = array_map(fn($d) => $d['slug'], $destinations);
 $inClause = "'" . implode("', '", $validSlugs) . "'";
 
-// Remap any tours pointing to other destinations to Tamil Nadu
+// Remap tours from deleted destinations to Tamil Nadu
 $pdo->query("UPDATE tours SET destination_id = (SELECT id FROM destinations WHERE slug = 'tamil-nadu' LIMIT 1) WHERE destination_id IN (SELECT id FROM destinations WHERE slug NOT IN ($inClause))");
 
 // Delete other destinations
@@ -209,13 +263,6 @@ foreach ($destinations as $dest) {
         $destId = (int)$pdo->lastInsertId();
     }
 
-    // Insert FAQs
-    $pdo->prepare("DELETE FROM destination_faqs WHERE destination_id = ?")->execute([$destId]);
-    $faqStmt = $pdo->prepare("INSERT INTO destination_faqs (destination_id, question, answer, display_order, status, created_at, updated_at) VALUES (?, ?, ?, ?, 'published', NOW(), NOW())");
-    foreach ($dest['faqs'] as $idx => $faq) {
-        $faqStmt->execute([$destId, $faq['question'], $faq['answer'], $idx + 1]);
-    }
-
     // Insert Seasonal Activities accordion (destination_sections, section_type = seasonal_activities)
     $pdo->prepare("DELETE FROM destination_sections WHERE destination_id = ? AND section_type = 'seasonal_activities'")->execute([$destId]);
     $sectionStmt = $pdo->prepare("INSERT INTO destination_sections (destination_id, section_type, title, content, media_id, display_order, status, created_at, updated_at) VALUES (?, 'seasonal_activities', ?, ?, ?, ?, 'active', NOW(), NOW())");
@@ -224,7 +271,7 @@ foreach ($destinations as $dest) {
         $sectionStmt->execute([$destId, $item['title'], $item['content'], $seasonalMediaId, $idx + 1]);
     }
 
-    echo " [OK] Processed {$dest['name']} (ID: $destId)\n";
+    echo " [OK] Seeded {$dest['name']} (ID: $destId) with " . count($dest['seasonal']) . " Seasonal Activities\n";
 }
 
 echo "Successfully seeded the 4 official destinations.\n";
