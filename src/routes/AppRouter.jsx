@@ -16,6 +16,8 @@ import {
   TourDetailPage,
   AboutPage,
   ContactPage,
+  TestimonialsPage,
+  PlanTripPage,
   ContentPage,
   UserProfilePage,
   NotFoundPage,
@@ -63,6 +65,11 @@ export default function AppRouter() {
           <Route path="tours" element={<ToursPage />} />
           <Route path="tours/:slug" element={<TourDetailPage />} />
           <Route path="about" element={<AboutPage />} />
+          <Route path="testimonials" element={<TestimonialsPage />} />
+          <Route path="reviews" element={<TestimonialsPage />} />
+          <Route path="plan-your-trip" element={<PlanTripPage />} />
+          <Route path="plan-trip" element={<PlanTripPage />} />
+          <Route path="custom-tour" element={<PlanTripPage />} />
           <Route path="contact" element={<ContactPage />} />
           <Route path="terms" element={<ContentPage defaultSlug="terms-conditions" />} />
           <Route path="terms-conditions" element={<ContentPage defaultSlug="terms-conditions" />} />

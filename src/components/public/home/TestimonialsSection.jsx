@@ -110,6 +110,7 @@ export default function TestimonialsSection() {
   return (
     <section
       className="testimonials-carousel-section page-section"
+      id="testimonials"
       aria-label="Customer Testimonials"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
