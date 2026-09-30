@@ -15,15 +15,15 @@ export default function AdminAboutPageManager() {
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
 
   const [formData, setFormData] = useState({
-    title: 'About Tramax Tours',
+    title: 'About Wonderer South India',
     slug: 'about-us',
     subtitle: 'Pioneering luxury travel, bespoke safari expeditions, and authentic cultural journeys.',
     content: '',
     hero_media_id: '',
     hero_media_url: '',
     status: 'published',
-    meta_title: 'About Tramax Tours — Bespoke Travel & Luxury Journeys',
-    meta_description: 'Learn about Tramax Tours, our passion for hospitality, cultural expeditions, and wildlife safaris.',
+    meta_title: 'About Wonderer South India — Bespoke Travel & Luxury Journeys',
+    meta_description: 'Learn about Wonderer South India, our passion for hospitality, cultural expeditions, and wildlife safaris.',
   });
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export default function AdminAboutPageManager() {
           setPageId(data.id);
           const heroUrl = data.hero_media?.url || (data.hero_media?.file_path ? getMediaUrl(data.hero_media.file_path) : '');
           setFormData({
-            title: data.title || 'About Tramax Tours',
+            title: data.title || 'About Wonderer South India',
             slug: data.slug || 'about-us',
             subtitle: data.subtitle || 'Pioneering luxury travel, bespoke safari expeditions, and authentic cultural journeys.',
             content: data.content || '',

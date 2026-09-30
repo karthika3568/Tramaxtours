@@ -14,18 +14,23 @@ export default function AdminSettingsPage() {
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
 
   const [settings, setSettings] = useState({
-    site_name: 'Tramax Tours',
+    site_name: 'Wonderer South India',
     site_tagline: 'Dream. Travel. Discover.',
-    meta_description: 'Discover South India with Tramax Tours. Handcrafted tour packages, private cabs, spiritual pilgrimage & hill station getaways.',
+    meta_description: 'Discover South India with Wonderer South India. Handcrafted tour packages, private cabs, spiritual pilgrimage & hill station getaways.',
     contact_phone: '+91 8072566010',
     contact_whatsapp: '+91 8072566010',
-    contact_email: 'contact@tramaxtours.in',
+    contact_email: 'contact@wonderersouthindia.in',
     contact_address: 'Chennai, Tamil Nadu, India',
     contact_business_hours: 'Mon - Sun: 08:00 AM - 09:00 PM IST',
     header_cta_label: 'Book Now',
     header_cta_url: '/tours',
     default_currency: 'INR',
-    footer_about: 'Tramax Tours provides premium guided excursions, private temple pilgrimages, and cultural day trips across South India.',
+    footer_planning_badge: 'Curated Itineraries & Luxury Transport',
+    footer_planning_title: 'Travel Planning Services by Wonderer South India',
+    footer_planning_lead: 'Let’s work with a family travel expert to book the vacation of your dreams, complete with all the best travel amenities for a seamless experience in vacation planning!',
+    footer_planning_prompt: '...check if your specific vacation is one we can assist with, including travel amenities for the whole family? We’d love to hear from you during your vacation planning journey!',
+    footer_planning_btn_text: 'Message us on WhatsApp',
+    footer_planning_whatsapp_msg: 'Hello Wonderer South India! I would like to inquire about family travel amenities, vacation planning services, and custom tour packages.',
     footer_copyright: '',
     site_logo_url: '',
   });
@@ -215,7 +220,7 @@ export default function AdminSettingsPage() {
                 className="form-input"
                 value={settings.contact_email}
                 onChange={handleChange}
-                placeholder="contact@tramaxtours.in"
+                placeholder="contact@wonderersouthindia.in"
                 required
               />
             </div>
@@ -260,20 +265,89 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
-        {/* Footer About & Header CTA Box */}
+        {/* Travel Planning Footer CMS Content Box */}
         <div className="admin-box-card" style={{ marginBottom: '24px' }}>
           <div className="admin-box-header">
-            <h3 className="admin-box-title">📑 Footer &amp; Navigation Defaults</h3>
+            <h3 className="admin-box-title">🌴 Travel Planning Footer Showcase (Live CMS)</h3>
           </div>
-          <div className="form-group">
-            <label className="form-label">Footer About Text</label>
+          <p className="admin-box-desc" style={{ fontSize: '13px', color: '#64748b', marginBottom: '18px' }}>
+            Customize the prominent Travel Planning Services showcase footer displayed across all pages of your website.
+          </p>
+
+          <div className="form-grid-2col">
+            <div className="form-group">
+              <label className="form-label">Footer Pill Badge Text</label>
+              <input
+                type="text"
+                name="footer_planning_badge"
+                className="form-input"
+                value={settings.footer_planning_badge}
+                onChange={handleChange}
+                placeholder="Curated Itineraries & Luxury Transport"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Footer Main Title / Headline</label>
+              <input
+                type="text"
+                name="footer_planning_title"
+                className="form-input"
+                value={settings.footer_planning_title}
+                onChange={handleChange}
+                placeholder="Travel Planning Services by Wonderer South India"
+              />
+            </div>
+          </div>
+
+          <div className="form-group" style={{ marginTop: '16px' }}>
+            <label className="form-label">Lead Description Paragraph</label>
             <textarea
-              name="footer_about"
+              name="footer_planning_lead"
               className="form-input"
-              rows={3}
-              value={settings.footer_about}
+              rows={2}
+              value={settings.footer_planning_lead}
               onChange={handleChange}
+              placeholder="Let’s work with a family travel expert to book the vacation of your dreams, complete with all the best travel amenities for a seamless experience in vacation planning!"
             />
+          </div>
+
+          <div className="form-group" style={{ marginTop: '16px' }}>
+            <label className="form-label">Engagement Inquiring Prompt</label>
+            <textarea
+              name="footer_planning_prompt"
+              className="form-input"
+              rows={2}
+              value={settings.footer_planning_prompt}
+              onChange={handleChange}
+              placeholder="...check if your specific vacation is one we can assist with, including travel amenities for the whole family? We’d love to hear from you during your vacation planning journey!"
+            />
+          </div>
+
+          <div className="form-grid-2col" style={{ marginTop: '16px' }}>
+            <div className="form-group">
+              <label className="form-label">WhatsApp Button Label</label>
+              <input
+                type="text"
+                name="footer_planning_btn_text"
+                className="form-input"
+                value={settings.footer_planning_btn_text}
+                onChange={handleChange}
+                placeholder="Message us on WhatsApp"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Default WhatsApp Pre-filled Message</label>
+              <input
+                type="text"
+                name="footer_planning_whatsapp_msg"
+                className="form-input"
+                value={settings.footer_planning_whatsapp_msg}
+                onChange={handleChange}
+                placeholder="Hello Wonderer South India! I would like to inquire about family travel amenities, vacation planning services, and custom tour packages."
+              />
+            </div>
           </div>
 
           <div className="form-group" style={{ marginTop: '16px' }}>
@@ -284,7 +358,7 @@ export default function AdminSettingsPage() {
               className="form-input"
               value={settings.footer_copyright}
               onChange={handleChange}
-              placeholder={`© ${new Date().getFullYear()} Tramax Tours. All rights reserved.`}
+              placeholder={`© ${new Date().getFullYear()} Wonderer South India. All rights reserved.`}
             />
             <span className="form-hint">Leave blank to auto-generate from the site name and current year.</span>
           </div>

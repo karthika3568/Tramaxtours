@@ -25,8 +25,8 @@ export default function AdminPageFormPage({ mode = 'create' }) {
   useEffect(() => {
     updatePageMeta({
       title: isEdit
-        ? `Admin - Edit CMS Page | Tramax Tours`
-        : `Admin - Create New CMS Page | Tramax Tours`,
+        ? `Admin - Edit CMS Page | Wonderer South India`
+        : `Admin - Create New CMS Page | Wonderer South India`,
       description: 'Author and configure custom CMS pages, legal policies, content, and SEO metadata.',
     });
   }, [isEdit]);
@@ -45,7 +45,7 @@ export default function AdminPageFormPage({ mode = 'create' }) {
           setInitialData(data);
           if (data?.title) {
             updatePageMeta({
-              title: `Admin - Edit ${data.title} | Tramax Tours`,
+              title: `Admin - Edit ${data.title} | Wonderer South India`,
             });
           }
         }

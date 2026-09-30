@@ -107,7 +107,7 @@ export default function AdminLayout() {
     }
     if (location.pathname.includes('/new')) return { title: 'Create New Item', group: 'Management' };
     if (location.pathname.includes('/edit')) return { title: 'Edit Item', group: 'Management' };
-    return { title: 'Operations Console', group: 'Tramax Tours' };
+    return { title: 'Operations Console', group: 'Wonderer South India' };
   };
 
   const pageMeta = getCurrentPageMeta();
@@ -135,10 +135,10 @@ export default function AdminLayout() {
         <div className="admin-sidebar-header">
           <Link to="/admin" className="admin-brand-link" onClick={closeSidebar}>
             <div className="admin-logo-box">
-              <span className="logo-symbol">TT</span>
+              <span className="logo-symbol">WSI</span>
             </div>
             <div className="admin-brand-info">
-              <span className="admin-brand-title">TRAMAX TOURS</span>
+              <span className="admin-brand-title">WONDERER SOUTH INDIA</span>
               <span className="admin-portal-badge">TRAVEL MANAGEMENT</span>
             </div>
           </Link>

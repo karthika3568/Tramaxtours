@@ -154,10 +154,10 @@ export default function AdminHomePageManager() {
 
   // Navbar & Search Presentation Customization
   const [navSettings, setNavSettings] = useState({
-    site_name: 'TRAMAX TOURS',
+    site_name: 'WONDERER SOUTH INDIA',
     site_tagline: 'TRAVEL MADE SIMPLE & MEMORABLE',
     phone: '+91 8072566010',
-    email: 'contact@tramaxtours.in',
+    email: 'contact@wonderersouthindia.in',
     whatsapp: '+91 8072566010',
     business_hours: 'Mon - Sun: 08:00 AM - 09:00 PM IST',
     cta_label: 'Explore Tours',
@@ -172,11 +172,11 @@ export default function AdminHomePageManager() {
   });
 
   const [footerSettings, setFooterSettings] = useState({
-    about_text: 'Tramax Tours specializes in international tourist safaris, private sightseeing, cultural expeditions, and custom itineraries across premier destinations.',
+    about_text: 'Wonderer South India specializes in international tourist safaris, private sightseeing, cultural expeditions, and custom itineraries across premier destinations.',
     address: 'Chennai, Tamil Nadu, India',
     phone: '+91 98400 00000',
-    email: 'contact@tramaxtours.in',
-    copyright: `© ${new Date().getFullYear()} Tramax Tours. All rights reserved.`,
+    email: 'contact@wonderersouthindia.in',
+    copyright: `© ${new Date().getFullYear()} Wonderer South India. All rights reserved.`,
   });
 
   // Media Picker state
@@ -188,7 +188,7 @@ export default function AdminHomePageManager() {
 
   useEffect(() => {
     updatePageMeta({
-      title: 'Admin - Visual Website Page Editor | Tramax Tours',
+      title: 'Admin - Visual Website Page Editor | Wonderer South India',
       description: 'WordPress-style live visual website builder for the public homepage.',
     });
   }, []);
@@ -268,10 +268,10 @@ export default function AdminHomePageManager() {
           }
 
           setNavSettings({
-            site_name: gen.site_name || 'TRAMAX TOURS',
+            site_name: gen.site_name || 'WONDERER SOUTH INDIA',
             site_tagline: gen.site_tagline || 'TRAVEL MADE SIMPLE & MEMORABLE',
             phone: con.phone || '+91 98400 00000',
-            email: con.email || 'contact@tramaxtours.in',
+            email: con.email || 'contact@wonderersouthindia.in',
             whatsapp: con.whatsapp || '+91 98400 00000',
             business_hours: con.business_hours || 'Mon - Sun: 08:00 AM - 09:00 PM IST',
             cta_label: gen.header_cta_label || 'Explore Tours',
@@ -280,11 +280,11 @@ export default function AdminHomePageManager() {
           });
 
           setFooterSettings({
-            about_text: foo.about || foo.footer_about || 'Tramax Tours specializes in international tourist safaris, private sightseeing, cultural expeditions, and custom itineraries across premier destinations.',
+            about_text: foo.about || foo.footer_about || 'Wonderer South India specializes in international tourist safaris, private sightseeing, cultural expeditions, and custom itineraries across premier destinations.',
             address: con.address || con.contact_address || 'Chennai, Tamil Nadu, India',
             phone: con.phone || con.contact_phone || '+91 98400 00000',
-            email: con.email || con.contact_email || 'contact@tramaxtours.in',
-            copyright: foo.copyright || foo.footer_copyright || `© ${new Date().getFullYear()} Tramax Tours. All rights reserved.`,
+            email: con.email || con.contact_email || 'contact@wonderersouthindia.in',
+            copyright: foo.copyright || foo.footer_copyright || `© ${new Date().getFullYear()} Wonderer South India. All rights reserved.`,
           });
         }
       } catch {
@@ -357,7 +357,7 @@ export default function AdminHomePageManager() {
     const newSlide = {
       id: `temp-${Date.now()}`,
       title: 'New Spectacular Journey',
-      subtitle: 'Experience breathtaking vistas and curated private safaris with Tramax Tours.',
+      subtitle: 'Experience breathtaking vistas and curated private safaris with Wonderer South India.',
       cta_label: 'Explore Tour Packages',
       cta_url: '/tours',
       display_order: heroSlides.length + 1,
@@ -1228,7 +1228,7 @@ export default function AdminHomePageManager() {
                             {reviews.slice(0, 3).map((r, idx) => (
                               <div key={r.id || idx} className="canvas-review-card">
                                 <span className="stars">★★★★★</span>
-                                <p className="quote">"{r.content || 'Exceptional experience with Tramax Tours.'}"</p>
+                                <p className="quote">"{r.content || 'Exceptional experience with Wonderer South India.'}"</p>
                                 <strong className="guest-name">{r.customer_name || 'Verified Guest'}</strong>
                               </div>
                             ))}

@@ -4,7 +4,7 @@ import { getMediaUrl } from '../../../utils/media';
 export default function PageHero({
   title,
   subtitle,
-  badge = 'Tramax Tours',
+  badge = 'Wonderer South India',
   breadcrumbs = [],
   heroMedia = null,
   className = '',

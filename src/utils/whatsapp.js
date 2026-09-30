@@ -38,6 +38,18 @@ export function formatWhatsAppUrl(rawPhone, message = '') {
  */
 export function getAdminInquiryWhatsAppTemplate(inquiry) {
   const customerName = inquiry?.name || 'Valued Guest';
-  const interest = inquiry?.tour_title || inquiry?.destination_name || 'your travel plans with Tramax Tours';
-  return `Hello ${customerName}, thank you for your inquiry with Tramax Tours. We received your request regarding ${interest}. Our team will assist you shortly.`;
+  const dest = inquiry?.destination_name || inquiry?.tour_title || 'South India';
+  const vehicle = inquiry?.vehicle_preference ? `\n• 🚗 Vehicle: ${inquiry.vehicle_preference}` : '';
+  const hotel = inquiry?.hotel_category ? `\n• 🏨 Stay: ${inquiry.hotel_category} (${inquiry.rooms_count || 1} ${inquiry.room_type || 'Double'} Room)` : '';
+  const dates = inquiry?.arrival_date ? `\n• 📅 Travel Date: ${inquiry.arrival_date}${inquiry.duration_days ? ` (${inquiry.duration_days})` : ''}` : '';
+  const quote = inquiry?.quotation_amount ? `\n• 💰 Estimated Package Price: ₹${Number(inquiry.quotation_amount).toLocaleString('en-IN')}` : '';
+
+  return (
+    `Hello ${customerName}! 🌴\n\n` +
+    `Greetings from *Wonderer South India*! Thank you for requesting a custom holiday itinerary for *${dest}*.\n` +
+    `${dates}${vehicle}${hotel}${quote}\n\n` +
+    `Our holiday specialist has prepared your customized tour plan with verified chauffeurs, curated sightseeing, and 24/7 on-road assistance.\n\n` +
+    `Would you like us to share the detailed day-by-day itinerary PDF and final quotation right here?`
+  );
 }
+

@@ -7,13 +7,13 @@ import { updatePageMeta } from '../../utils/metadata';
 import { getMediaUrl } from '../../utils/media';
 
 const DEFAULT_ABOUT = {
-  title: 'About Tramax Tours',
+  title: 'About Wonderer South India',
   subtitle: 'Dedicated to fulfilling your personal travel dreams and making each journey simple, memorable, and safe.',
   hero_media_url: '/uploads/media/demo_carousel_kerala.jpg',
   content:
     '<p>We believe that your personal trip requires your own personal travel guide. We know that plans can evolve as you explore, and your chauffeur guide should be easily adjustable to help you modify your itinerary on the go.</p>' +
     '<p>Whether you are an explorer on an epic journey, looking for a refreshing short weekend getaway, or dreaming of a life-changing adventure, our tour offerings are crafted to fulfill your unique personal travel dreams and ensure each moment is unforgettable.</p>' +
-    '<p>The integrity of our team and the quality of services provided by Tramax Tours is guided in principle by professionalism and an uncompromising commitment to engage every traveler in authentic cultural immersion.</p>',
+    '<p>The integrity of our team and the quality of services provided by Wonderer South India is guided in principle by professionalism and an uncompromising commitment to engage every traveler in authentic cultural immersion.</p>',
 };
 
 export default function AboutPage() {
@@ -21,9 +21,9 @@ export default function AboutPage() {
 
   useEffect(() => {
     updatePageMeta({
-      title: 'About Us — Tramax Tours | Travel Made Simple & Memorable',
+      title: 'About Us — Wonderer South India | Travel Made Simple & Memorable',
       description:
-        'Discover Tramax Tours. Specialized in private chauffeur sightseeing, sacred temple expeditions, cultural immersions, hill station safaris, and bespoke South Indian holidays.',
+        'Discover Wonderer South India. Specialized in private chauffeur sightseeing, sacred temple expeditions, cultural immersions, hill station safaris, and bespoke South Indian holidays.',
     });
 
     async function loadAboutPage() {
@@ -38,7 +38,7 @@ export default function AboutPage() {
           });
           if (data.seo_title || data.seo_description) {
             updatePageMeta({
-              title: data.seo_title || 'About Us — Tramax Tours',
+              title: data.seo_title || 'About Us — Wonderer South India',
               description: data.seo_description || undefined,
             });
           }
@@ -103,7 +103,7 @@ export default function AboutPage() {
             >
               <img
                 src={about.hero_media_url}
-                alt="Tramax Tours Travel Experience"
+                alt="Wonderer South India Travel Experience"
                 style={{ width: '100%', height: '420px', objectFit: 'cover' }}
               />
             </div>

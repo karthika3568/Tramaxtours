@@ -23,7 +23,7 @@ export default function AdminDestinationsPage() {
   // Page title
   useEffect(() => {
     updatePageMeta({
-      title: 'Admin - Destinations Management | Tramax Tours',
+      title: 'Admin - Destinations Management | Wonderer South India',
       description: 'Manage travel destinations, tour itineraries, status, and media assets.',
     });
   }, []);
@@ -185,7 +185,7 @@ export default function AdminDestinationsPage() {
         <div className="page-header-left">
           <h2 className="admin-page-title">Destinations Management</h2>
           <p className="admin-page-subtitle">
-            Create, edit, publish, and organize destinations featured across Tramax Tours.
+            Create, edit, publish, and organize destinations featured across Wonderer South India.
           </p>
         </div>
 

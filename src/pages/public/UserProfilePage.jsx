@@ -25,7 +25,7 @@ export default function UserProfilePage() {
 
   useEffect(() => {
     updatePageMeta({
-      title: 'My Profile & Bookings — Tramax Tours',
+      title: 'My Profile & Bookings — Wonderer South India',
       description: 'Manage your tour reservations, download PDF vouchers, and view traveler details.',
     });
   }, []);
@@ -135,7 +135,7 @@ export default function UserProfilePage() {
     const currency = b.currency || 'INR';
 
     const msg = encodeURIComponent(
-      `🧾 *TRAMAX TOURS — BOOKING RECEIPT*\n\nReference: ${orderRef}\nGuest Name: ${user.name}\nTour: ${tourTitle}\nTravel Date: ${travelDate}\nGuests: ${guests}\nTotal Amount: ${currency} ${Number(price).toLocaleString()}\nStatus: ${b.status?.toUpperCase()}\n\nThank you for choosing Tramax Tours! Travel Made Simple & Memorable.`
+      `🧾 *WONDERER SOUTH INDIA — BOOKING RECEIPT*\n\nReference: ${orderRef}\nGuest Name: ${user.name}\nTour: ${tourTitle}\nTravel Date: ${travelDate}\nGuests: ${guests}\nTotal Amount: ${currency} ${Number(price).toLocaleString()}\nStatus: ${b.status?.toUpperCase()}\n\nThank you for choosing Wonderer South India! Travel Made Simple & Memorable.`
     );
     window.open(`https://wa.me/919840000000?text=${msg}`, '_blank');
   };
@@ -468,7 +468,7 @@ export default function UserProfilePage() {
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #01AA90', paddingBottom: '16px', marginBottom: '20px' }}>
               <div>
-                <img src="/logo.png" alt="Tramax Tours" style={{ height: '48px', marginBottom: '6px' }} />
+                <img src="/logo.svg" alt="Wonderer South India" style={{ height: '48px', marginBottom: '6px' }} />
                 <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
                   Travel Made Simple & Memorable • Chennai, Tamil Nadu
                 </p>

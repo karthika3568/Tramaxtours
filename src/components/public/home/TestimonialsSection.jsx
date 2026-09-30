@@ -14,7 +14,7 @@ const CURATED_TESTIMONIALS = [
     id: 2,
     customer_name: 'Sophie Vandermeer',
     role: 'Traveler from Netherlands',
-    content: 'South India with Tramax Tours was the highlight of our year. Our driver was so polite and the heritage monuments were breathtaking.',
+    content: 'South India with Wonderer South India was the highlight of our year. Our driver was so polite and the heritage monuments were breathtaking.',
     image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80',
   },
   {

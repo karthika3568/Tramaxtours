@@ -759,7 +759,7 @@ export default function DestinationForm({
               className="form-input"
               value={seoTitle}
               onChange={(e) => setSeoTitle(e.target.value)}
-              placeholder="e.g. Kenya Safari Tours & Packages | Tramax Tours"
+              placeholder="e.g. South India Heritage Tours & Packages | Wonderer South India"
               maxLength={70}
             />
             <span className="form-hint">{seoTitle.length}/70 characters recommended</span>

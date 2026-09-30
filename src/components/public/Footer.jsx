@@ -1,129 +1,112 @@
 import { Link } from 'react-router-dom';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
-import { useLanguage } from '../../context/LanguageContext';
-import FooterLinks from './FooterLinks';
+import { formatWhatsAppUrl } from '../../utils/whatsapp';
 import SocialLinks from './SocialLinks';
 
 export default function Footer() {
-  const { getSetting, footerColumns } = useSiteSettings();
-  const { t, language } = useLanguage();
+  const { getSetting } = useSiteSettings();
 
-  const siteName = getSetting('site_name', 'Tramax Tours');
-  const footerAbout = language === 'de'
-    ? t('footer_about')
-    : getSetting('footer_about', t('footer_about'));
-
+  const siteName = getSetting('site_name', 'Wonderer South India');
   const contactPhone = getSetting('contact_phone', '+91 8072566010');
-  const contactEmail = getSetting('contact_email', 'contact@tramaxtours.in');
-  const contactAddress = getSetting('contact_address', 'Chennai, Tamil Nadu, India');
-  const contactHours = language === 'de' ? 'Mo - So: 08:00 - 21:00 Uhr IST' : getSetting('contact_business_hours', 'Mon - Sun: 08:00 AM - 09:00 PM IST');
-  const logoUrl = getSetting('site_logo_url', '') || '/logo.png';
+  const contactWhatsApp = getSetting('contact_whatsapp', '+91 8072566010');
+  const contactEmail = getSetting('contact_email', 'contact@wonderersouthindia.in');
+
+  // Dynamic Planning Footer CMS Settings
+  const badgeText = getSetting('footer_planning_badge', 'Curated Itineraries & Luxury Transport');
+  const titleText = getSetting('footer_planning_title', `Travel Planning Services by ${siteName}`);
+  const leadText = getSetting(
+    'footer_planning_lead',
+    'Let’s work with a family travel expert to book the vacation of your dreams, complete with all the best travel amenities for a seamless experience in vacation planning!'
+  );
+  const promptText = getSetting(
+    'footer_planning_prompt',
+    '...check if your specific vacation is one we can assist with, including travel amenities for the whole family? We’d love to hear from you during your vacation planning journey!'
+  );
+  const btnText = getSetting('footer_planning_btn_text', 'Message us on WhatsApp');
+  const customWhatsAppMsg = getSetting(
+    'footer_planning_whatsapp_msg',
+    `Hello ${siteName}! I would like to inquire about family travel amenities, vacation planning services, and custom tour packages.`
+  );
+
   const copyright =
     getSetting('footer_copyright', '') ||
-    `© ${new Date().getFullYear()} ${siteName}. ${t('footer_rights', 'All rights reserved.')}`;
+    `© ${new Date().getFullYear()} ${siteName}. All rights reserved.`;
 
-  const usefulLinks = footerColumns['useful_links'] || [];
-  const policyLinks = footerColumns['policy_pages'] || [];
+  const whatsappUrl = formatWhatsAppUrl(contactWhatsApp, customWhatsAppMsg);
 
   return (
-    <footer className="public-footer" id="site-footer">
-      {/* Top Footer Main Grid */}
-      <div className="container footer-main-container">
-        <div className="footer-grid">
-          {/* Column 1: Brand & Contact Information */}
-          <div className="footer-column brand-column">
-            <Link to="/" className="footer-brand-link">
-              <img src={logoUrl} alt={siteName} className="footer-brand-logo-img" />
-            </Link>
-            <p className="footer-about-text">{footerAbout}</p>
+    <footer className="travel-planning-showcase-section site-main-footer" id="site-footer">
+      <div className="travel-planning-bg-overlay" />
 
-            <div className="footer-contact-block">
-              {contactAddress && (
-                <div className="footer-contact-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
-                  <span>{contactAddress}</span>
-                </div>
-              )}
+      <div className="container travel-planning-content-wrap">
+        {/* Main Planning Header */}
+        <div className="travel-planning-header text-center">
+          {badgeText && <span className="travel-planning-badge">{badgeText}</span>}
+          <h2 className="travel-planning-hero-title">{titleText}</h2>
+          {leadText && <p className="travel-planning-lead-text">{leadText}</p>}
+        </div>
 
-              {contactPhone && (
-                <div className="footer-contact-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                  </svg>
-                  <a href={`tel:${contactPhone.replace(/\s+/g, '')}`}>{contactPhone}</a>
-                </div>
-              )}
+        {/* Secondary Engagement Card */}
+        <div className="travel-planning-engagement-box">
+          {promptText && <p className="travel-planning-inquiry-prompt">{promptText}</p>}
 
-              {contactEmail && (
-                <div className="footer-contact-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                    <polyline points="22,6 12,13 2,6" />
-                  </svg>
-                  <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
-                </div>
-              )}
-
-              {contactHours && (
-                <div className="footer-contact-item text-muted-footer">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                    <circle cx="12" cy="12" r="10" />
-                    <polyline points="12 6 12 12 16 14" />
-                  </svg>
-                  <span>{contactHours}</span>
-                </div>
-              )}
-            </div>
+          {/* Prominent WhatsApp CTA Button (Matches Client Reference Screenshot) */}
+          <div className="travel-planning-action-wrap">
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-whatsapp-planning-pill"
+              id="btn-footer-whatsapp-cta"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="#25D366" aria-hidden="true">
+                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.698.077-1.114-.06-.402-.132-.931-.309-1.603-.604-1.391-.61-2.29-2.023-2.361-2.115-.069-.092-.569-.757-.569-1.444 0-.687.359-1.026.487-1.168.128-.142.279-.177.373-.177.093 0 .186 0 .267.005.087.004.204-.033.319.243.118.283.402.98.437 1.052.035.071.059.155.012.248-.047.094-.07.153-.14.234-.07.082-.146.182-.209.245-.07.069-.143.144-.061.285.082.141.365.602.784.975.54.481.996.63 1.137.7.141.07.224.06.307-.035.083-.095.356-.413.45-.555.095-.141.189-.118.318-.07.129.047.818.386.959.456.141.071.236.106.271.165.035.06.035.344-.109.749z" />
+              </svg>
+              <span>{btnText}</span>
+            </a>
           </div>
 
-          {/* Column 2: Quick Links */}
-          <FooterLinks
-            title={t('footer_quick_links', 'Quick Navigation')}
-            links={usefulLinks}
-            className="nav-links-column"
-          />
+          {/* Direct Brand & Email Contact Section */}
+          <div className="travel-planning-brand-footer text-center">
+            <h3 className="planning-brand-name">{siteName}</h3>
+            {contactEmail && (
+              <a href={`mailto:${contactEmail}`} className="planning-brand-email">
+                {contactEmail}
+              </a>
+            )}
+            {contactPhone && (
+              <a href={`tel:${contactPhone.replace(/\s+/g, '')}`} className="planning-brand-phone">
+                📞 {contactPhone}
+              </a>
+            )}
+          </div>
 
-          {/* Column 3: Policy / Legal Links */}
-          <FooterLinks
-            title={language === 'de' ? 'Rechtliches & Info' : 'Policies & Info'}
-            links={policyLinks}
-            className="policy-links-column"
-          />
-
-          {/* Column 4: Social & Experiences */}
-          <div className="footer-column social-column">
-            <h4 className="footer-column-title">{language === 'de' ? 'Folgen Sie uns' : 'Connect With Us'}</h4>
-            <p className="social-intro-text">
-              {language === 'de'
-                ? 'Erleben Sie tägliche Reise-Highlights, Tempelfunde und saisonale Angebote auf unseren Social-Media-Kanälen.'
-                : 'Follow our daily safari highlights, cultural discoveries, and seasonal travel packages across our social channels.'}
-            </p>
+          {/* Social Links Section */}
+          <div className="travel-planning-social-wrap">
+            <span className="planning-social-label">Social</span>
             <SocialLinks variant="footer" />
-
-            <div className="footer-badge-box">
-              <span className="badge-title">Verified Hospitality Partner</span>
-              <p className="badge-subtitle">Licensed & Certified Luxury Travel Operator</p>
-            </div>
           </div>
         </div>
-      </div>
 
-      {/* Bottom Copyright Bar */}
-      <div className="footer-bottom-bar">
-        <div className="container footer-bottom-inner">
-          <p className="copyright-text">{copyright}</p>
-          <div className="footer-bottom-links">
-            <Link to="/pages/terms-conditions">Terms & Conditions</Link>
-            <span className="bullet-sep" aria-hidden="true">•</span>
-            <Link to="/pages/privacy-policy">Privacy Policy</Link>
-            <span className="bullet-sep" aria-hidden="true">•</span>
-            <Link to="/login">Admin Access</Link>
+        {/* Bottom Copyright & Policy Links Bar */}
+        <div style={{ marginTop: '50px', paddingTop: '24px', borderTop: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '12px', fontSize: '13px', color: '#94a3b8' }}>
+          <p style={{ margin: 0 }}>{copyright}</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <Link to="/pages/terms-conditions" style={{ color: '#94a3b8', textDecoration: 'none' }} className="hover:text-white">
+              Terms &amp; Conditions
+            </Link>
+            <span>•</span>
+            <Link to="/pages/privacy-policy" style={{ color: '#94a3b8', textDecoration: 'none' }} className="hover:text-white">
+              Privacy Policy
+            </Link>
+            <span>•</span>
+            <Link to="/login" style={{ color: '#94a3b8', textDecoration: 'none' }} className="hover:text-white">
+              Admin Access
+            </Link>
           </div>
         </div>
       </div>
     </footer>
   );
 }
+

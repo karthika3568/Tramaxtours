@@ -34,9 +34,9 @@ export default function BookingPrintModal({ booking, isOpen, onClose }) {
           {/* Document Header / Company Branding */}
           <div className="print-doc-header">
             <div className="print-brand">
-              <h1 className="print-company-name">TRAMAX TOURS</h1>
+              <h1 className="print-company-name">WONDERER SOUTH INDIA</h1>
               <p className="print-company-sub">Premium South India Tourism & Travel Experiences</p>
-              <p className="print-company-contact">info@tramaxtours.com • www.tramaxtours.com</p>
+              <p className="print-company-contact">info@wonderersouthindia.com • www.wonderersouthindia.com</p>
             </div>
             <div className="print-voucher-meta">
               <div className="print-doc-type">BOOKING CONFIRMATION & VOUCHER</div>
@@ -159,8 +159,8 @@ export default function BookingPrintModal({ booking, isOpen, onClose }) {
 
           {/* Document Footer */}
           <div className="print-doc-footer">
-            <p>Thank you for booking with Tramax Tours! Please retain this voucher for tour check-in.</p>
-            <p className="print-timestamp">Generated on {new Date().toLocaleString()} by Tramax Tours Management System</p>
+            <p>Thank you for booking with Wonderer South India! Please retain this voucher for tour check-in.</p>
+            <p className="print-timestamp">Generated on {new Date().toLocaleString()} by Wonderer South India Management System</p>
           </div>
         </div>
 

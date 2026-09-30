@@ -1242,7 +1242,7 @@ export default function TourForm({
               className="form-input"
               value={seoTitle}
               onChange={(e) => setSeoTitle(e.target.value)}
-              placeholder="e.g. 5-Day Masai Mara Safari Package | Tramax Tours"
+              placeholder="e.g. 5-Day Kerala & Tamil Nadu Heritage Package | Wonderer South India"
               maxLength={70}
             />
             <span className="form-hint">{seoTitle.length}/70 characters recommended</span>

@@ -27,9 +27,9 @@ export default function DestinationsPage() {
 
   useEffect(() => {
     updatePageMeta({
-      title: 'Destinations — Explore South India | Tramax Tours',
+      title: 'Destinations — Explore South India | Wonderer South India',
       description:
-        'Discover breathtaking travel destinations with Tramax Tours. From Tamil Nadu heritage temples to Kerala backwaters, Karnataka palaces, and Goa beaches.',
+        'Discover breathtaking travel destinations with Wonderer South India. From Tamil Nadu heritage temples to Kerala backwaters, Karnataka palaces, and Goa beaches.',
     });
   }, []);
 

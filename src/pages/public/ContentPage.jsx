@@ -39,11 +39,11 @@ export default function ContentPage({ defaultSlug = null }) {
 
           // Update SEO Metadata
           updatePageMeta({
-            title: `${data.seo_title || data.title} — Tramax Tours`,
+            title: `${data.seo_title || data.title} — Wonderer South India`,
             description:
               data.seo_description ||
               data.subtitle ||
-              `Read about ${data.title} at Tramax Tours.`,
+              `Read about ${data.title} at Wonderer South India.`,
           });
         }
       } catch (err) {
@@ -180,7 +180,7 @@ export default function ContentPage({ defaultSlug = null }) {
                 </p>
                 <div style={{ margin: '14px 0', fontSize: '13px', color: 'var(--color-text-muted)' }}>
                   <div>📞 <a href="tel:+918072566010" style={{ color: 'var(--color-primary)', fontWeight: '600' }}>+91 80725 66010</a></div>
-                  <div style={{ marginTop: '4px' }}>📧 <a href="mailto:contact@tramaxtours.in" style={{ color: 'var(--color-primary)', fontWeight: '600' }}>contact@tramaxtours.in</a></div>
+                  <div style={{ marginTop: '4px' }}>📧 <a href="mailto:contact@wonderersouthindia.in" style={{ color: 'var(--color-primary)', fontWeight: '600' }}>contact@wonderersouthindia.in</a></div>
                 </div>
                 <Link to="/contact" className="btn btn-primary btn-sm btn-block">
                   Contact Our Team

@@ -56,7 +56,7 @@ export const TRANSLATIONS = {
     sec_popular_categories_sub: 'From peaceful spiritual journeys to breathtaking coastal getaways, explore curated travel categories.',
     sec_featured_tours_title: 'Curated Day Tours & Experiences',
     sec_featured_tours_sub: 'Handpicked premium private excursions crafted for international travelers and culture lovers.',
-    sec_why_us_title: 'Why Travel With Tramax Tours',
+    sec_why_us_title: 'Why Travel With Wonderer South India',
     sec_why_us_sub: 'We blend heritage expertise, luxury chauffeur comforts, and transparent pricing for an exceptional holiday.',
     sec_testimonials_title: 'Loved by Travelers Worldwide',
     sec_testimonials_sub: 'Read real verified feedback from guests who explored Tamil Nadu and South India with us.',
@@ -71,17 +71,17 @@ export const TRANSLATIONS = {
     booking_submit: 'Confirm Reservation',
     booking_pay_on_arrival: 'Pay on Arrival / Cash or Card',
     booking_success_title: 'Booking Confirmed!',
-    booking_success_desc: 'Thank you for choosing Tramax Tours. Your reservation details are confirmed below.',
+    booking_success_desc: 'Thank you for choosing Wonderer South India. Your reservation details are confirmed below.',
     booking_voucher_pdf: 'Download PDF Receipt',
     booking_send_whatsapp: 'Share on WhatsApp',
     booking_cancel_btn: 'Cancel Reservation',
 
     // Footer
-    footer_about: 'Tramax Tours provides premium guided excursions, private temple pilgrimages, and cultural day trips across South India with certified English & German speaking guides.',
+    footer_about: 'Wonderer South India provides premium guided excursions, private temple pilgrimages, and cultural day trips across South India with certified English & German speaking guides.',
     footer_quick_links: 'Quick Links',
     footer_top_destinations: 'Top Destinations',
     footer_contact_info: 'Contact Information',
-    footer_rights: 'All rights reserved. Tramax Tours & Travels.',
+    footer_rights: 'All rights reserved. Wonderer South India.',
   },
 
   de: {
@@ -136,7 +136,7 @@ export const TRANSLATIONS = {
     sec_popular_categories_sub: 'Von friedvollen Tempelreisen bis hin zu atemberaubenden Küstenausflügen – entdecken Sie handverlesene Reisekategorien.',
     sec_featured_tours_title: 'Exklusive Tagestouren & Erlebnisse',
     sec_featured_tours_sub: 'Handverlesene private Ausflüge, maßgeschneidert für internationale Reisende und Kulturbegeisterte.',
-    sec_why_us_title: 'Warum mit Tramax Tours reisen?',
+    sec_why_us_title: 'Warum mit Wonderer South India reisen?',
     sec_why_us_sub: 'Wir verbinden lokales Kulturerbe, modernen Chauffeurkomfort und transparente Preise für einen perfekten Urlaub.',
     sec_testimonials_title: 'Von Gästen weltweit geschätzt',
     sec_testimonials_sub: 'Lesen Sie echte Bewertungen unserer Gäste, die Südindien mit uns entdeckt haben.',
@@ -151,17 +151,17 @@ export const TRANSLATIONS = {
     booking_submit: 'Buchung bestätigen',
     booking_pay_on_arrival: 'Zahlung bei Ankunft / Bar oder Karte',
     booking_success_title: 'Buchung erfolgreich bestätigt!',
-    booking_success_desc: 'Vielen Dank, dass Sie sich für Tramax Tours entschieden haben. Ihre Buchungsdetails finden Sie nachfolgend.',
+    booking_success_desc: 'Vielen Dank, dass Sie sich für Wonderer South India entschieden haben. Ihre Buchungsdetails finden Sie nachfolgend.',
     booking_voucher_pdf: 'PDF-Beleg herunterladen',
     booking_send_whatsapp: 'Über WhatsApp teilen',
     booking_cancel_btn: 'Reservierung stornieren',
 
     // Footer
-    footer_about: 'Tramax Tours bietet erstklassige geführte Ausflüge, private Tempel- und Kulturreisen durch Südindien mit qualifizierten deutsch- und englischsprachigen Guides.',
+    footer_about: 'Wonderer South India bietet erstklassige geführte Ausflüge, private Tempel- und Kulturreisen durch Südindien mit qualifizierten deutsch- und englischsprachigen Guides.',
     footer_quick_links: 'Schnelllinks',
     footer_top_destinations: 'Top Reiseziele',
     footer_contact_info: 'Kontakt & Standort',
-    footer_rights: 'Alle Rechte vorbehalten. Tramax Tours & Travels.',
+    footer_rights: 'Alle Rechte vorbehalten. Wonderer South India.',
   },
 };
 

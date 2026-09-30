@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 80" width="420" height="80" fill="none">
+  <defs>
+    <linearGradient id="wsiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#01AA90" />
+      <stop offset="100%" stop-color="#007766" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#01AA90" flood-opacity="0.25" />
+    </filter>
+  </defs>
+
+  <!-- Icon: Compass / Lotus Safari Emblem -->
+  <g transform="translate(10, 8)" filter="url(#shadow)">
+    <!-- Outer Shield / Circle -->
+    <rect x="0" y="0" width="64" height="64" rx="16" fill="url(#wsiGrad)" />
+    
+    <!-- Compass Rose / Diamond Icon -->
+    <path d="M32 12 L38 28 L54 32 L38 36 L32 52 L26 36 L10 32 L26 28 Z" fill="#ffffff" opacity="0.95" />
+    <!-- Center Core Point -->
+    <circle cx="32" cy="32" r="5" fill="url(#goldGrad)" />
+    <!-- Dynamic Orbit Ring -->
+    <path d="M18 20 C24 14, 40 14, 46 20 M46 44 C40 50, 24 50, 18 44" stroke="#ffffff" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6" />
+  </g>
+
+  <!-- Typography -->
+  <!-- Main Brand Title -->
+  <text x="88" y="38" font-family="'Urbanist', 'Segoe UI', system-ui, -apple-system, sans-serif" font-weight="900" font-size="25" fill="#0B1329" letter-spacing="0.5">
+    WONDERER
+  </text>
+  <text x="238" y="38" font-family="'Urbanist', 'Segoe UI', system-ui, -apple-system, sans-serif" font-weight="800" font-size="25" fill="#01AA90" letter-spacing="0.5">
+    SOUTH INDIA
+  </text>
+
+  <!-- Subtitle Tagline -->
+  <text x="90" y="56" font-family="'Urbanist', 'Segoe UI', system-ui, -apple-system, sans-serif" font-weight="700" font-size="10.5" fill="#64748B" letter-spacing="2.8">
+    TRAVEL MADE SIMPLE &amp; MEMORABLE
+  </text>
+</svg>

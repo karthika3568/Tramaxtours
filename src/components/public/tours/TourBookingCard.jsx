@@ -134,11 +134,11 @@ export default function TourBookingCard({ tour }) {
         payment_method: 'pay_on_arrival',
         payment_status: 'pending',
         status: 'pending',
-        special_requests: `Time Slot: ${selectedTimeSlot}. Adults: ${adults}, Children: ${children}. Pickup: ${pickupLocation || 'Standard'}. Notes: ${specialNotes || 'None'}. Booked via tramaxtours.in`,
+        special_requests: `Time Slot: ${selectedTimeSlot}. Adults: ${adults}, Children: ${children}. Pickup: ${pickupLocation || 'Standard'}. Notes: ${specialNotes || 'None'}. Booked via Wonderer South India`,
       };
 
       const response = await bookingService.createBooking(payload);
-      setBookingSuccess(response?.data || response || { success: true, order_number: 'TT-' + Math.floor(100000 + Math.random() * 900000) });
+      setBookingSuccess(response?.data || response || { success: true, order_number: 'WSI-' + Math.floor(100000 + Math.random() * 900000) });
       toast.success('Your tour booking reservation has been placed successfully!', 'Booking Confirmed');
     } catch (err) {
       toast.error(err?.message || 'Failed to place booking. Please try again or contact us directly.', 'Booking Error');
@@ -148,7 +148,7 @@ export default function TourBookingCard({ tour }) {
   };
 
   const whatsappMessage = encodeURIComponent(
-    `Hello Tramax Tours! I am interested in booking "${tour.title}" for ${adults} Adults, ${children} Children on ${selectedDate} (${selectedTimeSlot}). Total: ${currencySymbol}${totalPrice.toLocaleString()}. Please provide availability and confirmation.`
+    `Hello Wonderer South India! I am interested in booking "${tour.title}" for ${adults} Adults, ${children} Children on ${selectedDate} (${selectedTimeSlot}). Total: ${currencySymbol}${totalPrice.toLocaleString()}. Please provide availability and confirmation.`
   );
 
   const handleDownloadReceipt = async () => {
@@ -162,7 +162,7 @@ export default function TourBookingCard({ tour }) {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `TramaxTours-Receipt-${bookingSuccess.order_number || bookingId}.pdf`;
+      link.download = `WondererSouthIndia-Receipt-${bookingSuccess.order_number || bookingId}.pdf`;
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -173,9 +173,9 @@ export default function TourBookingCard({ tour }) {
   };
 
   const handleShareWhatsAppReceipt = () => {
-    const orderRef = bookingSuccess?.order_number || `#${bookingSuccess?.id || 'TT-CONFIRMED'}`;
+    const orderRef = bookingSuccess?.order_number || `#${bookingSuccess?.id || 'WSI-CONFIRMED'}`;
     const msg = encodeURIComponent(
-      `🧾 *TRAMAX TOURS — BOOKING RECEIPT*\n\nOrder: ${orderRef}\nGuest: ${customerName}\nTour: ${tour.title}\nTravel Date: ${selectedDate} (${selectedTimeSlot})\nGuests: ${adults} Adults, ${children} Children\nTotal Price: ${currencySymbol}${totalPrice.toLocaleString()}\nPayment: Pay on Arrival\n\nThank you for choosing Tramax Tours!`
+      `🧾 *WONDERER SOUTH INDIA — BOOKING RECEIPT*\n\nOrder: ${orderRef}\nGuest: ${customerName}\nTour: ${tour.title}\nTravel Date: ${selectedDate} (${selectedTimeSlot})\nGuests: ${adults} Adults, ${children} Children\nTotal Price: ${currencySymbol}${totalPrice.toLocaleString()}\nPayment: Pay on Arrival\n\nThank you for choosing Wonderer South India!`
     );
     window.open(`https://wa.me/919840000000?text=${msg}`, '_blank');
   };
@@ -354,7 +354,7 @@ export default function TourBookingCard({ tour }) {
           )}
 
           <a
-            href={formatWhatsAppUrl(businessWhatsApp, `Hello Tramax Tours! I am interested in booking "${tour.title}" for ${adults} Adults, ${children} Children on ${selectedDate} (${selectedTimeSlot}). Total: ${currencySymbol}${totalPrice.toLocaleString()}. Please provide availability and confirmation.`)}
+            href={formatWhatsAppUrl(businessWhatsApp, `Hello Wonderer South India! I am interested in booking "${tour.title}" for ${adults} Adults, ${children} Children on ${selectedDate} (${selectedTimeSlot}). Total: ${currencySymbol}${totalPrice.toLocaleString()}. Please provide availability and confirmation.`)}
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-whatsapp btn-block"

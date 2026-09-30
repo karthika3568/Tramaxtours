@@ -8,7 +8,7 @@ const SiteSettingsContext = createContext(null);
 
 const DEFAULT_SETTINGS = {
   general: {
-    site_name: 'Tramax Tours',
+    site_name: 'Wonderer South India',
     site_tagline: 'Curated Luxury & Adventure Travel',
     site_logo: '',
     site_favicon: '/favicon.svg',
@@ -18,7 +18,7 @@ const DEFAULT_SETTINGS = {
   },
   contact: {
     contact_person: 'P. Kishore',
-    contact_email: 'contact@tramaxtours.in',
+    contact_email: 'contact@wonderersouthindia.in',
     contact_phone: '+91 8072566010',
     contact_whatsapp: '+91 8072566010',
     contact_address: 'Chennai, Tamil Nadu, India',
@@ -26,13 +26,13 @@ const DEFAULT_SETTINGS = {
   },
   footer: {
     footer_about:
-      'Tramax Tours specializes in foreign-client tourism, private sightseeing, cultural heritage expeditions, and custom luxury travel.',
-    footer_copyright: `© ${new Date().getFullYear()} Tramax Tours. All rights reserved.`,
+      'Wonderer South India specializes in foreign-client tourism, private sightseeing, cultural heritage expeditions, and custom luxury travel.',
+    footer_copyright: `© ${new Date().getFullYear()} Wonderer South India. All rights reserved.`,
   },
   seo: {
-    seo_default_title: 'Tramax Tours | Premier South India Tours & Travel Experiences',
+    seo_default_title: 'Wonderer South India | Premier South India Tours & Travel Experiences',
     seo_default_description:
-      'Discover premium South India tours, private sightseeing, cultural heritage packages, and luxury journeys with Tramax Tours.',
+      'Discover premium South India tours, private sightseeing, cultural heritage packages, and luxury journeys with Wonderer South India.',
   },
 };
 

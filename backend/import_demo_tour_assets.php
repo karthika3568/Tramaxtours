@@ -343,10 +343,10 @@ echo "[OK] CMS Sections inserted.\n";
 echo "Updating Site Settings with Wander South India branding...\n";
 
 $settingsToUpdate = [
-    ['general', 'site_name', 'TRAMAX TOURS'],
+    ['general', 'site_name', 'Wonderer South India'],
     ['general', 'site_tagline', 'DREAM. TRAVEL. DISCOVER.'],
-    ['general', 'meta_description', 'Tramax Tours believes that planning the details of your trip can be as enjoyable as the trip itself. Tailored South India tours, safaris, and cultural expeditions.'],
-    ['footer', 'about', 'Tramax Tours specializes in international tourist safaris, private sightseeing, cultural expeditions, and custom itineraries across premier South Indian destinations.'],
+    ['general', 'meta_description', 'Wonderer South India believes that planning the details of your trip can be as enjoyable as the trip itself. Tailored South India tours, safaris, and cultural expeditions.'],
+    ['footer', 'about', 'Wonderer South India specializes in international tourist safaris, private sightseeing, cultural expeditions, and custom itineraries across premier South Indian destinations.'],
 ];
 
 foreach ($settingsToUpdate as [$group, $key, $val]) {

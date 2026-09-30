@@ -12,7 +12,7 @@ export default function AdminInquiriesPage() {
 
   useEffect(() => {
     updatePageMeta({
-      title: 'Admin — Customer Inquiries & Leads | Tramax Tours',
+      title: 'Admin — Customer Inquiries & Leads | Wonderer South India',
       description: 'Review and manage customer travel inquiries, tour leads, bespoke quotes, and direct WhatsApp conversations.',
     });
   }, []);
@@ -56,6 +56,7 @@ export default function AdminInquiriesPage() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [statusDraft, setStatusDraft] = useState('new');
   const [adminNotesDraft, setAdminNotesDraft] = useState('');
+  const [quotationDraft, setQuotationDraft] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Debounce search input
@@ -140,6 +141,9 @@ export default function AdminInquiriesPage() {
 
   const handleOpenDetail = (inquiry) => {
     setSelectedInquiry(inquiry);
+    setStatusDraft(inquiry.status || 'new');
+    setAdminNotesDraft(inquiry.admin_notes || '');
+    setQuotationDraft(inquiry.quotation_amount ? String(inquiry.quotation_amount) : '');
     setIsDetailOpen(true);
   };
 
@@ -147,6 +151,7 @@ export default function AdminInquiriesPage() {
     setSelectedInquiry(inquiry);
     setStatusDraft(inquiry.status || 'new');
     setAdminNotesDraft(inquiry.admin_notes || '');
+    setQuotationDraft(inquiry.quotation_amount ? String(inquiry.quotation_amount) : '');
     setIsStatusOpen(true);
   };
 
@@ -159,14 +164,21 @@ export default function AdminInquiriesPage() {
     if (!selectedInquiry) return;
     try {
       setIsSubmitting(true);
+      const quoteVal = quotationDraft && !isNaN(Number(quotationDraft)) ? Number(quotationDraft) : null;
       await inquiryService.updateInquiryStatus(selectedInquiry.id, {
         status: statusDraft,
         admin_notes: adminNotesDraft,
+        quotation_amount: quoteVal,
       });
-      toast.success(`Inquiry #${selectedInquiry.id} marked as "${statusDraft}".`, 'Status Updated');
+      toast.success(`Inquiry #${selectedInquiry.id} updated successfully.`, 'Updated');
       setIsStatusOpen(false);
       if (isDetailOpen) {
-        setSelectedInquiry((prev) => ({ ...prev, status: statusDraft, admin_notes: adminNotesDraft }));
+        setSelectedInquiry((prev) => ({
+          ...prev,
+          status: statusDraft,
+          admin_notes: adminNotesDraft,
+          quotation_amount: quoteVal,
+        }));
       }
       setReloadTrigger((p) => p + 1);
     } catch (err) {
@@ -526,81 +538,220 @@ export default function AdminInquiriesPage() {
       {/* 5. Detail Slide-over / Modal */}
       {isDetailOpen && selectedInquiry && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 p-6 space-y-5">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 p-6 md:p-8 space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div>
                 <span className="text-xs font-bold text-teal-700 uppercase tracking-wider block">
-                  Inquiry Reference #{selectedInquiry.id}
+                  Trip Ref #{selectedInquiry.id} • {selectedInquiry.created_at ? new Date(selectedInquiry.created_at).toLocaleString() : 'Recent'}
                 </span>
-                <h3 className="text-lg font-black text-slate-900">{selectedInquiry.name}</h3>
+                <h3 className="text-xl font-black text-slate-900 mt-0.5">{selectedInquiry.name}</h3>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsDetailOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-lg font-bold p-1"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Contact Details Grid */}
-            <div className="grid grid-cols-2 gap-3 p-3.5 bg-slate-50 rounded-xl text-xs">
-              <div>
-                <span className="text-slate-400 block font-medium">Customer Email</span>
-                <a href={`mailto:${selectedInquiry.email}`} className="text-teal-700 font-bold hover:underline">
-                  {selectedInquiry.email}
-                </a>
-              </div>
-              <div>
-                <span className="text-slate-400 block font-medium">Phone / WhatsApp</span>
-                <span className="font-bold text-slate-900 font-mono">{selectedInquiry.phone || '—'}</span>
-              </div>
-              <div>
-                <span className="text-slate-400 block font-medium">Destination / Tour</span>
-                <span className="font-bold text-slate-900">
-                  {selectedInquiry.tour_title || selectedInquiry.destination_name || 'Bespoke Custom Trip'}
+              <div className="flex items-center gap-2">
+                <span className={`px-2.5 py-1 text-xs font-bold rounded-full border capitalize ${getStatusBadgeClass(selectedInquiry.status)}`}>
+                  {selectedInquiry.status || 'new'}
                 </span>
-              </div>
-              <div>
-                <span className="text-slate-400 block font-medium">Travel Date &amp; Guests</span>
-                <span className="font-bold text-slate-900">
-                  {selectedInquiry.travel_date || 'Flexible'} • {selectedInquiry.travelers || 1} Guests
-                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsDetailOpen(false)}
+                  className="text-slate-400 hover:text-slate-600 text-xl font-bold p-1 leading-none"
+                >
+                  ✕
+                </button>
               </div>
             </div>
 
-            {/* Message Body */}
+            {/* 1. Contact & Origin */}
             <div>
-              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1.5">
-                Customer Message &amp; Requirements
-              </label>
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 text-sm leading-relaxed whitespace-pre-wrap">
-                {selectedInquiry.message || 'No additional message text provided.'}
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">1. Contact &amp; Guest Info</h4>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-slate-50 rounded-2xl text-xs border border-slate-200/70">
+                <div>
+                  <span className="text-slate-400 block font-medium">WhatsApp / Phone</span>
+                  <span className="font-bold text-slate-900 font-mono text-sm">{selectedInquiry.whatsapp_number || selectedInquiry.phone || '—'}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block font-medium">Email Address</span>
+                  <a href={`mailto:${selectedInquiry.email}`} className="text-teal-700 font-bold hover:underline truncate block">
+                    {selectedInquiry.email}
+                  </a>
+                </div>
+                <div>
+                  <span className="text-slate-400 block font-medium">Country / Nationality</span>
+                  <span className="font-bold text-slate-900">{selectedInquiry.country || 'India'}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block font-medium">Preferred Contact</span>
+                  <div className="flex flex-wrap gap-1 mt-0.5">
+                    {selectedInquiry.preferred_contact_methods && selectedInquiry.preferred_contact_methods.length > 0 ? (
+                      selectedInquiry.preferred_contact_methods.map((m, i) => (
+                        <span key={i} className="px-2 py-0.5 bg-teal-100 text-teal-800 rounded font-semibold text-[11px]">
+                          {m}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-slate-500">WhatsApp / Call</span>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Admin Notes */}
-            {selectedInquiry.admin_notes && (
+            {/* 2. Trip & Schedule */}
+            <div>
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">2. Trip Schedule &amp; Party Size</h4>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-teal-50/50 rounded-2xl text-xs border border-teal-100">
+                <div>
+                  <span className="text-teal-600 block font-medium">Destination(s)</span>
+                  <span className="font-black text-slate-900 text-sm">{selectedInquiry.destination_name || selectedInquiry.tour_title || 'South India'}</span>
+                </div>
+                <div>
+                  <span className="text-teal-600 block font-medium">Pickup Point</span>
+                  <span className="font-bold text-slate-900">{selectedInquiry.pickup_location || 'Not Specified'}</span>
+                </div>
+                <div>
+                  <span className="text-teal-600 block font-medium">Dates &amp; Duration</span>
+                  <span className="font-bold text-slate-900">
+                    {selectedInquiry.arrival_date || selectedInquiry.travel_date || 'Flexible'}
+                    {selectedInquiry.duration_days ? ` (${selectedInquiry.duration_days})` : ''}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-teal-600 block font-medium">Travelers</span>
+                  <span className="font-bold text-slate-900">
+                    {selectedInquiry.adults_count || selectedInquiry.travelers || 1} Adults
+                    {selectedInquiry.children_count ? `, ${selectedInquiry.children_count} Kids` : ''}
+                    {selectedInquiry.infants_count ? `, ${selectedInquiry.infants_count} Infants` : ''}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Transport & Flight/Train Details */}
+            <div>
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">3. Transportation &amp; Flight/Train Schedules</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
+                  <div className="font-bold text-slate-800 flex items-center gap-1.5">
+                    <span>🚗</span> Vehicle: <span className="text-teal-700">{selectedInquiry.vehicle_preference || 'Standard Chauffeur'}</span>
+                  </div>
+                  <div className="text-slate-500">
+                    Airport Pickup: <strong className="text-slate-800">{selectedInquiry.airport_pickup ? '✅ Yes' : '❌ No'}</strong> • Airport Drop: <strong className="text-slate-800">{selectedInquiry.airport_drop ? '✅ Yes' : '❌ No'}</strong>
+                  </div>
+                </div>
+
+                <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
+                  <div className="font-bold text-slate-800 flex items-center gap-1.5">
+                    <span>✈️</span> Flight / Train:
+                  </div>
+                  <div className="text-slate-600">
+                    <strong>Arr:</strong> {selectedInquiry.arrival_flight_train_number || 'N/A'} {selectedInquiry.arrival_time ? `(${selectedInquiry.arrival_time})` : ''}
+                  </div>
+                  <div className="text-slate-600">
+                    <strong>Dep:</strong> {selectedInquiry.departure_flight_train_number || 'N/A'} {selectedInquiry.departure_time ? `(${selectedInquiry.departure_time})` : ''}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 4. Accommodation & Budget */}
+            <div>
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">4. Hotel Tier, Budget &amp; Guide</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
+                  <span className="text-slate-400 block font-medium">🏨 Stay Tier</span>
+                  <div className="font-bold text-slate-900">{selectedInquiry.hotel_category || '3 Star'}</div>
+                  <div className="text-slate-500">{selectedInquiry.rooms_count || 1} ({selectedInquiry.room_type || 'Double'}) Room</div>
+                </div>
+
+                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
+                  <span className="text-slate-400 block font-medium">🗣️ Tour Guide &amp; Language</span>
+                  <div className="font-bold text-slate-900">
+                    Guide: {selectedInquiry.tour_guide_required ? '✅ Required' : 'No'}
+                  </div>
+                  <div className="text-slate-500">Lang: {selectedInquiry.preferred_language || 'English'}</div>
+                </div>
+
+                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
+                  <span className="text-slate-400 block font-medium">💳 Customer Budget</span>
+                  <div className="font-bold text-emerald-700 font-mono">
+                    {selectedInquiry.approximate_budget ? `${selectedInquiry.budget_currency || 'INR'} ${selectedInquiry.approximate_budget}` : 'Flexible / Standard'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 5. Tour Preferences */}
+            {selectedInquiry.tour_types && selectedInquiry.tour_types.length > 0 && (
               <div>
-                <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1">
-                  Internal Staff Notes
-                </label>
-                <div className="p-3 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-900">
-                  {selectedInquiry.admin_notes}
+                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">5. Tour Experience Interests</h4>
+                <div className="flex flex-wrap gap-1.5">
+                  {selectedInquiry.tour_types.map((type, idx) => (
+                    <span key={idx} className="px-3 py-1 bg-amber-50 text-amber-900 border border-amber-200 rounded-lg text-xs font-bold">
+                      ⭐ {type}
+                    </span>
+                  ))}
                 </div>
               </div>
             )}
 
+            {/* 6. Upload Attachments (Passport / Ticket) */}
+            {(selectedInquiry.passport_file_url || selectedInquiry.flight_ticket_url) && (
+              <div>
+                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">6. Attached Documents</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  {selectedInquiry.passport_file_url && (
+                    <div className="p-3 bg-blue-50/60 rounded-xl border border-blue-200 text-xs text-blue-900">
+                      <strong>🛂 Passport Copy:</strong> {selectedInquiry.passport_file_url}
+                    </div>
+                  )}
+                  {selectedInquiry.flight_ticket_url && (
+                    <div className="p-3 bg-blue-50/60 rounded-xl border border-blue-200 text-xs text-blue-900">
+                      <strong>✈️ Flight Ticket:</strong> {selectedInquiry.flight_ticket_url}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 7. Special Requests Message */}
+            <div>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+                7. Customer Message &amp; Notes
+              </label>
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-slate-800 text-sm leading-relaxed whitespace-pre-wrap">
+                {selectedInquiry.message || 'No additional message text provided.'}
+              </div>
+            </div>
+
+            {/* 8. Quotation & Internal Notes */}
+            <div className="p-4 bg-emerald-50/60 rounded-2xl border border-emerald-200/80 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <span className="text-xs font-bold text-emerald-900 uppercase tracking-wider">
+                  💰 Quotation Package Amount:
+                </span>
+                <span className="text-lg font-black text-emerald-700 font-mono">
+                  {selectedInquiry.quotation_amount
+                    ? `₹${Number(selectedInquiry.quotation_amount).toLocaleString('en-IN')}`
+                    : 'Quote Pending'}
+                </span>
+              </div>
+              {selectedInquiry.admin_notes && (
+                <div className="text-xs text-slate-700 bg-white p-3 rounded-xl border border-emerald-100">
+                  <strong className="text-slate-900 block mb-0.5">Internal Notes:</strong>
+                  {selectedInquiry.admin_notes}
+                </div>
+              )}
+            </div>
+
             {/* Actions Toolbar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100">
               {selectedInquiry.phone && (
                 <a
                   href={formatWhatsAppUrl(selectedInquiry.phone, getAdminInquiryWhatsAppTemplate(selectedInquiry))}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-4 py-2 text-xs font-bold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors inline-flex items-center gap-1.5"
+                  className="px-5 py-2.5 text-xs font-bold rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 shadow-md transition-all inline-flex items-center gap-2"
                 >
-                  <span>💬</span> WhatsApp Customer Now
+                  <span>💬</span> Send WhatsApp Quotation
                 </a>
               )}
 
@@ -608,14 +759,14 @@ export default function AdminInquiriesPage() {
                 <button
                   type="button"
                   onClick={() => handleOpenStatusModal(selectedInquiry)}
-                  className="btn btn-outline btn-xs"
+                  className="btn btn-outline btn-sm"
                 >
-                  Update Status
+                  ✏️ Edit Status &amp; Price
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsDetailOpen(false)}
-                  className="btn btn-secondary btn-xs"
+                  className="btn btn-secondary btn-sm"
                 >
                   Close
                 </button>
@@ -628,32 +779,45 @@ export default function AdminInquiriesPage() {
       {/* 6. Status Update Modal */}
       {isStatusOpen && selectedInquiry && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 p-6 space-y-4">
+          <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 p-6 space-y-4">
             <h3 className="text-lg font-black text-slate-900">
-              Update Status — Inquiry #{selectedInquiry.id}
+              Update Lead #{selectedInquiry.id} — {selectedInquiry.name}
             </h3>
 
-            <div className="space-y-3">
+            <div className="space-y-3 text-xs">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Inquiry Status</label>
                 <select
-                  className="form-select form-select-sm w-full text-sm"
+                  className="form-select w-full text-sm rounded-xl"
                   value={statusDraft}
                   onChange={(e) => setStatusDraft(e.target.value)}
                 >
                   <option value="new">● New (Pending Review)</option>
                   <option value="contacted">💬 Contacted / Quoted</option>
-                  <option value="converted">🎉 Converted (Booked)</option>
-                  <option value="closed">Closed / Not Interested</option>
+                  <option value="converted">🎉 Converted (Booked &amp; Paid)</option>
+                  <option value="closed">Closed / Cancelled</option>
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Quotation Amount (INR ₹)
+                </label>
+                <input
+                  type="number"
+                  className="form-input w-full text-sm rounded-xl font-mono"
+                  placeholder="e.g. 35000"
+                  value={quotationDraft}
+                  onChange={(e) => setQuotationDraft(e.target.value)}
+                />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Internal Coordinator Notes</label>
                 <textarea
                   rows={3}
-                  className="form-textarea form-textarea-sm w-full text-xs"
-                  placeholder="e.g. Sent itinerary PDF via WhatsApp. Follow-up on Thursday..."
+                  className="form-textarea w-full text-xs rounded-xl"
+                  placeholder="e.g. Quoted 5D/4N Innova Crysta + 3-star Munnar hotel. Follow-up on WhatsApp tomorrow."
                   value={adminNotesDraft}
                   onChange={(e) => setAdminNotesDraft(e.target.value)}
                 />
@@ -675,7 +839,7 @@ export default function AdminInquiriesPage() {
                 onClick={handleSaveStatus}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Saving...' : 'Save Status'}
+                {isSubmitting ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           </div>

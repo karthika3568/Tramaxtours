@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Header from '../components/public/Header';
 import Footer from '../components/public/Footer';
+import FloatingChatWidget from '../components/public/common/FloatingChatWidget';
 
 export default function PublicLayout() {
   return (
@@ -20,6 +21,9 @@ export default function PublicLayout() {
 
       {/* Main Public Footer */}
       <Footer />
+
+      {/* Global WhatsApp / Live Chat Floating Widget with Badge 1 */}
+      <FloatingChatWidget />
     </div>
   );
 }

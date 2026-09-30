@@ -72,7 +72,7 @@ export default function HeroSection() {
     <section
       className="hero-section hero-pure-carousel"
       aria-roledescription="carousel"
-      aria-label="Tramax Tours Travel Showcase"
+      aria-label="Wonderer South India Travel Showcase"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       tabIndex={0}

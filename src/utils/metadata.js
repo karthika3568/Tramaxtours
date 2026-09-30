@@ -12,8 +12,8 @@
  * @param {string} [options.ogImage]
  */
 export function updatePageMeta({ title, description, canonical, ogImage } = {}) {
-  const defaultTitle = 'Tramax Tours — Luxury & Adventure Travel';
-  document.title = title ? `${title} | Tramax Tours` : defaultTitle;
+  const defaultTitle = 'Wonderer South India — Luxury & Adventure Travel';
+  document.title = title ? `${title} | Wonderer South India` : defaultTitle;
 
   if (description) {
     let metaDesc = document.querySelector('meta[name="description"]');

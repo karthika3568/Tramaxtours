@@ -19,12 +19,12 @@ export default function AdminFooterManagerPage() {
 
   // Settings
   const [footerSettings, setFooterSettings] = useState({
-    site_name: 'Tramax Tours',
+    site_name: 'Wonderer South India',
     site_tagline: 'Curated Luxury & Adventure Travel',
-    footer_about: 'Tramax Tours specializes in international tourist safaris, private sightseeing, cultural expeditions, and custom itineraries across premier destinations.',
-    footer_copyright: `© ${new Date().getFullYear()} Tramax Tours. All rights reserved.`,
+    footer_about: 'Wonderer South India specializes in international tourist safaris, private sightseeing, cultural expeditions, and custom itineraries across premier destinations.',
+    footer_copyright: `© ${new Date().getFullYear()} Wonderer South India. All rights reserved.`,
     contact_phone: '+91 8072566010',
-    contact_email: 'contact@tramaxtours.in',
+    contact_email: 'contact@wonderersouthindia.in',
     contact_address: 'Chennai, Tamil Nadu, India',
   });
 
@@ -322,7 +322,7 @@ export default function AdminFooterManagerPage() {
 
           <div className="visual-footer-bottom-bar">
             <span className="v-copyright-text">{footerSettings.footer_copyright}</span>
-            <span className="v-powered-tag">Crafted with Tramax Tours CMS</span>
+            <span className="v-powered-tag">Crafted with Wonderer South India CMS</span>
           </div>
         </div>
       </div>

@@ -42,8 +42,8 @@ export default function AdminMediaPage() {
 
   useEffect(() => {
     updatePageMeta({
-      title: 'Media Library — Tramax Tours Admin',
-      description: 'Manage media files, photographs, banners, and documents for Tramax Tours.',
+      title: 'Media Library — Wonderer South India Admin',
+      description: 'Manage media files, photographs, banners, and documents for Wonderer South India.',
     });
   }, []);
 

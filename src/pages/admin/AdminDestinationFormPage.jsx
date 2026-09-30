@@ -25,8 +25,8 @@ export default function AdminDestinationFormPage({ mode = 'create' }) {
   useEffect(() => {
     updatePageMeta({
       title: isEdit
-        ? `Admin - Edit Destination | Tramax Tours`
-        : `Admin - Create New Destination | Tramax Tours`,
+        ? `Admin - Edit Destination | Wonderer South India`
+        : `Admin - Create New Destination | Wonderer South India`,
       description: 'Author and configure destination details, narratives, and media.',
     });
   }, [isEdit]);
@@ -45,7 +45,7 @@ export default function AdminDestinationFormPage({ mode = 'create' }) {
           setInitialData(data);
           if (data?.name) {
             updatePageMeta({
-              title: `Admin - Edit ${data.name} | Tramax Tours`,
+              title: `Admin - Edit ${data.name} | Wonderer South India`,
             });
           }
         }

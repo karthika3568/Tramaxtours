@@ -91,7 +91,7 @@ export default function ToursPage() {
 
   useEffect(() => {
     updatePageMeta({
-      title: 'Tours — Tramax Tours | Handcrafted Foreign Tourism & Day Safaris',
+      title: 'Tours — Wonderer South India | Handcrafted Foreign Tourism & Day Safaris',
       description: 'Explore experiences, spas, tours and more. Book private heritage day tours, pilgrimage excursions, and tailor-made packages across South India.',
     });
   }, []);
