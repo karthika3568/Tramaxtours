@@ -90,12 +90,7 @@ export default function TourBookingCard({ tour }) {
       return;
     }
 
-    if (!isAuthenticated) {
-      toast.info('Please sign in or register to complete your reservation. You will be redirected right back.', 'Sign In Required');
-      navigate('/login', { state: { from: location } });
-      return;
-    }
-
+    // Directly open the booking & reservation modal for guests without login requirement
     setShowBookingModal(true);
   };
 
@@ -363,10 +358,11 @@ export default function TourBookingCard({ tour }) {
           </a>
 
           <Link
-            to={`/contact?tour=${encodeURIComponent(tour.slug)}&date=${selectedDate}`}
+            to={`/plan-your-trip?tour=${encodeURIComponent(tour.title)}&destination=${encodeURIComponent(destinationName)}`}
             className="btn btn-outline btn-sm btn-block widget-inquire-btn"
+            style={{ fontWeight: '700', padding: '10px' }}
           >
-            Inquire via Contact Form
+            📝 Plan &amp; Customize Itinerary (10-Step Wizard)
           </Link>
         </div>
 
