@@ -272,8 +272,8 @@ class Inquiry extends BaseModel
 
         $sql .= ', `updated_at` = NOW() WHERE `id` = :id';
 
-        $stmt = self::execute($sql, $params);
-        return $stmt->rowCount() > 0;
+        $affected = self::execute($sql, $params);
+        return $affected >= 0;
     }
 
     /**
@@ -284,8 +284,8 @@ class Inquiry extends BaseModel
      */
     public static function delete(int $id): bool
     {
-        $stmt = self::execute('DELETE FROM `contact_messages` WHERE `id` = :id', [':id' => $id]);
-        return $stmt->rowCount() > 0;
+        $affected = self::execute('DELETE FROM `contact_messages` WHERE `id` = :id', [':id' => $id]);
+        return $affected > 0;
     }
 
     /**
