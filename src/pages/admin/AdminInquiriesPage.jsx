@@ -1,14 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '../../context/ToastContext';
+import { useSiteSettings } from '../../context/SiteSettingsContext';
 import inquiryService from '../../services/inquiryService';
 import destinationService from '../../services/destinationService';
 import { updatePageMeta } from '../../utils/metadata';
 import { formatWhatsAppUrl, getAdminInquiryWhatsAppTemplate } from '../../utils/whatsapp';
+import { printTripVoucher } from '../../utils/tripVoucherPdf';
 import Loading from '../../components/ui/Loading';
 import ErrorState from '../../components/ui/ErrorState';
 
 export default function AdminInquiriesPage() {
   const toast = useToast();
+  const { getSetting } = useSiteSettings();
+  const siteName = getSetting('site_name', 'Wonderer South India');
+  const sitePhone = getSetting('contact_phone', '+91 8072566010');
+  const siteWhatsApp = getSetting('contact_whatsapp', '+91 8072566010');
 
   useEffect(() => {
     updatePageMeta({
@@ -479,6 +485,16 @@ export default function AdminInquiriesPage() {
                               </a>
                             )}
 
+                            {/* PDF Voucher Action */}
+                            <button
+                              type="button"
+                              onClick={() => printTripVoucher(inq, { site_name: siteName, contact_phone: sitePhone, contact_whatsapp: siteWhatsApp })}
+                              className="px-2.5 py-1 text-xs font-bold rounded bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100 transition-colors inline-flex items-center gap-1"
+                              title="Download / Print PDF Trip Voucher"
+                            >
+                              <span>📄</span> PDF
+                            </button>
+
                             <button
                               type="button"
                               onClick={() => handleOpenStatusModal(inq)}
@@ -755,7 +771,15 @@ export default function AdminInquiriesPage() {
                 </a>
               )}
 
-              <div className="flex items-center gap-2 ml-auto">
+              <div className="flex flex-wrap items-center gap-2 ml-auto">
+                <button
+                  type="button"
+                  onClick={() => printTripVoucher(selectedInquiry, { site_name: siteName, contact_phone: sitePhone, contact_whatsapp: siteWhatsApp })}
+                  className="px-4 py-2 text-xs font-bold rounded-xl bg-teal-700 text-white hover:bg-teal-800 shadow-md transition-all inline-flex items-center gap-1.5"
+                >
+                  <span>📄</span> Download / Print PDF Voucher
+                </button>
+
                 <button
                   type="button"
                   onClick={() => handleOpenStatusModal(selectedInquiry)}

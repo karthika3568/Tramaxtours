@@ -3,6 +3,7 @@ import { inquiryService } from '../../../services/inquiryService';
 import { useSiteSettings } from '../../../context/SiteSettingsContext';
 import { useToast } from '../../../context/ToastContext';
 import { formatWhatsAppUrl } from '../../../utils/whatsapp';
+import { printTripVoucher } from '../../../utils/tripVoucherPdf';
 
 export default function CustomTripPlannerForm({ initialDestination = '', initialTour = '', onSubmitted = null }) {
   const toast = useToast();
@@ -309,42 +310,92 @@ export default function CustomTripPlannerForm({ initialDestination = '', initial
   const whatsappDirectUrl = formatWhatsAppUrl(contactWhatsApp, generateWhatsAppMessage());
 
   if (submissionSuccess) {
+    const summaryData = {
+      ...formData,
+      id: submissionSuccess.id || 'New',
+      destination_name: formData.destination,
+      travel_date: formData.arrival_date,
+      tour_guide_required: formData.tour_guide_required === 'Yes',
+      airport_pickup: formData.airport_pickup === 'Yes',
+      airport_drop: formData.airport_drop === 'Yes',
+    };
+
     return (
-      <div className="bg-white rounded-3xl p-8 md:p-10 shadow-xl border border-teal-100 text-center space-y-6 animate-fade-in">
-        <div className="w-20 h-20 bg-teal-50 text-teal-600 rounded-full flex items-center justify-center text-4xl mx-auto shadow-inner">
-          ✨
+      <div className="bg-white rounded-3xl p-8 md:p-10 shadow-2xl border border-teal-200 text-center space-y-6 animate-fade-in">
+        <div className="w-20 h-20 bg-teal-50 text-teal-600 rounded-full flex items-center justify-center text-4xl mx-auto shadow-inner border border-teal-100">
+          🎉
         </div>
         <div className="space-y-2">
-          <span className="text-xs font-bold text-teal-600 uppercase tracking-widest block">
+          <span className="inline-block bg-teal-50 text-teal-700 font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider border border-teal-200">
             Trip Reference #{submissionSuccess.id || 'Confirmed'}
           </span>
           <h3 className="text-2xl md:text-3xl font-black text-slate-900">
-            Thank You, {formData.name || 'Traveler'}!
+            Trip Plan Submitted Successfully!
           </h3>
           <p className="text-slate-600 max-w-lg mx-auto text-sm leading-relaxed">
-            We have received your custom tour requirements for <strong>{formData.destination}</strong>. Our travel specialist is crafting your personalized day-by-day itinerary and transparent price quotation.
+            Thank you, <strong>{formData.name || 'Traveler'}</strong>! We have received your custom tour plan for <strong>{formData.destination}</strong>. You can download your official Trip Plan PDF voucher below.
           </p>
         </div>
 
-        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-700 max-w-md mx-auto text-left space-y-1">
-          <div><strong>📅 Dates:</strong> {formData.arrival_date || 'Flexible'} to {formData.departure_date || 'Flexible'} ({formData.duration_days})</div>
-          <div><strong>👥 Guests:</strong> {formData.adults_count} Adults, {formData.children_count} Children</div>
-          <div><strong>🚗 Transport:</strong> {formData.vehicle_preference} (Airport: {formData.airport_pickup === 'Yes' ? 'Pickup' : ''} {formData.airport_drop === 'Yes' ? '& Drop' : ''})</div>
-          <div><strong>🏨 Stay:</strong> {formData.hotel_category} • {formData.rooms_count} Room ({formData.room_type})</div>
+        {/* Detailed Breakdown Card */}
+        <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-700 max-w-xl mx-auto text-left space-y-2.5">
+          <div className="flex justify-between border-b border-slate-200/80 pb-1.5">
+            <span className="font-bold text-slate-900">📍 Destination:</span>
+            <span className="text-teal-700 font-bold">{formData.destination}</span>
+          </div>
+          <div className="flex justify-between border-b border-slate-200/80 pb-1.5">
+            <span className="font-bold text-slate-900">📅 Dates &amp; Duration:</span>
+            <span>{formData.arrival_date || 'Flexible'} to {formData.departure_date || 'Flexible'} ({formData.duration_days})</span>
+          </div>
+          <div className="flex justify-between border-b border-slate-200/80 pb-1.5">
+            <span className="font-bold text-slate-900">👥 Travelers:</span>
+            <span>{formData.adults_count} Adults, {formData.children_count} Children, {formData.infants_count} Infants</span>
+          </div>
+          <div className="flex justify-between border-b border-slate-200/80 pb-1.5">
+            <span className="font-bold text-slate-900">🚗 Private Vehicle:</span>
+            <span>{formData.vehicle_preference} (Airport: {formData.airport_pickup === 'Yes' ? 'Pickup' : ''} {formData.airport_drop === 'Yes' ? '& Drop' : ''})</span>
+          </div>
+          <div className="flex justify-between border-b border-slate-200/80 pb-1.5">
+            <span className="font-bold text-slate-900">🏨 Stay:</span>
+            <span>{formData.hotel_category} • {formData.rooms_count} Room ({formData.room_type})</span>
+          </div>
+          <div className="flex justify-between border-b border-slate-200/80 pb-1.5">
+            <span className="font-bold text-slate-900">🗣️ Tour Guide:</span>
+            <span>{formData.tour_guide_required === 'Yes' ? `Yes (${formData.preferred_language})` : 'No Guide Needed'}</span>
+          </div>
+          {formData.arrival_flight_train_number && (
+            <div className="flex justify-between border-b border-slate-200/80 pb-1.5">
+              <span className="font-bold text-slate-900">✈️ Flight/Train:</span>
+              <span>Arrival: {formData.arrival_flight_train_number} {formData.arrival_time ? `(${formData.arrival_time})` : ''}</span>
+            </div>
+          )}
           {formData.approximate_budget && (
-            <div><strong>💰 Budget:</strong> {formData.budget_currency} {formData.approximate_budget}</div>
+            <div className="flex justify-between pt-0.5 font-bold">
+              <span className="text-slate-900">💰 Estimated Budget:</span>
+              <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">{formData.budget_currency} {formData.approximate_budget}</span>
+            </div>
           )}
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+          <button
+            type="button"
+            onClick={() => printTripVoucher(summaryData, { site_name: siteName, contact_whatsapp: contactWhatsApp })}
+            className="w-full sm:w-auto px-6 py-3.5 bg-teal-700 hover:bg-teal-800 text-white font-bold text-sm rounded-xl shadow-lg transition-transform hover:-translate-y-0.5 inline-flex items-center justify-center gap-2"
+          >
+            <span>📄</span> Download / Print PDF Itinerary
+          </button>
+
           <a
             href={whatsappDirectUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full sm:w-auto px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-lg transition-transform hover:-translate-y-0.5 inline-flex items-center justify-center gap-2"
           >
-            <span>💬</span> Message Specialist on WhatsApp
+            <span>💬</span> Send to WhatsApp
           </a>
+
           <button
             type="button"
             onClick={() => setSubmissionSuccess(null)}

@@ -8,7 +8,6 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
     { label: t('nav_home', 'Home'), path: '/', end: true },
     { label: t('nav_destinations', 'Destinations'), path: '/destinations' },
     { label: t('nav_tours', 'Tours'), path: '/tours' },
-    { label: t('nav_plan_trip', 'Plan Your Trip'), path: '/plan-your-trip' },
     { label: t('nav_testimonials', 'Testimonials'), path: '/testimonials' },
     { label: t('nav_about', 'About'), path: '/about' },
     { label: t('nav_contact', 'Contact'), path: '/contact' },
