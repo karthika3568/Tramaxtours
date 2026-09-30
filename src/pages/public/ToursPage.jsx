@@ -73,8 +73,6 @@ export default function ToursPage() {
     return cat ? cat.split(',') : [];
   });
   const [selectedRating, setSelectedRating] = useState(searchParams.get('rating') || 'all');
-  const [minPrice, setMinPrice] = useState(searchParams.get('min_price') || '0');
-  const [maxPrice, setMaxPrice] = useState(searchParams.get('max_price') || '500');
   const [sortBy, setSortBy] = useState(searchParams.get('sort_by') || 'default');
   const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') || '1', 10));
 
@@ -264,17 +262,9 @@ export default function ToursPage() {
         }
       }
 
-      // 4. Price Filter
-      const minP = parseFloat(minPrice || '0');
-      const maxP = parseFloat(maxPrice || '500');
-      const price = parseFloat(tour.base_price || 0);
-
-      if (!isNaN(minP) && price < minP) return false;
-      if (!isNaN(maxP) && maxP > 0 && price > maxP) return false;
-
       return true;
     });
-  }, [tours, selectedDurations, selectedCategories, selectedRating, minPrice, maxPrice]);
+  }, [tours, selectedDurations, selectedCategories, selectedRating]);
 
   const handleToggleDuration = (val) => {
     setSelectedDurations((prev) =>
@@ -294,8 +284,6 @@ export default function ToursPage() {
     setSelectedDurations([]);
     setSelectedCategories([]);
     setSelectedRating('all');
-    setMinPrice('0');
-    setMaxPrice('500');
     setSortBy('default');
     setCurrentPage(1);
     setSearchParams({});
@@ -320,9 +308,7 @@ export default function ToursPage() {
       selectedDate ||
       selectedDurations.length > 0 ||
       selectedCategories.length > 0 ||
-      selectedRating !== 'all' ||
-      (minPrice && minPrice !== '0') ||
-      (maxPrice && maxPrice !== '500')
+      selectedRating !== 'all'
   );
 
   return (
@@ -616,59 +602,8 @@ export default function ToursPage() {
             </div>
           </div>
 
-          {/* 6. Price Range Filter */}
-          <div className="sidebar-filter-block price-filter-block">
-            <div className="sidebar-selected-header">
-              <h3 className="sidebar-section-title">Price</h3>
-              <button
-                type="button"
-                className="sidebar-clear-link"
-                onClick={() => {
-                  setMinPrice('0');
-                  setMaxPrice('500');
-                }}
-              >
-                Reset
-              </button>
-            </div>
-
-            <div className="price-inputs-container">
-              <div className="price-input-box">
-                <span className="price-currency-sym">€</span>
-                <input
-                  type="number"
-                  value={minPrice}
-                  onChange={(e) => setMinPrice(e.target.value)}
-                  min="0"
-                  className="price-val-input"
-                />
-              </div>
-
-              <div className="price-input-box">
-                <span className="price-currency-sym">€</span>
-                <input
-                  type="number"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
-                  min="0"
-                  className="price-val-input"
-                />
-              </div>
-            </div>
-
-            {/* Slider track */}
-            <div className="price-range-slider-wrap">
-              <input
-                type="range"
-                min="0"
-                max="500"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
-                className="price-range-slider"
-              />
-            </div>
-
-            {/* Big Green Find Tours Button */}
+          {/* Find Tours Action Button */}
+          <div className="sidebar-action-block" style={{ marginTop: '20px' }}>
             <button
               type="button"
               className="find-tours-btn"

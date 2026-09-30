@@ -150,25 +150,16 @@ export default function TourCard({ tour }) {
           })}
         </div>
 
-        {/* Price & Action Row */}
-        {basePrice !== null && (
-          <div className="activity-card-footer-row" style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <span style={{ fontSize: '11px', color: '#64748b', display: 'block' }}>{t('card_starting_from', 'From')}</span>
-              <strong style={{ fontSize: '16px', color: '#01aa90' }}>
-                {currencySymbol}{basePrice.toLocaleString()}
-              </strong>
-            </div>
-
-            <Link
-              to={`/tours/${tour.slug}`}
-              className={`btn ${isUnavailable ? 'btn-secondary' : 'btn-primary'} btn-xs`}
-              style={{ padding: '6px 14px', fontSize: '12px', borderRadius: '6px' }}
-            >
-              {isUnavailable ? 'View Details' : t('card_view_details', 'View Tour')} &rarr;
-            </Link>
-          </div>
-        )}
+        {/* Action Row */}
+        <div className="activity-card-footer-row" style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <Link
+            to={`/tours/${tour.slug}`}
+            className={`btn ${isUnavailable ? 'btn-secondary' : 'btn-primary'} btn-xs`}
+            style={{ padding: '8px 16px', fontSize: '12px', borderRadius: '8px', width: '100%', textAlign: 'center', fontWeight: '700' }}
+          >
+            {isUnavailable ? 'View Details' : t('card_view_details', 'View Tour')} &rarr;
+          </Link>
+        </div>
       </div>
     </article>
   );
