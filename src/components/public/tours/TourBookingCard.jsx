@@ -71,6 +71,7 @@ export default function TourBookingCard({ tour }) {
   const basePrice = Number(tour.base_price || 0);
   const childPrice = Math.round(basePrice * 0.5);
   const totalPrice = (adults * basePrice) + (children * childPrice);
+  const destinationName = tour.destination?.name || tour.destination_name || (typeof tour.destination === 'string' ? tour.destination : '') || '';
   const currencySymbol = tour.currency === 'EUR' ? '€' : tour.currency === 'INR' ? '₹' : (tour.currency || '₹');
 
   const minBookingDate = (() => {
