@@ -72,27 +72,24 @@ export default function TourCard({ tour }) {
   const formattedPrice = basePrice ? formatPrice(basePrice) : null;
 
   return (
-    <article className={`activity-tour-card activity-card-floating ${isUnavailable ? 'tour-card-full' : ''}`}>
-      {/* Top Image Container with Parallax Zoom */}
+    <article className={`activity-tour-card ${isUnavailable ? 'tour-card-full' : ''}`}>
+      {/* Top Image Container */}
       <Link to={`/tours/${tour.slug}`} className="activity-card-media" aria-label={tour.title}>
-        <div className="activity-media-zoom-box">
-          <img
-            src={imageUrl}
-            alt={tour.title}
-            loading="lazy"
-            className="activity-card-img activity-parallax-img"
-          />
-          <div className="activity-card-overlay-gradient" />
-        </div>
+        <img
+          src={imageUrl}
+          alt={tour.title}
+          loading="lazy"
+          className="activity-card-img"
+        />
 
-        {/* Capacity / Full / Closed / Low Seat Badges (Glassmorphism) */}
+        {/* Capacity / Full / Closed / Low Seat Badges */}
         <div className="activity-card-top-badges">
           {isFull ? (
-            <span className="card-status-badge-glass badge-full-glass">🔴 Fully Booked</span>
+            <span className="card-status-badge badge-full">🔴 Fully Booked</span>
           ) : isBookingClosed ? (
-            <span className="card-status-badge-glass badge-full-glass">⛔ Booking Closed</span>
+            <span className="card-status-badge badge-full">⛔ Booking Closed</span>
           ) : isLowSeats ? (
-            <span className="card-status-badge-glass badge-low-seats-glass">
+            <span className="card-status-badge badge-low-seats">
               ⚡ Only {seatsLeftLabel} Seats Left
             </span>
           ) : null}
@@ -101,10 +98,10 @@ export default function TourCard({ tour }) {
 
       {/* Card Content Body */}
       <div className="activity-card-body">
-        {/* Location & Schedule Row with Frosted Glass Badges */}
-        <div className="activity-location-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
-          <div className="activity-location-pill-glass">
-            <svg className="activity-location-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        {/* Location & Schedule Row */}
+        <div className="activity-location-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <svg className="activity-location-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
               <circle cx="12" cy="10" r="3" />
             </svg>
@@ -112,7 +109,7 @@ export default function TourCard({ tour }) {
           </div>
 
           {travelDays && (
-            <span className="activity-schedule-tag-glass" title="Operating Schedule">
+            <span className="activity-schedule-tag" title="Operating Schedule">
               🗓️ {travelDays}
             </span>
           )}
@@ -132,7 +129,7 @@ export default function TourCard({ tour }) {
           </span>
         </div>
 
-        {/* Category & Feature Badges with Glassmorphism */}
+        {/* Category & Feature Badges */}
         <div className="activity-badges-grid">
           {sortedCategories.map((catName, idx) => {
             const isBlue = isPrimaryBadge(catName) || (idx === 0 && !sortedCategories.some(isPrimaryBadge));
@@ -144,7 +141,7 @@ export default function TourCard({ tour }) {
             return (
               <span
                 key={`${catName}-${idx}`}
-                className={`activity-badge-glass ${isBlue ? 'badge-glass-blue' : 'badge-glass-teal'}`}
+                className={`activity-badge ${isBlue ? 'badge-blue' : 'badge-green'}`}
               >
                 {displayCatName}
               </span>
@@ -152,20 +149,20 @@ export default function TourCard({ tour }) {
           })}
         </div>
 
-        {/* Action Row with Glassmorphism Price & View Button */}
-        <div className="activity-card-footer-row" style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid rgba(226, 232, 240, 0.6)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+        {/* Action Row with Price & View Button */}
+        <div className="activity-card-footer-row" style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
           {formattedPrice ? (
-            <div className="activity-price-box-glass">
-              <span className="price-from-label">From</span>
-              <span className="price-amount-text">{formattedPrice}</span>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '10px', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>From</span>
+              <span style={{ fontSize: '15px', fontWeight: 800, color: '#064d71' }}>{formattedPrice}</span>
             </div>
           ) : (
-            <span className="activity-price-custom-tag">Custom</span>
+            <span style={{ fontSize: '12px', color: '#64748b' }}>Custom</span>
           )}
 
           <Link
             to={`/tours/${tour.slug}`}
-            className={`btn ${isUnavailable ? 'btn-secondary' : 'btn-primary'} btn-xs btn-card-explore-glass`}
+            className={`btn ${isUnavailable ? 'btn-secondary' : 'btn-primary'} btn-xs`}
             style={{ padding: '8px 14px', fontSize: '12px', borderRadius: '8px', textAlign: 'center', fontWeight: '700' }}
           >
             {isUnavailable ? 'View Details' : t('card_view_details', 'View Tour')} &rarr;
