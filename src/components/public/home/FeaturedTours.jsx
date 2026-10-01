@@ -11,6 +11,7 @@ const FALLBACK_POPULAR_TOURS = [
     slug: 'mahabalipuram-day-tour',
     destination: { name: 'Mahabalipuram' },
     featured_image: '/uploads/media/demo_tamilnadu_mahabalipuram.jpg',
+    base_price: 3500,
     rating: 4.9,
     reviews_count: 18,
     categories: [
@@ -25,6 +26,7 @@ const FALLBACK_POPULAR_TOURS = [
     slug: 'kanchipuram-day-tour',
     destination: { name: 'Kanchipuram' },
     featured_image: '/uploads/media/demo_tamilnadu_kanchipuram.jpg',
+    base_price: 3800,
     rating: 4.8,
     reviews_count: 14,
     categories: [
@@ -38,6 +40,7 @@ const FALLBACK_POPULAR_TOURS = [
     slug: 'pondicherry-day-tour',
     destination: { name: 'Pondicherry (Puducherry)' },
     featured_image: '/uploads/media/demo_tamilnadu_pondicherry.jpg',
+    base_price: 4200,
     rating: 5.0,
     reviews_count: 22,
     categories: [
@@ -51,6 +54,7 @@ const FALLBACK_POPULAR_TOURS = [
     slug: 'chennai-day-tour',
     destination: { name: 'Chennai' },
     featured_image: '/uploads/media/demo_tamilnadu_chennai.jpg',
+    base_price: 3200,
     rating: 4.9,
     reviews_count: 19,
     categories: [
@@ -64,6 +68,7 @@ const FALLBACK_POPULAR_TOURS = [
     slug: 'thanjavur-day-tour',
     destination: { name: 'Thanjavur' },
     featured_image: '/uploads/media/demo_tamilnadu_thanjavur.jpg',
+    base_price: 4800,
     rating: 5.0,
     reviews_count: 25,
     categories: [
@@ -75,9 +80,10 @@ const FALLBACK_POPULAR_TOURS = [
 
 export default function FeaturedTours() {
   const [tours, setTours] = useState(FALLBACK_POPULAR_TOURS);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
-  const sliderRef = useRef(null);
+  const timerRef = useRef(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -106,40 +112,28 @@ export default function FeaturedTours() {
     };
   }, []);
 
-  const handleScroll = useCallback((direction) => {
-    if (!sliderRef.current) return;
-    const container = sliderRef.current;
-    const card = container.querySelector('.tour-slider-item');
-    const cardWidth = card ? card.offsetWidth : 320;
-    const scrollAmount = cardWidth + 24;
+  const total = tours.length;
 
-    if (direction === 'next') {
-      const isAtEnd = container.scrollLeft + container.offsetWidth >= container.scrollWidth - 15;
-      if (isAtEnd) {
-        container.scrollTo({ left: 0, behavior: 'smooth' });
-      } else {
-        container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-      }
-    } else {
-      const isAtStart = container.scrollLeft <= 15;
-      if (isAtStart) {
-        container.scrollTo({ left: container.scrollWidth, behavior: 'smooth' });
-      } else {
-        container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-      }
-    }
-  }, []);
+  const nextSlide = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % total);
+  }, [total]);
 
-  // Auto-slide every 4.5 seconds
+  const prevSlide = useCallback(() => {
+    setCurrentIndex((prev) => (prev - 1 + total) % total);
+  }, [total]);
+
+  // Routine Auto-Slide every 3.5 seconds
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || total <= 1) return;
 
-    const timer = setInterval(() => {
-      handleScroll('next');
-    }, 4500);
+    timerRef.current = setInterval(() => {
+      nextSlide();
+    }, 3500);
 
-    return () => clearInterval(timer);
-  }, [isPaused, handleScroll]);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [isPaused, total, nextSlide]);
 
   return (
     <section
@@ -153,7 +147,7 @@ export default function FeaturedTours() {
         <div className="popular-activities-header">
           <div className="popular-activities-title-wrap">
             <span className="section-badge">Handpicked Packages</span>
-            <h2 className="popular-activities-heading">Popular Activities & Tours</h2>
+            <h2 className="popular-activities-heading">Popular Activities &amp; Tours</h2>
           </div>
 
           <div className="popular-tours-nav-actions">
@@ -161,8 +155,8 @@ export default function FeaturedTours() {
               <button
                 type="button"
                 className="tours-nav-btn tours-btn-prev"
-                onClick={() => handleScroll('prev')}
-                aria-label="Previous tours"
+                onClick={prevSlide}
+                aria-label="Previous tour"
                 title="Previous"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -172,8 +166,8 @@ export default function FeaturedTours() {
               <button
                 type="button"
                 className="tours-nav-btn tours-btn-next"
-                onClick={() => handleScroll('next')}
-                aria-label="Next tours"
+                onClick={nextSlide}
+                aria-label="Next tour"
                 title="Next"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -188,20 +182,44 @@ export default function FeaturedTours() {
           </div>
         </div>
 
-        {/* Dynamic Tours Carousel Slider Track */}
+        {/* Dynamic Tours Carousel Viewport (Clean, No Scrollbars) */}
         {isLoading && tours.length === 0 ? (
           <Loading message="Loading Popular Activities..." />
         ) : (
           <div
-            ref={sliderRef}
-            className="popular-tours-slider-track"
+            className="popular-tours-viewport"
             onTouchStart={() => setIsPaused(true)}
             onTouchEnd={() => setIsPaused(false)}
           >
-            {tours.map((tour) => (
-              <div key={tour.id || tour.slug} className="tour-slider-item">
-                <TourCard tour={tour} />
-              </div>
+            <div
+              className="popular-tours-slider-track-routine"
+              style={{
+                transform: `translateX(-${currentIndex * 344}px)`,
+                transition: 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)',
+              }}
+            >
+              {[...tours, ...tours].map((tour, idx) => (
+                <div key={`${tour.id || tour.slug}-${idx}`} className="tour-slider-item">
+                  <TourCard tour={tour} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Tour Carousel Indicator Dots */}
+        {total > 1 && (
+          <div className="popular-tours-dots-indicator" role="tablist">
+            {tours.map((tour, idx) => (
+              <button
+                key={tour.id || tour.slug || idx}
+                type="button"
+                role="tab"
+                aria-selected={currentIndex % total === idx}
+                aria-label={`Go to tour ${idx + 1}`}
+                className={`tour-dot ${currentIndex % total === idx ? 'active' : ''}`}
+                onClick={() => setCurrentIndex(idx)}
+              />
             ))}
           </div>
         )}

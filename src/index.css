@@ -25655,23 +25655,39 @@ button {
   text-decoration: underline;
 }
 
-.popular-tours-slider-track {
+.popular-tours-viewport {
+  overflow: hidden;
+  width: 100%;
+  padding: 10px 0 20px;
+}
+
+.popular-tours-slider-track-routine {
   display: flex;
   gap: 24px;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  padding: 8px 4px 20px;
-  scrollbar-width: thin;
-  scrollbar-color: #01AA90 transparent;
+  width: max-content;
+  will-change: transform;
 }
 
-.popular-tours-slider-track::-webkit-scrollbar {
-  height: 6px;
+.popular-tours-dots-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
 }
 
-.popular-tours-slider-track::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
-  border-radius: 6px;
+.tour-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background: #cbd5e1;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tour-dot.active {
+  width: 28px;
+  background: #01AA90;
 }
 
 .tour-slider-item {
