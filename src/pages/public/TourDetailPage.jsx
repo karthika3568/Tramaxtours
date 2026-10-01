@@ -5,8 +5,6 @@ import reviewService from '../../services/reviewService';
 import { getMediaUrl } from '../../utils/media';
 import TourBookingCard from '../../components/public/tours/TourBookingCard';
 import TourCard from '../../components/public/tours/TourCard';
-import TourPdfDownloadBtn from '../../components/public/tours/TourPdfDownloadBtn';
-import TourRouteMap from '../../components/public/tours/TourRouteMap';
 import Loading from '../../components/ui/Loading';
 import ErrorState from '../../components/ui/ErrorState';
 import { updatePageMeta } from '../../utils/metadata';
@@ -296,25 +294,21 @@ export default function TourDetailPage() {
               <span className="meta-booked-count">1 booked</span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <TourPdfDownloadBtn tour={tour} />
-
-              <button
-                type="button"
-                className="tour-share-btn"
-                onClick={handleShare}
-                aria-label="Share this tour"
-              >
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <circle cx="18" cy="5" r="3" />
-                  <circle cx="6" cy="12" r="3" />
-                  <circle cx="18" cy="19" r="3" />
-                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                  <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-                </svg>
-                <span>{copiedShare ? 'Link Copied!' : 'Share'}</span>
-              </button>
-            </div>
+            <button
+              type="button"
+              className="tour-share-btn"
+              onClick={handleShare}
+              aria-label="Share this tour"
+            >
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+              </svg>
+              <span>{copiedShare ? 'Link Copied!' : 'Share'}</span>
+            </button>
           </div>
         </header>
 
@@ -450,9 +444,6 @@ export default function TourDetailPage() {
                 )}
               </ol>
             </section>
-
-            {/* Interactive Travel Route & Map Visualizer */}
-            <TourRouteMap tour={tour} />
 
             {/* Package Price (Pricing Tiers) */}
             <section className="detail-section-card">

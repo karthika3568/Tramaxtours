@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import Navbar from './Navbar';
 import MobileMenu from './MobileMenu';
 import LanguageSwitcher from './LanguageSwitcher';
-import CurrencySwitcher from './CurrencySwitcher';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import { useLanguage } from '../../context/LanguageContext';
 import useAuth from '../../hooks/useAuth';
@@ -36,11 +35,6 @@ export default function Header() {
 
           {/* Header Action & Authentication Controls */}
           <div className="header-actions-wrapper">
-            {/* Multi-Currency Switcher (INR / USD / EUR / GBP) */}
-            <div className="hide-on-mobile">
-              <CurrencySwitcher />
-            </div>
-
             {/* Language Switcher (EN / DE) */}
             <div className="hide-on-mobile">
               <LanguageSwitcher />

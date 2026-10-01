@@ -1,11 +1,9 @@
 import { Link } from 'react-router-dom';
 import { getMediaUrl } from '../../../utils/media';
 import { useLanguage } from '../../../context/LanguageContext';
-import { useCurrency } from '../../../context/CurrencyContext';
 
 export default function TourCard({ tour }) {
   const { t, language } = useLanguage();
-  const { formatPrice } = useCurrency();
   if (!tour) return null;
 
   const rawImage = tour.featured_image?.file_path || tour.featured_image?.url || tour.featured_image || tour.image;
@@ -42,6 +40,9 @@ export default function TourCard({ tour }) {
     return 0;
   });
 
+  // Date-based availability (if the admin has configured specific travel dates) takes
+  // priority over the legacy single global seat count — it reflects the soonest
+  // upcoming bookable date rather than an undifferentiated whole-tour figure.
   const nextAvailability = tour.uses_date_availability
     ? (tour.availability_dates || [])[0] || null
     : null;
@@ -69,7 +70,7 @@ export default function TourCard({ tour }) {
   const isUnavailable = isFull || isBookingClosed;
   const travelDays = tour.travel_days || 'Daily';
   const basePrice = tour.base_price ? Number(tour.base_price) : null;
-  const formattedPrice = basePrice ? formatPrice(basePrice) : null;
+  const currencySymbol = tour.currency === 'EUR' ? '€' : tour.currency === 'INR' ? '₹' : (tour.currency || '₹');
 
   return (
     <article className={`activity-tour-card ${isUnavailable ? 'tour-card-full' : ''}`}>
@@ -149,21 +150,12 @@ export default function TourCard({ tour }) {
           })}
         </div>
 
-        {/* Action Row with Price & View Button */}
-        <div className="activity-card-footer-row" style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
-          {formattedPrice ? (
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '10px', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>From</span>
-              <span style={{ fontSize: '15px', fontWeight: 800, color: '#064d71' }}>{formattedPrice}</span>
-            </div>
-          ) : (
-            <span style={{ fontSize: '12px', color: '#64748b' }}>Custom</span>
-          )}
-
+        {/* Action Row */}
+        <div className="activity-card-footer-row" style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
           <Link
             to={`/tours/${tour.slug}`}
             className={`btn ${isUnavailable ? 'btn-secondary' : 'btn-primary'} btn-xs`}
-            style={{ padding: '8px 14px', fontSize: '12px', borderRadius: '8px', textAlign: 'center', fontWeight: '700' }}
+            style={{ padding: '8px 16px', fontSize: '12px', borderRadius: '8px', width: '100%', textAlign: 'center', fontWeight: '700' }}
           >
             {isUnavailable ? 'View Details' : t('card_view_details', 'View Tour')} &rarr;
           </Link>

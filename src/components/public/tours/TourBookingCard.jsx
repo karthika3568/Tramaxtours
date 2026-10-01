@@ -4,7 +4,6 @@ import bookingService from '../../../services/bookingService';
 import { useToast } from '../../../context/ToastContext';
 import { useSiteSettings } from '../../../context/SiteSettingsContext';
 import useAuth from '../../../hooks/useAuth';
-import { useCurrency } from '../../../context/CurrencyContext';
 import { formatWhatsAppUrl } from '../../../utils/whatsapp';
 
 export default function TourBookingCard({ tour }) {
@@ -12,7 +11,6 @@ export default function TourBookingCard({ tour }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated } = useAuth();
-  const { currency, formatPrice, convertPrice } = useCurrency();
   const { getSetting } = useSiteSettings();
   const businessWhatsApp = getSetting('contact_whatsapp', '+91 8072566010');
 
@@ -70,12 +68,11 @@ export default function TourBookingCard({ tour }) {
     : (tour.available_seats !== undefined && tour.available_seats !== null && Number(tour.available_seats) > 0 && Number(tour.available_seats) <= 5);
   const seatsLeft = usesDateAvailability ? selectedDateAvailability?.available_seats : tour.available_seats;
   const travelDays = tour.travel_days || 'Daily';
-  const rawBasePrice = Number(tour.base_price || 0);
-  const basePrice = currency.code === 'INR' ? rawBasePrice : convertPrice(rawBasePrice);
+  const basePrice = Number(tour.base_price || 0);
   const childPrice = Math.round(basePrice * 0.5);
   const totalPrice = (adults * basePrice) + (children * childPrice);
   const destinationName = tour.destination?.name || tour.destination_name || (typeof tour.destination === 'string' ? tour.destination : '') || '';
-  const currencySymbol = currency.symbol;
+  const currencySymbol = tour.currency === 'EUR' ? '€' : tour.currency === 'INR' ? '₹' : (tour.currency || '₹');
 
   const minBookingDate = (() => {
     const d = new Date();
