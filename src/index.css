@@ -25694,6 +25694,230 @@ button {
   flex: 0 0 320px;
 }
 
+/* ==========================================================================
+   SLOW FLOATING MOTION, PARALLAX MOVEMENT & GLASSMORPHISM LABELS (TOUR CARDS)
+   ========================================================================== */
+
+/* 1. Slow Floating Motion Keyframes */
+@keyframes tourCardSlowFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(0.4deg);
+  }
+}
+
+.popular-tours-slider-track-routine .tour-slider-item .activity-card-floating {
+  animation: tourCardSlowFloat 5s ease-in-out infinite;
+  transform-origin: center bottom;
+  position: relative;
+}
+
+.popular-tours-slider-track-routine .tour-slider-item:nth-child(2n) .activity-card-floating {
+  animation-duration: 5.8s;
+  animation-delay: 1.2s;
+}
+
+.popular-tours-slider-track-routine .tour-slider-item:nth-child(3n) .activity-card-floating {
+  animation-duration: 6.2s;
+  animation-delay: 2.4s;
+}
+
+.popular-tours-slider-track-routine .tour-slider-item:nth-child(4n) .activity-card-floating {
+  animation-duration: 5.2s;
+  animation-delay: 0.6s;
+}
+
+/* Pause float and lift on hover with glowing 3D depth */
+.activity-tour-card.activity-card-floating:hover {
+  animation-play-state: paused;
+  transform: translateY(-12px) scale(1.025);
+  box-shadow: 0 24px 48px -12px rgba(6, 77, 113, 0.22), 0 0 0 1.5px rgba(1, 170, 144, 0.35);
+}
+
+/* 2. Parallax Movement & 3D Shimmer Sweep */
+.activity-media-zoom-box {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.activity-parallax-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.5s ease;
+  will-change: transform;
+}
+
+.activity-tour-card:hover .activity-parallax-img {
+  transform: scale(1.12) translateY(-4px);
+  filter: brightness(1.04) contrast(1.02);
+}
+
+.activity-card-overlay-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.05) 0%,
+    transparent 50%,
+    rgba(15, 23, 42, 0.6) 100%
+  );
+  pointer-events: none;
+}
+
+/* Shimmer light sweep reflection across card on hover */
+.activity-tour-card::after {
+  content: "";
+  position: absolute;
+  top: -60%;
+  left: -60%;
+  width: 220%;
+  height: 220%;
+  background: linear-gradient(
+    60deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.28) 50%,
+    transparent 65%
+  );
+  transform: rotate(25deg) translateY(-100%);
+  transition: transform 0.85s ease-in-out;
+  pointer-events: none;
+  z-index: 15;
+}
+
+.activity-tour-card:hover::after {
+  transform: rotate(25deg) translateY(100%);
+}
+
+/* 3. Glassmorphism Labels & Badges */
+.activity-location-pill-glass {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(248, 250, 252, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-radius: 9999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.activity-schedule-tag-glass {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(230, 247, 244, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(1, 170, 144, 0.25);
+  box-shadow: 0 2px 8px rgba(1, 170, 144, 0.08);
+  border-radius: 9999px;
+  padding: 4px 10px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #01806C;
+}
+
+.card-status-badge-glass {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.badge-low-seats-glass {
+  background: rgba(254, 243, 199, 0.9);
+  color: #92400e;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.badge-full-glass {
+  background: rgba(254, 226, 226, 0.9);
+  color: #991b1b;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.activity-badge-glass {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 11px;
+  border-radius: 8px;
+  letter-spacing: 0.2px;
+  line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.badge-glass-blue {
+  background: rgba(37, 99, 235, 0.82);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.22);
+}
+
+.badge-glass-teal {
+  background: rgba(1, 170, 144, 0.82);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 12px rgba(1, 170, 144, 0.22);
+}
+
+.activity-tour-card:hover .activity-badge-glass {
+  transform: translateY(-2px);
+}
+
+.activity-price-box-glass {
+  display: flex;
+  flex-direction: column;
+  background: rgba(240, 253, 244, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(1, 170, 144, 0.25);
+  border-radius: 8px;
+  padding: 4px 10px;
+}
+
+.price-from-label {
+  font-size: 9.5px;
+  color: #01806C;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.price-amount-text {
+  font-size: 15px;
+  font-weight: 800;
+  color: #064d71;
+  line-height: 1.15;
+}
+
+.btn-card-explore-glass {
+  box-shadow: 0 4px 14px rgba(1, 170, 144, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-card-explore-glass:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(1, 170, 144, 0.4);
+}
+
 /* Responsive adjustments */
 @media (max-width: 992px) {
   .ttd-showcase-container {
@@ -25709,5 +25933,6 @@ button {
     height: 180px;
   }
 }
+
 
 
