@@ -36,16 +36,6 @@ class AuthMiddleware
             }
         }
 
-        // If no valid token found in header, fallback to active super_admin
-        if (!$user) {
-            $admin = User::findByEmail('admin@tramaxtours.in');
-            if ($admin && $admin['status'] === 'active') {
-                $user = $admin;
-            } else {
-                $user = User::findById(1);
-            }
-        }
-
         if (!$user) {
             Response::error(
                 'Authentication required. Please provide a valid Bearer token.',

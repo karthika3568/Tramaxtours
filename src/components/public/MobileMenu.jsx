@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from './Navbar';
 import LanguageSwitcher from './LanguageSwitcher';
+import CurrencySwitcher from './CurrencySwitcher';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import { useLanguage } from '../../context/LanguageContext';
 import useAuth from '../../hooks/useAuth';
@@ -72,6 +73,9 @@ export default function MobileMenu({ isOpen, onClose }) {
         </div>
 
         {siteTagline && <p className="mobile-menu-tagline">{siteTagline}</p>}
+
+        {/* Mobile Currency Selector */}
+        <CurrencySwitcher isMobile={true} />
 
         {/* Mobile Language Selector */}
         <LanguageSwitcher isMobile={true} />

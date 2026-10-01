@@ -53,8 +53,8 @@ $router->group('/api/v1', function (Router $router) {
 
     // Dashboard & Operations Statistics Route (Permission: dashboard.view)
     $router->group('/dashboard', function (Router $router) {
-        $router->get('/stats', [DashboardController::class, 'stats'], [new PermissionMiddleware('dashboard.view')]);
-        $router->get('', [DashboardController::class, 'stats'], [new PermissionMiddleware('dashboard.view')]);
+        $router->get('/stats', [DashboardController::class, 'stats'], [AuthMiddleware::class, new PermissionMiddleware('dashboard.view')]);
+        $router->get('', [DashboardController::class, 'stats'], [AuthMiddleware::class, new PermissionMiddleware('dashboard.view')]);
     });
 
     // Media Library & Asset Management Routes

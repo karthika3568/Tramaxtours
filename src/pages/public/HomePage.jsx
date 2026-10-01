@@ -3,18 +3,20 @@ import { updatePageMeta } from '../../utils/metadata';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import HeroSection from '../../components/public/home/HeroSection';
 import HomeSearchSection from '../../components/public/home/HomeSearchSection';
-import BenefitsSection from '../../components/public/home/BenefitsSection';
 import FeaturedDestinations from '../../components/public/home/FeaturedDestinations';
+import ThingsToDoSection from '../../components/public/home/ThingsToDoSection';
 import FeaturedTours from '../../components/public/home/FeaturedTours';
+import BenefitsSection from '../../components/public/home/BenefitsSection';
 import TestimonialsSection from '../../components/public/home/TestimonialsSection';
 import CmsSections from '../../components/public/home/CmsSections';
 
 const DEFAULT_SECTIONS = [
   'hero',
   'search',
-  'benefits',
   'destinations',
+  'things_to_do',
   'tours',
+  'benefits',
   'reviews',
   'cms',
 ];
@@ -24,9 +26,9 @@ export default function HomePage() {
 
   useEffect(() => {
     updatePageMeta({
-      title: 'Wonderer South India – Travel Made Simple & Memorable',
+      title: 'Wonderer South India – Plan Your Trip to South India',
       description:
-        'Explore South India\'s most breathtaking destinations with Wonderer South India. Handcrafted tour packages, private cabs, spiritual pilgrimage & hill station getaways.',
+        'Discover South India with Wonderer South India. Handcrafted tour packages, private cabs, spiritual pilgrimage & hill station getaways across Tamil Nadu, Kerala, Karnataka and Goa.',
     });
   }, []);
 
@@ -52,7 +54,6 @@ export default function HomePage() {
   }, [getSetting]);
 
   const renderSection = (secId) => {
-    // If explicitly set to false in admin settings, do not render
     if (sectionVisibility[secId] === false) {
       return null;
     }
@@ -62,12 +63,14 @@ export default function HomePage() {
         return <HeroSection key="hero" />;
       case 'search':
         return <HomeSearchSection key="search" />;
-      case 'benefits':
-        return <BenefitsSection key="benefits" />;
       case 'destinations':
         return <FeaturedDestinations key="destinations" />;
+      case 'things_to_do':
+        return <ThingsToDoSection key="things_to_do" />;
       case 'tours':
         return <FeaturedTours key="tours" />;
+      case 'benefits':
+        return <BenefitsSection key="benefits" />;
       case 'reviews':
         return <TestimonialsSection key="reviews" />;
       case 'cms':
@@ -83,5 +86,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-
