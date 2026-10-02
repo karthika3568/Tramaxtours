@@ -340,13 +340,14 @@ export default function TourBookingCard({ tour }) {
                   ⚡ Only {seatsLeft} seats left for this date
                 </div>
               )}
-              <Link
-                to={`/request-my-trip?tour=${encodeURIComponent(tour.slug || tour.title)}&destination=${encodeURIComponent(destinationName)}&date=${encodeURIComponent(selectedDate)}&adults=${adults}&children=${children}`}
+              <button
+                type="button"
+                onClick={handleOpenBookingModal}
                 className="btn btn-primary btn-block widget-book-btn"
-                style={{ textAlign: 'center', textDecoration: 'none' }}
+                style={{ textAlign: 'center', cursor: 'pointer', fontWeight: 800, fontSize: '15px' }}
               >
                 ⚡ Instant Reservation &rarr;
-              </Link>
+              </button>
             </>
           )}
 
@@ -358,14 +359,6 @@ export default function TourBookingCard({ tour }) {
           >
             💬 Inquire on WhatsApp
           </a>
-
-          <Link
-            to={`/request-my-trip?tour=${encodeURIComponent(tour.slug || tour.title)}&destination=${encodeURIComponent(destinationName)}&date=${encodeURIComponent(selectedDate)}`}
-            className="btn btn-outline btn-sm btn-block widget-inquire-btn"
-            style={{ fontWeight: '700', padding: '10px', textAlign: 'center' }}
-          >
-            📝 Plan &amp; Customize Itinerary (10-Step Wizard)
-          </Link>
         </div>
 
         {/* Trust Badges */}
