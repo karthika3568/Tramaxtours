@@ -70,6 +70,14 @@ export const tourService = {
   },
 
   /**
+   * Alias for getTour
+   */
+  getTourBySlug: async (slug) => {
+    const response = await client.get(`/tours/${encodeURIComponent(slug)}`);
+    return response.data;
+  },
+
+  /**
    * Create a new tour package
    * @param {Object} data
    * @returns {Promise<any>}

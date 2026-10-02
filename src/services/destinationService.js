@@ -51,6 +51,14 @@ export const destinationService = {
   },
 
   /**
+   * Alias for getDestination
+   */
+  getDestinationBySlug: async (slug) => {
+    const response = await client.get(`/destinations/${encodeURIComponent(slug)}`);
+    return response.data;
+  },
+
+  /**
    * Create a new destination
    * @param {Object} data
    * @returns {Promise<any>}

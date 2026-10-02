@@ -36,30 +36,34 @@ export default function RequestMyTripPage() {
   useEffect(() => {
     let isMounted = true;
     if (tourSlug) {
-      tourService
-        .getTourBySlug(tourSlug)
-        .then((res) => {
-          if (!isMounted) return;
-          const tourData = res?.data || res;
-          if (tourData?.title) {
-            setPrefilledTourTitle(tourData.title);
-            if (!prefilledDestName && tourData.destination?.name) {
-              setPrefilledDestName(tourData.destination.name);
+      const fetchTour = tourService.getTour || tourService.getTourBySlug;
+      if (typeof fetchTour === 'function') {
+        fetchTour(tourSlug)
+          .then((res) => {
+            if (!isMounted) return;
+            const tourData = res?.data || res;
+            if (tourData?.title) {
+              setPrefilledTourTitle(tourData.title);
+              if (!prefilledDestName && tourData.destination?.name) {
+                setPrefilledDestName(tourData.destination.name);
+              }
             }
-          }
-        })
-        .catch(() => {});
+          })
+          .catch(() => {});
+      }
     } else if (destSlug) {
-      destinationService
-        .getDestinationBySlug(destSlug)
-        .then((res) => {
-          if (!isMounted) return;
-          const destData = res?.data || res;
-          if (destData?.name) {
-            setPrefilledDestName(destData.name);
-          }
-        })
-        .catch(() => {});
+      const fetchDest = destinationService.getDestination || destinationService.getDestinationBySlug;
+      if (typeof fetchDest === 'function') {
+        fetchDest(destSlug)
+          .then((res) => {
+            if (!isMounted) return;
+            const destData = res?.data || res;
+            if (destData?.name) {
+              setPrefilledDestName(destData.name);
+            }
+          })
+          .catch(() => {});
+      }
     }
     return () => {
       isMounted = false;
