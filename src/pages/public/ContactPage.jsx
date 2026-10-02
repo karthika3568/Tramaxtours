@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import PageHero from '../../components/public/common/PageHero';
 import { updatePageMeta } from '../../utils/metadata';
 import { useToast } from '../../context/ToastContext';
@@ -25,9 +25,9 @@ export default function ContactPage() {
 
   useEffect(() => {
     updatePageMeta({
-      title: 'Contact Us — Plan Your Journey | Tramax Tours',
+      title: 'Contact Us — Plan Your Journey | Wanderer South India',
       description:
-        'Connect with Tramax Tours specialists for custom itineraries, chauffeur guide inquiries, hotel bookings, and South India tour packages.',
+        'Connect with Wanderer South India specialists for custom itineraries, chauffeur guide inquiries, hotel bookings, and South India tour packages.',
     });
   }, []);
 
@@ -55,7 +55,7 @@ export default function ContactPage() {
   };
 
   const whatsappInquiryMsg = encodeURIComponent(
-    `Hello Tramax Tours! I would like to inquire about planning a trip.\n\nName: ${formData.name || 'Traveler'}\nEmail: ${formData.email || 'N/A'}\nPhone: ${formData.phone || 'N/A'}\nTour: ${formData.tour || 'Custom Journey'}\nTravelers: ${formData.travelers} Guests\nDate: ${formData.travelDate || 'Flexible'}\nMessage: ${formData.message || 'Please provide itinerary options and pricing.'}`
+    `Hello Wanderer South India! I would like to inquire about planning a trip.\n\nName: ${formData.name || 'Traveler'}\nEmail: ${formData.email || 'N/A'}\nPhone: ${formData.phone || 'N/A'}\nTour: ${formData.tour || 'Custom Journey'}\nTravelers: ${formData.travelers} Guests\nDate: ${formData.travelDate || 'Flexible'}\nMessage: ${formData.message || 'Please provide itinerary options and pricing.'}`
   );
 
   return (
@@ -71,6 +71,14 @@ export default function ContactPage() {
 
       {/* 2. MAIN CONTACT WORKSPACE */}
       <div className="container" style={{ padding: '60px 20px 80px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <Link
+            to="/request-trip"
+            style={{ background: '#01AA90', color: '#fff', padding: '14px 28px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', display: 'inline-block' }}
+          >
+            Planning a full itinerary? Request My Trip →
+          </Link>
+        </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '40px' }}>
           {/* Left Column: Direct Contact Info & WhatsApp */}
           <div>
@@ -101,7 +109,7 @@ export default function ContactPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '30px' }}>
               {/* WhatsApp Action Card */}
               <a
-                href={`https://wa.me/919840000000?text=${whatsappInquiryMsg}`}
+                href={`https://wa.me/918072566010?text=${whatsappInquiryMsg}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -120,7 +128,7 @@ export default function ContactPage() {
                 <span style={{ fontSize: '32px' }}>💬</span>
                 <div>
                   <strong style={{ fontSize: '16px', display: 'block' }}>Chat Instantly on WhatsApp</strong>
-                  <span style={{ fontSize: '13px', opacity: 0.9 }}>+91 98400 00000 • Quick Response</span>
+                  <span style={{ fontSize: '13px', opacity: 0.9 }}>+91 80725 66010 • Quick Response</span>
                 </div>
               </a>
 
@@ -139,7 +147,7 @@ export default function ContactPage() {
                 <span style={{ fontSize: '26px' }}>📞</span>
                 <div>
                   <small style={{ color: '#64748b', display: 'block', fontSize: '12px' }}>Helpline Hotline</small>
-                  <strong style={{ fontSize: '15px', color: '#0B1329' }}>+91 98400 00000</strong>
+                  <strong style={{ fontSize: '15px', color: '#0B1329' }}>+91 80725 66010</strong>
                 </div>
               </div>
 
@@ -158,7 +166,7 @@ export default function ContactPage() {
                 <span style={{ fontSize: '26px' }}>✉️</span>
                 <div>
                   <small style={{ color: '#64748b', display: 'block', fontSize: '12px' }}>Email Support</small>
-                  <strong style={{ fontSize: '15px', color: '#0B1329' }}>contact@tramaxtours.in</strong>
+                  <strong style={{ fontSize: '15px', color: '#0B1329' }}>contact@wanderersouthindia.com</strong>
                 </div>
               </div>
 
@@ -254,7 +262,7 @@ export default function ContactPage() {
                       type="tel"
                       name="phone"
                       required
-                      placeholder="e.g. +91 98400 00000"
+                      placeholder="e.g. +91 80725 66010"
                       value={formData.phone}
                       onChange={handleChange}
                       className="form-control"

@@ -16,6 +16,7 @@ import {
   TourDetailPage,
   AboutPage,
   ContactPage,
+  RequestTripPage,
   ContentPage,
   UserProfilePage,
   NotFoundPage,
@@ -43,6 +44,8 @@ import {
   AdminUserFormPage,
   AdminRolesPage,
   AdminReviewsPage,
+  AdminTestimonialsPage,
+  AdminTripRequestsPage,
   AdminSettingsPage,
   AdminFooterLinksPage,
   AdminSocialLinksPage,
@@ -63,6 +66,7 @@ export default function AppRouter() {
           <Route path="tours/:slug" element={<TourDetailPage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="contact" element={<ContactPage />} />
+          <Route path="request-trip" element={<RequestTripPage />} />
           <Route path="terms" element={<ContentPage defaultSlug="terms-conditions" />} />
           <Route path="terms-conditions" element={<ContentPage defaultSlug="terms-conditions" />} />
           <Route path="terms-and-conditions" element={<ContentPage defaultSlug="terms-conditions" />} />
@@ -357,6 +361,26 @@ export default function AppRouter() {
             element={
               <PermissionRoute permission="reviews.view">
                 <AdminReviewsPage />
+              </PermissionRoute>
+            }
+          />
+
+          {/* Testimonials Management */}
+          <Route
+            path="testimonials"
+            element={
+              <PermissionRoute permission="testimonials.view">
+                <AdminTestimonialsPage />
+              </PermissionRoute>
+            }
+          />
+
+          {/* Trip Requests Management */}
+          <Route
+            path="trip-requests"
+            element={
+              <PermissionRoute permission="trip_requests.view">
+                <AdminTripRequestsPage />
               </PermissionRoute>
             }
           />

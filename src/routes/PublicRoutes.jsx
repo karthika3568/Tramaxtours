@@ -10,6 +10,7 @@ export { default as TourDetailPage } from '../pages/public/TourDetailPage';
 
 export { default as AboutPage } from '../pages/public/AboutPage';
 export { default as ContactPage } from '../pages/public/ContactPage';
+export { default as RequestTripPage } from '../pages/public/RequestTripPage';
 export { default as ContentPage } from '../pages/public/ContentPage';
 
 export { default as LoginPage } from '../pages/auth/LoginPage';
