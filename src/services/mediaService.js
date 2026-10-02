@@ -1,5 +1,5 @@
 /**
- * Tramax Tours - Admin Media Service
+ * Wanderer South India - Admin Media Service
  * Communicates with backend endpoints:
  * GET /api/v1/media
  * GET /api/v1/media/{id}

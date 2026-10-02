@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import inquiryService from '../../services/inquiryService';
@@ -10,26 +11,31 @@ import Loading from '../../components/ui/Loading';
 import ErrorState from '../../components/ui/ErrorState';
 
 export default function AdminInquiriesPage() {
+  const { id: urlParamId } = useParams();
+  const navigate = useNavigate();
   const toast = useToast();
   const { getSetting } = useSiteSettings();
-  const siteName = getSetting('site_name', 'Wonderer South India');
+  const siteName = getSetting('site_name', 'Wanderer South India');
   const sitePhone = getSetting('contact_phone', '+91 8072566010');
   const siteWhatsApp = getSetting('contact_whatsapp', '+91 8072566010');
 
   useEffect(() => {
     updatePageMeta({
-      title: 'Admin — Customer Inquiries & Leads | Wonderer South India',
-      description: 'Review and manage customer travel inquiries, tour leads, bespoke quotes, and direct WhatsApp conversations.',
+      title: 'Admin — Trip Requests & Leads | Wanderer South India',
+      description: 'Review and manage customer travel inquiries, bespoke quotes, and direct WhatsApp conversations.',
     });
   }, []);
 
-  // Stats State
+  // Stats State (Exact 7 Requirements)
   const [stats, setStats] = useState({
     total: 0,
     new: 0,
     contacted: 0,
-    converted: 0,
+    planning: 0,
+    quotation_sent: 0,
+    confirmed: 0,
     closed: 0,
+    cancelled: 0,
   });
   const [loadingStats, setLoadingStats] = useState(true);
 
@@ -52,6 +58,8 @@ export default function AdminInquiriesPage() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [destFilter, setDestFilter] = useState('all');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [page, setPage] = useState(1);
   const [reloadTrigger, setReloadTrigger] = useState(0);
 
@@ -64,6 +72,7 @@ export default function AdminInquiriesPage() {
   const [adminNotesDraft, setAdminNotesDraft] = useState('');
   const [quotationDraft, setQuotationDraft] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [downloadingDoc, setDownloadingDoc] = useState(null);
 
   // Debounce search input
   useEffect(() => {
@@ -96,7 +105,7 @@ export default function AdminInquiriesPage() {
     async function loadStats() {
       try {
         setLoadingStats(true);
-        const data = await inquiryService.getInquiryStats();
+        const data = await inquiryService.getTripRequestStats();
         if (mounted) {
           setStats(data);
         }
@@ -125,15 +134,17 @@ export default function AdminInquiriesPage() {
           search: debouncedSearch || undefined,
           status: statusFilter !== 'all' ? statusFilter : undefined,
           destination_id: destFilter !== 'all' ? destFilter : undefined,
+          date_from: dateFrom || undefined,
+          date_to: dateTo || undefined,
         };
-        const res = await inquiryService.getInquiries(params);
+        const res = await inquiryService.getTripRequests(params);
         if (mounted) {
           setInquiries(res.items || []);
           setPagination(res.pagination || { total: 0, page: 1, limit: 15, pages: 1 });
         }
       } catch (err) {
         if (mounted) {
-          setError(err?.message || 'Failed to load inquiries. Please check your connection.');
+          setError(err?.message || 'Failed to load trip requests. Please check your connection.');
         }
       } finally {
         if (mounted) setLoadingInquiries(false);
@@ -143,7 +154,31 @@ export default function AdminInquiriesPage() {
     return () => {
       mounted = false;
     };
-  }, [page, debouncedSearch, statusFilter, destFilter, reloadTrigger]);
+  }, [page, debouncedSearch, statusFilter, destFilter, dateFrom, dateTo, reloadTrigger]);
+
+  // Deep-link direct route handling for /admin/trip-requests/:id
+  useEffect(() => {
+    if (!urlParamId) return;
+    let mounted = true;
+    async function loadDirectInquiry() {
+      try {
+        const item = await inquiryService.getTripRequest(urlParamId);
+        if (mounted && item) {
+          setSelectedInquiry(item);
+          setStatusDraft(item.status || 'new');
+          setAdminNotesDraft(item.admin_notes || '');
+          setQuotationDraft(item.quotation_amount ? String(item.quotation_amount) : '');
+          setIsDetailOpen(true);
+        }
+      } catch (err) {
+        toast.error('Could not load specified trip request details.', 'Not Found');
+      }
+    }
+    loadDirectInquiry();
+    return () => {
+      mounted = false;
+    };
+  }, [urlParamId]);
 
   const handleOpenDetail = (inquiry) => {
     setSelectedInquiry(inquiry);
@@ -151,6 +186,13 @@ export default function AdminInquiriesPage() {
     setAdminNotesDraft(inquiry.admin_notes || '');
     setQuotationDraft(inquiry.quotation_amount ? String(inquiry.quotation_amount) : '');
     setIsDetailOpen(true);
+  };
+
+  const handleCloseDetail = () => {
+    setIsDetailOpen(false);
+    if (urlParamId) {
+      navigate('/admin/trip-requests', { replace: true });
+    }
   };
 
   const handleOpenStatusModal = (inquiry) => {
@@ -166,17 +208,33 @@ export default function AdminInquiriesPage() {
     setIsDeleteOpen(true);
   };
 
+  const handleDownloadDoc = async (inqId, type) => {
+    try {
+      setDownloadingDoc(type);
+      const res = await inquiryService.getDocumentDownload(inqId, type);
+      if (res && res.file_name) {
+        toast.info(`Document ${type} (${res.file_name}) verified.`, 'Protected Download');
+      } else {
+        toast.success(`Document ${type} downloaded.`, 'Success');
+      }
+    } catch (err) {
+      toast.error(err?.message || `Failed to download ${type} document.`, 'Download Error');
+    } finally {
+      setDownloadingDoc(null);
+    }
+  };
+
   const handleSaveStatus = async () => {
     if (!selectedInquiry) return;
     try {
       setIsSubmitting(true);
       const quoteVal = quotationDraft && !isNaN(Number(quotationDraft)) ? Number(quotationDraft) : null;
-      await inquiryService.updateInquiryStatus(selectedInquiry.id, {
+      await inquiryService.updateTripRequestStatus(selectedInquiry.id, {
         status: statusDraft,
         admin_notes: adminNotesDraft,
         quotation_amount: quoteVal,
       });
-      toast.success(`Inquiry #${selectedInquiry.id} updated successfully.`, 'Updated');
+      toast.success(`Trip Request #${selectedInquiry.id} updated successfully.`, 'Updated');
       setIsStatusOpen(false);
       if (isDetailOpen) {
         setSelectedInquiry((prev) => ({
@@ -198,13 +256,16 @@ export default function AdminInquiriesPage() {
     if (!selectedInquiry) return;
     try {
       setIsSubmitting(true);
-      await inquiryService.deleteInquiry(selectedInquiry.id);
-      toast.success(`Inquiry #${selectedInquiry.id} removed.`, 'Deleted');
+      await inquiryService.deleteTripRequest(selectedInquiry.id);
+      toast.success(`Trip Request #${selectedInquiry.id} removed.`, 'Deleted');
       setIsDeleteOpen(false);
       setIsDetailOpen(false);
       setReloadTrigger((p) => p + 1);
+      if (urlParamId) {
+        navigate('/admin/trip-requests', { replace: true });
+      }
     } catch (err) {
-      toast.error(err?.message || 'Failed to delete inquiry.', 'Error');
+      toast.error(err?.message || 'Failed to delete trip request.', 'Error');
     } finally {
       setIsSubmitting(false);
     }
@@ -215,14 +276,17 @@ export default function AdminInquiriesPage() {
       case 'new':
         return 'bg-amber-100 text-amber-800 border-amber-300';
       case 'contacted':
-      case 'read':
-      case 'replied':
         return 'bg-blue-100 text-blue-800 border-blue-300';
-      case 'converted':
+      case 'planning':
+        return 'bg-purple-100 text-purple-800 border-purple-300';
+      case 'quotation_sent':
+        return 'bg-indigo-100 text-indigo-800 border-indigo-300';
+      case 'confirmed':
         return 'bg-emerald-100 text-emerald-800 border-emerald-300';
       case 'closed':
-      case 'archived':
         return 'bg-slate-100 text-slate-700 border-slate-300';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800 border-red-300';
       default:
         return 'bg-slate-100 text-slate-700 border-slate-300';
     }
@@ -252,10 +316,10 @@ export default function AdminInquiriesPage() {
         </button>
       </div>
 
-      {/* 2. Metric KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3.5">
+      {/* 2. Metric KPI Cards (Exact 7 Requirements: Total, New, Contacted, Planning, Quotation Sent, Confirmed, Closed) */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
         <div
-          className={`p-4 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
+          className={`p-3.5 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
             statusFilter === 'all' ? 'ring-2 ring-teal-500 border-teal-500' : 'border-slate-200 hover:border-slate-300'
           }`}
           onClick={() => {
@@ -263,14 +327,14 @@ export default function AdminInquiriesPage() {
             setPage(1);
           }}
         >
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Total Inquiries</span>
-          <strong className="text-2xl font-black text-slate-900 mt-1 block">
+          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Total</span>
+          <strong className="text-xl font-black text-slate-900 mt-0.5 block">
             {loadingStats ? '...' : stats.total}
           </strong>
         </div>
 
         <div
-          className={`p-4 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
+          className={`p-3.5 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
             statusFilter === 'new' ? 'ring-2 ring-amber-500 border-amber-500' : 'border-slate-200 hover:border-slate-300'
           }`}
           onClick={() => {
@@ -278,14 +342,14 @@ export default function AdminInquiriesPage() {
             setPage(1);
           }}
         >
-          <span className="text-xs font-bold text-amber-700 uppercase tracking-wider block">● New Leads</span>
-          <strong className="text-2xl font-black text-amber-600 mt-1 block">
+          <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wider block">● New</span>
+          <strong className="text-xl font-black text-amber-600 mt-0.5 block">
             {loadingStats ? '...' : stats.new}
           </strong>
         </div>
 
         <div
-          className={`p-4 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
+          className={`p-3.5 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
             statusFilter === 'contacted' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 hover:border-slate-300'
           }`}
           onClick={() => {
@@ -293,29 +357,59 @@ export default function AdminInquiriesPage() {
             setPage(1);
           }}
         >
-          <span className="text-xs font-bold text-blue-700 uppercase tracking-wider block">💬 Contacted</span>
-          <strong className="text-2xl font-black text-blue-600 mt-1 block">
+          <span className="text-[11px] font-bold text-blue-700 uppercase tracking-wider block">💬 Contacted</span>
+          <strong className="text-xl font-black text-blue-600 mt-0.5 block">
             {loadingStats ? '...' : stats.contacted}
           </strong>
         </div>
 
         <div
-          className={`p-4 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
-            statusFilter === 'converted' ? 'ring-2 ring-emerald-500 border-emerald-500' : 'border-slate-200 hover:border-slate-300'
+          className={`p-3.5 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
+            statusFilter === 'planning' ? 'ring-2 ring-purple-500 border-purple-500' : 'border-slate-200 hover:border-slate-300'
           }`}
           onClick={() => {
-            setStatusFilter('converted');
+            setStatusFilter('planning');
             setPage(1);
           }}
         >
-          <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider block">🎉 Converted</span>
-          <strong className="text-2xl font-black text-emerald-600 mt-1 block">
-            {loadingStats ? '...' : stats.converted}
+          <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider block">🗺️ Planning</span>
+          <strong className="text-xl font-black text-purple-600 mt-0.5 block">
+            {loadingStats ? '...' : (stats.planning || 0)}
           </strong>
         </div>
 
         <div
-          className={`p-4 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
+          className={`p-3.5 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
+            statusFilter === 'quotation_sent' ? 'ring-2 ring-indigo-500 border-indigo-500' : 'border-slate-200 hover:border-slate-300'
+          }`}
+          onClick={() => {
+            setStatusFilter('quotation_sent');
+            setPage(1);
+          }}
+        >
+          <span className="text-[11px] font-bold text-indigo-700 uppercase tracking-wider block">📜 Quoted</span>
+          <strong className="text-xl font-black text-indigo-600 mt-0.5 block">
+            {loadingStats ? '...' : (stats.quotation_sent || 0)}
+          </strong>
+        </div>
+
+        <div
+          className={`p-3.5 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
+            statusFilter === 'confirmed' ? 'ring-2 ring-emerald-500 border-emerald-500' : 'border-slate-200 hover:border-slate-300'
+          }`}
+          onClick={() => {
+            setStatusFilter('confirmed');
+            setPage(1);
+          }}
+        >
+          <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider block">✅ Confirmed</span>
+          <strong className="text-xl font-black text-emerald-600 mt-0.5 block">
+            {loadingStats ? '...' : (stats.confirmed || 0)}
+          </strong>
+        </div>
+
+        <div
+          className={`p-3.5 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
             statusFilter === 'closed' ? 'ring-2 ring-slate-500 border-slate-500' : 'border-slate-200 hover:border-slate-300'
           }`}
           onClick={() => {
@@ -323,8 +417,8 @@ export default function AdminInquiriesPage() {
             setPage(1);
           }}
         >
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Closed / Archive</span>
-          <strong className="text-2xl font-black text-slate-700 mt-1 block">
+          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Closed</span>
+          <strong className="text-xl font-black text-slate-700 mt-0.5 block">
             {loadingStats ? '...' : stats.closed}
           </strong>
         </div>
@@ -352,9 +446,30 @@ export default function AdminInquiriesPage() {
           )}
         </div>
 
-        <div className="flex items-center gap-2 w-full md:w-auto">
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          <input
+            type="date"
+            className="form-input text-xs py-2 px-2.5 rounded-lg border-slate-300 w-full sm:w-auto"
+            title="Filter by arrival date from"
+            value={dateFrom}
+            onChange={(e) => {
+              setDateFrom(e.target.value);
+              setPage(1);
+            }}
+          />
+          <input
+            type="date"
+            className="form-input text-xs py-2 px-2.5 rounded-lg border-slate-300 w-full sm:w-auto"
+            title="Filter by arrival date to"
+            value={dateTo}
+            onChange={(e) => {
+              setDateTo(e.target.value);
+              setPage(1);
+            }}
+          />
+
           <select
-            className="form-select text-sm py-2 px-3 rounded-lg border-slate-300 w-full md:w-44"
+            className="form-select text-xs py-2 px-3 rounded-lg border-slate-300 w-full sm:w-36"
             value={statusFilter}
             onChange={(e) => {
               setStatusFilter(e.target.value);
@@ -362,14 +477,17 @@ export default function AdminInquiriesPage() {
             }}
           >
             <option value="all">All Statuses</option>
-            <option value="new">New Leads</option>
-            <option value="contacted">Contacted</option>
-            <option value="converted">Converted</option>
+            <option value="new">● New</option>
+            <option value="contacted">💬 Contacted</option>
+            <option value="planning">🗺️ Planning</option>
+            <option value="quotation_sent">📜 Quotation Sent</option>
+            <option value="confirmed">✅ Confirmed</option>
             <option value="closed">Closed</option>
+            <option value="cancelled">Cancelled</option>
           </select>
 
           <select
-            className="form-select text-sm py-2 px-3 rounded-lg border-slate-300 w-full md:w-48"
+            className="form-select text-xs py-2 px-3 rounded-lg border-slate-300 w-full sm:w-40"
             value={destFilter}
             onChange={(e) => {
               setDestFilter(e.target.value);
@@ -399,11 +517,11 @@ export default function AdminInquiriesPage() {
         ) : inquiries.length === 0 ? (
           <div className="p-16 text-center">
             <span className="text-4xl block mb-2">📭</span>
-            <h3 className="text-lg font-bold text-slate-800">No Inquiries Found</h3>
+            <h3 className="text-lg font-bold text-slate-800">No Trip Requests Found</h3>
             <p className="text-sm text-slate-500 mt-1 max-w-md mx-auto">
-              {debouncedSearch || statusFilter !== 'all' || destFilter !== 'all'
-                ? 'No inquiries match your filter criteria. Try resetting the filters.'
-                : 'No customer inquiries have been submitted yet.'}
+              {debouncedSearch || statusFilter !== 'all' || destFilter !== 'all' || dateFrom || dateTo
+                ? 'No trip requests match your filter criteria. Try resetting the filters.'
+                : 'No customer trip requests have been submitted yet.'}
             </p>
           </div>
         ) : (
@@ -430,7 +548,7 @@ export default function AdminInquiriesPage() {
                     return (
                       <tr key={inq.id} className="hover:bg-slate-50/75 transition-colors">
                         <td className="py-3.5 px-4 font-mono font-bold text-slate-700 text-xs">
-                          #{inq.id}
+                          {inq.reference_id || `#${inq.id}`}
                         </td>
                         <td className="py-3.5 px-4">
                           <div className="font-bold text-slate-900">{inq.name}</div>
@@ -447,7 +565,7 @@ export default function AdminInquiriesPage() {
                         </td>
                         <td className="py-3.5 px-4 text-xs">
                           <div className="font-medium text-slate-800">
-                            📅 {inq.travel_date || 'Flexible Date'}
+                            📅 {inq.travel_date || inq.arrival_date || 'Flexible Date'}
                           </div>
                           <div className="text-slate-500 mt-0.5">👥 {inq.travelers || 1} Guests</div>
                         </td>
@@ -455,7 +573,7 @@ export default function AdminInquiriesPage() {
                           <span
                             className={`inline-block px-2.5 py-1 text-xs font-bold rounded-full border capitalize ${statusClass}`}
                           >
-                            {inq.status || 'new'}
+                            {inq.status?.replace('_', ' ') || 'new'}
                           </span>
                         </td>
                         <td className="py-3.5 px-4 text-xs text-slate-500 whitespace-nowrap">
@@ -467,7 +585,7 @@ export default function AdminInquiriesPage() {
                               type="button"
                               onClick={() => handleOpenDetail(inq)}
                               className="btn btn-outline btn-xs px-2.5 py-1 text-xs"
-                              title="View Inquiry Message"
+                              title="View Trip Request Details"
                             >
                               👁️ View
                             </button>
@@ -508,7 +626,7 @@ export default function AdminInquiriesPage() {
                               type="button"
                               onClick={() => handleOpenDeleteModal(inq)}
                               className="text-red-500 hover:text-red-700 p-1 rounded text-xs"
-                              title="Delete Inquiry"
+                              title="Delete Trip Request"
                             >
                               ✕
                             </button>
@@ -551,24 +669,24 @@ export default function AdminInquiriesPage() {
         )}
       </div>
 
-      {/* 5. Detail Slide-over / Modal */}
+      {/* 5. Detail Modal with Grouped Sections & Not provided Fallback */}
       {isDetailOpen && selectedInquiry && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 p-6 md:p-8 space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div>
                 <span className="text-xs font-bold text-teal-700 uppercase tracking-wider block">
-                  Trip Ref #{selectedInquiry.id} • {selectedInquiry.created_at ? new Date(selectedInquiry.created_at).toLocaleString() : 'Recent'}
+                  Trip Ref {selectedInquiry.reference_id || `#${selectedInquiry.id}`} • {selectedInquiry.created_at ? new Date(selectedInquiry.created_at).toLocaleString() : 'Recent'}
                 </span>
                 <h3 className="text-xl font-black text-slate-900 mt-0.5">{selectedInquiry.name}</h3>
               </div>
               <div className="flex items-center gap-2">
                 <span className={`px-2.5 py-1 text-xs font-bold rounded-full border capitalize ${getStatusBadgeClass(selectedInquiry.status)}`}>
-                  {selectedInquiry.status || 'new'}
+                  {selectedInquiry.status?.replace('_', ' ') || 'new'}
                 </span>
                 <button
                   type="button"
-                  onClick={() => setIsDetailOpen(false)}
+                  onClick={handleCloseDetail}
                   className="text-slate-400 hover:text-slate-600 text-xl font-bold p-1 leading-none"
                 >
                   ✕
@@ -582,17 +700,17 @@ export default function AdminInquiriesPage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-slate-50 rounded-2xl text-xs border border-slate-200/70">
                 <div>
                   <span className="text-slate-400 block font-medium">WhatsApp / Phone</span>
-                  <span className="font-bold text-slate-900 font-mono text-sm">{selectedInquiry.whatsapp_number || selectedInquiry.phone || '—'}</span>
+                  <span className="font-bold text-slate-900 font-mono text-sm">{selectedInquiry.whatsapp_number || selectedInquiry.phone || 'Not provided'}</span>
                 </div>
                 <div>
                   <span className="text-slate-400 block font-medium">Email Address</span>
                   <a href={`mailto:${selectedInquiry.email}`} className="text-teal-700 font-bold hover:underline truncate block">
-                    {selectedInquiry.email}
+                    {selectedInquiry.email || 'Not provided'}
                   </a>
                 </div>
                 <div>
                   <span className="text-slate-400 block font-medium">Country / Nationality</span>
-                  <span className="font-bold text-slate-900">{selectedInquiry.country || 'India'}</span>
+                  <span className="font-bold text-slate-900">{selectedInquiry.country || 'Not provided'}</span>
                 </div>
                 <div>
                   <span className="text-slate-400 block font-medium">Preferred Contact</span>
@@ -604,7 +722,7 @@ export default function AdminInquiriesPage() {
                         </span>
                       ))
                     ) : (
-                      <span className="text-slate-500">WhatsApp / Call</span>
+                      <span className="text-slate-500">Not provided</span>
                     )}
                   </div>
                 </div>
@@ -617,11 +735,11 @@ export default function AdminInquiriesPage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-teal-50/50 rounded-2xl text-xs border border-teal-100">
                 <div>
                   <span className="text-teal-600 block font-medium">Destination(s)</span>
-                  <span className="font-black text-slate-900 text-sm">{selectedInquiry.destination_name || selectedInquiry.tour_title || 'South India'}</span>
+                  <span className="font-black text-slate-900 text-sm">{selectedInquiry.destination_name || selectedInquiry.tour_title || 'Not provided'}</span>
                 </div>
                 <div>
                   <span className="text-teal-600 block font-medium">Pickup Point</span>
-                  <span className="font-bold text-slate-900">{selectedInquiry.pickup_location || 'Not Specified'}</span>
+                  <span className="font-bold text-slate-900">{selectedInquiry.pickup_location || 'Not provided'}</span>
                 </div>
                 <div>
                   <span className="text-teal-600 block font-medium">Dates &amp; Duration</span>
@@ -647,7 +765,7 @@ export default function AdminInquiriesPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
                   <div className="font-bold text-slate-800 flex items-center gap-1.5">
-                    <span>🚗</span> Vehicle: <span className="text-teal-700">{selectedInquiry.vehicle_preference || 'Standard Chauffeur'}</span>
+                    <span>🚗</span> Vehicle: <span className="text-teal-700">{selectedInquiry.vehicle_preference || 'Not provided'}</span>
                   </div>
                   <div className="text-slate-500">
                     Airport Pickup: <strong className="text-slate-800">{selectedInquiry.airport_pickup ? '✅ Yes' : '❌ No'}</strong> • Airport Drop: <strong className="text-slate-800">{selectedInquiry.airport_drop ? '✅ Yes' : '❌ No'}</strong>
@@ -659,10 +777,10 @@ export default function AdminInquiriesPage() {
                     <span>✈️</span> Flight / Train:
                   </div>
                   <div className="text-slate-600">
-                    <strong>Arr:</strong> {selectedInquiry.arrival_flight_train_number || 'N/A'} {selectedInquiry.arrival_time ? `(${selectedInquiry.arrival_time})` : ''}
+                    <strong>Arr:</strong> {selectedInquiry.arrival_flight_train_number || 'Not provided'} {selectedInquiry.arrival_time ? `(${selectedInquiry.arrival_time})` : ''}
                   </div>
                   <div className="text-slate-600">
-                    <strong>Dep:</strong> {selectedInquiry.departure_flight_train_number || 'N/A'} {selectedInquiry.departure_time ? `(${selectedInquiry.departure_time})` : ''}
+                    <strong>Dep:</strong> {selectedInquiry.departure_flight_train_number || 'Not provided'} {selectedInquiry.departure_time ? `(${selectedInquiry.departure_time})` : ''}
                   </div>
                 </div>
               </div>
@@ -674,8 +792,8 @@ export default function AdminInquiriesPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
                   <span className="text-slate-400 block font-medium">🏨 Stay Tier</span>
-                  <div className="font-bold text-slate-900">{selectedInquiry.hotel_category || '3 Star'}</div>
-                  <div className="text-slate-500">{selectedInquiry.rooms_count || 1} ({selectedInquiry.room_type || 'Double'}) Room</div>
+                  <div className="font-bold text-slate-900">{selectedInquiry.hotel_category || 'Not provided'}</div>
+                  <div className="text-slate-500">{selectedInquiry.rooms_count ? `${selectedInquiry.rooms_count} (${selectedInquiry.room_type || 'Double'}) Room` : 'Not provided'}</div>
                 </div>
 
                 <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
@@ -689,16 +807,16 @@ export default function AdminInquiriesPage() {
                 <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
                   <span className="text-slate-400 block font-medium">💳 Customer Budget</span>
                   <div className="font-bold text-emerald-700 font-mono">
-                    {selectedInquiry.approximate_budget ? `${selectedInquiry.budget_currency || 'INR'} ${selectedInquiry.approximate_budget}` : 'Flexible / Standard'}
+                    {selectedInquiry.approximate_budget ? `${selectedInquiry.budget_currency || 'INR'} ${selectedInquiry.approximate_budget}` : 'Not provided'}
                   </div>
                 </div>
               </div>
             </div>
 
             {/* 5. Tour Preferences */}
-            {selectedInquiry.tour_types && selectedInquiry.tour_types.length > 0 && (
-              <div>
-                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">5. Tour Experience Interests</h4>
+            <div>
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">5. Tour Experience Interests</h4>
+              {selectedInquiry.tour_types && selectedInquiry.tour_types.length > 0 ? (
                 <div className="flex flex-wrap gap-1.5">
                   {selectedInquiry.tour_types.map((type, idx) => (
                     <span key={idx} className="px-3 py-1 bg-amber-50 text-amber-900 border border-amber-200 rounded-lg text-xs font-bold">
@@ -706,27 +824,50 @@ export default function AdminInquiriesPage() {
                     </span>
                   ))}
                 </div>
-              </div>
-            )}
+              ) : (
+                <span className="text-xs text-slate-400">Not provided</span>
+              )}
+            </div>
 
-            {/* 6. Upload Attachments (Passport / Ticket) */}
-            {(selectedInquiry.passport_file_url || selectedInquiry.flight_ticket_url) && (
-              <div>
-                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">6. Attached Documents</h4>
-                <div className="grid grid-cols-2 gap-3">
+            {/* 6. Upload Attachments (Protected Download) */}
+            <div>
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">6. Attached Documents</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
+                  <div>
+                    <strong className="text-slate-900 block">🛂 Passport Copy:</strong>
+                    <span className="text-slate-500">{selectedInquiry.passport_file_url ? 'Attached (Private Storage)' : 'Not provided'}</span>
+                  </div>
                   {selectedInquiry.passport_file_url && (
-                    <div className="p-3 bg-blue-50/60 rounded-xl border border-blue-200 text-xs text-blue-900">
-                      <strong>🛂 Passport Copy:</strong> {selectedInquiry.passport_file_url}
-                    </div>
+                    <button
+                      type="button"
+                      disabled={downloadingDoc === 'passport'}
+                      onClick={() => handleDownloadDoc(selectedInquiry.id, 'passport')}
+                      className="btn btn-outline btn-xs"
+                    >
+                      {downloadingDoc === 'passport' ? 'Downloading...' : '📥 Download'}
+                    </button>
                   )}
+                </div>
+
+                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
+                  <div>
+                    <strong className="text-slate-900 block">✈️ Flight Ticket:</strong>
+                    <span className="text-slate-500">{selectedInquiry.flight_ticket_url ? 'Attached (Private Storage)' : 'Not provided'}</span>
+                  </div>
                   {selectedInquiry.flight_ticket_url && (
-                    <div className="p-3 bg-blue-50/60 rounded-xl border border-blue-200 text-xs text-blue-900">
-                      <strong>✈️ Flight Ticket:</strong> {selectedInquiry.flight_ticket_url}
-                    </div>
+                    <button
+                      type="button"
+                      disabled={downloadingDoc === 'ticket'}
+                      onClick={() => handleDownloadDoc(selectedInquiry.id, 'ticket')}
+                      className="btn btn-outline btn-xs"
+                    >
+                      {downloadingDoc === 'ticket' ? 'Downloading...' : '📥 Download'}
+                    </button>
                   )}
                 </div>
               </div>
-            )}
+            </div>
 
             {/* 7. Special Requests Message */}
             <div>
@@ -734,11 +875,11 @@ export default function AdminInquiriesPage() {
                 7. Customer Message &amp; Notes
               </label>
               <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-slate-800 text-sm leading-relaxed whitespace-pre-wrap">
-                {selectedInquiry.message || 'No additional message text provided.'}
+                {selectedInquiry.message || 'Not provided'}
               </div>
             </div>
 
-            {/* 8. Quotation & Internal Notes */}
+            {/* 8. Quotation & Timeline */}
             <div className="p-4 bg-emerald-50/60 rounded-2xl border border-emerald-200/80 space-y-3">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <span className="text-xs font-bold text-emerald-900 uppercase tracking-wider">
@@ -750,12 +891,14 @@ export default function AdminInquiriesPage() {
                     : 'Quote Pending'}
                 </span>
               </div>
-              {selectedInquiry.admin_notes && (
-                <div className="text-xs text-slate-700 bg-white p-3 rounded-xl border border-emerald-100">
-                  <strong className="text-slate-900 block mb-0.5">Internal Notes:</strong>
-                  {selectedInquiry.admin_notes}
-                </div>
-              )}
+              <div className="text-xs text-slate-700 bg-white p-3 rounded-xl border border-emerald-100">
+                <strong className="text-slate-900 block mb-0.5">Internal Coordinator Notes:</strong>
+                {selectedInquiry.admin_notes || 'Not provided'}
+              </div>
+              <div className="text-[11px] text-slate-500 flex flex-wrap gap-4 pt-1">
+                <span>⏱️ Created: {selectedInquiry.created_at ? new Date(selectedInquiry.created_at).toLocaleString() : '—'}</span>
+                <span>🔄 Updated: {selectedInquiry.updated_at ? new Date(selectedInquiry.updated_at).toLocaleString() : '—'}</span>
+              </div>
             </div>
 
             {/* Actions Toolbar */}
@@ -789,7 +932,7 @@ export default function AdminInquiriesPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setIsDetailOpen(false)}
+                  onClick={handleCloseDetail}
                   className="btn btn-secondary btn-sm"
                 >
                   Close
@@ -800,26 +943,29 @@ export default function AdminInquiriesPage() {
         </div>
       )}
 
-      {/* 6. Status Update Modal */}
+      {/* 6. Status Update Modal (Exact 7 Statuses) */}
       {isStatusOpen && selectedInquiry && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 p-6 space-y-4">
             <h3 className="text-lg font-black text-slate-900">
-              Update Lead #{selectedInquiry.id} — {selectedInquiry.name}
+              Update Trip Request {selectedInquiry.reference_id || `#${selectedInquiry.id}`} — {selectedInquiry.name}
             </h3>
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Inquiry Status</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Status</label>
                 <select
                   className="form-select w-full text-sm rounded-xl"
                   value={statusDraft}
                   onChange={(e) => setStatusDraft(e.target.value)}
                 >
-                  <option value="new">● New (Pending Review)</option>
-                  <option value="contacted">💬 Contacted / Quoted</option>
-                  <option value="converted">🎉 Converted (Booked &amp; Paid)</option>
-                  <option value="closed">Closed / Cancelled</option>
+                  <option value="new">● New</option>
+                  <option value="contacted">💬 Contacted</option>
+                  <option value="planning">🗺️ Planning</option>
+                  <option value="quotation_sent">📜 Quotation Sent</option>
+                  <option value="confirmed">✅ Confirmed</option>
+                  <option value="closed">Closed</option>
+                  <option value="cancelled">Cancelled</option>
                 </select>
               </div>
 
@@ -874,9 +1020,9 @@ export default function AdminInquiriesPage() {
       {isDeleteOpen && selectedInquiry && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-2xl max-w-sm w-full shadow-2xl border border-slate-200 p-6 space-y-4">
-            <h3 className="text-lg font-black text-slate-900">Delete Inquiry #{selectedInquiry.id}?</h3>
+            <h3 className="text-lg font-black text-slate-900">Delete Trip Request #{selectedInquiry.id}?</h3>
             <p className="text-xs text-slate-600">
-              Are you sure you want to permanently delete the inquiry from <strong>{selectedInquiry.name}</strong>?
+              Are you sure you want to permanently delete the trip request from <strong>{selectedInquiry.name}</strong>?
             </p>
             <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
               <button

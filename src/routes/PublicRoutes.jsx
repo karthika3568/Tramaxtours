@@ -1,21 +1,23 @@
-import { useEffect } from 'react';
+import { lazy, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { updatePageMeta } from '../utils/metadata';
 
-export { default as HomePage } from '../pages/public/HomePage';
-export { default as DestinationsPage } from '../pages/public/DestinationsPage';
-export { default as DestinationDetailPage } from '../pages/public/DestinationDetailPage';
-export { default as ToursPage } from '../pages/public/ToursPage';
-export { default as TourDetailPage } from '../pages/public/TourDetailPage';
+export const HomePage = lazy(() => import('../pages/public/HomePage'));
+export const DestinationsPage = lazy(() => import('../pages/public/DestinationsPage'));
+export const DestinationDetailPage = lazy(() => import('../pages/public/DestinationDetailPage'));
+export const ToursPage = lazy(() => import('../pages/public/ToursPage'));
+export const TourDetailPage = lazy(() => import('../pages/public/TourDetailPage'));
 
-export { default as AboutPage } from '../pages/public/AboutPage';
-export { default as ContactPage } from '../pages/public/ContactPage';
-export { default as TestimonialsPage } from '../pages/public/TestimonialsPage';
-export { default as PlanTripPage } from '../pages/public/PlanTripPage';
-export { default as ContentPage } from '../pages/public/ContentPage';
+export const AboutPage = lazy(() => import('../pages/public/AboutPage'));
+export const ContactPage = lazy(() => import('../pages/public/ContactPage'));
+export const TestimonialsPage = lazy(() => import('../pages/public/TestimonialsPage'));
+export const PlanTripPage = lazy(() => import('../pages/public/PlanTripPage'));
+export const RequestMyTripPage = lazy(() => import('../pages/public/RequestMyTripPage'));
+export const TripRequestSuccessPage = lazy(() => import('../pages/public/TripRequestSuccessPage'));
+export const ContentPage = lazy(() => import('../pages/public/ContentPage'));
 
-export { default as LoginPage } from '../pages/auth/LoginPage';
-export { default as UserProfilePage } from '../pages/public/UserProfilePage';
+export const LoginPage = lazy(() => import('../pages/auth/LoginPage'));
+export const UserProfilePage = lazy(() => import('../pages/public/UserProfilePage'));
 
 export function NotFoundPage() {
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import PageHero from '../../components/public/common/PageHero';
+import Breadcrumbs from '../../components/public/common/Breadcrumbs';
 import { updatePageMeta } from '../../utils/metadata';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import { formatWhatsAppUrl } from '../../utils/whatsapp';
@@ -16,13 +16,13 @@ export default function ContactPage() {
   const contactWhatsApp = getSetting('contact_whatsapp', '+91 8072566010');
   const contactEmail = getSetting('contact_email', 'contact@wonderersouthindia.in');
   const contactAddress = getSetting('contact_address', 'Chennai, Tamil Nadu, India');
-  const siteName = getSetting('site_name', 'Wonderer South India');
+  const siteName = getSetting('site_name', 'Wanderer South India');
 
   useEffect(() => {
     updatePageMeta({
-      title: 'Plan Your Custom South India Tour | Wonderer South India',
+      title: 'Contact Us & Custom Tour Inquiries | Wanderer South India',
       description:
-        'Submit your trip requirements for custom South India tour packages, private chauffeur vehicles, hotel bookings, and instant WhatsApp quotations with Wonderer South India.',
+        'Submit your trip requirements for custom South India tour packages, private chauffeur vehicles, hotel bookings, and instant WhatsApp quotations with Wanderer South India.',
     });
   }, []);
 
@@ -31,14 +31,23 @@ export default function ContactPage() {
 
   return (
     <div className="contact-page-luxury-root" style={{ background: '#f8fafc', color: '#0B1329', minHeight: '80vh' }}>
-      {/* 1. HERO BANNER */}
-      <PageHero
-        title="Custom Trip Planning &amp; Quotation"
-        subtitle="Share your destination, vehicle preferences, hotel categories, and travel dates for an exclusive South India itinerary."
-        badge="Instant WhatsApp &amp; Tailored Quotations"
-        breadcrumbs={[{ label: 'Plan Your Trip' }]}
-        heroMedia={{ url: '/uploads/media/demo_carousel_pondicherry.jpg' }}
-      />
+      {/* 1. CLEAN PAGE HEADER (NO GIANT HOME BANNER) */}
+      <section className="catalog-header-section" style={{ padding: '36px 0 24px', background: '#ffffff', borderBottom: '1px solid #e2e8f0' }}>
+        <div className="container">
+          <Breadcrumbs items={[{ label: 'Contact Us' }]} />
+          <div className="catalog-header-content" style={{ marginTop: '14px' }}>
+            <span className="section-badge" style={{ fontSize: '12px', fontWeight: 800, color: '#01AA90', textTransform: 'uppercase', letterSpacing: '0.08em', background: '#e6f7f4', padding: '4px 12px', borderRadius: '9999px', display: 'inline-block', marginBottom: '8px' }}>
+              Direct Assistance &amp; Custom Quotes
+            </span>
+            <h1 className="catalog-page-title" style={{ fontSize: '32px', fontWeight: 800, color: '#0f172a', margin: '6px 0 8px' }}>
+              Contact Our Travel Concierge
+            </h1>
+            <p className="catalog-page-subtitle" style={{ fontSize: '15px', color: '#64748b', maxWidth: '700px', lineHeight: 1.6, margin: 0 }}>
+              Speak directly with our destination coordinators in Chennai or submit your trip preferences for a personalized South Indian itinerary.
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* 2. MAIN CONTACT WORKSPACE */}
       <div className="container" style={{ padding: '50px 20px 80px' }}>

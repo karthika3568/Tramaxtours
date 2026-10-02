@@ -67,7 +67,7 @@ class Database
         $cfg = self::$config;
         $host = $cfg['host'] ?? '127.0.0.1';
         $port = $cfg['port'] ?? 3306;
-        $dbname = $cfg['database'] ?? 'tramaxtours';
+        $dbname = $cfg['database'] ?? 'wanderersouthindia';
         $username = $cfg['username'] ?? 'root';
         $password = $cfg['password'] ?? '';
         $charset = $cfg['charset'] ?? 'utf8mb4';
@@ -87,7 +87,7 @@ class Database
             $maskedMessage = "Database connection failed for database '{$dbname}' on {$host}:{$port}.";
             
             // Log full technical error internally if needed (without raw password)
-            error_log("[Tramax Database Error] Code " . $e->getCode() . ": " . $e->getMessage());
+            error_log("[Wanderer Database Error] Code " . $e->getCode() . ": " . $e->getMessage());
 
             throw new RuntimeException($maskedMessage, (int) $e->getCode(), $e);
         }

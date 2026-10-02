@@ -82,7 +82,7 @@ INSERT INTO `users` (`id`, `name`, `email`, `password_hash`, `phone`, `status`, 
 VALUES (
     1,
     'Super Admin',
-    'admin@tramaxtours.com',
+    'admin@wanderersouthindia.com',
     '$2y$12$3krWVQGArtFozBH1wu5O4uHVBKAUcyBtIJeCvXjjsPq61DG3D2I/i',
     '+919840000000',
     'active',
@@ -149,10 +149,10 @@ ON DUPLICATE KEY UPDATE `label` = VALUES(`label`), `url` = VALUES(`url`);
 
 -- 12. Social Links
 INSERT INTO `social_links` (`platform`, `url`, `icon`, `display_order`, `status`, `created_at`, `updated_at`) VALUES
-('facebook', 'https://facebook.com/tramaxtours', 'facebook', 1, 'active', NOW(), NOW()),
-('instagram', 'https://instagram.com/tramaxtours', 'instagram', 2, 'active', NOW(), NOW()),
-('youtube', 'https://youtube.com/@tramaxtours', 'youtube', 3, 'active', NOW(), NOW()),
-('x', 'https://x.com/tramaxtours', 'twitter', 4, 'active', NOW(), NOW()),
+('facebook', 'https://facebook.com/wanderersouthindia', 'facebook', 1, 'active', NOW(), NOW()),
+('instagram', 'https://instagram.com/wanderersouthindia', 'instagram', 2, 'active', NOW(), NOW()),
+('youtube', 'https://youtube.com/@wanderersouthindia', 'youtube', 3, 'active', NOW(), NOW()),
+('x', 'https://x.com/wanderersouthindia', 'twitter', 4, 'active', NOW(), NOW()),
 ('tripadvisor', 'https://tripadvisor.com', 'tripadvisor', 5, 'active', NOW(), NOW())
 ON DUPLICATE KEY UPDATE `url` = VALUES(`url`), `icon` = VALUES(`icon`);
 

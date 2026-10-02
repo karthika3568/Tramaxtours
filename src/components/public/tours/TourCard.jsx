@@ -23,22 +23,8 @@ export default function TourCard({ tour }) {
     return val > 0 ? 2 : 0;
   }
 
-  // Categories & Tags list
-  const rawCategories = Array.isArray(tour.categories) && tour.categories.length > 0
-    ? tour.categories
-    : getDerivedCategories(tour);
-
-  // Normalize to category names
-  const categoryNames = rawCategories.map((c) => (typeof c === 'string' ? c : (c.name || c.slug || '')));
-
-  // Prioritize primary badge (e.g. One Day Tours) first
-  const sortedCategories = [...categoryNames].sort((a, b) => {
-    const aIsPrimary = isPrimaryBadge(a);
-    const bIsPrimary = isPrimaryBadge(b);
-    if (aIsPrimary && !bIsPrimary) return -1;
-    if (!aIsPrimary && bIsPrimary) return 1;
-    return 0;
-  });
+  // Categories list strictly from the 6 allowed tourism categories
+  const sortedCategories = getDerivedCategories(tour);
 
   // Date-based availability (if the admin has configured specific travel dates) takes
   // priority over the legacy single global seat count — it reflects the soonest
@@ -165,29 +151,24 @@ export default function TourCard({ tour }) {
   );
 }
 
-function isPrimaryBadge(name) {
-  const lower = (name || '').toLowerCase().trim();
-  return lower.includes('one day') || lower === 'one day tours';
+function isPrimaryBadge(catName) {
+  const lower = String(catName || '').toLowerCase();
+  return lower.includes('day') || lower.includes('cultural') || lower.includes('guided') || lower.includes('city');
 }
 
 function getDerivedCategories(tour) {
-  const derived = [];
-  if (tour.duration_days === 1 || (tour.duration_text && tour.duration_text.toLowerCase().includes('day')) || (tour.title && tour.title.toLowerCase().includes('day tour'))) {
-    derived.push('One Day Tours');
-  }
-  if (tour.tour_type) {
-    derived.push(formatTourTypeName(tour.tour_type));
-  }
-  derived.push('City Sightseeing Tours');
-  derived.push('Cultural & Heritage Tours');
-  derived.push('Private Tours');
-  return derived;
-}
+  const result = [];
 
-function formatTourTypeName(type) {
-  if (!type) return 'Guided Tours';
-  return type
-    .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ') + ' Tours';
+  if (Array.isArray(tour.categories) && tour.categories.length > 0) {
+    tour.categories.forEach((cat) => {
+      const cName = typeof cat === 'string' ? cat : (cat.name || cat.title || cat.slug || '');
+      if (cName && !result.includes(cName)) result.push(cName);
+    });
+  }
+
+  if (tour.tour_type && !result.includes(tour.tour_type)) {
+    result.push(tour.tour_type);
+  }
+
+  return result.slice(0, 3);
 }

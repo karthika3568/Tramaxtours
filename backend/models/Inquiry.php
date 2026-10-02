@@ -7,7 +7,23 @@ use PDO;
 
 class Inquiry extends BaseModel
 {
-    public const ALLOWED_STATUSES = ['new', 'contacted', 'converted', 'closed', 'read', 'replied', 'archived'];
+    public const ALLOWED_STATUSES = ['new', 'contacted', 'planning', 'quotation_sent', 'confirmed', 'closed', 'cancelled'];
+
+    /**
+     * Check if a submission with identical phone or email arrived in the last $seconds.
+     */
+    public static function findDuplicateRecent(string $phone, string $email, int $seconds = 10): ?array
+    {
+        if (empty($phone) && empty($email)) return null;
+        $sql = "SELECT * FROM `contact_messages` 
+                WHERE ((`phone` = :phone1 AND `phone` != '') OR (`whatsapp_number` = :phone2 AND `whatsapp_number` != '') OR (`email` = :email AND `email` != '')) 
+                AND `created_at` >= (NOW() - INTERVAL {$seconds} SECOND) 
+                ORDER BY id DESC LIMIT 1";
+        $stmt = self::db()->prepare($sql);
+        $stmt->execute([':phone1' => $phone, ':phone2' => $phone, ':email' => $email]);
+        $res = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $res ?: null;
+    }
 
     /**
      * Create a new inquiry / contact message.
@@ -17,8 +33,11 @@ class Inquiry extends BaseModel
      */
     public static function create(array $data): int
     {
+        $publicToken = !empty($data['public_token']) ? $data['public_token'] : bin2hex(random_bytes(16));
+        $type = !empty($data['type']) ? $data['type'] : 'trip_request';
+
         $sql = 'INSERT INTO `contact_messages` (
-            `name`, `email`, `phone`, `whatsapp_number`, `country`, `subject`, `message`,
+            `public_token`, `type`, `name`, `email`, `phone`, `whatsapp_number`, `country`, `subject`, `message`,
             `tour_id`, `destination_id`, `destination_name`, `pickup_location`, `tour_title`,
             `travel_date`, `arrival_date`, `departure_date`, `duration_days`,
             `travelers`, `adults_count`, `children_count`, `infants_count`,
@@ -32,7 +51,7 @@ class Inquiry extends BaseModel
             `status`, `admin_notes`, `quotation_amount`,
             `created_at`, `updated_at`
         ) VALUES (
-            :name, :email, :phone, :whatsapp_number, :country, :subject, :message,
+            :public_token, :type, :name, :email, :phone, :whatsapp_number, :country, :subject, :message,
             :tour_id, :destination_id, :destination_name, :pickup_location, :tour_title,
             :travel_date, :arrival_date, :departure_date, :duration_days,
             :travelers, :adults_count, :children_count, :infants_count,
@@ -81,6 +100,8 @@ class Inquiry extends BaseModel
         $contactMethods = !empty($data['preferred_contact_methods']) ? (is_array($data['preferred_contact_methods']) ? json_encode($data['preferred_contact_methods']) : trim((string)$data['preferred_contact_methods'])) : null;
 
         self::execute($sql, [
+            ':public_token' => $publicToken,
+            ':type' => $type,
             ':name' => trim((string)$data['name']),
             ':email' => !empty($data['email']) ? trim((string)$data['email']) : 'guest@wonderersouthindia.in',
             ':phone' => !empty($data['phone']) ? trim((string)$data['phone']) : (!empty($data['whatsapp_number']) ? trim((string)$data['whatsapp_number']) : null),
@@ -124,7 +145,39 @@ class Inquiry extends BaseModel
             ':quotation_amount' => !empty($data['quotation_amount']) ? (float)$data['quotation_amount'] : null,
         ]);
 
-        return (int) self::lastInsertId();
+        $id = (int) self::lastInsertId();
+        if ($id > 0) {
+            $refId = 'TRP-' . date('Y') . '-' . str_pad((string)$id, 6, '0', STR_PAD_LEFT);
+            self::execute("UPDATE `contact_messages` SET `reference_id` = :ref WHERE `id` = :id", [
+                ':ref' => $refId,
+                ':id' => $id,
+            ]);
+        }
+
+        return $id;
+    }
+
+    /**
+     * Find inquiry by token with joined tour and destination details.
+     *
+     * @param string $token
+     * @return array|null
+     */
+    public static function findByToken(string $token): ?array
+    {
+        $sql = 'SELECT cm.*,
+                       t.title AS attached_tour_title, t.slug AS attached_tour_slug,
+                       d.name AS attached_destination_name, d.slug AS attached_destination_slug
+                FROM `contact_messages` cm
+                LEFT JOIN `tours` t ON cm.tour_id = t.id
+                LEFT JOIN `destinations` d ON cm.destination_id = d.id
+                WHERE cm.public_token = :token
+                LIMIT 1';
+
+        $stmt = self::query($sql, [':token' => $token]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row ? self::formatRow($row) : null;
     }
 
     /**
@@ -170,6 +223,11 @@ class Inquiry extends BaseModel
 
         $where = ['1=1'];
         $params = [];
+
+        if (!empty($filters['type'])) {
+            $where[] = 'cm.type = :type';
+            $params[':type'] = $filters['type'];
+        }
 
         if (!empty($filters['status'])) {
             $where[] = 'cm.status = :status';
@@ -289,25 +347,36 @@ class Inquiry extends BaseModel
     }
 
     /**
-     * Aggregate inquiry statistics.
+     * Aggregate inquiry statistics (separated by type).
+     * Exact required KPI statuses: Total, New, Contacted, Planning, Quotation Sent, Confirmed, Closed.
      *
+     * @param string|null $type
      * @return array
      */
-    public static function stats(): array
+    public static function stats(?string $type = 'trip_request'): array
     {
         $pdo = self::db();
-        $total = (int) $pdo->query('SELECT COUNT(*) FROM contact_messages')->fetchColumn();
-        $new = (int) $pdo->query("SELECT COUNT(*) FROM contact_messages WHERE status = 'new'")->fetchColumn();
-        $contacted = (int) $pdo->query("SELECT COUNT(*) FROM contact_messages WHERE status IN ('contacted', 'read', 'replied')")->fetchColumn();
-        $converted = (int) $pdo->query("SELECT COUNT(*) FROM contact_messages WHERE status = 'converted'")->fetchColumn();
-        $closed = (int) $pdo->query("SELECT COUNT(*) FROM contact_messages WHERE status IN ('closed', 'archived')")->fetchColumn();
+        $typeClause = $type ? "WHERE type = " . $pdo->quote($type) : "";
+        $whereAnd = $type ? "AND type = " . $pdo->quote($type) : "";
+
+        $total = (int) $pdo->query("SELECT COUNT(*) FROM contact_messages $typeClause")->fetchColumn();
+        $new = (int) $pdo->query("SELECT COUNT(*) FROM contact_messages WHERE status = 'new' $whereAnd")->fetchColumn();
+        $contacted = (int) $pdo->query("SELECT COUNT(*) FROM contact_messages WHERE status = 'contacted' $whereAnd")->fetchColumn();
+        $planning = (int) $pdo->query("SELECT COUNT(*) FROM contact_messages WHERE status = 'planning' $whereAnd")->fetchColumn();
+        $quotationSent = (int) $pdo->query("SELECT COUNT(*) FROM contact_messages WHERE status = 'quotation_sent' $whereAnd")->fetchColumn();
+        $confirmed = (int) $pdo->query("SELECT COUNT(*) FROM contact_messages WHERE status = 'confirmed' $whereAnd")->fetchColumn();
+        $closed = (int) $pdo->query("SELECT COUNT(*) FROM contact_messages WHERE status = 'closed' $whereAnd")->fetchColumn();
+        $cancelled = (int) $pdo->query("SELECT COUNT(*) FROM contact_messages WHERE status = 'cancelled' $whereAnd")->fetchColumn();
 
         return [
             'total' => $total,
             'new' => $new,
             'contacted' => $contacted,
-            'converted' => $converted,
+            'planning' => $planning,
+            'quotation_sent' => $quotationSent,
+            'confirmed' => $confirmed,
             'closed' => $closed,
+            'cancelled' => $cancelled,
         ];
     }
 
@@ -334,8 +403,12 @@ class Inquiry extends BaseModel
             $contactMethods = is_array($decoded) ? $decoded : explode(',', (string)$row['preferred_contact_methods']);
         }
 
+        $createdYear = !empty($row['created_at']) ? date('Y', strtotime($row['created_at'])) : date('Y');
+        $referenceId = 'TRP-' . $createdYear . '-' . str_pad((string)$row['id'], 6, '0', STR_PAD_LEFT);
+
         return [
             'id' => (int) $row['id'],
+            'reference_id' => $referenceId,
             'name' => $row['name'],
             'email' => $row['email'],
             'phone' => $row['phone'],

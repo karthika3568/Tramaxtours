@@ -1,5 +1,5 @@
 /**
- * Tramax Tours - Pages & Policy CMS Service
+ * Wanderer South India - Pages & Policy CMS Service
  * Communicates with backend endpoints:
  * GET    /api/v1/pages
  * GET    /api/v1/pages/{idOrSlug}

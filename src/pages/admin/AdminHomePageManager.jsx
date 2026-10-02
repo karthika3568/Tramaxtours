@@ -174,7 +174,7 @@ export default function AdminHomePageManager() {
   const [footerSettings, setFooterSettings] = useState({
     about_text: 'Wonderer South India specializes in international tourist safaris, private sightseeing, cultural expeditions, and custom itineraries across premier destinations.',
     address: 'Chennai, Tamil Nadu, India',
-    phone: '+91 98400 00000',
+    phone: '+91 8072566010',
     email: 'contact@wonderersouthindia.in',
     copyright: `© ${new Date().getFullYear()} Wonderer South India. All rights reserved.`,
   });
@@ -270,9 +270,9 @@ export default function AdminHomePageManager() {
           setNavSettings({
             site_name: gen.site_name || 'WONDERER SOUTH INDIA',
             site_tagline: gen.site_tagline || 'TRAVEL MADE SIMPLE & MEMORABLE',
-            phone: con.phone || '+91 98400 00000',
+            phone: con.phone || '+91 8072566010',
             email: con.email || 'contact@wonderersouthindia.in',
-            whatsapp: con.whatsapp || '+91 98400 00000',
+            whatsapp: con.whatsapp || '+91 8072566010',
             business_hours: con.business_hours || 'Mon - Sun: 08:00 AM - 09:00 PM IST',
             cta_label: gen.header_cta_label || 'Explore Tours',
             cta_url: gen.header_cta_url || '/tours',
@@ -282,7 +282,7 @@ export default function AdminHomePageManager() {
           setFooterSettings({
             about_text: foo.about || foo.footer_about || 'Wonderer South India specializes in international tourist safaris, private sightseeing, cultural expeditions, and custom itineraries across premier destinations.',
             address: con.address || con.contact_address || 'Chennai, Tamil Nadu, India',
-            phone: con.phone || con.contact_phone || '+91 98400 00000',
+            phone: con.phone || con.contact_phone || '+91 8072566010',
             email: con.email || con.contact_email || 'contact@wonderersouthindia.in',
             copyright: foo.copyright || foo.footer_copyright || `© ${new Date().getFullYear()} Wonderer South India. All rights reserved.`,
           });

@@ -8,6 +8,7 @@ import ReviewFilters from '../../components/admin/reviews/ReviewFilters';
 import ReviewTable from '../../components/admin/reviews/ReviewTable';
 import ReviewDetailModal from '../../components/admin/reviews/ReviewDetailModal';
 import ReviewDeleteModal from '../../components/admin/reviews/ReviewDeleteModal';
+import Modal from '../../components/ui/Modal';
 import Loading from '../../components/ui/Loading';
 import EmptyState from '../../components/ui/EmptyState';
 import ErrorState from '../../components/ui/ErrorState';
@@ -59,6 +60,70 @@ export default function AdminReviewsPage() {
   const [selectedReview, setSelectedReview] = useState(null);
   const [reviewToDelete, setReviewToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Add Testimonial State
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isSavingNew, setIsSavingNew] = useState(false);
+  const [addFormData, setAddFormData] = useState({
+    customer_name: '',
+    customer_email: '',
+    customer_country: '',
+    title: 'Delighted Traveler',
+    content: '',
+    rating: 5,
+    image_url: '',
+    is_active: true,
+    is_featured: false,
+    tour_id: '',
+  });
+
+  const handleCreateTestimonial = async (e) => {
+    e.preventDefault();
+    if (!addFormData.customer_name.trim() || !addFormData.content.trim()) {
+      toast.warning('Please provide client name and testimonial message.', 'Required Fields');
+      return;
+    }
+
+    try {
+      setIsSavingNew(true);
+      const payload = {
+        customer_name: addFormData.customer_name.trim(),
+        customer_email: addFormData.customer_email.trim() || `${addFormData.customer_name.toLowerCase().replace(/\s+/g, '.')}@example.com`,
+        customer_country: addFormData.customer_country.trim() || null,
+        title: addFormData.title.trim() || 'Traveler Testimonial',
+        content: addFormData.content.trim(),
+        rating: Number(addFormData.rating) || 5,
+        status: addFormData.is_active ? 'approved' : 'pending',
+        is_featured: Boolean(addFormData.is_featured),
+        tour_id: addFormData.tour_id ? Number(addFormData.tour_id) : null,
+      };
+
+      if (addFormData.image_url.trim()) {
+        payload.media = [addFormData.image_url.trim()];
+      }
+
+      await reviewService.createReview(payload);
+      toast.success('Testimonial added successfully and published!', 'Testimonial Created');
+      setIsAddModalOpen(false);
+      setAddFormData({
+        customer_name: '',
+        customer_email: '',
+        customer_country: '',
+        title: 'Delighted Traveler',
+        content: '',
+        rating: 5,
+        image_url: '',
+        is_active: true,
+        is_featured: false,
+        tour_id: '',
+      });
+      setReloadTrigger((prev) => prev + 1);
+    } catch (err) {
+      toast.error(err?.message || 'Failed to create testimonial.', 'Creation Error');
+    } finally {
+      setIsSavingNew(false);
+    }
+  };
 
   // Load tours list once for the filter dropdown
   useEffect(() => {
@@ -313,7 +378,15 @@ export default function AdminReviewsPage() {
           </p>
         </div>
 
-        <div className="admin-header-actions">
+        <div className="admin-header-actions" style={{ display: 'flex', gap: '10px' }}>
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={() => setIsAddModalOpen(true)}
+            title="Create a new client testimonial"
+          >
+            ➕ Add Testimonial
+          </button>
           <button
             type="button"
             className="btn btn-outline btn-sm"
@@ -531,6 +604,126 @@ export default function AdminReviewsPage() {
         onConfirmDelete={handleConfirmDelete}
         isDeleting={isDeleting}
       />
+
+      {/* Add New Testimonial Modal */}
+      <Modal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        title="Create New Customer Testimonial"
+        size="md"
+      >
+        <form onSubmit={handleCreateTestimonial} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div>
+            <label className="form-label" style={{ display: 'block', marginBottom: '6px', fontWeight: 600 }}>
+              Customer / Traveler Name *
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              required
+              placeholder="e.g. Marc Knulle"
+              value={addFormData.customer_name}
+              onChange={(e) => setAddFormData((prev) => ({ ...prev, customer_name: e.target.value }))}
+            />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div>
+              <label className="form-label" style={{ display: 'block', marginBottom: '6px', fontWeight: 600 }}>
+                Country / Origin
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="e.g. Netherlands / United Kingdom"
+                value={addFormData.customer_country}
+                onChange={(e) => setAddFormData((prev) => ({ ...prev, customer_country: e.target.value }))}
+              />
+            </div>
+            <div>
+              <label className="form-label" style={{ display: 'block', marginBottom: '6px', fontWeight: 600 }}>
+                Rating (1–5 Stars)
+              </label>
+              <select
+                className="form-select form-control"
+                value={addFormData.rating}
+                onChange={(e) => setAddFormData((prev) => ({ ...prev, rating: Number(e.target.value) }))}
+              >
+                <option value={5}>⭐⭐⭐⭐⭐ 5 Stars</option>
+                <option value={4}>⭐⭐⭐⭐ 4 Stars</option>
+                <option value={3}>⭐⭐⭐ 3 Stars</option>
+                <option value={2}>⭐⭐ 2 Stars</option>
+                <option value={1}>⭐ 1 Star</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="form-label" style={{ display: 'block', marginBottom: '6px', fontWeight: 600 }}>
+              Client Photo / Avatar URL
+            </label>
+            <input
+              type="url"
+              className="form-control"
+              placeholder="https://images.unsplash.com/... or /uploads/media/photo.jpg"
+              value={addFormData.image_url}
+              onChange={(e) => setAddFormData((prev) => ({ ...prev, image_url: e.target.value }))}
+            />
+          </div>
+
+          <div>
+            <label className="form-label" style={{ display: 'block', marginBottom: '6px', fontWeight: 600 }}>
+              Testimonial Message / Feedback *
+            </label>
+            <textarea
+              className="form-control"
+              rows={4}
+              required
+              placeholder="Enter traveler review feedback..."
+              value={addFormData.content}
+              onChange={(e) => setAddFormData((prev) => ({ ...prev, content: e.target.value }))}
+            />
+          </div>
+
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'center', background: '#f8fafc', padding: '12px 16px', borderRadius: '8px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '14px' }}>
+              <input
+                type="checkbox"
+                checked={addFormData.is_active}
+                onChange={(e) => setAddFormData((prev) => ({ ...prev, is_active: e.target.checked }))}
+              />
+              <span>🟢 Active &amp; Approved (Visible on Live Site)</span>
+            </label>
+
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '14px' }}>
+              <input
+                type="checkbox"
+                checked={addFormData.is_featured}
+                onChange={(e) => setAddFormData((prev) => ({ ...prev, is_featured: e.target.checked }))}
+              />
+              <span>⭐ Featured on Homepage</span>
+            </label>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setIsAddModalOpen(false)}
+              disabled={isSavingNew}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={isSavingNew}
+            >
+              {isSavingNew ? 'Saving Testimonial...' : 'Publish Testimonial'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

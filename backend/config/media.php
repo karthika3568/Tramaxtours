@@ -14,9 +14,12 @@ return [
         'application/pdf' => ['pdf'],
     ],
     'allowed_extensions' => ['jpg', 'jpeg', 'png', 'webp', 'svg', 'pdf'],
-    'disallowed_extensions' => [
-        'php', 'php3', 'php4', 'php5', 'php7', 'php8', 'phtml', 'phar',
-        'exe', 'sh', 'bat', 'cmd', 'js', 'html', 'htm', 'cgi', 'pl', 'py',
-        'jar', 'vbs', 'dll', 'bin', 'msi', 'com', 'scr', 'ps1'
+    'document_storage_path' => dirname(__DIR__) . '/storage/documents',
+    'document_max_file_size' => 5242880, // 5 MB single source
+    'document_allowed_mimes' => [
+        'application/pdf' => ['pdf'],
+        'image/jpeg' => ['jpg', 'jpeg'],
+        'image/png' => ['png'],
+        'image/webp' => ['webp'],
     ],
 ];

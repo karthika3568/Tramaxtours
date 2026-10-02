@@ -2,76 +2,44 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import reviewService from '../../../services/reviewService';
 import { getMediaUrl } from '../../../utils/media';
 
-const CURATED_TESTIMONIALS = [
-  {
-    id: 1,
-    customer_name: 'Marc Knulle',
-    role: 'Hockey Player',
-    content: 'The tour was well organized and completely hassle-free. Great planning and smooth travel experience.',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 2,
-    customer_name: 'Sophie Vandermeer',
-    role: 'Traveler from Netherlands',
-    content: 'South India with Wonderer South India was the highlight of our year. Our driver was so polite and the heritage monuments were breathtaking.',
-    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 3,
-    customer_name: 'David Miller',
-    role: 'Guest from United Kingdom',
-    content: 'Impeccable private vehicle, punctuality and authentic cultural experiences. We felt safe and thoroughly looked after throughout our tour.',
-    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 4,
-    customer_name: 'Elena Rostova',
-    role: 'Architect from Germany',
-    content: 'Flawless arrangements and warm hospitality. The attention to detail was top-tier. Highly recommended for international explorers!',
-    image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 5,
-    customer_name: 'Jean-Luc Moreau',
-    role: 'Historian from France',
-    content: 'The day tour from Mahabalipuram to Pondicherry exceeded all expectations. Exceptional chauffeur guide and first-class service.',
-    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&auto=format&fit=crop&q=80',
-  },
-];
-
 export default function TestimonialsSection() {
-  const [items, setItems] = useState(CURATED_TESTIMONIALS);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef(null);
 
-  // Fetch verified reviews from backend and merge
+  // Fetch verified reviews from backend
   useEffect(() => {
     let isMounted = true;
     async function loadReviews() {
       try {
-        const data = await reviewService.getReviews({ limit: 10, status: 'approved' });
+        setLoading(true);
+        const data = await reviewService.getReviews({ limit: 12, status: 'approved' });
         const reviewItems = data.items || (Array.isArray(data) ? data : []);
 
-        if (isMounted && reviewItems.length > 0) {
-          const mapped = reviewItems.map((r, idx) => {
-            const mediaUrl = r.media && r.media.length > 0 ? getMediaUrl(r.media[0]) : null;
-            const fallback = CURATED_TESTIMONIALS[idx % CURATED_TESTIMONIALS.length];
-
-            return {
-              id: r.id,
-              customer_name: r.customer_name || fallback.customer_name,
-              role: r.customer_country ? `Guest from ${r.customer_country}` : (r.title || fallback.role),
-              content: r.content || fallback.content,
-              image: mediaUrl || fallback.image,
-            };
-          });
-
-          setItems(mapped);
+        if (isMounted) {
+          if (reviewItems.length > 0) {
+            const mapped = reviewItems.map((r) => {
+              const mediaUrl = r.media && r.media.length > 0 ? getMediaUrl(r.media[0]) : (r.image_url || r.image || null);
+              return {
+                id: r.id,
+                customer_name: r.customer_name || 'Verified Explorer',
+                role: r.customer_country ? `Guest from ${r.customer_country}` : (r.title || 'Traveler'),
+                content: r.content || r.review_text || '',
+                image: mediaUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(r.customer_name || 'Guest')}&background=0D9488&color=fff&size=128`,
+                rating: Number(r.rating || 5),
+              };
+            });
+            setItems(mapped);
+          } else {
+            setItems([]);
+          }
         }
       } catch {
-        // Fallback gracefully
+        if (isMounted) setItems([]);
+      } finally {
+        if (isMounted) setLoading(false);
       }
     }
 
@@ -161,25 +129,70 @@ export default function TestimonialsSection() {
                     if (offset === 1) handleNext();
                   }}
                 >
-                  {/* Portrait Photo Container */}
-                  <div className="deck-card-photo-box">
-                    <img
-                      src={item.image}
-                      alt={item.customer_name}
-                      className="deck-card-photo"
-                      loading="lazy"
-                    />
-                  </div>
+                  {/* Liquid Glass Testimonial Card */}
+                  <div
+                    className="deck-card-inner glass-card-panel"
+                    style={{
+                      padding: '32px 28px',
+                      borderRadius: '20px',
+                      background: 'rgba(255, 255, 255, 0.88)',
+                      backdropFilter: 'blur(12px)',
+                      border: '1px solid rgba(226, 232, 240, 0.8)',
+                      boxShadow: '0 12px 32px rgba(15, 23, 42, 0.08)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      textAlign: 'center',
+                      maxWidth: '620px',
+                      margin: '0 auto',
+                    }}
+                  >
+                    {/* 5-Star Rating Row */}
+                    <div style={{ display: 'flex', gap: '4px', color: '#f59e0b', fontSize: '18px', marginBottom: '16px' }} aria-label="5 stars rating">
+                      ★★★★★
+                    </div>
 
-                  {/* Card White Body Details */}
-                  <div className="deck-card-body">
-                    <h3 className="deck-card-name">{item.customer_name}</h3>
-                    {item.role && (
-                      <p className="deck-card-role">{item.role}</p>
-                    )}
-                    <p className="deck-card-quote">
+                    {/* Large Prominent Review Message */}
+                    <blockquote
+                      style={{
+                        fontSize: '18px',
+                        lineHeight: 1.65,
+                        fontWeight: 500,
+                        color: '#1e293b',
+                        fontStyle: 'italic',
+                        margin: '0 0 24px 0',
+                        position: 'relative',
+                      }}
+                    >
                       &ldquo;{item.content}&rdquo;
-                    </p>
+                    </blockquote>
+
+                    {/* Client Info with Small Avatar */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginTop: 'auto' }}>
+                      <img
+                        src={item.image}
+                        alt={item.customer_name}
+                        loading="lazy"
+                        style={{
+                          width: '54px',
+                          height: '54px',
+                          borderRadius: '50%',
+                          objectFit: 'cover',
+                          border: '2px solid #01AA90',
+                          boxShadow: '0 2px 8px rgba(1, 170, 144, 0.2)',
+                        }}
+                      />
+                      <div style={{ textAlign: 'left' }}>
+                        <h4 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                          {item.customer_name}
+                        </h4>
+                        {item.role && (
+                          <p style={{ fontSize: '13px', color: '#64748b', margin: '2px 0 0', fontWeight: 600 }}>
+                            {item.role}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </article>
               );

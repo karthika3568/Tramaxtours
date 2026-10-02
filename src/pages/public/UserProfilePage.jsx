@@ -7,9 +7,15 @@ import { updatePageMeta } from '../../utils/metadata';
 import { getMediaUrl } from '../../utils/media';
 import Loading from '../../components/ui/Loading';
 import Modal from '../../components/ui/Modal';
+import { useSiteSettings } from '../../context/SiteSettingsContext';
+import { formatWhatsAppUrl, getCleanWhatsAppNumber } from '../../utils/whatsapp';
 
 export default function UserProfilePage() {
   const { user, isAuthenticated, isLoading: isAuthLoading, logout } = useAuth();
+  const { getSetting } = useSiteSettings();
+  const contactWhatsApp = getSetting('contact_whatsapp', '+91 8072566010');
+  const contactPhone = getSetting('contact_phone', '+91 8072566010');
+  const cleanWhatsApp = getCleanWhatsAppNumber(contactWhatsApp);
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -106,7 +112,7 @@ export default function UserProfilePage() {
       toast.success('Your tour reservation has been cancelled. Admin notification sent.', 'Booking Cancelled');
 
       // Auto trigger admin notification url helper
-      const adminAlertUrl = `https://wa.me/919840000000?text=${adminWhatsAppMsg}`;
+      const adminAlertUrl = `https://wa.me/${cleanWhatsApp}?text=${adminWhatsAppMsg}`;
       window.open(adminAlertUrl, '_blank');
 
       setCancelModalBooking(null);
@@ -137,7 +143,7 @@ export default function UserProfilePage() {
     const msg = encodeURIComponent(
       `🧾 *WONDERER SOUTH INDIA — BOOKING RECEIPT*\n\nReference: ${orderRef}\nGuest Name: ${user.name}\nTour: ${tourTitle}\nTravel Date: ${travelDate}\nGuests: ${guests}\nTotal Amount: ${currency} ${Number(price).toLocaleString()}\nStatus: ${b.status?.toUpperCase()}\n\nThank you for choosing Wonderer South India! Travel Made Simple & Memorable.`
     );
-    window.open(`https://wa.me/919840000000?text=${msg}`, '_blank');
+    window.open(`https://wa.me/${cleanWhatsApp}?text=${msg}`, '_blank');
   };
 
   // Email Receipt Handler
@@ -490,7 +496,7 @@ export default function UserProfilePage() {
                 <strong style={{ fontSize: '13px', color: '#01AA90' }}>TRAVELER DETAILS:</strong>
                 <p style={{ margin: '4px 0 0', fontSize: '14px', fontWeight: '700' }}>{user.name}</p>
                 <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>Email: {user.email}</p>
-                <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>Phone: {user.phone || selectedReceiptBooking.phone || '+91 98400 00000'}</p>
+                <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>Phone: {user.phone || selectedReceiptBooking.phone || contactPhone}</p>
               </div>
               <div>
                 <strong style={{ fontSize: '13px', color: '#01AA90' }}>TOUR RESERVATION:</strong>
@@ -530,7 +536,7 @@ export default function UserProfilePage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
               <div style={{ fontSize: '12px', color: '#64748b' }}>
                 <p style={{ margin: 0 }}>✓ Payment Mode: <strong>Pay on Arrival / Cash or UPI</strong></p>
-                <p style={{ margin: 0 }}>✓ 24/7 Helpline: <strong>+91 98400 00000</strong></p>
+                <p style={{ margin: 0 }}>✓ 24/7 Helpline: <strong>{contactPhone}</strong></p>
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button

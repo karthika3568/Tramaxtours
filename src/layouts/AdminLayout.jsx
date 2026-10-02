@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import { useToast } from '../context/ToastContext';
+import inquiryService from '../services/inquiryService';
 
 export default function AdminLayout() {
   const location = useLocation();
@@ -10,9 +11,32 @@ export default function AdminLayout() {
   const toast = useToast();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [newRequestsCount, setNewRequestsCount] = useState(0);
 
   const closeSidebar = useCallback(() => {
     setSidebarOpen(false);
+  }, []);
+
+  // Fetch live new trip requests count from API
+  useEffect(() => {
+    let isMounted = true;
+    async function loadStats() {
+      try {
+        const stats = await inquiryService.getInquiryStats();
+        if (isMounted && stats && typeof stats.new === 'number') {
+          setNewRequestsCount(stats.new);
+        }
+      } catch {
+        // Silently ignore network errors on polling
+      }
+    }
+
+    loadStats();
+    const interval = setInterval(loadStats, 20000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   // Handle escape key to close drawer
@@ -61,6 +85,13 @@ export default function AdminLayout() {
     {
       groupTitle: 'Operations & Catalog',
       items: [
+        {
+          label: 'Trip Requests',
+          path: '/admin/trip-requests',
+          permission: 'contact.view',
+          icon: '✈️',
+          badgeCount: newRequestsCount,
+        },
         { label: 'Inquiries & Leads', path: '/admin/inquiries', permission: 'contact.view', icon: '📩' },
         { label: 'Bookings & Orders', path: '/admin/bookings', permission: 'bookings.view', icon: '📋' },
         { label: 'Curated Tours', path: '/admin/tours', permission: 'tours.view', icon: '🗺️' },
@@ -185,6 +216,22 @@ export default function AdminLayout() {
                             {item.icon}
                           </span>
                           <span className="nav-item-label">{item.label}</span>
+                          {item.badgeCount > 0 && (
+                            <span
+                              style={{
+                                marginLeft: 'auto',
+                                background: '#ef4444',
+                                color: '#ffffff',
+                                fontSize: '11px',
+                                fontWeight: 800,
+                                padding: '2px 7px',
+                                borderRadius: '9999px',
+                                boxShadow: '0 2px 6px rgba(239, 68, 68, 0.35)',
+                              }}
+                            >
+                              {item.badgeCount}
+                            </span>
+                          )}
                           {isActive && <span className="active-indicator" aria-hidden="true" />}
                         </Link>
                       </li>
@@ -230,7 +277,7 @@ export default function AdminLayout() {
 
             <div className="admin-header-context">
               <div className="admin-breadcrumb">
-                <span>Tramax Operations</span>
+                <span>Wanderer Operations</span>
                 <span className="breadcrumb-sep">/</span>
                 <span className="breadcrumb-current">{pageMeta.group}</span>
               </div>

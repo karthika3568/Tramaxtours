@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tramax Tours - Phase 14 Comprehensive End-to-End Reviews & Testimonials API Verification Test Suite
+ * Wanderer South India - Phase 14 Comprehensive End-to-End Reviews & Testimonials API Verification Test Suite
  * 
  * Verifies all Phase 14 requirements:
  * - Database schema, columns (including deleted_at, deleted_by) & reviews.view / reviews.moderate permissions
@@ -57,7 +57,7 @@ function recordResult(string $title, bool $success, string $details = ''): void
 }
 
 echo PHP_EOL . "================================================================================" . PHP_EOL;
-echo "  TRAMAX TOURS — PHASE 14 REVIEWS & TESTIMONIALS MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
+echo "  Wanderer South India — PHASE 14 REVIEWS & TESTIMONIALS MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
 echo "================================================================================" . PHP_EOL . PHP_EOL;
 
 // 2. Start Local Test Server
@@ -188,7 +188,7 @@ recordResult("Test Media fixture prepared", $testMediaId > 0, "Media ID: {$testM
 $superAdminToken = JWT::encode([
     'sub' => 1,
     'id' => 1,
-    'email' => 'admin@tramaxtours.com',
+    'email' => 'admin@wanderersouthindia.com',
     'role' => 'super_admin',
     'roles' => ['super_admin'],
     'permissions' => ['*'],
@@ -196,15 +196,15 @@ $superAdminToken = JWT::encode([
 recordResult("Super Admin token generated", !empty($superAdminToken));
 
 // Moderator Token (has reviews.view and reviews.moderate via Role 4)
-$pdo->prepare("DELETE FROM users WHERE email = 'moderator.phase14@tramaxtours.com'")->execute();
-$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase14 Moderator', 'moderator.phase14@tramaxtours.com', 'hash', 'active', NOW(), NOW())")->execute();
+$pdo->prepare("DELETE FROM users WHERE email = 'moderator.phase14@wanderersouthindia.com'")->execute();
+$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase14 Moderator', 'moderator.phase14@wanderersouthindia.com', 'hash', 'active', NOW(), NOW())")->execute();
 $moderatorId = (int) $pdo->lastInsertId();
 $pdo->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)")->execute([$moderatorId, 4]); // Role 4 = Moderator
 
 $moderatorToken = JWT::encode([
     'sub' => $moderatorId,
     'id' => $moderatorId,
-    'email' => 'moderator.phase14@tramaxtours.com',
+    'email' => 'moderator.phase14@wanderersouthindia.com',
     'role' => 'moderator',
     'permissions' => ['reviews.view', 'reviews.moderate'],
 ], null, 3600);
@@ -216,30 +216,30 @@ $pdo->prepare("INSERT INTO roles (name, slug, description, is_system, created_at
 $viewerRoleId = (int) $pdo->lastInsertId();
 $pdo->prepare("INSERT INTO role_permissions (role_id, permission_id) SELECT ?, id FROM permissions WHERE name = 'reviews.view'")->execute([$viewerRoleId]);
 
-$pdo->prepare("DELETE FROM users WHERE email = 'viewer.phase14@tramaxtours.com'")->execute();
-$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase14 Viewer', 'viewer.phase14@tramaxtours.com', 'hash', 'active', NOW(), NOW())")->execute();
+$pdo->prepare("DELETE FROM users WHERE email = 'viewer.phase14@wanderersouthindia.com'")->execute();
+$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase14 Viewer', 'viewer.phase14@wanderersouthindia.com', 'hash', 'active', NOW(), NOW())")->execute();
 $viewerId = (int) $pdo->lastInsertId();
 $pdo->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)")->execute([$viewerId, $viewerRoleId]);
 
 $viewerToken = JWT::encode([
     'sub' => $viewerId,
     'id' => $viewerId,
-    'email' => 'viewer.phase14@tramaxtours.com',
+    'email' => 'viewer.phase14@wanderersouthindia.com',
     'role' => 'viewer',
     'permissions' => ['reviews.view'],
 ], null, 3600);
 recordResult("Viewer token generated (has reviews.view ONLY)", !empty($viewerToken));
 
 // Unauthorized Token (e.g. Editor who lacks review permissions)
-$pdo->prepare("DELETE FROM users WHERE email = 'editor.phase14@tramaxtours.com'")->execute();
-$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase14 Editor', 'editor.phase14@tramaxtours.com', 'hash', 'active', NOW(), NOW())")->execute();
+$pdo->prepare("DELETE FROM users WHERE email = 'editor.phase14@wanderersouthindia.com'")->execute();
+$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase14 Editor', 'editor.phase14@wanderersouthindia.com', 'hash', 'active', NOW(), NOW())")->execute();
 $editorId = (int) $pdo->lastInsertId();
 $pdo->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)")->execute([$editorId, 3]); // Role 3 = Editor (has no reviews permissions)
 
 $unauthorizedToken = JWT::encode([
     'sub' => $editorId,
     'id' => $editorId,
-    'email' => 'editor.phase14@tramaxtours.com',
+    'email' => 'editor.phase14@wanderersouthindia.com',
     'role' => 'editor',
     'permissions' => ['pages.manage'], // no review permissions
 ], null, 3600);
@@ -666,7 +666,7 @@ $resDbHealth = apiRequest('GET', '/api/v1/health/database');
 recordResult("GET /api/v1/health/database responds with connected status", $resDbHealth['status'] === 200 && ($resDbHealth['json']['data']['status'] ?? '') === 'connected');
 
 $resAuthMe = apiRequest('GET', '/api/v1/auth/me', [], $superAdminToken);
-recordResult("GET /api/v1/auth/me responds with super_admin profile", $resAuthMe['status'] === 200 && ($resAuthMe['json']['data']['user']['email'] ?? '') === 'admin@tramaxtours.com');
+recordResult("GET /api/v1/auth/me responds with super_admin profile", $resAuthMe['status'] === 200 && ($resAuthMe['json']['data']['user']['email'] ?? '') === 'admin@wanderersouthindia.com');
 
 $resMedia = apiRequest('GET', '/api/v1/media', [], $superAdminToken);
 recordResult("GET /api/v1/media responds with 200 OK", $resMedia['status'] === 200);

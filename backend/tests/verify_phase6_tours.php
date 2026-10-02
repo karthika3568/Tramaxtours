@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tramax Tours - Phase 6 Comprehensive End-to-End Tours API & Reversible Delete/Restore Verification Test Suite
+ * Wanderer South India - Phase 6 Comprehensive End-to-End Tours API & Reversible Delete/Restore Verification Test Suite
  * 
  * Verifies all Phase 6 requirements:
  * - Database schema, columns (including deleted_by), constraints & tour permissions
@@ -60,7 +60,7 @@ function recordResult(string $title, bool $success, string $details = ''): void
 }
 
 echo PHP_EOL . "================================================================================" . PHP_EOL;
-echo "  TRAMAX TOURS — PHASE 6 TOURS & REVERSIBLE RESTORE VERIFICATION SUITE" . PHP_EOL;
+echo "  Wanderer South India — PHASE 6 TOURS & REVERSIBLE RESTORE VERIFICATION SUITE" . PHP_EOL;
 echo "================================================================================" . PHP_EOL . PHP_EOL;
 
 // 2. Start Local Test Server
@@ -220,7 +220,7 @@ recordResult("All 5 tour permissions exist in permissions table", empty($missing
 echo PHP_EOL . "2. RBAC Tokens & User Context Setup:" . PHP_EOL;
 
 // 1. Super Admin User & Token
-$stmt = $pdo->prepare("SELECT id, name, email FROM users WHERE email = 'admin@tramaxtours.com' LIMIT 1");
+$stmt = $pdo->prepare("SELECT id, name, email FROM users WHERE email = 'admin@wanderersouthindia.com' LIMIT 1");
 $stmt->execute();
 $superAdmin = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -233,8 +233,8 @@ $superAdminToken = JWT::encode([
 recordResult("Super Admin token generated", !empty($superAdminToken));
 
 // 2. Editor User (has tours.view, tours.create, tours.edit, destinations.view, destinations.create, destinations.edit)
-$pdo->prepare("DELETE FROM users WHERE email = 'test_editor_p6@tramaxtours.com'")->execute();
-$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Test Editor P6', 'test_editor_p6@tramaxtours.com', 'hash', 'active', NOW(), NOW())")->execute();
+$pdo->prepare("DELETE FROM users WHERE email = 'test_editor_p6@wanderersouthindia.com'")->execute();
+$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Test Editor P6', 'test_editor_p6@wanderersouthindia.com', 'hash', 'active', NOW(), NOW())")->execute();
 $editorId = (int) $pdo->lastInsertId();
 
 $editorRoleId = (int) $pdo->query("SELECT id FROM roles WHERE slug = 'editor'")->fetchColumn();
@@ -244,20 +244,20 @@ if ($editorRoleId > 0) {
 
 $editorToken = JWT::encode([
     'sub' => $editorId,
-    'email' => 'test_editor_p6@tramaxtours.com',
+    'email' => 'test_editor_p6@wanderersouthindia.com',
     'role' => 'editor',
     'permissions' => ['tours.view', 'tours.create', 'tours.edit', 'destinations.view', 'destinations.create', 'destinations.edit'],
 ], null, 3600);
 recordResult("Editor token generated (has tours.view, tours.create, tours.edit)", !empty($editorToken));
 
 // 3. Moderator User (lacks tour permissions)
-$pdo->prepare("DELETE FROM users WHERE email = 'test_moderator_p6@tramaxtours.com'")->execute();
-$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Test Moderator P6', 'test_moderator_p6@tramaxtours.com', 'hash', 'active', NOW(), NOW())")->execute();
+$pdo->prepare("DELETE FROM users WHERE email = 'test_moderator_p6@wanderersouthindia.com'")->execute();
+$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Test Moderator P6', 'test_moderator_p6@wanderersouthindia.com', 'hash', 'active', NOW(), NOW())")->execute();
 $moderatorId = (int) $pdo->lastInsertId();
 
 $moderatorToken = JWT::encode([
     'sub' => $moderatorId,
-    'email' => 'test_moderator_p6@tramaxtours.com',
+    'email' => 'test_moderator_p6@wanderersouthindia.com',
     'role' => 'moderator',
     'permissions' => ['reviews.moderate'],
 ], null, 3600);
@@ -718,7 +718,7 @@ recordResult("GET /api/v1/health/database responds with connected status", $resD
 
 // 3. Auth Profile
 $resAuthMe = apiRequest('GET', '/api/v1/auth/me', [], $superAdminToken);
-recordResult("GET /api/v1/auth/me responds with super_admin profile", $resAuthMe['status'] === 200 && ($resAuthMe['json']['data']['user']['email'] ?? '') === 'admin@tramaxtours.com');
+recordResult("GET /api/v1/auth/me responds with super_admin profile", $resAuthMe['status'] === 200 && ($resAuthMe['json']['data']['user']['email'] ?? '') === 'admin@wanderersouthindia.com');
 
 // 4. Media Listing
 $resMediaList = apiRequest('GET', '/api/v1/media', [], $superAdminToken);

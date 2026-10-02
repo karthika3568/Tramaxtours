@@ -1,5 +1,5 @@
 /**
- * Tramax Tours - Admin Dashboard Service
+ * Wanderer South India - Admin Dashboard Service
  * Fetches real-time operational metrics, statistics and recent data across permitted domains
  */
 

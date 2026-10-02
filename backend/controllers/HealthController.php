@@ -18,16 +18,16 @@ class HealthController extends BaseController
     {
         $this->success([
             'status' => 'healthy',
-            'service' => 'TramaxTours Backend API',
+            'service' => 'WandererSouthIndia Backend API',
             'version' => '1.0.0',
             'environment' => Env::get('APP_ENV', 'development'),
             'php_version' => PHP_VERSION,
             'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
-        ], 'TramaxTours API is running');
+        ], 'WandererSouthIndia API is running');
     }
 
     /**
-     * Database health check endpoint verifying connection to 'tramaxtours' MySQL database.
+     * Database health check endpoint verifying connection to 'wanderersouthindia' MySQL database.
      * GET /api/v1/health/database
      *
      * @return void
@@ -46,7 +46,7 @@ class HealthController extends BaseController
             $tablesStmt = $pdo->prepare(
                 'SELECT COUNT(*) AS total_tables FROM information_schema.TABLES WHERE TABLE_SCHEMA = :schema_name'
             );
-            $targetDb = Env::get('DB_DATABASE', 'tramaxtours');
+            $targetDb = Env::get('DB_DATABASE', 'wanderersouthindia');
             $tablesStmt->execute([':schema_name' => $targetDb]);
             $tableCount = (int) $tablesStmt->fetchColumn();
 
@@ -70,7 +70,7 @@ class HealthController extends BaseController
                 503,
                 [
                     'status' => 'disconnected',
-                    'database' => Env::get('DB_DATABASE', 'tramaxtours'),
+                    'database' => Env::get('DB_DATABASE', 'wanderersouthindia'),
                     'error' => Env::get('APP_DEBUG', false) ? $e->getMessage() : 'Could not connect to database server',
                     'latency_ms' => $latencyMs,
                     'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),

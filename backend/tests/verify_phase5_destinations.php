@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tramax Tours - Phase 5 Comprehensive End-to-End Destinations API Verification Test Suite
+ * Wanderer South India - Phase 5 Comprehensive End-to-End Destinations API Verification Test Suite
  * 
  * Verifies all Phase 5 requirements:
  * - Database schema, columns, constraints & destination permissions
@@ -54,7 +54,7 @@ function recordResult(string $title, bool $success, string $details = ''): void
 }
 
 echo PHP_EOL . "================================================================================" . PHP_EOL;
-echo "  TRAMAX TOURS — PHASE 5 DESTINATIONS MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
+echo "  Wanderer South India — PHASE 5 DESTINATIONS MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
 echo "================================================================================" . PHP_EOL . PHP_EOL;
 
 // 2. Start Local Test Server
@@ -160,7 +160,7 @@ try {
     $pdo = Database::getConnection();
 
     // Clean up test data from prior runs
-    $pdo->exec("SET FOREIGN_KEY_CHECKS = 0; DELETE FROM destinations WHERE name LIKE 'Test %' OR slug LIKE 'test-%'; DELETE FROM users WHERE email IN ('editor.phase5@tramaxtours.com', 'moderator.phase5@tramaxtours.com'); SET FOREIGN_KEY_CHECKS = 1;");
+    $pdo->exec("SET FOREIGN_KEY_CHECKS = 0; DELETE FROM destinations WHERE name LIKE 'Test %' OR slug LIKE 'test-%'; DELETE FROM users WHERE email IN ('editor.phase5@wanderersouthindia.com', 'moderator.phase5@wanderersouthindia.com'); SET FOREIGN_KEY_CHECKS = 1;");
 } catch (Throwable $e) {
     die("Database connection failed: " . $e->getMessage() . "\n");
 }
@@ -202,35 +202,35 @@ echo PHP_EOL . "2. RBAC Tokens & User Context Setup:" . PHP_EOL;
 // Super Admin token
 $superAdminToken = JWT::encode([
     'sub' => 1,
-    'email' => 'admin@tramaxtours.com',
+    'email' => 'admin@wanderersouthindia.com',
     'name' => 'Super Admin',
     'role' => 'super_admin',
 ]);
 
 // Create Editor (Role 3: has destinations.view, destinations.create, destinations.edit, but NOT destinations.delete)
 $stmt = $pdo->prepare("INSERT INTO users (name, email, password_hash, phone, status, email_verified_at, created_at, updated_at)
-    VALUES ('Phase 5 Editor', 'editor.phase5@tramaxtours.com', 'test_hash', '+919888888881', 'active', NOW(), NOW(), NOW())");
+    VALUES ('Phase 5 Editor', 'editor.phase5@wanderersouthindia.com', 'test_hash', '+919888888881', 'active', NOW(), NOW(), NOW())");
 $stmt->execute();
 $editorId = (int) $pdo->lastInsertId();
 $pdo->prepare("INSERT IGNORE INTO user_roles (user_id, role_id) VALUES (?, 3)")->execute([$editorId]);
 
 $editorToken = JWT::encode([
     'sub' => $editorId,
-    'email' => 'editor.phase5@tramaxtours.com',
+    'email' => 'editor.phase5@wanderersouthindia.com',
     'name' => 'Phase 5 Editor',
     'role' => 'editor',
 ]);
 
 // Create Moderator (Role 4: has NO destination permissions)
 $stmt = $pdo->prepare("INSERT INTO users (name, email, password_hash, phone, status, email_verified_at, created_at, updated_at)
-    VALUES ('Phase 5 Moderator', 'moderator.phase5@tramaxtours.com', 'test_hash', '+919888888882', 'active', NOW(), NOW(), NOW())");
+    VALUES ('Phase 5 Moderator', 'moderator.phase5@wanderersouthindia.com', 'test_hash', '+919888888882', 'active', NOW(), NOW(), NOW())");
 $stmt->execute();
 $moderatorId = (int) $pdo->lastInsertId();
 $pdo->prepare("INSERT IGNORE INTO user_roles (user_id, role_id) VALUES (?, 4)")->execute([$moderatorId]);
 
 $moderatorToken = JWT::encode([
     'sub' => $moderatorId,
-    'email' => 'moderator.phase5@tramaxtours.com',
+    'email' => 'moderator.phase5@wanderersouthindia.com',
     'name' => 'Phase 5 Moderator',
     'role' => 'moderator',
 ]);
@@ -581,7 +581,7 @@ recordResult("GET /api/v1/health/database responds with connected status", $resD
 
 // 3. Auth Profile
 $resAuthMe = apiRequest('GET', '/api/v1/auth/me', [], $superAdminToken);
-recordResult("GET /api/v1/auth/me responds with super_admin profile", $resAuthMe['status'] === 200 && ($resAuthMe['json']['data']['user']['email'] ?? '') === 'admin@tramaxtours.com');
+recordResult("GET /api/v1/auth/me responds with super_admin profile", $resAuthMe['status'] === 200 && ($resAuthMe['json']['data']['user']['email'] ?? '') === 'admin@wanderersouthindia.com');
 
 // 4. Media Listing
 $resMediaList = apiRequest('GET', '/api/v1/media', [], $superAdminToken);

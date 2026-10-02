@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tramax Tours - Phase 13 Comprehensive End-to-End Social Links API Verification Test Suite
+ * Wanderer South India - Phase 13 Comprehensive End-to-End Social Links API Verification Test Suite
  * 
  * Verifies all Phase 13 requirements:
  * - Database schema, columns (including deleted_at, deleted_by) & social.manage permissions
@@ -56,7 +56,7 @@ function recordResult(string $title, bool $success, string $details = ''): void
 }
 
 echo PHP_EOL . "================================================================================" . PHP_EOL;
-echo "  TRAMAX TOURS — PHASE 13 SOCIAL LINKS MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
+echo "  Wanderer South India — PHASE 13 SOCIAL LINKS MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
 echo "================================================================================" . PHP_EOL . PHP_EOL;
 
 // 2. Start Local Test Server
@@ -164,7 +164,7 @@ echo "2. RBAC Tokens & User Context Setup:" . PHP_EOL;
 $superAdminToken = JWT::encode([
     'sub' => 1,
     'id' => 1,
-    'email' => 'admin@tramaxtours.com',
+    'email' => 'admin@wanderersouthindia.com',
     'role' => 'super_admin',
     'roles' => ['super_admin'],
     'permissions' => ['*'],
@@ -172,30 +172,30 @@ $superAdminToken = JWT::encode([
 recordResult("Super Admin token generated", !empty($superAdminToken));
 
 // Editor (has social.manage via Role 3)
-$pdo->prepare("DELETE FROM users WHERE email = 'editor.phase13@tramaxtours.com'")->execute();
-$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase13 Editor', 'editor.phase13@tramaxtours.com', 'hash', 'active', NOW(), NOW())")->execute();
+$pdo->prepare("DELETE FROM users WHERE email = 'editor.phase13@wanderersouthindia.com'")->execute();
+$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase13 Editor', 'editor.phase13@wanderersouthindia.com', 'hash', 'active', NOW(), NOW())")->execute();
 $editorId = (int) $pdo->lastInsertId();
 $pdo->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)")->execute([$editorId, 3]); // Role 3 = Editor
 
 $editorToken = JWT::encode([
     'sub' => $editorId,
     'id' => $editorId,
-    'email' => 'editor.phase13@tramaxtours.com',
+    'email' => 'editor.phase13@wanderersouthindia.com',
     'role' => 'editor',
     'permissions' => ['social.manage'],
 ], null, 3600);
 recordResult("Editor token generated (has social.manage)", !empty($editorToken));
 
 // Moderator (lacks social.manage)
-$pdo->prepare("DELETE FROM users WHERE email = 'moderator.phase13@tramaxtours.com'")->execute();
-$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase13 Moderator', 'moderator.phase13@tramaxtours.com', 'hash', 'active', NOW(), NOW())")->execute();
+$pdo->prepare("DELETE FROM users WHERE email = 'moderator.phase13@wanderersouthindia.com'")->execute();
+$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase13 Moderator', 'moderator.phase13@wanderersouthindia.com', 'hash', 'active', NOW(), NOW())")->execute();
 $moderatorId = (int) $pdo->lastInsertId();
 $pdo->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)")->execute([$moderatorId, 4]); // Role 4 = Moderator
 
 $moderatorToken = JWT::encode([
     'sub' => $moderatorId,
     'id' => $moderatorId,
-    'email' => 'moderator.phase13@tramaxtours.com',
+    'email' => 'moderator.phase13@wanderersouthindia.com',
     'role' => 'moderator',
     'permissions' => ['reviews.view', 'reviews.moderate'],
 ], null, 3600);
@@ -306,7 +306,7 @@ echo "5. Social Link CRUD Operations:" . PHP_EOL;
 // Create Social Link 1
 $link1Payload = [
     'platform' => 'tiktok',
-    'url' => 'https://tiktok.com/@tramaxtours',
+    'url' => 'https://tiktok.com/@wanderersouthindia',
     'icon' => 'tiktok',
     'display_order' => 10,
     'status' => 'active',
@@ -319,7 +319,7 @@ recordResult("Create social link 1 -> 201 Created", $resCreate1['status'] === 20
 // Create Social Link 2
 $link2Payload = [
     'platform' => 'threads',
-    'url' => 'https://threads.net/@tramaxtours',
+    'url' => 'https://threads.net/@wanderersouthindia',
     'icon' => 'threads',
     'display_order' => 12,
     'status' => 'inactive',
@@ -347,7 +347,7 @@ recordResult("View / Detail GET /api/v1/social-links/{id} returns complete data"
 // Full PUT Update
 $putPayload = [
     'platform' => 'tiktok_official',
-    'url' => 'https://www.tiktok.com/@tramaxtours_official',
+    'url' => 'https://www.tiktok.com/@wanderersouthindia_official',
     'icon' => 'tiktok-brand',
     'display_order' => 8,
     'status' => 'active',
@@ -356,7 +356,7 @@ $resPut = apiRequest('PUT', "/api/v1/social-links/{$link1Id}", $putPayload, $sup
 $putData = $resPut['json']['data'] ?? [];
 $putSuccess = $resPut['status'] === 200
     && ($putData['platform'] ?? '') === 'tiktok_official'
-    && ($putData['url'] ?? '') === 'https://www.tiktok.com/@tramaxtours_official'
+    && ($putData['url'] ?? '') === 'https://www.tiktok.com/@wanderersouthindia_official'
     && ($putData['icon'] ?? '') === 'tiktok-brand'
     && (int) ($putData['display_order'] ?? 0) === 8;
 recordResult("Full PUT update -> 200 OK", $putSuccess);
@@ -370,7 +370,7 @@ $patchData = $resPatch['json']['data'] ?? [];
 $patchSuccess = $resPatch['status'] === 200
     && (int) ($patchData['display_order'] ?? 0) === 5
     && ($patchData['platform'] ?? '') === 'tiktok_official'
-    && ($patchData['url'] ?? '') === 'https://www.tiktok.com/@tramaxtours_official';
+    && ($patchData['url'] ?? '') === 'https://www.tiktok.com/@wanderersouthindia_official';
 recordResult("Partial PATCH update preserves unspecified fields", $patchSuccess);
 
 echo PHP_EOL;
@@ -465,7 +465,7 @@ $checkRow->execute([':id' => $link1Id]);
 $dbRow = $checkRow->fetch(PDO::FETCH_ASSOC);
 $rowPreserved = $dbRow && !empty($dbRow['deleted_at']) && (int) $dbRow['deleted_by'] === 1
     && $dbRow['platform'] === 'tiktok_official'
-    && $dbRow['url'] === 'https://www.tiktok.com/@tramaxtours_official'
+    && $dbRow['url'] === 'https://www.tiktok.com/@wanderersouthindia_official'
     && (int) $dbRow['display_order'] === 5;
 recordResult("Original database row and all fields preserved in DB during soft delete", (bool) $rowPreserved, "Preserved Platform: " . ($dbRow['platform'] ?? 'None'));
 
@@ -479,7 +479,7 @@ $restoredData = $resRestore['json']['data'] ?? [];
 $restoredSuccess = $resRestore['status'] === 200
     && (int) ($restoredData['id'] ?? 0) === $link1Id
     && ($restoredData['platform'] ?? '') === 'tiktok_official'
-    && ($restoredData['url'] ?? '') === 'https://www.tiktok.com/@tramaxtours_official'
+    && ($restoredData['url'] ?? '') === 'https://www.tiktok.com/@wanderersouthindia_official'
     && empty($restoredData['deleted_at'])
     && empty($restoredData['deleted_by']);
 recordResult("POST /api/v1/social-links/{id}/restore restores link with SAME ID and clears deleted_at/by", $restoredSuccess);
@@ -523,7 +523,7 @@ $resDbHealth = apiRequest('GET', '/api/v1/health/database');
 recordResult("GET /api/v1/health/database responds with connected status", $resDbHealth['status'] === 200 && ($resDbHealth['json']['data']['status'] ?? '') === 'connected');
 
 $resAuthMe = apiRequest('GET', '/api/v1/auth/me', [], $superAdminToken);
-recordResult("GET /api/v1/auth/me responds with super_admin profile", $resAuthMe['status'] === 200 && ($resAuthMe['json']['data']['user']['email'] ?? '') === 'admin@tramaxtours.com');
+recordResult("GET /api/v1/auth/me responds with super_admin profile", $resAuthMe['status'] === 200 && ($resAuthMe['json']['data']['user']['email'] ?? '') === 'admin@wanderersouthindia.com');
 
 $resMedia = apiRequest('GET', '/api/v1/media', [], $superAdminToken);
 recordResult("GET /api/v1/media responds with 200 OK", $resMedia['status'] === 200);

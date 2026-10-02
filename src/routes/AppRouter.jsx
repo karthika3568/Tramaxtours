@@ -1,12 +1,14 @@
+import { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import PublicLayout from '../layouts/PublicLayout';
 import AdminLayout from '../layouts/AdminLayout';
 import ProtectedRoute from './ProtectedRoute';
 import PermissionRoute from './PermissionRoute';
+import Loading from '../components/ui/Loading';
 
-import LoginPage from '../pages/auth/LoginPage';
-import ForbiddenPage from '../pages/ForbiddenPage';
+import { lazy } from 'react';
+const ForbiddenPage = lazy(() => import('../pages/ForbiddenPage'));
 
 import {
   HomePage,
@@ -18,8 +20,11 @@ import {
   ContactPage,
   TestimonialsPage,
   PlanTripPage,
+  RequestMyTripPage,
+  TripRequestSuccessPage,
   ContentPage,
   UserProfilePage,
+  LoginPage,
   NotFoundPage,
 } from './PublicRoutes';
 
@@ -54,8 +59,9 @@ import {
 export default function AppRouter() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Public Routes with PublicLayout */}
+      <Suspense fallback={<Loading fullscreen text="Loading Wanderer South India..." />}>
+        <Routes>
+          {/* Public Routes with PublicLayout */}
         <Route path="/" element={<PublicLayout />}>
           <Route index element={<HomePage />} />
           <Route path="destinations" element={<DestinationsPage />} />
@@ -65,11 +71,14 @@ export default function AppRouter() {
           <Route path="tours" element={<ToursPage />} />
           <Route path="tours/:slug" element={<TourDetailPage />} />
           <Route path="about" element={<AboutPage />} />
-          <Route path="testimonials" element={<TestimonialsPage />} />
-          <Route path="reviews" element={<TestimonialsPage />} />
-          <Route path="plan-your-trip" element={<PlanTripPage />} />
-          <Route path="plan-trip" element={<PlanTripPage />} />
-          <Route path="custom-tour" element={<PlanTripPage />} />
+          <Route path="testimonials" element={<Navigate to="/#testimonials" replace />} />
+          <Route path="reviews" element={<Navigate to="/#testimonials" replace />} />
+          <Route path="request-my-trip" element={<RequestMyTripPage />} />
+          <Route path="trip-request/success/:referenceId" element={<TripRequestSuccessPage />} />
+          <Route path="trip-requests/success/:referenceId" element={<TripRequestSuccessPage />} />
+          <Route path="plan-your-trip" element={<RequestMyTripPage />} />
+          <Route path="plan-trip" element={<RequestMyTripPage />} />
+          <Route path="custom-tour" element={<RequestMyTripPage />} />
           <Route path="contact" element={<ContactPage />} />
           <Route path="terms" element={<ContentPage defaultSlug="terms-conditions" />} />
           <Route path="terms-conditions" element={<ContentPage defaultSlug="terms-conditions" />} />
@@ -297,11 +306,35 @@ export default function AppRouter() {
             }
           />
 
-          {/* Customer Inquiries & Leads Management */}
+          {/* Trip Requests & Inquiries Management */}
+          <Route
+            path="trip-requests"
+            element={
+              <PermissionRoute permission="trip_requests.view">
+                <AdminInquiriesPage />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="trip-requests/:id"
+            element={
+              <PermissionRoute permission="trip_requests.view">
+                <AdminInquiriesPage />
+              </PermissionRoute>
+            }
+          />
           <Route
             path="inquiries"
             element={
-              <PermissionRoute permission="contact.view">
+              <PermissionRoute permission="trip_requests.view">
+                <AdminInquiriesPage />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="inquiries/:id"
+            element={
+              <PermissionRoute permission="trip_requests.view">
                 <AdminInquiriesPage />
               </PermissionRoute>
             }
@@ -409,6 +442,7 @@ export default function AppRouter() {
         {/* 404 Catch-All Route */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
-    </BrowserRouter>
-  );
+    </Suspense>
+  </BrowserRouter>
+);
 }

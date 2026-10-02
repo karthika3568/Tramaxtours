@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tramax Tours - Phase 8K Admin Staff / User & Role Management Verification Test Suite
+ * Wanderer South India - Phase 8K Admin Staff / User & Role Management Verification Test Suite
  */
 
 declare(strict_types=1);
@@ -39,7 +39,7 @@ function recordResult(string $title, bool $success, string $details = ''): void
 }
 
 echo PHP_EOL . "================================================================================" . PHP_EOL;
-echo "  TRAMAX TOURS — PHASE 8K STAFF & ROLE MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
+echo "  Wanderer South India — PHASE 8K STAFF & ROLE MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
 echo "================================================================================" . PHP_EOL . PHP_EOL;
 
 // 1. Spawning Test Server
@@ -125,7 +125,7 @@ echo "1. Token Setup & RBAC Permissions:" . PHP_EOL;
 $superAdminToken = JWT::encode([
     'sub' => 1,
     'id' => 1,
-    'email' => 'admin@tramaxtours.com',
+    'email' => 'admin@wanderersouthindia.com',
     'name' => 'Super Admin',
     'role' => 'super_admin',
     'roles' => ['super_admin'],
@@ -134,8 +134,8 @@ $superAdminToken = JWT::encode([
 recordResult("Super Admin token generated", !empty($superAdminToken));
 
 // Create Staff user with users.view only
-$pdo->prepare("DELETE FROM users WHERE email = 'staff.viewer@tramaxtours.com'")->execute();
-$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Staff Viewer', 'staff.viewer@tramaxtours.com', 'hash', 'active', NOW(), NOW())")->execute();
+$pdo->prepare("DELETE FROM users WHERE email = 'staff.viewer@wanderersouthindia.com'")->execute();
+$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Staff Viewer', 'staff.viewer@wanderersouthindia.com', 'hash', 'active', NOW(), NOW())")->execute();
 $staffViewerId = (int) $pdo->lastInsertId();
 
 $pdo->prepare("DELETE FROM roles WHERE slug = 'phase8k_viewer_role'")->execute();
@@ -147,21 +147,21 @@ $pdo->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)")->execut
 $staffViewerToken = JWT::encode([
     'sub' => $staffViewerId,
     'id' => $staffViewerId,
-    'email' => 'staff.viewer@tramaxtours.com',
+    'email' => 'staff.viewer@wanderersouthindia.com',
     'role' => 'viewer',
     'permissions' => ['users.view', 'roles.view'],
 ]);
 recordResult("Staff viewer token generated (has users.view, roles.view)", !empty($staffViewerToken));
 
 // Create Customer user without any staff permissions
-$pdo->prepare("DELETE FROM users WHERE email = 'customer.noperms@tramaxtours.com'")->execute();
-$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Customer NoPerms', 'customer.noperms@tramaxtours.com', 'hash', 'active', NOW(), NOW())")->execute();
+$pdo->prepare("DELETE FROM users WHERE email = 'customer.noperms@wanderersouthindia.com'")->execute();
+$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Customer NoPerms', 'customer.noperms@wanderersouthindia.com', 'hash', 'active', NOW(), NOW())")->execute();
 $nopermsUserId = (int) $pdo->lastInsertId();
 
 $noPermsToken = JWT::encode([
     'sub' => $nopermsUserId,
     'id' => $nopermsUserId,
-    'email' => 'customer.noperms@tramaxtours.com',
+    'email' => 'customer.noperms@wanderersouthindia.com',
     'role' => 'customer',
     'permissions' => [],
 ]);
@@ -183,7 +183,7 @@ recordResult("Authorized user with users.view GET /api/v1/users returns 200", $r
 
 $resCreateForbidden = apiRequest('POST', '/api/v1/users', [
     'name' => 'Forbidden User',
-    'email' => 'forbidden@tramaxtours.com',
+    'email' => 'forbidden@wanderersouthindia.com',
     'password' => 'secret123',
     'role' => 'editor',
 ], $staffViewerToken);
@@ -223,7 +223,7 @@ $resValError = apiRequest('POST', '/api/v1/users', [
 recordResult("Invalid creation data returns 422 VALIDATION_ERROR", $resValError['status'] === 422);
 
 // Successful creation
-$testEmail = 'staff.john.doe@tramaxtours.com';
+$testEmail = 'staff.john.doe@wanderersouthindia.com';
 $pdo->prepare("DELETE FROM users WHERE email = ?")->execute([$testEmail]);
 
 $resCreate = apiRequest('POST', '/api/v1/users', [

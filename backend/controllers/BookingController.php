@@ -234,7 +234,7 @@ class BookingController extends BaseController
                 $receiptUrl = $this->buildReceiptUrl($bookingId, $createdBooking['order_number']);
                 MailService::sendBookingConfirmation($createdBooking, $pdfPath, $receiptUrl);
             } catch (Throwable $e) {
-                error_log('[Tramax Booking] Receipt generation/email failed for booking ' . $bookingId . ': ' . $e->getMessage());
+                error_log('[Wanderer Booking] Receipt generation/email failed for booking ' . $bookingId . ': ' . $e->getMessage());
             }
 
             $this->success($createdBooking, 'Booking placed successfully', 201);
@@ -524,7 +524,7 @@ class BookingController extends BaseController
         }
 
         header('Content-Type: application/pdf');
-        header('Content-Disposition: inline; filename="TramaxTours-Receipt-' . $booking['order_number'] . '.pdf"');
+        header('Content-Disposition: inline; filename="WandererSouthIndia-Receipt-' . $booking['order_number'] . '.pdf"');
         header('Content-Length: ' . filesize($pdfPath));
         readfile($pdfPath);
         exit;
@@ -572,7 +572,7 @@ class BookingController extends BaseController
      */
     private function receiptToken(int $bookingId, string $orderNumber): string
     {
-        $secret = (string) Env::get('JWT_SECRET', 'tramax_default_secret_key_change_in_production_12345');
+        $secret = (string) Env::get('JWT_SECRET', 'wanderer_default_secret_key_change_in_production_12345');
         return hash_hmac('sha256', $bookingId . '|' . $orderNumber, $secret);
     }
 

@@ -339,8 +339,8 @@ export default function DestinationDetailPage() {
               <a href="tel:+919840291110" className="dest-contact-pill">
                 📞 +91 98402 91110
               </a>
-              <a href="mailto:info@tramaxtours.com" className="dest-contact-pill">
-                ✉️ info@tramaxtours.com
+              <a href="mailto:info@wanderersouthindia.com" className="dest-contact-pill">
+                ✉️ info@wanderersouthindia.com
               </a>
             </div>
           </div>

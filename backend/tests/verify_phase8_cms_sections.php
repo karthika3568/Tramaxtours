@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tramax Tours - Phase 8 Comprehensive End-to-End CMS Sections API Verification Test Suite
+ * Wanderer South India - Phase 8 Comprehensive End-to-End CMS Sections API Verification Test Suite
  * 
  * Verifies all Phase 8 requirements:
  * - Database schema, columns (including deleted_at, deleted_by, media_id FK) & homepage.manage permissions
@@ -57,7 +57,7 @@ function recordResult(string $title, bool $success, string $details = ''): void
 }
 
 echo PHP_EOL . "================================================================================" . PHP_EOL;
-echo "  TRAMAX TOURS — PHASE 8 CMS SECTIONS MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
+echo "  Wanderer South India — PHASE 8 CMS SECTIONS MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
 echo "================================================================================" . PHP_EOL . PHP_EOL;
 
 // 2. Start Local Test Server
@@ -188,7 +188,7 @@ recordResult("Permission 'homepage.manage' exists in permissions table", (int) $
 echo PHP_EOL . "2. RBAC Tokens & User Context Setup:" . PHP_EOL;
 
 // 1. Fetch Super Admin User
-$stmt = $pdo->prepare("SELECT * FROM users WHERE email = 'admin@tramaxtours.com' LIMIT 1");
+$stmt = $pdo->prepare("SELECT * FROM users WHERE email = 'admin@wanderersouthindia.com' LIMIT 1");
 $stmt->execute();
 $superAdmin = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -201,28 +201,28 @@ $superAdminToken = JWT::encode([
 recordResult("Super Admin token generated", !empty($superAdminToken));
 
 // 2. Create Test Editor User (has homepage.manage)
-$pdo->prepare("DELETE FROM users WHERE email = 'editor.phase8@tramaxtours.com'")->execute();
-$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase8 Editor', 'editor.phase8@tramaxtours.com', 'hash', 'active', NOW(), NOW())")->execute();
+$pdo->prepare("DELETE FROM users WHERE email = 'editor.phase8@wanderersouthindia.com'")->execute();
+$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase8 Editor', 'editor.phase8@wanderersouthindia.com', 'hash', 'active', NOW(), NOW())")->execute();
 $editorId = (int) $pdo->lastInsertId();
 $pdo->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)")->execute([$editorId, 3]); // Role 3 = Editor
 
 $editorToken = JWT::encode([
     'sub' => $editorId,
-    'email' => 'editor.phase8@tramaxtours.com',
+    'email' => 'editor.phase8@wanderersouthindia.com',
     'role' => 'editor',
     'permissions' => ['homepage.manage', 'media.view', 'media.upload'],
 ], null, 3600);
 recordResult("Editor token generated (has homepage.manage)", !empty($editorToken));
 
 // 3. Create Test Moderator User (lacks homepage.manage)
-$pdo->prepare("DELETE FROM users WHERE email = 'moderator.phase8@tramaxtours.com'")->execute();
-$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase8 Moderator', 'moderator.phase8@tramaxtours.com', 'hash', 'active', NOW(), NOW())")->execute();
+$pdo->prepare("DELETE FROM users WHERE email = 'moderator.phase8@wanderersouthindia.com'")->execute();
+$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase8 Moderator', 'moderator.phase8@wanderersouthindia.com', 'hash', 'active', NOW(), NOW())")->execute();
 $moderatorId = (int) $pdo->lastInsertId();
 $pdo->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)")->execute([$moderatorId, 4]); // Role 4 = Moderator
 
 $moderatorToken = JWT::encode([
     'sub' => $moderatorId,
-    'email' => 'moderator.phase8@tramaxtours.com',
+    'email' => 'moderator.phase8@wanderersouthindia.com',
     'role' => 'moderator',
     'permissions' => ['reviews.view', 'reviews.moderate'],
 ], null, 3600);
@@ -336,7 +336,7 @@ $sectionMediaId = $resMediaUpload['json']['data']['id'] ?? null;
 
 // 1. Create CMS Section 1 with automatic section_key generation
 $section1Payload = [
-    'title' => 'Test Why Choose Tramax Tours',
+    'title' => 'Test Why Choose Wanderer South India',
     'subtitle' => 'Experience authenticity, luxury transit, and local expert hospitality',
     'media_id' => $sectionMediaId,
     'content' => '<p>Over 15 years crafting unforgettable foreign and domestic journeys in South India.</p>',
@@ -349,13 +349,13 @@ $section1Id = (int) ($resCreateSec1['json']['data']['id'] ?? 0);
 $section1Key = $resCreateSec1['json']['data']['section_key'] ?? '';
 recordResult(
     "POST /api/v1/cms-sections creates section with automatic section_key (201 Created)",
-    $resCreateSec1['status'] === 201 && $section1Id > 0 && $section1Key === 'test-why-choose-tramax-tours',
+    $resCreateSec1['status'] === 201 && $section1Id > 0 && $section1Key === 'test-why-choose-wanderer-tours',
     "ID: {$section1Id}, Key: {$section1Key}"
 );
 
 // 2. Create CMS Section 2 with duplicate title -> Auto-resolves collision with suffix -2
 $resCreateSec2 = apiRequest('POST', '/api/v1/cms-sections', [
-    'title' => 'Test Why Choose Tramax Tours',
+    'title' => 'Test Why Choose Wanderer South India',
     'content' => '<p>Second edition section block.</p>',
     'display_order' => 2,
 ], $superAdminToken);
@@ -363,14 +363,14 @@ $section2Id = (int) ($resCreateSec2['json']['data']['id'] ?? 0);
 $section2Key = $resCreateSec2['json']['data']['section_key'] ?? '';
 recordResult(
     "Automatic unique section_key collision resolution (appends -2)",
-    $resCreateSec2['status'] === 201 && $section2Id > 0 && $section2Key === 'test-why-choose-tramax-tours-2',
+    $resCreateSec2['status'] === 201 && $section2Id > 0 && $section2Key === 'test-why-choose-wanderer-tours-2',
     "Key: {$section2Key}"
 );
 
 // 3. Explicit duplicate custom section_key rejected
 $resDupKey = apiRequest('POST', '/api/v1/cms-sections', [
     'title' => 'Another Block',
-    'section_key' => 'test-why-choose-tramax-tours',
+    'section_key' => 'test-why-choose-wanderer-tours',
     'content' => '<p>Duplicate key attempt.</p>'
 ], $superAdminToken);
 recordResult(
@@ -593,7 +593,7 @@ recordResult("GET /api/v1/health/database responds with connected status", $resD
 
 // 3. Auth Profile
 $resAuthMe = apiRequest('GET', '/api/v1/auth/me', [], $superAdminToken);
-recordResult("GET /api/v1/auth/me responds with super_admin profile", $resAuthMe['status'] === 200 && ($resAuthMe['json']['data']['user']['email'] ?? '') === 'admin@tramaxtours.com');
+recordResult("GET /api/v1/auth/me responds with super_admin profile", $resAuthMe['status'] === 200 && ($resAuthMe['json']['data']['user']['email'] ?? '') === 'admin@wanderersouthindia.com');
 
 // 4. Media Listing
 $resMediaList = apiRequest('GET', '/api/v1/media', [], $superAdminToken);

@@ -1,5 +1,5 @@
 /**
- * Tramax Tours - Centralized API Client
+ * Wanderer South India - Centralized API Client
  * Built on native fetch API with standard token injection,
  * JSON serialization/deserialization, and consistent error handling.
  */

@@ -1,40 +1,42 @@
+import { lazy } from 'react';
+
 // Authentication & Core Dashboards
-export { default as AdminLoginPage } from '../pages/auth/LoginPage';
-export { default as AdminDashboardPage } from '../pages/admin/AdminDashboardPage';
+export const AdminLoginPage = lazy(() => import('../pages/auth/LoginPage'));
+export const AdminDashboardPage = lazy(() => import('../pages/admin/AdminDashboardPage'));
 
 // Visual Website Management Suite (Phase 8N)
-export { default as AdminHomePageManager } from '../pages/admin/AdminHomePageManager';
-export { default as AdminNavigationPage } from '../pages/admin/AdminNavigationPage';
-export { default as AdminHeroSlidesPage } from '../pages/admin/AdminHeroSlidesPage';
-export { default as AdminCmsSectionsPage } from '../pages/admin/AdminCmsSectionsPage';
-export { default as AdminHomeBenefitsPage } from '../pages/admin/AdminHomeBenefitsPage';
-export { default as AdminAboutPageManager } from '../pages/admin/AdminAboutPageManager';
-export { default as AdminContactPageManager } from '../pages/admin/AdminContactPageManager';
-export { default as AdminFooterManagerPage } from '../pages/admin/AdminFooterManagerPage';
+export const AdminHomePageManager = lazy(() => import('../pages/admin/AdminHomePageManager'));
+export const AdminNavigationPage = lazy(() => import('../pages/admin/AdminNavigationPage'));
+export const AdminHeroSlidesPage = lazy(() => import('../pages/admin/AdminHeroSlidesPage'));
+export const AdminCmsSectionsPage = lazy(() => import('../pages/admin/AdminCmsSectionsPage'));
+export const AdminHomeBenefitsPage = lazy(() => import('../pages/admin/AdminHomeBenefitsPage'));
+export const AdminAboutPageManager = lazy(() => import('../pages/admin/AdminAboutPageManager'));
+export const AdminContactPageManager = lazy(() => import('../pages/admin/AdminContactPageManager'));
+export const AdminFooterManagerPage = lazy(() => import('../pages/admin/AdminFooterManagerPage'));
 
 // Media & Asset Management
-export { default as AdminMediaPage } from '../pages/admin/AdminMediaPage';
+export const AdminMediaPage = lazy(() => import('../pages/admin/AdminMediaPage'));
 
 // Catalog & Content Operations
-export { default as AdminDestinationsPage } from '../pages/admin/AdminDestinationsPage';
-export { default as AdminDestinationFormPage } from '../pages/admin/AdminDestinationFormPage';
+export const AdminDestinationsPage = lazy(() => import('../pages/admin/AdminDestinationsPage'));
+export const AdminDestinationFormPage = lazy(() => import('../pages/admin/AdminDestinationFormPage'));
 
-export { default as AdminToursPage } from '../pages/admin/AdminToursPage';
-export { default as AdminTourFormPage } from '../pages/admin/AdminTourFormPage';
+export const AdminToursPage = lazy(() => import('../pages/admin/AdminToursPage'));
+export const AdminTourFormPage = lazy(() => import('../pages/admin/AdminTourFormPage'));
 
-export { default as AdminPagesPage } from '../pages/admin/AdminPagesPage';
-export { default as AdminPageFormPage } from '../pages/admin/AdminPageFormPage';
+export const AdminPagesPage = lazy(() => import('../pages/admin/AdminPagesPage'));
+export const AdminPageFormPage = lazy(() => import('../pages/admin/AdminPageFormPage'));
 
-export { default as AdminBookingsPage } from '../pages/admin/AdminBookingsPage';
-export { default as AdminInquiriesPage } from '../pages/admin/AdminInquiriesPage';
-export { default as AdminReviewsPage } from '../pages/admin/AdminReviewsPage';
+export const AdminBookingsPage = lazy(() => import('../pages/admin/AdminBookingsPage'));
+export const AdminInquiriesPage = lazy(() => import('../pages/admin/AdminInquiriesPage'));
+export const AdminReviewsPage = lazy(() => import('../pages/admin/AdminReviewsPage'));
 
 // Access Control & Staff
-export { default as AdminUsersPage } from '../pages/admin/AdminUsersPage';
-export { default as AdminUserFormPage } from '../pages/admin/AdminUserFormPage';
-export { default as AdminRolesPage } from '../pages/admin/AdminRolesPage';
+export const AdminUsersPage = lazy(() => import('../pages/admin/AdminUsersPage'));
+export const AdminUserFormPage = lazy(() => import('../pages/admin/AdminUserFormPage'));
+export const AdminRolesPage = lazy(() => import('../pages/admin/AdminRolesPage'));
 
 // System Settings Management
-export { default as AdminSettingsPage } from '../pages/admin/AdminSettingsPage';
-export { default as AdminSocialLinksPage } from '../pages/admin/AdminSocialLinksPage';
-export { default as AdminFooterLinksPage } from '../pages/admin/AdminFooterManagerPage';
+export const AdminSettingsPage = lazy(() => import('../pages/admin/AdminSettingsPage'));
+export const AdminSocialLinksPage = lazy(() => import('../pages/admin/AdminSocialLinksPage'));
+export const AdminFooterLinksPage = lazy(() => import('../pages/admin/AdminFooterManagerPage'));

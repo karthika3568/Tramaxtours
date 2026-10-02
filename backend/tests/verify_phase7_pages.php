@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tramax Tours - Phase 7 Comprehensive End-to-End Pages & CMS Content API Verification Test Suite
+ * Wanderer South India - Phase 7 Comprehensive End-to-End Pages & CMS Content API Verification Test Suite
  * 
  * Verifies all Phase 7 requirements:
  * - Database schema, columns (including deleted_at, deleted_by, hero_media_id FK) & pages.manage permissions
@@ -58,7 +58,7 @@ function recordResult(string $title, bool $success, string $details = ''): void
 }
 
 echo PHP_EOL . "================================================================================" . PHP_EOL;
-echo "  TRAMAX TOURS — PHASE 7 PAGES & CMS MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
+echo "  Wanderer South India — PHASE 7 PAGES & CMS MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
 echo "================================================================================" . PHP_EOL . PHP_EOL;
 
 // 2. Start Local Test Server
@@ -189,7 +189,7 @@ recordResult("Permission 'pages.manage' exists in permissions table", (int) $stm
 echo PHP_EOL . "2. RBAC Tokens & User Context Setup:" . PHP_EOL;
 
 // 1. Fetch Super Admin User
-$stmt = $pdo->prepare("SELECT * FROM users WHERE email = 'admin@tramaxtours.com' LIMIT 1");
+$stmt = $pdo->prepare("SELECT * FROM users WHERE email = 'admin@wanderersouthindia.com' LIMIT 1");
 $stmt->execute();
 $superAdmin = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -202,28 +202,28 @@ $superAdminToken = JWT::encode([
 recordResult("Super Admin token generated", !empty($superAdminToken));
 
 // 2. Create Test Editor User (has pages.manage)
-$pdo->prepare("DELETE FROM users WHERE email = 'editor.phase7@tramaxtours.com'")->execute();
-$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase7 Editor', 'editor.phase7@tramaxtours.com', 'hash', 'active', NOW(), NOW())")->execute();
+$pdo->prepare("DELETE FROM users WHERE email = 'editor.phase7@wanderersouthindia.com'")->execute();
+$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase7 Editor', 'editor.phase7@wanderersouthindia.com', 'hash', 'active', NOW(), NOW())")->execute();
 $editorId = (int) $pdo->lastInsertId();
 $pdo->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)")->execute([$editorId, 3]); // Role 3 = Editor
 
 $editorToken = JWT::encode([
     'sub' => $editorId,
-    'email' => 'editor.phase7@tramaxtours.com',
+    'email' => 'editor.phase7@wanderersouthindia.com',
     'role' => 'editor',
     'permissions' => ['pages.manage', 'media.view', 'media.upload'],
 ], null, 3600);
 recordResult("Editor token generated (has pages.manage)", !empty($editorToken));
 
 // 3. Create Test Moderator User (lacks pages.manage)
-$pdo->prepare("DELETE FROM users WHERE email = 'moderator.phase7@tramaxtours.com'")->execute();
-$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase7 Moderator', 'moderator.phase7@tramaxtours.com', 'hash', 'active', NOW(), NOW())")->execute();
+$pdo->prepare("DELETE FROM users WHERE email = 'moderator.phase7@wanderersouthindia.com'")->execute();
+$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase7 Moderator', 'moderator.phase7@wanderersouthindia.com', 'hash', 'active', NOW(), NOW())")->execute();
 $moderatorId = (int) $pdo->lastInsertId();
 $pdo->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)")->execute([$moderatorId, 4]); // Role 4 = Moderator
 
 $moderatorToken = JWT::encode([
     'sub' => $moderatorId,
-    'email' => 'moderator.phase7@tramaxtours.com',
+    'email' => 'moderator.phase7@wanderersouthindia.com',
     'role' => 'moderator',
     'permissions' => ['reviews.view', 'reviews.moderate'],
 ], null, 3600);
@@ -330,7 +330,7 @@ $page1Payload = [
     'subtitle' => 'Comprehensive South India travel tips and recommendations',
     'hero_media_id' => $heroMediaId,
     'content' => '<p>Welcome to our comprehensive South India travel guide.</p>',
-    'seo_title' => 'South India Travel Guide | Tramax Tours',
+    'seo_title' => 'South India Travel Guide | Wanderer South India',
     'seo_description' => 'Explore insider tips and local recommendations for South Indian destinations.',
     'status' => 'published',
 ];
@@ -394,7 +394,7 @@ $updatePayload = [
     'title' => 'Updated South India Travel Guide',
     'subtitle' => 'The ultimate 2026 travel companion',
     'content' => '<p>Updated comprehensive guide content with latest travel tips.</p>',
-    'seo_title' => 'Ultimate 2026 South India Travel Guide | Tramax Tours',
+    'seo_title' => 'Ultimate 2026 South India Travel Guide | Wanderer South India',
     'seo_description' => 'Updated guide featuring travel tips, routes, and packing lists.',
 ];
 $resUpdatePage = apiRequest('PUT', "/api/v1/pages/{$page1Id}", $updatePayload, $superAdminToken);
@@ -600,7 +600,7 @@ recordResult("GET /api/v1/health/database responds with connected status", $resD
 
 // 3. Auth Profile
 $resAuthMe = apiRequest('GET', '/api/v1/auth/me', [], $superAdminToken);
-recordResult("GET /api/v1/auth/me responds with super_admin profile", $resAuthMe['status'] === 200 && ($resAuthMe['json']['data']['user']['email'] ?? '') === 'admin@tramaxtours.com');
+recordResult("GET /api/v1/auth/me responds with super_admin profile", $resAuthMe['status'] === 200 && ($resAuthMe['json']['data']['user']['email'] ?? '') === 'admin@wanderersouthindia.com');
 
 // 4. Media Listing
 $resMediaList = apiRequest('GET', '/api/v1/media', [], $superAdminToken);

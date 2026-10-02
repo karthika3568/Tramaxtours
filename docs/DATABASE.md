@@ -1,8 +1,8 @@
-# Tramax Tours — Database Architecture & Schema Documentation
+# Wanderer South India — Database Architecture & Schema Documentation
 
 ## 1. Overview & Architectural Principles
 
-The database architecture for **Tramax Tours** has been designed and implemented in strict accordance with the project specification in [README.md](file:///e:/TramaxTours/README.md).
+The database architecture for **Wanderer South India** has been designed and implemented in strict accordance with the project specification in [README.md](file:///e:/WandererSouthIndia/README.md).
 
 ### Key Architectural Guidelines
 - **Engine**: 100% `InnoDB` ensuring full ACID compliance and transaction support for booking lifecycles.
@@ -20,7 +20,7 @@ The database architecture for **Tramax Tours** has been designed and implemented
 | **Database Server** | MySQL Server 8.0.46 |
 | **Service Name** | `MySQL80` |
 | **Port** | `3306` |
-| **Database Name** | `tramaxtours` |
+| **Database Name** | `wanderersouthindia` |
 | **Default Storage Engine** | `InnoDB` |
 | **Default Charset** | `utf8mb4` |
 | **Default Collation** | `utf8mb4_unicode_ci` |
@@ -168,10 +168,10 @@ The schema is composed of **40 normalized tables** categorized into 10 cohesive 
 
 | File Path | Description |
 |---|---|
-| [database/schema.sql](file:///e:/TramaxTours/database/schema.sql) | Master DDL schema creating all 40 tables with InnoDB, utf8mb4, FKs, and indexes. |
-| [database/seeds.sql](file:///e:/TramaxTours/database/seeds.sql) | Master seed script with roles, permissions, initial Super Admin, site settings, and policies. |
-| [database/verify_schema.sql](file:///e:/TramaxTours/database/verify_schema.sql) | Comprehensive schema and seed verification query suite. |
-| [database/migrations/](file:///e:/TramaxTours/database/migrations/) | Modular incremental migration scripts (`001` through `011`). |
+| [database/schema.sql](file:///e:/WandererSouthIndia/database/schema.sql) | Master DDL schema creating all 40 tables with InnoDB, utf8mb4, FKs, and indexes. |
+| [database/seeds.sql](file:///e:/WandererSouthIndia/database/seeds.sql) | Master seed script with roles, permissions, initial Super Admin, site settings, and policies. |
+| [database/verify_schema.sql](file:///e:/WandererSouthIndia/database/verify_schema.sql) | Comprehensive schema and seed verification query suite. |
+| [database/migrations/](file:///e:/WandererSouthIndia/database/migrations/) | Modular incremental migration scripts (`001` through `011`). |
 
 ---
 
@@ -179,8 +179,8 @@ The schema is composed of **40 normalized tables** categorized into 10 cohesive 
 
 > [!IMPORTANT]
 > **Initial Super Admin Account (Development Setup)**
-> - **Email**: `admin@tramaxtours.com`
-> - **Password**: `Admin@Tramax2026!`
+> - **Email**: `admin@wanderersouthindia.com`
+> - **Password**: `Admin@Wanderer2026!`
 > - **Password Hash**: `$2y$12$3krWVQGArtFozBH1wu5O4uHVBKAUcyBtIJeCvXjjsPq61DG3D2I/i` (Bcrypt cost 12)
 > - **Assigned Role**: `Super Admin` (all 38 granular system permissions granted)
 
@@ -192,11 +192,11 @@ To run or re-verify the database at any time using MySQL CLI:
 
 ```powershell
 # 1. Execute Schema DDL
-& "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root --password="<YOUR_PASSWORD>" tramaxtours -e "source database/schema.sql"
+& "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root --password="<YOUR_PASSWORD>" wanderersouthindia -e "source database/schema.sql"
 
 # 2. Execute Seed Data
-& "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root --password="<YOUR_PASSWORD>" tramaxtours -e "source database/seeds.sql"
+& "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root --password="<YOUR_PASSWORD>" wanderersouthindia -e "source database/seeds.sql"
 
 # 3. Run Verification Suite
-& "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root --password="<YOUR_PASSWORD>" tramaxtours -e "source database/verify_schema.sql"
+& "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root --password="<YOUR_PASSWORD>" wanderersouthindia -e "source database/verify_schema.sql"
 ```

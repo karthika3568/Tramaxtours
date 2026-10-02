@@ -1,5 +1,5 @@
 /**
- * Tramax Tours - Page Metadata Utility
+ * Wanderer South India - Page Metadata Utility
  * Sets document title, meta descriptions, and canonical tags dynamically.
  */
 
@@ -12,8 +12,8 @@
  * @param {string} [options.ogImage]
  */
 export function updatePageMeta({ title, description, canonical, ogImage } = {}) {
-  const defaultTitle = 'Wonderer South India — Luxury & Adventure Travel';
-  document.title = title ? `${title} | Wonderer South India` : defaultTitle;
+  const defaultTitle = 'Wanderer South India — Luxury & Adventure Travel';
+  document.title = title ? (title.includes('Wanderer') ? title : `${title} | Wanderer South India`) : defaultTitle;
 
   if (description) {
     let metaDesc = document.querySelector('meta[name="description"]');

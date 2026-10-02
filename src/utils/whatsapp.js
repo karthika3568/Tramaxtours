@@ -31,6 +31,20 @@ export function formatWhatsAppUrl(rawPhone, message = '') {
 }
 
 /**
+ * Returns a clean digits-only phone number with country code for WhatsApp wa.me links.
+ * @param {string} rawPhone
+ * @returns {string} e.g. "918072566010"
+ */
+export function getCleanWhatsAppNumber(rawPhone) {
+  const fallback = '918072566010';
+  if (!rawPhone || typeof rawPhone !== 'string') return fallback;
+  let digits = rawPhone.replace(/\D/g, '');
+  if (!digits) return fallback;
+  if (digits.length === 10) return `91${digits}`;
+  return digits;
+}
+
+/**
  * Creates a professional admin message template to WhatsApp a customer about their inquiry.
  *
  * @param {Object} inquiry

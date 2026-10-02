@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { updatePageMeta } from '../../utils/metadata';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import HeroSection from '../../components/public/home/HeroSection';
@@ -23,14 +24,29 @@ const DEFAULT_SECTIONS = [
 
 export default function HomePage() {
   const { getSetting } = useSiteSettings();
+  const location = useLocation();
 
   useEffect(() => {
     updatePageMeta({
-      title: 'Wonderer South India – Plan Your Trip to South India',
+      title: 'Wanderer South India – Plan Your Trip to South India',
       description:
-        'Discover South India with Wonderer South India. Handcrafted tour packages, private cabs, spiritual pilgrimage & hill station getaways across Tamil Nadu, Kerala, Karnataka and Goa.',
+        'Discover South India with Wanderer South India. Handcrafted tour packages, private cabs, spiritual pilgrimage & hill station getaways across Tamil Nadu, Kerala, Karnataka and Goa.',
     });
   }, []);
+
+  // Handle smooth scroll when navigating to #testimonials or ?scroll=testimonials
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const shouldScroll = location.hash === '#testimonials' || params.get('scroll') === 'testimonials';
+    if (shouldScroll) {
+      setTimeout(() => {
+        const el = document.getElementById('testimonials');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 150);
+    }
+  }, [location.hash, location.search]);
 
   const sectionOrder = useMemo(() => {
     const rawOrder = getSetting('homepage_section_order');

@@ -406,7 +406,7 @@ export default function AdminCmsSectionsPage() {
                 id="cms-subtitle"
                 type="text"
                 className="form-input"
-                placeholder="e.g. THE TRAMAX DIFFERENCE"
+                placeholder="e.g. THE WANDERER DIFFERENCE"
                 value={formData.subtitle}
                 onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
               />

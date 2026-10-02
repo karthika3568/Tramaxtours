@@ -1,5 +1,5 @@
 /**
- * Tramax Tours - User & Staff Management Service
+ * Wanderer South India - User & Staff Management Service
  * Communicates with backend endpoints:
  * GET    /api/v1/users
  * GET    /api/v1/users/stats

@@ -24,7 +24,7 @@ use App\Middleware\RoleMiddleware;
 use App\Utils\Router;
 
 /**
- * TramaxTours Backend API Routes Definition
+ * WandererSouthIndia Backend API Routes Definition
  * 
  * @var Router $router
  */
@@ -468,6 +468,10 @@ $router->group('/api/v1', function (Router $router) {
         // Public Inquiry Submission
         $router->post('', [InquiryController::class, 'store']);
 
+        // Public Trip Request Confirmation Summary (by reference ID or ID)
+        $router->get('/public-summary/{id}', [InquiryController::class, 'publicSummary']);
+        $router->get('/summary/{id}', [InquiryController::class, 'publicSummary']);
+
         // Admin: List Inquiries (Permission: contact.view or bookings.view)
         $router->get('', [InquiryController::class, 'index'], [new PermissionMiddleware('contact.view')]);
 
@@ -476,6 +480,9 @@ $router->group('/api/v1', function (Router $router) {
 
         // Admin: Single Inquiry Detail
         $router->get('/{id}', [InquiryController::class, 'show'], [new PermissionMiddleware('contact.view')]);
+
+        // Admin: Document Download
+        $router->get('/{id}/documents/{type}', [InquiryController::class, 'downloadDocument'], [new PermissionMiddleware('contact.view')]);
 
         // Admin: Update Status / Notes
         $router->put('/{id}', [InquiryController::class, 'update'], [new PermissionMiddleware('contact.manage')]);
@@ -486,8 +493,50 @@ $router->group('/api/v1', function (Router $router) {
         $router->delete('/{id}', [InquiryController::class, 'destroy'], [new PermissionMiddleware('contact.manage')]);
     });
 
-    // Public Contact Form alias
-    $router->post('/contact-messages', [InquiryController::class, 'store']);
+    // Trip Requests API contract Routes (/api/v1/trip-requests)
+    $router->group('/trip-requests', function (Router $router) {
+        // Public Trip Request Submission
+        $router->post('', [InquiryController::class, 'store']);
+
+        // Public Trip Request Confirmation Summary (by public token or reference ID)
+        $router->get('/public-summary/{id}', [InquiryController::class, 'publicSummary']);
+        $router->get('/summary/{id}', [InquiryController::class, 'publicSummary']);
+
+        // Admin: List Trip Requests (Permission: trip_requests.view)
+        $router->get('', [InquiryController::class, 'index'], [new PermissionMiddleware('trip_requests.view')]);
+
+        // Admin: Trip Request Stats
+        $router->get('/stats', [InquiryController::class, 'stats'], [new PermissionMiddleware('trip_requests.view')]);
+
+        // Admin: Single Trip Request Detail
+        $router->get('/{id}', [InquiryController::class, 'show'], [new PermissionMiddleware('trip_requests.view')]);
+
+        // Admin: Protected Document Download (Passport / Flight Ticket)
+        $router->get('/{id}/documents/{type}', [InquiryController::class, 'downloadDocument'], [new PermissionMiddleware('trip_requests.view')]);
+
+        // Admin: Update Status / Notes via PATCH
+        $router->patch('/{id}', [InquiryController::class, 'update'], [new PermissionMiddleware('trip_requests.manage')]);
+        $router->patch('/{id}/status', [InquiryController::class, 'update'], [new PermissionMiddleware('trip_requests.manage')]);
+        $router->patch('/{id}/notes', [InquiryController::class, 'update'], [new PermissionMiddleware('trip_requests.manage')]);
+
+        // Admin: Delete Trip Request
+        $router->delete('/{id}', [InquiryController::class, 'destroy'], [new PermissionMiddleware('trip_requests.manage')]);
+    });
+
+    // General Contact Inquiries & Contact Messages Routes (/api/v1/contact-messages)
+    $router->group('/contact-messages', function (Router $router) {
+        // Public Submission
+        $router->post('', [InquiryController::class, 'store']);
+
+        // Admin: List General Contact Messages (Permission: contact.view)
+        $router->get('', [InquiryController::class, 'index'], [new PermissionMiddleware('contact.view')]);
+
+        // Admin: Single General Contact Message
+        $router->get('/{id}', [InquiryController::class, 'show'], [new PermissionMiddleware('contact.view')]);
+
+        // Admin: Delete General Contact Message
+        $router->delete('/{id}', [InquiryController::class, 'destroy'], [new PermissionMiddleware('contact.manage')]);
+    });
 });
 
 

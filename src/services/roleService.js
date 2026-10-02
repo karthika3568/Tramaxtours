@@ -1,5 +1,5 @@
 /**
- * Tramax Tours - Role & Permission Management Service
+ * Wanderer South India - Role & Permission Management Service
  * Communicates with backend endpoints:
  * GET /api/v1/roles
  * GET /api/v1/roles/:id

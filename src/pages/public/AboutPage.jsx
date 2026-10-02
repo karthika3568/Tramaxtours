@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import PageHero from '../../components/public/common/PageHero';
+import Breadcrumbs from '../../components/public/common/Breadcrumbs';
 import BenefitsSection from '../../components/public/home/BenefitsSection';
 import pageService from '../../services/pageService';
 import { updatePageMeta } from '../../utils/metadata';
 import { getMediaUrl } from '../../utils/media';
 
 const DEFAULT_ABOUT = {
-  title: 'About Wonderer South India',
+  title: 'About Wanderer South India',
   subtitle: 'Dedicated to fulfilling your personal travel dreams and making each journey simple, memorable, and safe.',
   hero_media_url: '/uploads/media/demo_carousel_kerala.jpg',
   content:
     '<p>We believe that your personal trip requires your own personal travel guide. We know that plans can evolve as you explore, and your chauffeur guide should be easily adjustable to help you modify your itinerary on the go.</p>' +
     '<p>Whether you are an explorer on an epic journey, looking for a refreshing short weekend getaway, or dreaming of a life-changing adventure, our tour offerings are crafted to fulfill your unique personal travel dreams and ensure each moment is unforgettable.</p>' +
-    '<p>The integrity of our team and the quality of services provided by Wonderer South India is guided in principle by professionalism and an uncompromising commitment to engage every traveler in authentic cultural immersion.</p>',
+    '<p>The integrity of our team and the quality of services provided by Wanderer South India is guided in principle by professionalism and an uncompromising commitment to engage every traveler in authentic cultural immersion.</p>',
 };
 
 export default function AboutPage() {
@@ -21,9 +21,9 @@ export default function AboutPage() {
 
   useEffect(() => {
     updatePageMeta({
-      title: 'About Us — Wonderer South India | Travel Made Simple & Memorable',
+      title: 'About Us — Wanderer South India | Travel Made Simple & Memorable',
       description:
-        'Discover Wonderer South India. Specialized in private chauffeur sightseeing, sacred temple expeditions, cultural immersions, hill station safaris, and bespoke South Indian holidays.',
+        'Discover Wanderer South India. Specialized in private chauffeur sightseeing, sacred temple expeditions, cultural immersions, hill station safaris, and bespoke South Indian holidays.',
     });
 
     async function loadAboutPage() {
@@ -38,7 +38,7 @@ export default function AboutPage() {
           });
           if (data.seo_title || data.seo_description) {
             updatePageMeta({
-              title: data.seo_title || 'About Us — Wonderer South India',
+              title: data.seo_title || 'About Us — Wanderer South India',
               description: data.seo_description || undefined,
             });
           }
@@ -53,14 +53,23 @@ export default function AboutPage() {
 
   return (
     <div className="about-page-luxury-root" style={{ background: '#f8fafc', color: '#0B1329' }}>
-      {/* 1. HERO BANNER */}
-      <PageHero
-        title={about.title}
-        subtitle={about.subtitle}
-        badge="Our Heritage & Philosophy"
-        breadcrumbs={[{ label: 'About Us' }]}
-        heroMedia={{ url: about.hero_media_url }}
-      />
+      {/* 1. CLEAN PAGE HEADER (NO GIANT HOME BANNER) */}
+      <section className="catalog-header-section" style={{ padding: '36px 0 24px', background: '#ffffff', borderBottom: '1px solid #e2e8f0' }}>
+        <div className="container">
+          <Breadcrumbs items={[{ label: 'About Us' }]} />
+          <div className="catalog-header-content" style={{ marginTop: '14px' }}>
+            <span className="section-badge" style={{ fontSize: '12px', fontWeight: 800, color: '#01AA90', textTransform: 'uppercase', letterSpacing: '0.08em', background: '#e6f7f4', padding: '4px 12px', borderRadius: '9999px', display: 'inline-block', marginBottom: '8px' }}>
+              Our Heritage &amp; Philosophy
+            </span>
+            <h1 className="catalog-page-title" style={{ fontSize: '32px', fontWeight: 800, color: '#0f172a', margin: '6px 0 8px' }}>
+              {about.title}
+            </h1>
+            <p className="catalog-page-subtitle" style={{ fontSize: '15px', color: '#64748b', maxWidth: '700px', lineHeight: 1.6, margin: 0 }}>
+              {about.subtitle}
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* 2. WHO WE ARE SECTION */}
       <section className="about-who-we-are container" style={{ padding: '70px 20px 40px' }}>

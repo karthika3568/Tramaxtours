@@ -1,5 +1,5 @@
 /**
- * Tramax Tours - Homepage Hero Slides Service
+ * Wanderer South India - Homepage Hero Slides Service
  * Communicates with /api/v1/home-hero-slides
  */
 

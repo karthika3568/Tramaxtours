@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tramax Tours - Phase 4 Comprehensive End-to-End Media API Verification Test Suite
+ * Wanderer South India - Phase 4 Comprehensive End-to-End Media API Verification Test Suite
  * 
  * Verifies all 27+ requirements including:
  * - RBAC & JWT Authorization (media.view, media.upload, media.delete)
@@ -52,7 +52,7 @@ function recordResult(string $title, bool $success, string $details = ''): void
 }
 
 echo PHP_EOL . "================================================================================" . PHP_EOL;
-echo "  TRAMAX TOURS — PHASE 4 MEDIA LIBRARY END-TO-END VERIFICATION SUITE" . PHP_EOL;
+echo "  Wanderer South India — PHASE 4 MEDIA LIBRARY END-TO-END VERIFICATION SUITE" . PHP_EOL;
 echo "================================================================================" . PHP_EOL . PHP_EOL;
 
 // 2. Start Local Test Server
@@ -159,7 +159,7 @@ function apiRequest(string $method, string $path, array $data = [], ?string $tok
 try {
     $pdo = Database::getConnection();
     // Clean up any test users/media from prior runs
-    $pdo->exec("DELETE FROM users WHERE email IN ('editor.test@tramaxtours.com', 'moderator.test@tramaxtours.com')");
+    $pdo->exec("DELETE FROM users WHERE email IN ('editor.test@wanderersouthindia.com', 'moderator.test@wanderersouthindia.com')");
     $stmt = $pdo->query("SELECT id, file_path FROM media WHERE original_name LIKE 'sample_%' OR original_name LIKE 'tour_%'");
     while ($row = $stmt->fetch()) {
         $diskPath = BACKEND_ROOT . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $row['file_path']);
@@ -197,45 +197,45 @@ echo PHP_EOL . "2. Authentication & RBAC Permission Tokens Setup:" . PHP_EOL;
 // Super Admin Token (has all permissions)
 $superAdminToken = JWT::encode([
     'sub' => 1,
-    'email' => 'admin@tramaxtours.com',
+    'email' => 'admin@wanderersouthindia.com',
     'name' => 'Super Admin',
     'role' => 'super_admin',
 ]);
 
 // Create or ensure an Editor user (Role 3: has media.view and media.upload, but NOT media.delete)
-$stmt = $pdo->prepare("SELECT id FROM users WHERE email = 'editor.test@tramaxtours.com' LIMIT 1");
+$stmt = $pdo->prepare("SELECT id FROM users WHERE email = 'editor.test@wanderersouthindia.com' LIMIT 1");
 $stmt->execute();
 $editorId = $stmt->fetchColumn();
 
 if (!$editorId) {
     $stmt = $pdo->prepare("INSERT INTO users (name, email, password_hash, phone, status, email_verified_at, created_at, updated_at)
-        VALUES ('Test Editor', 'editor.test@tramaxtours.com', 'test_hash', '+919999999991', 'active', NOW(), NOW(), NOW())");
+        VALUES ('Test Editor', 'editor.test@wanderersouthindia.com', 'test_hash', '+919999999991', 'active', NOW(), NOW(), NOW())");
     $stmt->execute();
     $editorId = (int) $pdo->lastInsertId();
     $pdo->prepare("INSERT IGNORE INTO user_roles (user_id, role_id) VALUES (?, 3)")->execute([$editorId]);
 }
 $editorToken = JWT::encode([
     'sub' => (int) $editorId,
-    'email' => 'editor.test@tramaxtours.com',
+    'email' => 'editor.test@wanderersouthindia.com',
     'name' => 'Test Editor',
     'role' => 'editor',
 ]);
 
 // Create or ensure a Moderator user (Role 4: has NO media permissions)
-$stmt = $pdo->prepare("SELECT id FROM users WHERE email = 'moderator.test@tramaxtours.com' LIMIT 1");
+$stmt = $pdo->prepare("SELECT id FROM users WHERE email = 'moderator.test@wanderersouthindia.com' LIMIT 1");
 $stmt->execute();
 $moderatorId = $stmt->fetchColumn();
 
 if (!$moderatorId) {
     $stmt = $pdo->prepare("INSERT INTO users (name, email, password_hash, phone, status, email_verified_at, created_at, updated_at)
-        VALUES ('Test Moderator', 'moderator.test@tramaxtours.com', 'test_hash', '+919999999992', 'active', NOW(), NOW(), NOW())");
+        VALUES ('Test Moderator', 'moderator.test@wanderersouthindia.com', 'test_hash', '+919999999992', 'active', NOW(), NOW(), NOW())");
     $stmt->execute();
     $moderatorId = (int) $pdo->lastInsertId();
     $pdo->prepare("INSERT IGNORE INTO user_roles (user_id, role_id) VALUES (?, 4)")->execute([$moderatorId]);
 }
 $moderatorToken = JWT::encode([
     'sub' => (int) $moderatorId,
-    'email' => 'moderator.test@tramaxtours.com',
+    'email' => 'moderator.test@wanderersouthindia.com',
     'name' => 'Test Moderator',
     'role' => 'moderator',
 ]);
@@ -278,7 +278,7 @@ recordResult(
 // -----------------------------------------------------------------------------
 echo PHP_EOL . "4. Valid Media Format Uploads:" . PHP_EOL;
 
-$tmpDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'tramax_test_' . uniqid();
+$tmpDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'wanderer_test_' . uniqid();
 @mkdir($tmpDir, 0755, true);
 
 $uploadedMediaIds = [];

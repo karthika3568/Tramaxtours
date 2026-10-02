@@ -1274,7 +1274,7 @@ export default function TourForm({
               className="form-input"
               value={canonicalUrl}
               onChange={(e) => setCanonicalUrl(e.target.value)}
-              placeholder="https://tramax-tours.com/tours/masai-mara"
+              placeholder="https://wanderersouthindia.com/tours/masai-mara"
             />
           </div>
         </div>

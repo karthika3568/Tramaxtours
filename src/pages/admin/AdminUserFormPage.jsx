@@ -24,7 +24,7 @@ export default function AdminUserFormPage({ mode = 'create' }) {
 
   useEffect(() => {
     updatePageMeta({
-      title: isEdit ? 'Edit Staff Member | Tramax Admin' : 'New Staff Member | Tramax Admin',
+      title: isEdit ? 'Edit Staff Member | Wanderer Admin' : 'New Staff Member | Wanderer Admin',
       description: 'Manage staff credentials, contact details, and role permissions.',
     });
   }, [isEdit]);

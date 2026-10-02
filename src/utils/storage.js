@@ -1,10 +1,10 @@
 /**
- * Tramax Tours - Storage Utilities
+ * Wanderer South India - Storage Utilities
  * Token and local storage helper functions for future auth handling (Phase 3).
  */
 
-const ACCESS_TOKEN_KEY = 'tramax_access_token';
-const REFRESH_TOKEN_KEY = 'tramax_refresh_token';
+const ACCESS_TOKEN_KEY = 'wanderer_access_token';
+const REFRESH_TOKEN_KEY = 'wanderer_refresh_token';
 
 /**
  * Retrieve the current stored access token.

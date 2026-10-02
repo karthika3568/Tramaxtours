@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tramax Tours - Phase 8J Admin Dashboard & Operations Overview Verification Test Suite
+ * Wanderer South India - Phase 8J Admin Dashboard & Operations Overview Verification Test Suite
  */
 
 declare(strict_types=1);
@@ -39,7 +39,7 @@ function recordResult(string $title, bool $success, string $details = ''): void
 }
 
 echo PHP_EOL . "================================================================================" . PHP_EOL;
-echo "  TRAMAX TOURS — PHASE 8J ADMIN DASHBOARD VERIFICATION SUITE" . PHP_EOL;
+echo "  Wanderer South India — PHASE 8J ADMIN DASHBOARD VERIFICATION SUITE" . PHP_EOL;
 echo "================================================================================" . PHP_EOL . PHP_EOL;
 
 // 1. Spawning Test Server
@@ -125,7 +125,7 @@ echo "1. Permissions & RBAC Token Generation:" . PHP_EOL;
 $superAdminToken = JWT::encode([
     'sub' => 1,
     'id' => 1,
-    'email' => 'admin@tramaxtours.com',
+    'email' => 'admin@wanderersouthindia.com',
     'name' => 'Super Admin',
     'role' => 'super_admin',
     'roles' => ['super_admin'],
@@ -134,8 +134,8 @@ $superAdminToken = JWT::encode([
 recordResult("Super Admin token generated", !empty($superAdminToken));
 
 // Create Viewer User with dashboard.view
-$pdo->prepare("DELETE FROM users WHERE email = 'viewer.phase8j@tramaxtours.com'")->execute();
-$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase8J Viewer', 'viewer.phase8j@tramaxtours.com', 'hash', 'active', NOW(), NOW())")->execute();
+$pdo->prepare("DELETE FROM users WHERE email = 'viewer.phase8j@wanderersouthindia.com'")->execute();
+$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase8J Viewer', 'viewer.phase8j@wanderersouthindia.com', 'hash', 'active', NOW(), NOW())")->execute();
 $viewerUserId = (int) $pdo->lastInsertId();
 
 $pdo->prepare("DELETE FROM roles WHERE slug = 'phase8j_viewer_role'")->execute();
@@ -147,21 +147,21 @@ $pdo->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)")->execut
 $viewerToken = JWT::encode([
     'sub' => $viewerUserId,
     'id' => $viewerUserId,
-    'email' => 'viewer.phase8j@tramaxtours.com',
+    'email' => 'viewer.phase8j@wanderersouthindia.com',
     'role' => 'viewer',
     'permissions' => ['dashboard.view'],
 ]);
 recordResult("Viewer token generated (has dashboard.view)", !empty($viewerToken));
 
 // Create Unauthorized User (no permissions)
-$pdo->prepare("DELETE FROM users WHERE email = 'noauth.phase8j@tramaxtours.com'")->execute();
-$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase8J Guest', 'noauth.phase8j@tramaxtours.com', 'hash', 'active', NOW(), NOW())")->execute();
+$pdo->prepare("DELETE FROM users WHERE email = 'noauth.phase8j@wanderersouthindia.com'")->execute();
+$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase8J Guest', 'noauth.phase8j@wanderersouthindia.com', 'hash', 'active', NOW(), NOW())")->execute();
 $guestUserId = (int) $pdo->lastInsertId();
 
 $unauthorizedToken = JWT::encode([
     'sub' => $guestUserId,
     'id' => $guestUserId,
-    'email' => 'noauth.phase8j@tramaxtours.com',
+    'email' => 'noauth.phase8j@wanderersouthindia.com',
     'role' => 'customer',
     'permissions' => [],
 ]);

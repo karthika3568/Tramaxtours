@@ -79,7 +79,7 @@ const FALLBACK_POPULAR_TOURS = [
 ];
 
 export default function FeaturedTours() {
-  const [tours, setTours] = useState(FALLBACK_POPULAR_TOURS);
+  const [tours, setTours] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
@@ -93,11 +93,11 @@ export default function FeaturedTours() {
         setIsLoading(true);
         const res = await tourService.getTours({ limit: 12, status: 'published', sort_by: 'display_order', order: 'ASC' });
         const list = res?.items || res?.data || (Array.isArray(res) ? res : []);
-        if (isMounted && list.length > 0) {
+        if (isMounted) {
           setTours(list);
         }
       } catch {
-        // Retain fallback list
+        if (isMounted) setTours([]);
       } finally {
         if (isMounted) {
           setIsLoading(false);

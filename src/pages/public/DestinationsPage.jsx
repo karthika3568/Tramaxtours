@@ -147,10 +147,10 @@ export default function DestinationsPage() {
           </div>
 
           {/* Search Bar inside Destination Page */}
-          <div className="catalog-search-wrapper">
-            <form onSubmit={handleSearchSubmit} className="catalog-search-form" role="search">
-              <div className="search-input-group">
-                <span className="search-icon" aria-hidden="true">🔍</span>
+          <div className="catalog-search-wrapper" style={{ maxWidth: '680px', margin: '24px auto 0' }}>
+            <form onSubmit={handleSearchSubmit} className="catalog-search-form" role="search" style={{ display: 'flex', gap: '10px', alignItems: 'stretch' }}>
+              <div className="search-input-group" style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <span className="search-icon" aria-hidden="true" style={{ position: 'absolute', left: '16px', fontSize: '16px', color: '#64748b', pointerEvents: 'none' }}>🔍</span>
                 <input
                   type="text"
                   className="search-input"
@@ -158,6 +158,18 @@ export default function DestinationsPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   aria-label="Search destinations"
+                  style={{
+                    width: '100%',
+                    padding: '14px 44px 14px 44px',
+                    fontSize: '15px',
+                    fontWeight: 600,
+                    color: '#0f172a',
+                    background: '#ffffff',
+                    border: '1.5px solid #cbd5e1',
+                    borderRadius: '12px',
+                    outline: 'none',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+                  }}
                 />
                 {searchQuery && (
                   <button
@@ -165,12 +177,40 @@ export default function DestinationsPage() {
                     className="clear-search-btn"
                     onClick={handleClearSearch}
                     aria-label="Clear search input"
+                    style={{
+                      position: 'absolute',
+                      right: '14px',
+                      background: '#f1f5f9',
+                      border: 'none',
+                      borderRadius: '50%',
+                      width: '24px',
+                      height: '24px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#64748b',
+                      fontSize: '12px',
+                      cursor: 'pointer',
+                    }}
                   >
                     ✕
                   </button>
                 )}
               </div>
-              <button type="submit" className="btn btn-primary search-submit-btn">
+              <button
+                type="submit"
+                className="btn btn-primary search-submit-btn"
+                style={{
+                  padding: '14px 28px',
+                  borderRadius: '12px',
+                  fontWeight: 700,
+                  fontSize: '15px',
+                  whiteSpace: 'nowrap',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
                 Search
               </button>
             </form>

@@ -150,7 +150,7 @@ export default function UserForm({
             name="email"
             type="email"
             className={`form-input ${errors.email ? 'is-invalid' : ''}`}
-            placeholder="e.g. eleanor@tramaxtours.com"
+            placeholder="e.g. eleanor@wanderersouthindia.com"
             value={formData.email}
             onChange={handleChange}
             required

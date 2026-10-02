@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tramax Tours - Phase 11 Comprehensive End-to-End Site Settings API Verification Test Suite
+ * Wanderer South India - Phase 11 Comprehensive End-to-End Site Settings API Verification Test Suite
  * 
  * Verifies all Phase 11 requirements:
  * - Database schema, columns (including deleted_at, deleted_by) & settings.view / settings.manage permissions
@@ -56,7 +56,7 @@ function recordResult(string $title, bool $success, string $details = ''): void
 }
 
 echo PHP_EOL . "================================================================================" . PHP_EOL;
-echo "  TRAMAX TOURS — PHASE 11 SITE SETTINGS MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
+echo "  Wanderer South India — PHASE 11 SITE SETTINGS MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
 echo "================================================================================" . PHP_EOL . PHP_EOL;
 
 // 2. Start Local Test Server
@@ -167,7 +167,7 @@ echo "2. RBAC Tokens & User Context Setup:" . PHP_EOL;
 $superAdminToken = JWT::encode([
     'sub' => 1,
     'id' => 1,
-    'email' => 'admin@tramaxtours.com',
+    'email' => 'admin@wanderersouthindia.com',
     'role' => 'super_admin',
     'roles' => ['super_admin'],
     'permissions' => ['*'],
@@ -175,30 +175,30 @@ $superAdminToken = JWT::encode([
 recordResult("Super Admin token generated (full permissions)", !empty($superAdminToken));
 
 // 2. Viewer User (has settings.view ONLY via Role 2 Admin which lacks settings.manage)
-$pdo->prepare("DELETE FROM users WHERE email = 'viewer.phase11@tramaxtours.com'")->execute();
-$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase11 Viewer', 'viewer.phase11@tramaxtours.com', 'hash', 'active', NOW(), NOW())")->execute();
+$pdo->prepare("DELETE FROM users WHERE email = 'viewer.phase11@wanderersouthindia.com'")->execute();
+$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase11 Viewer', 'viewer.phase11@wanderersouthindia.com', 'hash', 'active', NOW(), NOW())")->execute();
 $viewerId = (int) $pdo->lastInsertId();
 $pdo->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)")->execute([$viewerId, 2]); // Role 2 = Admin (has settings.view, no settings.manage)
 
 $viewerToken = JWT::encode([
     'sub' => $viewerId,
     'id' => $viewerId,
-    'email' => 'viewer.phase11@tramaxtours.com',
+    'email' => 'viewer.phase11@wanderersouthindia.com',
     'role' => 'admin',
     'permissions' => ['settings.view'],
 ], null, 3600);
 recordResult("Viewer token generated (has settings.view ONLY)", !empty($viewerToken));
 
 // 3. Unauthorized User (has neither settings.view nor settings.manage)
-$pdo->prepare("DELETE FROM users WHERE email = 'unauth.phase11@tramaxtours.com'")->execute();
-$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase11 Unauth', 'unauth.phase11@tramaxtours.com', 'hash', 'active', NOW(), NOW())")->execute();
+$pdo->prepare("DELETE FROM users WHERE email = 'unauth.phase11@wanderersouthindia.com'")->execute();
+$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase11 Unauth', 'unauth.phase11@wanderersouthindia.com', 'hash', 'active', NOW(), NOW())")->execute();
 $unauthId = (int) $pdo->lastInsertId();
 $pdo->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)")->execute([$unauthId, 4]); // Role 4 = Moderator
 
 $unauthToken = JWT::encode([
     'sub' => $unauthId,
     'id' => $unauthId,
-    'email' => 'unauth.phase11@tramaxtours.com',
+    'email' => 'unauth.phase11@wanderersouthindia.com',
     'role' => 'moderator',
     'permissions' => ['reviews.view'],
 ], null, 3600);
@@ -436,7 +436,7 @@ $resDbHealth = apiRequest('GET', '/api/v1/health/database');
 recordResult("GET /api/v1/health/database responds with connected status", $resDbHealth['status'] === 200 && ($resDbHealth['json']['data']['status'] ?? '') === 'connected');
 
 $resAuthMe = apiRequest('GET', '/api/v1/auth/me', [], $superAdminToken);
-recordResult("GET /api/v1/auth/me responds with super_admin profile", $resAuthMe['status'] === 200 && ($resAuthMe['json']['data']['user']['email'] ?? '') === 'admin@tramaxtours.com');
+recordResult("GET /api/v1/auth/me responds with super_admin profile", $resAuthMe['status'] === 200 && ($resAuthMe['json']['data']['user']['email'] ?? '') === 'admin@wanderersouthindia.com');
 
 $resMedia = apiRequest('GET', '/api/v1/media', [], $superAdminToken);
 recordResult("GET /api/v1/media responds with 200 OK", $resMedia['status'] === 200);

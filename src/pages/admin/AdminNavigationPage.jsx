@@ -26,7 +26,7 @@ export default function AdminNavigationPage() {
     logo_url: '',
     header_cta_label: 'Book Now',
     header_cta_url: '/tours',
-    top_bar_phone: '+91 98400 00000',
+    top_bar_phone: '+91 8072566010',
     top_bar_email: 'contact@wonderersouthindia.in',
     show_top_bar: 'true',
     show_staff_portal_link: 'true',

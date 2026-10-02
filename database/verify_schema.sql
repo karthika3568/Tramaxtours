@@ -1,9 +1,9 @@
 -- ==============================================================================
--- Tramax Tours - Phase 1 Schema & Seed Verification Script
--- Target Database: tramaxtours
+-- Wanderer South India - Phase 1 Schema & Seed Verification Script
+-- Target Database: wanderersouthindia
 -- ==============================================================================
 
-USE `tramaxtours`;
+USE `wanderersouthindia`;
 
 -- 1. Verify Storage Engine & Collation of All Tables
 SELECT 
@@ -12,7 +12,7 @@ SELECT
     TABLE_COLLATION, 
     TABLE_ROWS 
 FROM information_schema.TABLES 
-WHERE TABLE_SCHEMA = 'tramaxtours' 
+WHERE TABLE_SCHEMA = 'wanderersouthindia' 
 ORDER BY TABLE_NAME;
 
 -- 2. Count Total Tables (Expected: 28 application tables + 1 migrations table = 29 tables)
@@ -21,7 +21,7 @@ SELECT
     SUM(CASE WHEN ENGINE = 'InnoDB' THEN 1 ELSE 0 END) AS innodb_tables,
     SUM(CASE WHEN TABLE_COLLATION = 'utf8mb4_unicode_ci' THEN 1 ELSE 0 END) AS utf8mb4_tables
 FROM information_schema.TABLES 
-WHERE TABLE_SCHEMA = 'tramaxtours';
+WHERE TABLE_SCHEMA = 'wanderersouthindia';
 
 -- 3. Verify Foreign Keys Count & Mappings
 SELECT 
@@ -31,14 +31,14 @@ SELECT
     REFERENCED_TABLE_NAME, 
     REFERENCED_COLUMN_NAME
 FROM information_schema.KEY_COLUMN_USAGE 
-WHERE TABLE_SCHEMA = 'tramaxtours' 
+WHERE TABLE_SCHEMA = 'wanderersouthindia' 
   AND REFERENCED_TABLE_NAME IS NOT NULL
 ORDER BY TABLE_NAME, CONSTRAINT_NAME;
 
 SELECT 
     COUNT(*) AS total_foreign_keys
 FROM information_schema.KEY_COLUMN_USAGE 
-WHERE TABLE_SCHEMA = 'tramaxtours' 
+WHERE TABLE_SCHEMA = 'wanderersouthindia' 
   AND REFERENCED_TABLE_NAME IS NOT NULL;
 
 -- 4. Verify Unique Constraints
@@ -48,7 +48,7 @@ SELECT
     NON_UNIQUE, 
     GROUP_CONCAT(COLUMN_NAME ORDER BY SEQ_IN_INDEX) AS indexed_columns
 FROM information_schema.STATISTICS 
-WHERE TABLE_SCHEMA = 'tramaxtours' AND NON_UNIQUE = 0
+WHERE TABLE_SCHEMA = 'wanderersouthindia' AND NON_UNIQUE = 0
 GROUP BY TABLE_NAME, INDEX_NAME, NON_UNIQUE
 ORDER BY TABLE_NAME, INDEX_NAME;
 
@@ -90,5 +90,5 @@ FROM `users` u
 JOIN `user_roles` ur ON u.id = ur.user_id
 JOIN `roles` r ON ur.role_id = r.id
 JOIN `role_permissions` rp ON r.id = rp.role_id
-WHERE u.email = 'admin@tramaxtours.com'
+WHERE u.email = 'admin@wanderersouthindia.com'
 GROUP BY u.id, u.name, u.email, u.status, r.name, r.slug;

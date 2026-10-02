@@ -167,11 +167,11 @@ export const TRANSLATIONS = {
 
 export function LanguageProvider({ children }) {
   const [language, setLanguage] = useState(() => {
-    return localStorage.getItem('tramax_language') || 'en';
+    return localStorage.getItem('wanderer_language') || 'en';
   });
 
   useEffect(() => {
-    localStorage.setItem('tramax_language', language);
+    localStorage.setItem('wanderer_language', language);
     document.documentElement.lang = language;
   }, [language]);
 

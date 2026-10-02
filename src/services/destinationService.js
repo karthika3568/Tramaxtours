@@ -1,5 +1,5 @@
 /**
- * Tramax Tours - Destinations Service
+ * Wanderer South India - Destinations Service
  * Communicates with /api/v1/destinations endpoints
  */
 

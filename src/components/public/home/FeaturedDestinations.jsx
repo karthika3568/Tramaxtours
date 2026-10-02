@@ -42,9 +42,10 @@ const FALLBACK_DESTINATIONS = [
 ];
 
 export default function FeaturedDestinations() {
-  const [destinations, setDestinations] = useState(FALLBACK_DESTINATIONS);
+  const [destinations, setDestinations] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -52,13 +53,16 @@ export default function FeaturedDestinations() {
 
     async function loadDestinations() {
       try {
+        setIsLoading(true);
         const res = await destinationService.getDestinations({ limit: 12, status: 'published' });
         const items = res?.items || res?.data || (Array.isArray(res) ? res : []);
-        if (isMounted && items.length > 0) {
+        if (isMounted) {
           setDestinations(items);
         }
       } catch {
-        // Retain fallback list
+        if (isMounted) setDestinations([]);
+      } finally {
+        if (isMounted) setIsLoading(false);
       }
     }
 

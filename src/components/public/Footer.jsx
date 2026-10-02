@@ -40,18 +40,16 @@ export default function Footer() {
 
       <div className="container travel-planning-content-wrap">
         {/* Main Planning Header */}
-        <div className="travel-planning-header text-center">
+        <div className="travel-planning-header text-center" style={{ marginBottom: '32px' }}>
           {badgeText && <span className="travel-planning-badge">{badgeText}</span>}
           <h2 className="travel-planning-hero-title">{titleText}</h2>
           {leadText && <p className="travel-planning-lead-text">{leadText}</p>}
         </div>
 
-        {/* Secondary Engagement Card */}
-        <div className="travel-planning-engagement-box">
-          {promptText && <p className="travel-planning-inquiry-prompt">{promptText}</p>}
-
-          {/* Prominent WhatsApp CTA Button (Matches Client Reference Screenshot) */}
-          <div className="travel-planning-action-wrap">
+        {/* Action & Direct Brand Contact */}
+        <div className="travel-planning-engagement-box" style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center' }}>
+          {/* Prominent WhatsApp CTA Button */}
+          <div className="travel-planning-action-wrap" style={{ marginBottom: '24px' }}>
             <a
               href={whatsappUrl}
               target="_blank"
@@ -67,7 +65,7 @@ export default function Footer() {
           </div>
 
           {/* Direct Brand & Email Contact Section */}
-          <div className="travel-planning-brand-footer text-center">
+          <div className="travel-planning-brand-footer text-center" style={{ marginBottom: '20px' }}>
             <h3 className="planning-brand-name">{siteName}</h3>
             {contactEmail && (
               <a href={`mailto:${contactEmail}`} className="planning-brand-email">
@@ -83,7 +81,7 @@ export default function Footer() {
 
           {/* Social Links Section */}
           <div className="travel-planning-social-wrap">
-            <span className="planning-social-label">Social</span>
+            <span className="planning-social-label">Follow Us</span>
             <SocialLinks variant="footer" />
           </div>
         </div>

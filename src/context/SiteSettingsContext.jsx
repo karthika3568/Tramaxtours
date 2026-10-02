@@ -48,10 +48,10 @@ const DEFAULT_FOOTER_LINKS = [
 ];
 
 const DEFAULT_SOCIAL_LINKS = [
-  { id: 1, platform: 'facebook', url: 'https://facebook.com/tramaxtours', icon: 'facebook', display_order: 1, status: 'active' },
-  { id: 2, platform: 'instagram', url: 'https://instagram.com/tramaxtours', icon: 'instagram', display_order: 2, status: 'active' },
-  { id: 3, platform: 'youtube', url: 'https://youtube.com/@tramaxtours', icon: 'youtube', display_order: 3, status: 'active' },
-  { id: 4, platform: 'x', url: 'https://x.com/tramaxtours', icon: 'twitter', display_order: 4, status: 'active' },
+  { id: 1, platform: 'facebook', url: 'https://facebook.com/wanderersouthindia', icon: 'facebook', display_order: 1, status: 'active' },
+  { id: 2, platform: 'instagram', url: 'https://instagram.com/wanderersouthindia', icon: 'instagram', display_order: 2, status: 'active' },
+  { id: 3, platform: 'youtube', url: 'https://youtube.com/@wanderersouthindia', icon: 'youtube', display_order: 3, status: 'active' },
+  { id: 4, platform: 'x', url: 'https://x.com/wanderersouthindia', icon: 'twitter', display_order: 4, status: 'active' },
   { id: 5, platform: 'tripadvisor', url: 'https://tripadvisor.com', icon: 'tripadvisor', display_order: 5, status: 'active' },
 ];
 

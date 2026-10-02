@@ -207,7 +207,7 @@ export default function AdminSettingsPage() {
                 className="form-input"
                 value={settings.contact_phone}
                 onChange={handleChange}
-                placeholder="+91 98400 00000"
+                placeholder="+91 8072566010"
                 required
               />
             </div>
@@ -235,7 +235,7 @@ export default function AdminSettingsPage() {
                 className="form-input"
                 value={settings.contact_whatsapp}
                 onChange={handleChange}
-                placeholder="+91 98400 00000"
+                placeholder="+91 8072566010"
               />
             </div>
 

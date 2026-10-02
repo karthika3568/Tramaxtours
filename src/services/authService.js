@@ -1,5 +1,5 @@
 /**
- * Tramax Tours - Authentication Service
+ * Wanderer South India - Authentication Service
  * Communicates with backend endpoints:
  * POST /api/v1/auth/login
  * GET  /api/v1/auth/me

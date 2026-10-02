@@ -170,10 +170,11 @@ export default function TourBookingCard({ tour }) {
 
   const handleShareWhatsAppReceipt = () => {
     const orderRef = bookingSuccess?.order_number || `#${bookingSuccess?.id || 'WSI-CONFIRMED'}`;
+    const cleanNum = getCleanWhatsAppNumber(businessWhatsApp);
     const msg = encodeURIComponent(
       `🧾 *WONDERER SOUTH INDIA — BOOKING RECEIPT*\n\nOrder: ${orderRef}\nGuest: ${customerName}\nTour: ${tour.title}\nTravel Date: ${selectedDate} (${selectedTimeSlot})\nGuests: ${adults} Adults, ${children} Children\nTotal Price: ${currencySymbol}${totalPrice.toLocaleString()}\nPayment: Pay on Arrival\n\nThank you for choosing Wonderer South India!`
     );
-    window.open(`https://wa.me/919840000000?text=${msg}`, '_blank');
+    window.open(`https://wa.me/${cleanNum}?text=${msg}`, '_blank');
   };
 
   return (
@@ -339,18 +340,18 @@ export default function TourBookingCard({ tour }) {
                   ⚡ Only {seatsLeft} seats left for this date
                 </div>
               )}
-              <button
-                type="button"
+              <Link
+                to={`/request-my-trip?tour=${encodeURIComponent(tour.slug || tour.title)}&destination=${encodeURIComponent(destinationName)}&date=${encodeURIComponent(selectedDate)}&adults=${adults}&children=${children}`}
                 className="btn btn-primary btn-block widget-book-btn"
-                onClick={handleOpenBookingModal}
+                style={{ textAlign: 'center', textDecoration: 'none' }}
               >
                 ⚡ Instant Reservation &rarr;
-              </button>
+              </Link>
             </>
           )}
 
           <a
-            href={formatWhatsAppUrl(businessWhatsApp, `Hello Wonderer South India! I am interested in booking "${tour.title}" for ${adults} Adults, ${children} Children on ${selectedDate} (${selectedTimeSlot}). Total: ${currencySymbol}${totalPrice.toLocaleString()}. Please provide availability and confirmation.`)}
+            href={formatWhatsAppUrl(businessWhatsApp, `Hello Wanderer South India! I am interested in booking "${tour.title}" for ${adults} Adults, ${children} Children on ${selectedDate} (${selectedTimeSlot}). Total: ${currencySymbol}${totalPrice.toLocaleString()}. Please provide availability and confirmation.`)}
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-whatsapp btn-block"
@@ -359,9 +360,9 @@ export default function TourBookingCard({ tour }) {
           </a>
 
           <Link
-            to={`/plan-your-trip?tour=${encodeURIComponent(tour.title)}&destination=${encodeURIComponent(destinationName)}`}
+            to={`/request-my-trip?tour=${encodeURIComponent(tour.slug || tour.title)}&destination=${encodeURIComponent(destinationName)}&date=${encodeURIComponent(selectedDate)}`}
             className="btn btn-outline btn-sm btn-block widget-inquire-btn"
-            style={{ fontWeight: '700', padding: '10px' }}
+            style={{ fontWeight: '700', padding: '10px', textAlign: 'center' }}
           >
             📝 Plan &amp; Customize Itinerary (10-Step Wizard)
           </Link>
@@ -526,7 +527,7 @@ export default function TourBookingCard({ tour }) {
                       id="modal-customer-phone"
                       type="tel"
                       className="form-input"
-                      placeholder="e.g. +91 98400 00000"
+                      placeholder="e.g. +91 8072566010"
                       value={customerPhone}
                       onChange={(e) => setCustomerPhone(e.target.value)}
                       required

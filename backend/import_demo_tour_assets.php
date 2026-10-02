@@ -6,7 +6,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 use App\Utils\Database;
 
 echo "====================================================\n";
-echo "  TRAMAX TOURS — IMPORT DEMO TOUR ASSETS & CONTENT  \n";
+echo "  Wanderer South India — IMPORT DEMO TOUR ASSETS & CONTENT  \n";
 echo "====================================================\n";
 
 $pdo = Database::getConnection();
@@ -310,7 +310,7 @@ $cmsSectionsData = [
     ],
     [
         'section_key' => 'home_why_travel_with_us',
-        'title' => 'Why Travel With Tramax Tours',
+        'title' => 'Why Travel With Wanderer South India',
         'subtitle' => 'We believe that planning the details of your trip should be as enjoyable and effortless as the journey itself.',
         'content' => 'With 24/7 dedicated support, certified local tour guides, tailored private itineraries, and guaranteed transparent pricing, we deliver world-class travel across South India.',
         'media_key' => 'AboutUs.jpg',

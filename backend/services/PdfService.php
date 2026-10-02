@@ -94,7 +94,7 @@ class PdfService
 </head>
 <body>
     <div class="header">
-        <div class="brand">TRAMAX TOURS</div>
+        <div class="brand">Wanderer South India</div>
         <div class="subtitle">Booking Confirmation &amp; Receipt</div>
     </div>
 
@@ -138,8 +138,8 @@ class PdfService
     </table>
 
     <div class="footer">
-        Thank you for booking with Tramax Tours. This is a computer-generated receipt.<br>
-        For assistance, contact info@tramaxtours.com
+        Thank you for booking with Wanderer South India. This is a computer-generated receipt.<br>
+        For assistance, contact info@wanderersouthindia.com
     </div>
 </body>
 </html>

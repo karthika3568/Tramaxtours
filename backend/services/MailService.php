@@ -49,21 +49,21 @@ class MailService
             }
 
             $mailer->setFrom(
-                (string) Env::get('MAIL_FROM_ADDRESS', 'bookings@tramaxtours.com'),
-                (string) Env::get('MAIL_FROM_NAME', 'Tramax Tours')
+                (string) Env::get('MAIL_FROM_ADDRESS', 'bookings@wanderersouthindia.com'),
+                (string) Env::get('MAIL_FROM_NAME', 'Wanderer South India')
             );
             $mailer->addAddress($toEmail, $booking['customer']['name'] ?? '');
-            $mailer->addAttachment($pdfPath, 'TramaxTours-Receipt-' . $booking['order_number'] . '.pdf');
+            $mailer->addAttachment($pdfPath, 'WandererSouthIndia-Receipt-' . $booking['order_number'] . '.pdf');
 
             $mailer->isHTML(true);
-            $mailer->Subject = 'Your Tramax Tours Booking Confirmation — ' . $booking['order_number'];
+            $mailer->Subject = 'Your Wanderer South India Booking Confirmation — ' . $booking['order_number'];
             $mailer->Body = self::renderEmailHtml($booking, $receiptUrl);
             $mailer->AltBody = self::renderEmailPlainText($booking, $receiptUrl);
 
             $mailer->send();
             return true;
         } catch (PHPMailerException|Throwable $e) {
-            error_log('[Tramax Mail Error] Failed to send booking confirmation for ' . $booking['order_number'] . ': ' . $e->getMessage());
+            error_log('[Wanderer Mail Error] Failed to send booking confirmation for ' . $booking['order_number'] . ': ' . $e->getMessage());
             return false;
         }
     }
@@ -79,12 +79,12 @@ class MailService
         return <<<HTML
 <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; color: #0B1329;">
     <div style="background: linear-gradient(135deg, #01AA90, #01806C); padding: 24px; border-radius: 12px 12px 0 0; text-align: center;">
-        <h1 style="color: #fff; margin: 0; font-size: 22px;">Tramax Tours</h1>
+        <h1 style="color: #fff; margin: 0; font-size: 22px;">Wanderer South India</h1>
         <p style="color: #e6f7f4; margin: 4px 0 0;">Booking Confirmed!</p>
     </div>
     <div style="border: 1px solid #e2e8f0; border-top: none; padding: 24px; border-radius: 0 0 12px 12px;">
         <p>Hi {$e($customer['name'] ?? 'Traveler')},</p>
-        <p>Thank you for booking with Tramax Tours. Here are your reservation details:</p>
+        <p>Thank you for booking with Wanderer South India. Here are your reservation details:</p>
         <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
             <tr><td style="padding: 6px 0; color: #64748b;">Order Number</td><td style="padding: 6px 0; font-weight: bold; text-align: right;">{$e($booking['order_number'])}</td></tr>
             <tr><td style="padding: 6px 0; color: #64748b;">Tour</td><td style="padding: 6px 0; font-weight: bold; text-align: right;">{$e($tour['title'] ?? '')}</td></tr>
@@ -97,7 +97,7 @@ class MailService
         <p style="text-align: center; margin: 20px 0;">
             <a href="{$e($receiptUrl)}" style="background: #01AA90; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">Download Receipt (PDF)</a>
         </p>
-        <p style="color: #64748b; font-size: 12px;">Payment: {$e(str_replace('_', ' ', ucwords((string) $booking['payment_method'], '_')))}. If you have any questions, reply to this email or contact info@tramaxtours.com.</p>
+        <p style="color: #64748b; font-size: 12px;">Payment: {$e(str_replace('_', ' ', ucwords((string) $booking['payment_method'], '_')))}. If you have any questions, reply to this email or contact info@wanderersouthindia.com.</p>
     </div>
 </div>
 HTML;
@@ -111,7 +111,7 @@ HTML;
         $total = $currency . ' ' . number_format((float) $booking['total_price'], 2);
 
         return "Hi " . ($customer['name'] ?? 'Traveler') . ",\n\n"
-            . "Thank you for booking with Tramax Tours.\n\n"
+            . "Thank you for booking with Wanderer South India.\n\n"
             . "Order Number: {$booking['order_number']}\n"
             . "Tour: " . ($tour['title'] ?? '') . "\n"
             . "Destination: " . ($tour['destination_name'] ?? '') . "\n"
@@ -119,6 +119,6 @@ HTML;
             . "Guests: {$booking['tickets_count']}\n"
             . "Total: {$total}\n\n"
             . "Download your receipt: {$receiptUrl}\n\n"
-            . "Thank you for choosing Tramax Tours.";
+            . "Thank you for choosing Wanderer South India.";
     }
 }

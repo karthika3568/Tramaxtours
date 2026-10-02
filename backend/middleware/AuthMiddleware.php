@@ -36,16 +36,7 @@ class AuthMiddleware
             }
         }
 
-        // If no valid token found in header, fallback to active super_admin
-        if (!$user) {
-            $admin = User::findByEmail('admin@tramaxtours.in');
-            if ($admin && $admin['status'] === 'active') {
-                $user = $admin;
-            } else {
-                $user = User::findById(1);
-            }
-        }
-
+        // If no valid user found from bearer token, reject with 401
         if (!$user) {
             Response::error(
                 'Authentication required. Please provide a valid Bearer token.',
@@ -53,10 +44,12 @@ class AuthMiddleware
                 null,
                 'UNAUTHORIZED'
             );
+            return;
         }
 
         if ($user['status'] !== 'active') {
             Response::error('Your account is inactive or has been suspended. Please contact support.', 403, null, 'ACCOUNT_INACTIVE');
+            return;
         }
 
         // Load active roles & permissions from database

@@ -1,6 +1,6 @@
 -- ==============================================================================
--- Tramax Tours - Production MySQL Database Schema
--- Target Database: tramaxtours
+-- Wanderer South India - Production MySQL Database Schema
+-- Target Database: wanderersouthindia
 -- MySQL Engine: InnoDB
 -- Default Charset: utf8mb4
 -- Default Collation: utf8mb4_unicode_ci

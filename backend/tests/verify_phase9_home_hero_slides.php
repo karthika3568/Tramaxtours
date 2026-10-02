@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tramax Tours - Phase 9 Comprehensive End-to-End Homepage Hero Slides API Verification Test Suite
+ * Wanderer South India - Phase 9 Comprehensive End-to-End Homepage Hero Slides API Verification Test Suite
  * 
  * Verifies all Phase 9 requirements:
  * - Database schema, columns (including deleted_at, deleted_by, desktop_media_id, mobile_media_id FKs) & homepage.manage permissions
@@ -56,7 +56,7 @@ function recordResult(string $title, bool $success, string $details = ''): void
 }
 
 echo PHP_EOL . "================================================================================" . PHP_EOL;
-echo "  TRAMAX TOURS — PHASE 9 HOMEPAGE HERO SLIDES MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
+echo "  Wanderer South India — PHASE 9 HOMEPAGE HERO SLIDES MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
 echo "================================================================================" . PHP_EOL . PHP_EOL;
 
 // 2. Start Local Test Server
@@ -186,7 +186,7 @@ echo "2. RBAC Tokens & User Context Setup:" . PHP_EOL;
 $superAdminToken = JWT::encode([
     'sub' => 1,
     'id' => 1,
-    'email' => 'admin@tramaxtours.com',
+    'email' => 'admin@wanderersouthindia.com',
     'role' => 'super_admin',
     'roles' => ['super_admin'],
     'permissions' => ['*'],
@@ -194,30 +194,30 @@ $superAdminToken = JWT::encode([
 recordResult("Super Admin token generated", !empty($superAdminToken));
 
 // Editor (has homepage.manage)
-$pdo->prepare("DELETE FROM users WHERE email = 'editor.phase9@tramaxtours.com'")->execute();
-$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase9 Editor', 'editor.phase9@tramaxtours.com', 'hash', 'active', NOW(), NOW())")->execute();
+$pdo->prepare("DELETE FROM users WHERE email = 'editor.phase9@wanderersouthindia.com'")->execute();
+$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase9 Editor', 'editor.phase9@wanderersouthindia.com', 'hash', 'active', NOW(), NOW())")->execute();
 $editorId = (int) $pdo->lastInsertId();
 $pdo->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)")->execute([$editorId, 3]); // Role 3 = Editor
 
 $editorToken = JWT::encode([
     'sub' => $editorId,
     'id' => $editorId,
-    'email' => 'editor.phase9@tramaxtours.com',
+    'email' => 'editor.phase9@wanderersouthindia.com',
     'role' => 'editor',
     'permissions' => ['homepage.manage', 'media.view', 'media.upload'],
 ], null, 3600);
 recordResult("Editor token generated (has homepage.manage)", !empty($editorToken));
 
 // Moderator (lacks homepage.manage)
-$pdo->prepare("DELETE FROM users WHERE email = 'moderator.phase9@tramaxtours.com'")->execute();
-$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase9 Moderator', 'moderator.phase9@tramaxtours.com', 'hash', 'active', NOW(), NOW())")->execute();
+$pdo->prepare("DELETE FROM users WHERE email = 'moderator.phase9@wanderersouthindia.com'")->execute();
+$pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES ('Phase9 Moderator', 'moderator.phase9@wanderersouthindia.com', 'hash', 'active', NOW(), NOW())")->execute();
 $moderatorId = (int) $pdo->lastInsertId();
 $pdo->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)")->execute([$moderatorId, 4]); // Role 4 = Moderator
 
 $moderatorToken = JWT::encode([
     'sub' => $moderatorId,
     'id' => $moderatorId,
-    'email' => 'moderator.phase9@tramaxtours.com',
+    'email' => 'moderator.phase9@wanderersouthindia.com',
     'role' => 'moderator',
     'permissions' => ['reviews.view', 'reviews.moderate'],
 ], null, 3600);
@@ -343,7 +343,7 @@ $mobileMediaId = (int) ($resMobUpload['json']['data']['id'] ?? 0);
 // Create slide 1 with full details and media attachments
 $createPayload1 = [
     'title' => 'Experience Extraordinary South India',
-    'subtitle' => 'Customized Heritage & Temple Journeys by Tramax Tours',
+    'subtitle' => 'Customized Heritage & Temple Journeys by Wanderer South India',
     'desktop_media_id' => $desktopMediaId,
     'mobile_media_id' => $mobileMediaId,
     'cta_label' => 'Explore Tours',
@@ -535,7 +535,7 @@ $resDbHealth = apiRequest('GET', '/api/v1/health/database');
 recordResult("GET /api/v1/health/database responds with connected status", $resDbHealth['status'] === 200 && ($resDbHealth['json']['data']['status'] ?? '') === 'connected');
 
 $resAuthMe = apiRequest('GET', '/api/v1/auth/me', [], $superAdminToken);
-recordResult("GET /api/v1/auth/me responds with super_admin profile", $resAuthMe['status'] === 200 && ($resAuthMe['json']['data']['user']['email'] ?? '') === 'admin@tramaxtours.com');
+recordResult("GET /api/v1/auth/me responds with super_admin profile", $resAuthMe['status'] === 200 && ($resAuthMe['json']['data']['user']['email'] ?? '') === 'admin@wanderersouthindia.com');
 
 $resMedia = apiRequest('GET', '/api/v1/media', [], $superAdminToken);
 recordResult("GET /api/v1/media responds with 200 OK", $resMedia['status'] === 200);
