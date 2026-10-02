@@ -21,7 +21,7 @@ export default function AdminReviewsPage() {
   // Page Title & Metadata
   useEffect(() => {
     updatePageMeta({
-      title: 'Admin - Customer Reviews & Testimonials | Tramax Tours',
+      title: 'Admin - Customer Reviews & Testimonials | Wanderer South India',
       description: 'Moderate customer testimonials, verify ratings, approve traveler feedback, and manage featured reviews.',
     });
   }, []);

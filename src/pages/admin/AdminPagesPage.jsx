@@ -20,7 +20,7 @@ export default function AdminPagesPage() {
   // Page Title & Meta
   useEffect(() => {
     updatePageMeta({
-      title: 'Admin - Pages & Policy CMS Management | Tramax Tours',
+      title: 'Admin - Pages & Policy CMS Management | Wanderer South India',
       description: 'Manage legal policies, corporate information pages, SEO metadata, and publishing states.',
     });
   }, []);

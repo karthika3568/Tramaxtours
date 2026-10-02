@@ -14,7 +14,7 @@ export default function MobileMenu({ isOpen, onClose }) {
   const { isAuthenticated, user, logout } = useAuth();
   const drawerRef = useRef(null);
 
-  const siteName = getSetting('site_name', 'Tramax Tours');
+  const siteName = getSetting('site_name', 'Wanderer South India');
   const siteTagline = getSetting('site_tagline', 'Curated Luxury & Adventure Travel');
   const isAdmin = isAdminRole(user?.role);
 

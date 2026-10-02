@@ -87,7 +87,7 @@ class Database
             $maskedMessage = "Database connection failed for database '{$dbname}' on {$host}:{$port}.";
             
             // Log full technical error internally if needed (without raw password)
-            error_log("[Tramax Database Error] Code " . $e->getCode() . ": " . $e->getMessage());
+            error_log("[Wanderer Database Error] Code " . $e->getCode() . ": " . $e->getMessage());
 
             throw new RuntimeException($maskedMessage, (int) $e->getCode(), $e);
         }

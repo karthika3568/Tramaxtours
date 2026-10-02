@@ -1,5 +1,5 @@
 /**
- * Tramax Tours - Site Settings Service
+ * Wanderer South India - Site Settings Service
  * Communicates with backend endpoints:
  * GET /api/v1/site-settings
  * GET /api/v1/site-settings/group/{group}

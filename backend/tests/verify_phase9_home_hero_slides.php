@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tramax Tours - Phase 9 Comprehensive End-to-End Homepage Hero Slides API Verification Test Suite
+ * Wanderer South India - Phase 9 Comprehensive End-to-End Homepage Hero Slides API Verification Test Suite
  * 
  * Verifies all Phase 9 requirements:
  * - Database schema, columns (including deleted_at, deleted_by, desktop_media_id, mobile_media_id FKs) & homepage.manage permissions
@@ -56,7 +56,7 @@ function recordResult(string $title, bool $success, string $details = ''): void
 }
 
 echo PHP_EOL . "================================================================================" . PHP_EOL;
-echo "  TRAMAX TOURS — PHASE 9 HOMEPAGE HERO SLIDES MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
+echo "  WANDERER SOUTH INDIA — PHASE 9 HOMEPAGE HERO SLIDES MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
 echo "================================================================================" . PHP_EOL . PHP_EOL;
 
 // 2. Start Local Test Server
@@ -343,7 +343,7 @@ $mobileMediaId = (int) ($resMobUpload['json']['data']['id'] ?? 0);
 // Create slide 1 with full details and media attachments
 $createPayload1 = [
     'title' => 'Experience Extraordinary South India',
-    'subtitle' => 'Customized Heritage & Temple Journeys by Tramax Tours',
+    'subtitle' => 'Customized Heritage & Temple Journeys by Wanderer South India',
     'desktop_media_id' => $desktopMediaId,
     'mobile_media_id' => $mobileMediaId,
     'cta_label' => 'Explore Tours',

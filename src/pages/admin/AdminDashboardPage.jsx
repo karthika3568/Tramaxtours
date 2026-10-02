@@ -20,8 +20,8 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     updatePageMeta({
-      title: 'Dashboard — Luxury Travel Operations | Tramax Tours',
-      description: 'Central operational overview, real-time analytics, and catalog management for Tramax Tours.',
+      title: 'Dashboard — Luxury Travel Operations | Wanderer South India',
+      description: 'Central operational overview, real-time analytics, and catalog management for Wanderer South India.',
     });
   }, []);
 

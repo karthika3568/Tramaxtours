@@ -20,7 +20,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     updatePageMeta({
-      title: 'Sign In — Tramax Tours',
+      title: 'Sign In — Wanderer South India',
       description: 'Sign in to access your tour bookings, traveler profile, or administrative portal.',
     });
   }, []);
@@ -107,8 +107,8 @@ export default function LoginPage() {
       <div className="admin-login-form-pane centered-form-pane">
         <div className="admin-login-form-card">
           <div className="form-card-header text-center">
-            <Link to="/" className="login-brand-header-link" aria-label="Tramax Tours Home">
-              <img src="/logo.png" alt="Tramax Tours" className="login-brand-logo-img" />
+            <Link to="/" className="login-brand-header-link" aria-label="Wanderer South India Home">
+              <img src="/logo.png" alt="Wanderer South India" className="login-brand-logo-img" />
             </Link>
             <h1 className="form-portal-title">Sign In</h1>
             <p className="form-portal-subtitle">

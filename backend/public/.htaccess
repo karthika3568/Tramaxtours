@@ -1,5 +1,5 @@
 # ==============================================================================
-# Tramax Tours API - Apache URL Rewriting Rules
+# Wanderer South India API - Apache URL Rewriting Rules
 # ==============================================================================
 
 <IfModule mod_rewrite.c>

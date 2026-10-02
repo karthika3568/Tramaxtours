@@ -1,5 +1,5 @@
 /**
- * Tramax Tours - Homepage Benefits Service
+ * Wanderer South India - Homepage Benefits Service
  * Communicates with /api/v1/home-benefits
  */
 

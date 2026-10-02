@@ -26,7 +26,7 @@ export default function DestinationsPage() {
     updatePageMeta({
       title: 'Destinations — Explore Sri Lanka & Beyond',
       description:
-        'Discover breathtaking travel destinations with Tramax Tours. From tropical golden beaches to misty hill country and wildlife reserves.',
+        'Discover breathtaking travel destinations with Wanderer South India. From tropical golden beaches to misty hill country and wildlife reserves.',
     });
   }, []);
 

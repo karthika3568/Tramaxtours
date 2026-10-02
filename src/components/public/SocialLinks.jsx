@@ -91,8 +91,8 @@ export default function SocialLinks({ className = '', variant = 'circle' }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`social-link-btn social-${item.platform}`}
-                aria-label={`Follow Tramax Tours on ${capitalized} (opens in new tab)`}
-                title={`Tramax Tours on ${capitalized}`}
+                aria-label={`Follow Wanderer South India on ${capitalized} (opens in new tab)`}
+                title={`Wanderer South India on ${capitalized}`}
               >
                 <PlatformIcon platform={item.platform} />
                 <span className="sr-only">{capitalized}</span>

@@ -59,7 +59,7 @@ class AuditService
                 ':user_agent' => $agent,
             ]);
         } catch (Throwable $e) {
-            error_log('[Tramax Audit Log Error] ' . $e->getMessage());
+            error_log('[Wanderer Audit Log Error] ' . $e->getMessage());
             return false;
         }
     }

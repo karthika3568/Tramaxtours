@@ -18,16 +18,16 @@ class HealthController extends BaseController
     {
         $this->success([
             'status' => 'healthy',
-            'service' => 'TramaxTours Backend API',
+            'service' => 'Wanderer South India Backend API',
             'version' => '1.0.0',
             'environment' => Env::get('APP_ENV', 'development'),
             'php_version' => PHP_VERSION,
             'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
-        ], 'TramaxTours API is running');
+        ], 'Wanderer South India API is running');
     }
 
     /**
-     * Database health check endpoint verifying connection to 'tramaxtours' MySQL database.
+     * Database health check endpoint verifying connection to the configured MySQL database.
      * GET /api/v1/health/database
      *
      * @return void

@@ -1,5 +1,5 @@
 /**
- * Tramax Tours - Social Links Service
+ * Wanderer South India - Social Links Service
  * Communicates with backend endpoints:
  * GET /api/v1/social-links
  * GET /api/v1/social-links/{id}

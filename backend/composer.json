@@ -1,6 +1,6 @@
 {
-    "name": "tramaxtours/backend-api",
-    "description": "Tramax Tours PHP REST API Backend",
+    "name": "wanderersouthindia/backend-api",
+    "description": "Wanderer South India PHP REST API Backend",
     "type": "project",
     "license": "proprietary",
     "require": {

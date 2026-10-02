@@ -5,11 +5,11 @@ import { updatePageMeta } from '../../utils/metadata';
 import Loading from '../../components/ui/Loading';
 
 const PLATFORM_PRESETS = [
-  { platform: 'whatsapp', name: 'WhatsApp', icon: '💬', defaultUrl: 'https://wa.me/919840000000' },
-  { platform: 'facebook', name: 'Facebook', icon: '📘', defaultUrl: 'https://facebook.com/tramaxtours' },
-  { platform: 'instagram', name: 'Instagram', icon: '📸', defaultUrl: 'https://instagram.com/tramaxtours' },
-  { platform: 'youtube', name: 'YouTube', icon: '📺', defaultUrl: 'https://youtube.com/@tramaxtours' },
-  { platform: 'twitter', name: 'X (Twitter)', icon: '🐦', defaultUrl: 'https://twitter.com/tramaxtours' },
+  { platform: 'whatsapp', name: 'WhatsApp', icon: '💬', defaultUrl: 'https://wa.me/918072566010' },
+  { platform: 'facebook', name: 'Facebook', icon: '📘', defaultUrl: 'https://facebook.com/wanderersouthindia' },
+  { platform: 'instagram', name: 'Instagram', icon: '📸', defaultUrl: 'https://instagram.com/wanderersouthindia' },
+  { platform: 'youtube', name: 'YouTube', icon: '📺', defaultUrl: 'https://youtube.com/@wanderersouthindia' },
+  { platform: 'twitter', name: 'X (Twitter)', icon: '🐦', defaultUrl: 'https://twitter.com/wanderersouthindia' },
   { platform: 'tripadvisor', name: 'TripAdvisor', icon: '🦉', defaultUrl: 'https://tripadvisor.com' },
 ];
 
@@ -271,7 +271,7 @@ export default function AdminSocialLinksPage() {
                     className="form-input"
                     value={formData.url}
                     onChange={(e) => setFormData((prev) => ({ ...prev, url: e.target.value }))}
-                    placeholder="https://instagram.com/tramaxtours"
+                    placeholder="https://instagram.com/wanderersouthindia"
                     required
                   />
                 </div>

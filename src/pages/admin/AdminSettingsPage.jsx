@@ -14,18 +14,18 @@ export default function AdminSettingsPage() {
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
 
   const [settings, setSettings] = useState({
-    site_name: 'Tramax Tours',
+    site_name: 'Wanderer South India',
     site_tagline: 'Dream. Travel. Discover.',
-    meta_description: 'Discover South India with Tramax Tours. Handcrafted tour packages, private cabs, spiritual pilgrimage & hill station getaways.',
-    contact_phone: '+91 98400 00000',
-    contact_whatsapp: '+91 98400 00000',
-    contact_email: 'contact@tramaxtours.in',
+    meta_description: 'Discover South India with Wanderer South India. Handcrafted tour packages, private cabs, spiritual pilgrimage & hill station getaways.',
+    contact_phone: '+91 80725 66010',
+    contact_whatsapp: '+91 80725 66010',
+    contact_email: 'contact@wanderersouthindia.com',
     contact_address: 'Chennai, Tamil Nadu, India',
     contact_business_hours: 'Mon - Sun: 08:00 AM - 09:00 PM IST',
     header_cta_label: 'Book Now',
     header_cta_url: '/tours',
     default_currency: 'INR',
-    footer_about: 'Tramax Tours provides premium guided excursions, private temple pilgrimages, and cultural day trips across South India.',
+    footer_about: 'Wanderer South India provides premium guided excursions, private temple pilgrimages, and cultural day trips across South India.',
     footer_copyright: '',
     site_logo_url: '',
   });
@@ -202,7 +202,7 @@ export default function AdminSettingsPage() {
                 className="form-input"
                 value={settings.contact_phone}
                 onChange={handleChange}
-                placeholder="+91 98400 00000"
+                placeholder="+91 80725 66010"
                 required
               />
             </div>
@@ -215,7 +215,7 @@ export default function AdminSettingsPage() {
                 className="form-input"
                 value={settings.contact_email}
                 onChange={handleChange}
-                placeholder="contact@tramaxtours.in"
+                placeholder="contact@wanderersouthindia.com"
                 required
               />
             </div>
@@ -230,7 +230,7 @@ export default function AdminSettingsPage() {
                 className="form-input"
                 value={settings.contact_whatsapp}
                 onChange={handleChange}
-                placeholder="+91 98400 00000"
+                placeholder="+91 80725 66010"
               />
             </div>
 
@@ -284,7 +284,7 @@ export default function AdminSettingsPage() {
               className="form-input"
               value={settings.footer_copyright}
               onChange={handleChange}
-              placeholder={`© ${new Date().getFullYear()} Tramax Tours. All rights reserved.`}
+              placeholder={`© ${new Date().getFullYear()} Wanderer South India. All rights reserved.`}
             />
             <span className="form-hint">Leave blank to auto-generate from the site name and current year.</span>
           </div>

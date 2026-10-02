@@ -54,7 +54,7 @@ class ErrorHandler
         }
 
         if (in_array($level, [E_DEPRECATED, E_USER_DEPRECATED], true)) {
-            error_log(sprintf("[Tramax Deprecation] %s in %s:%d", $message, $file, $line));
+            error_log(sprintf("[Wanderer Deprecation] %s in %s:%d", $message, $file, $line));
             return true;
         }
 
@@ -78,7 +78,7 @@ class ErrorHandler
 
         // Log the exception details internally
         error_log(sprintf(
-            "[Tramax API Unhandled Exception] %s in %s:%d\nStack Trace:\n%s",
+            "[Wanderer API Unhandled Exception] %s in %s:%d\nStack Trace:\n%s",
             $e->getMessage(),
             $e->getFile(),
             $e->getLine(),
@@ -113,7 +113,7 @@ class ErrorHandler
         $error = error_get_last();
         if ($error !== null && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
             error_log(sprintf(
-                "[Tramax API Fatal Error] %s in %s:%d",
+                "[Wanderer API Fatal Error] %s in %s:%d",
                 $error['message'],
                 $error['file'],
                 $error['line']

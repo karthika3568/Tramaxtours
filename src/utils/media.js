@@ -1,5 +1,5 @@
 /**
- * Tramax Tours - Media & Image URL Helper
+ * Wanderer South India - Media & Image URL Helper
  * Resolves media paths from backend Media API or relative paths to fully-qualified URLs.
  */
 

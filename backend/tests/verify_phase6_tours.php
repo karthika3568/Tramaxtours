@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tramax Tours - Phase 6 Comprehensive End-to-End Tours API & Reversible Delete/Restore Verification Test Suite
+ * Wanderer South India - Phase 6 Comprehensive End-to-End Tours API & Reversible Delete/Restore Verification Test Suite
  * 
  * Verifies all Phase 6 requirements:
  * - Database schema, columns (including deleted_by), constraints & tour permissions
@@ -60,7 +60,7 @@ function recordResult(string $title, bool $success, string $details = ''): void
 }
 
 echo PHP_EOL . "================================================================================" . PHP_EOL;
-echo "  TRAMAX TOURS — PHASE 6 TOURS & REVERSIBLE RESTORE VERIFICATION SUITE" . PHP_EOL;
+echo "  WANDERER SOUTH INDIA — PHASE 6 TOURS & REVERSIBLE RESTORE VERIFICATION SUITE" . PHP_EOL;
 echo "================================================================================" . PHP_EOL . PHP_EOL;
 
 // 2. Start Local Test Server

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tramax Tours - Phase 8K Admin Staff / User & Role Management Verification Test Suite
+ * Wanderer South India - Phase 8K Admin Staff / User & Role Management Verification Test Suite
  */
 
 declare(strict_types=1);
@@ -39,7 +39,7 @@ function recordResult(string $title, bool $success, string $details = ''): void
 }
 
 echo PHP_EOL . "================================================================================" . PHP_EOL;
-echo "  TRAMAX TOURS — PHASE 8K STAFF & ROLE MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
+echo "  WANDERER SOUTH INDIA — PHASE 8K STAFF & ROLE MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
 echo "================================================================================" . PHP_EOL . PHP_EOL;
 
 // 1. Spawning Test Server

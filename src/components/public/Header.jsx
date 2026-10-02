@@ -14,7 +14,7 @@ export default function Header() {
   const { t } = useLanguage();
   const { isAuthenticated, user, logout } = useAuth();
 
-  const siteName = getSetting('site_name', 'Tramax Tours');
+  const siteName = getSetting('site_name', 'Wanderer South India');
   const logoUrl = getSetting('site_logo_url', '') || '/logo.png';
   const isAdmin = isAdminRole(user?.role);
 

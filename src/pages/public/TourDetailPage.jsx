@@ -78,11 +78,11 @@ export default function TourDetailPage() {
 
           // Update SEO metadata
           updatePageMeta({
-            title: `${data.seo_title || data.title} — tramaxtours.in`,
+            title: `${data.seo_title || data.title} — wanderersouthindia.com`,
             description:
               data.seo_description ||
               data.short_description ||
-              `Experience ${data.title} with Tramax Tours. Private tour with chauffeur guide, heritage sightseeing and comfortable travel.`,
+              `Experience ${data.title} with Wanderer South India. Private tour with chauffeur guide, heritage sightseeing and comfortable travel.`,
           });
         }
       } catch (err) {
@@ -141,7 +141,7 @@ export default function TourDetailPage() {
       const payload = {
         tour_id: tour.id,
         customer_name: reviewName.trim(),
-        customer_email: reviewEmail.trim() || 'guest@tramaxtours.in',
+        customer_email: reviewEmail.trim() || 'guest@wanderersouthindia.com',
         customer_country: reviewCountry.trim() || 'International Traveler',
         rating: reviewRating,
         title: reviewTitle.trim() || 'Great Experience',
@@ -543,7 +543,7 @@ export default function TourDetailPage() {
                 )}
               </ul>
               <p className="why-choose-closing">
-                Book your <strong>{tour.title}</strong> with Tramax Tours and experience the timeless architectural wonders and scenic coastline of Tamil Nadu in a single day.
+                Book your <strong>{tour.title}</strong> with Wanderer South India and experience the timeless architectural wonders and scenic coastline of Tamil Nadu in a single day.
               </p>
             </section>
 

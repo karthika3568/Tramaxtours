@@ -1,8 +1,8 @@
-# Tramax Tours — Database Architecture & Schema Documentation
+# Wanderer South India — Database Architecture & Schema Documentation
 
 ## 1. Overview & Architectural Principles
 
-The database architecture for **Tramax Tours** has been designed and implemented in strict accordance with the project specification in [README.md](file:///e:/TramaxTours/README.md).
+The database architecture for **Wanderer South India** has been designed and implemented in strict accordance with the project specification in [README.md](file:///e:/TramaxTours/README.md).
 
 ### Key Architectural Guidelines
 - **Engine**: 100% `InnoDB` ensuring full ACID compliance and transaction support for booking lifecycles.

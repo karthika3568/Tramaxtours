@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tramax Tours - Phase 8H Bookings & Orders Management Verification Suite
+ * Wanderer South India - Phase 8H Bookings & Orders Management Verification Suite
  * Tests full booking lifecycle, customer details, billing addresses, status history,
  * pagination, filtering, statistics, and RBAC authorization.
  */
@@ -41,7 +41,7 @@ function recordResult(string $title, bool $success, string $details = ''): void
 }
 
 echo PHP_EOL . "================================================================================" . PHP_EOL;
-echo "  TRAMAX TOURS — PHASE 8H BOOKINGS & ORDERS VERIFICATION SUITE" . PHP_EOL;
+echo "  WANDERER SOUTH INDIA — PHASE 8H BOOKINGS & ORDERS VERIFICATION SUITE" . PHP_EOL;
 echo "================================================================================" . PHP_EOL . PHP_EOL;
 
 // Start ephemeral server

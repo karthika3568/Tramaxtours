@@ -6,7 +6,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 use App\Utils\Database;
 
 echo "====================================================\n";
-echo "  TRAMAX TOURS — IMPORT DEMO TOUR ASSETS & CONTENT  \n";
+echo "  WANDERER SOUTH INDIA — IMPORT DEMO TOUR ASSETS & CONTENT  \n";
 echo "====================================================\n";
 
 $pdo = Database::getConnection();
@@ -310,7 +310,7 @@ $cmsSectionsData = [
     ],
     [
         'section_key' => 'home_why_travel_with_us',
-        'title' => 'Why Travel With Tramax Tours',
+        'title' => 'Why Travel With Wanderer South India',
         'subtitle' => 'We believe that planning the details of your trip should be as enjoyable and effortless as the journey itself.',
         'content' => 'With 24/7 dedicated support, certified local tour guides, tailored private itineraries, and guaranteed transparent pricing, we deliver world-class travel across South India.',
         'media_key' => 'AboutUs.jpg',
@@ -343,10 +343,10 @@ echo "[OK] CMS Sections inserted.\n";
 echo "Updating Site Settings with Wander South India branding...\n";
 
 $settingsToUpdate = [
-    ['general', 'site_name', 'TRAMAX TOURS'],
+    ['general', 'site_name', 'WANDERER SOUTH INDIA'],
     ['general', 'site_tagline', 'DREAM. TRAVEL. DISCOVER.'],
-    ['general', 'meta_description', 'Tramax Tours believes that planning the details of your trip can be as enjoyable as the trip itself. Tailored South India tours, safaris, and cultural expeditions.'],
-    ['footer', 'about', 'Tramax Tours specializes in international tourist safaris, private sightseeing, cultural expeditions, and custom itineraries across premier South Indian destinations.'],
+    ['general', 'meta_description', 'Wanderer South India believes that planning the details of your trip can be as enjoyable as the trip itself. Tailored South India tours, safaris, and cultural expeditions.'],
+    ['footer', 'about', 'Wanderer South India specializes in international tourist safaris, private sightseeing, cultural expeditions, and custom itineraries across premier South Indian destinations.'],
 ];
 
 foreach ($settingsToUpdate as [$group, $key, $val]) {

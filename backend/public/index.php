@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Tramax Tours - PHP REST API Entry Point & Front Controller
+ * Wanderer South India - PHP REST API Entry Point & Front Controller
  * 
- * @package TramaxTours
+ * @package WandererSouthIndia
  */
 
 declare(strict_types=1);

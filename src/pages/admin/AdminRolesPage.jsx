@@ -16,7 +16,7 @@ export default function AdminRolesPage() {
 
   useEffect(() => {
     updatePageMeta({
-      title: 'Roles & Permissions Matrix | Tramax Admin',
+      title: 'Roles & Permissions Matrix | Wanderer South India',
       description: 'Inspect system roles, member allocations, and granular RBAC permission matrix.',
     });
   }, []);

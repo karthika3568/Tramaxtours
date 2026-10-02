@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tramax Tours - Phase 12 Comprehensive End-to-End Footer Links API Verification Test Suite
+ * Wanderer South India - Phase 12 Comprehensive End-to-End Footer Links API Verification Test Suite
  * 
  * Verifies all Phase 12 requirements:
  * - Database schema, columns (including deleted_at, deleted_by) & footer.manage permissions
@@ -56,7 +56,7 @@ function recordResult(string $title, bool $success, string $details = ''): void
 }
 
 echo PHP_EOL . "================================================================================" . PHP_EOL;
-echo "  TRAMAX TOURS — PHASE 12 FOOTER LINKS MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
+echo "  WANDERER SOUTH INDIA — PHASE 12 FOOTER LINKS MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
 echo "================================================================================" . PHP_EOL . PHP_EOL;
 
 // 2. Start Local Test Server

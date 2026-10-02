@@ -1242,7 +1242,7 @@ export default function TourForm({
               className="form-input"
               value={seoTitle}
               onChange={(e) => setSeoTitle(e.target.value)}
-              placeholder="e.g. 5-Day Masai Mara Safari Package | Tramax Tours"
+              placeholder="e.g. 5-Day Masai Mara Safari Package | Wanderer South India"
               maxLength={70}
             />
             <span className="form-hint">{seoTitle.length}/70 characters recommended</span>
@@ -1274,7 +1274,7 @@ export default function TourForm({
               className="form-input"
               value={canonicalUrl}
               onChange={(e) => setCanonicalUrl(e.target.value)}
-              placeholder="https://tramax-tours.com/tours/masai-mara"
+              placeholder="https://wanderersouthindia.com/tours/masai-mara"
             />
           </div>
         </div>

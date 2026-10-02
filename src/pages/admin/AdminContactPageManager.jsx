@@ -11,13 +11,13 @@ export default function AdminContactPageManager() {
   const [saving, setSaving] = useState(false);
 
   const [contactData, setContactData] = useState({
-    contact_phone: '+91 98400 00000',
-    contact_email: 'contact@tramaxtours.in',
+    contact_phone: '+91 80725 66010',
+    contact_email: 'contact@wanderersouthindia.com',
     contact_address: 'Chennai, Tamil Nadu, India',
     contact_business_hours: 'Monday - Sunday: 08:00 AM - 09:00 PM IST',
     contact_person: 'P. Kishore',
     contact_hero_title: 'Contact Us & Plan Your Journey',
-    contact_hero_subtitle: 'Get in touch with Tramax Tours specialists for tailor-made itineraries, tour inquiries, and private chauffeur guides.',
+    contact_hero_subtitle: 'Get in touch with Wanderer South India specialists for tailor-made itineraries, tour inquiries, and private chauffeur guides.',
   });
 
   useEffect(() => {

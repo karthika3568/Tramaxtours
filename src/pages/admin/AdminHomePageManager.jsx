@@ -153,11 +153,11 @@ export default function AdminHomePageManager() {
 
   // Navbar & Search Presentation Customization
   const [navSettings, setNavSettings] = useState({
-    site_name: 'TRAMAX TOURS',
+    site_name: 'WANDERER SOUTH INDIA',
     site_tagline: 'TRAVEL MADE SIMPLE & MEMORABLE',
-    phone: '+91 98400 00000',
-    email: 'contact@tramaxtours.in',
-    whatsapp: '+91 98400 00000',
+    phone: '+91 80725 66010',
+    email: 'contact@wanderersouthindia.com',
+    whatsapp: '+91 80725 66010',
     business_hours: 'Mon - Sun: 08:00 AM - 09:00 PM IST',
     cta_label: 'Explore Tours',
     cta_url: '/tours',
@@ -171,11 +171,11 @@ export default function AdminHomePageManager() {
   });
 
   const [footerSettings, setFooterSettings] = useState({
-    about_text: 'Tramax Tours specializes in international tourist safaris, private sightseeing, cultural expeditions, and custom itineraries across premier destinations.',
+    about_text: 'Wanderer South India specializes in international tourist safaris, private sightseeing, cultural expeditions, and custom itineraries across premier destinations.',
     address: 'Chennai, Tamil Nadu, India',
-    phone: '+91 98400 00000',
-    email: 'contact@tramaxtours.in',
-    copyright: `© ${new Date().getFullYear()} Tramax Tours. All rights reserved.`,
+    phone: '+91 80725 66010',
+    email: 'contact@wanderersouthindia.com',
+    copyright: `© ${new Date().getFullYear()} Wanderer South India. All rights reserved.`,
   });
 
   // Media Picker state
@@ -187,7 +187,7 @@ export default function AdminHomePageManager() {
 
   useEffect(() => {
     updatePageMeta({
-      title: 'Admin - Visual Website Page Editor | Tramax Tours',
+      title: 'Admin - Visual Website Page Editor | Wanderer South India',
       description: 'WordPress-style live visual website builder for the public homepage.',
     });
   }, []);
@@ -239,11 +239,11 @@ export default function AdminHomePageManager() {
           const foo = setMap.footer || {};
 
           setNavSettings({
-            site_name: gen.site_name || 'TRAMAX TOURS',
+            site_name: gen.site_name || 'WANDERER SOUTH INDIA',
             site_tagline: gen.site_tagline || 'TRAVEL MADE SIMPLE & MEMORABLE',
-            phone: con.phone || '+91 98400 00000',
-            email: con.email || 'contact@tramaxtours.in',
-            whatsapp: con.whatsapp || '+91 98400 00000',
+            phone: con.phone || '+91 80725 66010',
+            email: con.email || 'contact@wanderersouthindia.com',
+            whatsapp: con.whatsapp || '+91 80725 66010',
             business_hours: con.business_hours || 'Mon - Sun: 08:00 AM - 09:00 PM IST',
             cta_label: gen.header_cta_label || 'Explore Tours',
             cta_url: gen.header_cta_url || '/tours',
@@ -251,11 +251,11 @@ export default function AdminHomePageManager() {
           });
 
           setFooterSettings({
-            about_text: foo.about || 'Tramax Tours specializes in international tourist safaris, private sightseeing, cultural expeditions, and custom itineraries across premier destinations.',
+            about_text: foo.about || 'Wanderer South India specializes in international tourist safaris, private sightseeing, cultural expeditions, and custom itineraries across premier destinations.',
             address: con.address || 'Chennai, Tamil Nadu, India',
-            phone: con.phone || '+91 98400 00000',
-            email: con.email || 'contact@tramaxtours.in',
-            copyright: foo.copyright || `© ${new Date().getFullYear()} Tramax Tours. All rights reserved.`,
+            phone: con.phone || '+91 80725 66010',
+            email: con.email || 'contact@wanderersouthindia.com',
+            copyright: foo.copyright || `© ${new Date().getFullYear()} Wanderer South India. All rights reserved.`,
           });
         }
       } catch {
@@ -328,7 +328,7 @@ export default function AdminHomePageManager() {
     const newSlide = {
       id: `temp-${Date.now()}`,
       title: 'New Spectacular Journey',
-      subtitle: 'Experience breathtaking vistas and curated private safaris with Tramax Tours.',
+      subtitle: 'Experience breathtaking vistas and curated private safaris with Wanderer South India.',
       cta_label: 'Explore Tour Packages',
       cta_url: '/tours',
       display_order: heroSlides.length + 1,
@@ -1171,7 +1171,7 @@ export default function AdminHomePageManager() {
                             {reviews.slice(0, 3).map((r, idx) => (
                               <div key={r.id || idx} className="canvas-review-card">
                                 <span className="stars">★★★★★</span>
-                                <p className="quote">"{r.content || 'Exceptional experience with Tramax Tours.'}"</p>
+                                <p className="quote">"{r.content || 'Exceptional experience with Wanderer South India.'}"</p>
                                 <strong className="guest-name">{r.customer_name || 'Verified Guest'}</strong>
                               </div>
                             ))}

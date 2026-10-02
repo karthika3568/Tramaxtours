@@ -1,5 +1,5 @@
 /**
- * Tramax Tours - API Services Entry Point
+ * Wanderer South India - API Services Entry Point
  */
 
 import { client, request, ApiError } from './client';

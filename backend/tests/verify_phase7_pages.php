@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tramax Tours - Phase 7 Comprehensive End-to-End Pages & CMS Content API Verification Test Suite
+ * Wanderer South India - Phase 7 Comprehensive End-to-End Pages & CMS Content API Verification Test Suite
  * 
  * Verifies all Phase 7 requirements:
  * - Database schema, columns (including deleted_at, deleted_by, hero_media_id FK) & pages.manage permissions
@@ -58,7 +58,7 @@ function recordResult(string $title, bool $success, string $details = ''): void
 }
 
 echo PHP_EOL . "================================================================================" . PHP_EOL;
-echo "  TRAMAX TOURS — PHASE 7 PAGES & CMS MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
+echo "  WANDERER SOUTH INDIA — PHASE 7 PAGES & CMS MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
 echo "================================================================================" . PHP_EOL . PHP_EOL;
 
 // 2. Start Local Test Server
@@ -330,7 +330,7 @@ $page1Payload = [
     'subtitle' => 'Comprehensive South India travel tips and recommendations',
     'hero_media_id' => $heroMediaId,
     'content' => '<p>Welcome to our comprehensive South India travel guide.</p>',
-    'seo_title' => 'South India Travel Guide | Tramax Tours',
+    'seo_title' => 'South India Travel Guide | Wanderer South India',
     'seo_description' => 'Explore insider tips and local recommendations for South Indian destinations.',
     'status' => 'published',
 ];
@@ -394,7 +394,7 @@ $updatePayload = [
     'title' => 'Updated South India Travel Guide',
     'subtitle' => 'The ultimate 2026 travel companion',
     'content' => '<p>Updated comprehensive guide content with latest travel tips.</p>',
-    'seo_title' => 'Ultimate 2026 South India Travel Guide | Tramax Tours',
+    'seo_title' => 'Ultimate 2026 South India Travel Guide | Wanderer South India',
     'seo_description' => 'Updated guide featuring travel tips, routes, and packing lists.',
 ];
 $resUpdatePage = apiRequest('PUT', "/api/v1/pages/{$page1Id}", $updatePayload, $superAdminToken);

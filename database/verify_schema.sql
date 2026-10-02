@@ -1,5 +1,5 @@
 -- ==============================================================================
--- Tramax Tours - Phase 1 Schema & Seed Verification Script
+-- Wanderer South India - Phase 1 Schema & Seed Verification Script
 -- Target Database: tramaxtours
 -- ==============================================================================
 

@@ -8,13 +8,13 @@ export default function Footer() {
   const { getSetting, footerColumns } = useSiteSettings();
   const { t, language } = useLanguage();
 
-  const siteName = getSetting('site_name', 'Tramax Tours');
+  const siteName = getSetting('site_name', 'Wanderer South India');
   const footerAbout = language === 'de'
     ? t('footer_about')
     : getSetting('footer_about', t('footer_about'));
 
-  const contactPhone = getSetting('contact_phone', '+91 98400 00000');
-  const contactEmail = getSetting('contact_email', 'contact@tramaxtours.in');
+  const contactPhone = getSetting('contact_phone', '+91 80725 66010');
+  const contactEmail = getSetting('contact_email', 'contact@wanderersouthindia.com');
   const contactAddress = getSetting('contact_address', 'Chennai, Tamil Nadu, India');
   const contactHours = language === 'de' ? 'Mo - So: 08:00 - 21:00 Uhr IST' : getSetting('contact_business_hours', 'Mon - Sun: 08:00 AM - 09:00 PM IST');
   const logoUrl = getSetting('site_logo_url', '') || '/logo.png';

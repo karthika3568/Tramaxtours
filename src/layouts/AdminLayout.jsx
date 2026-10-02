@@ -62,10 +62,12 @@ export default function AdminLayout() {
       groupTitle: 'Operations & Catalog',
       items: [
         { label: 'Bookings & Orders', path: '/admin/bookings', permission: 'bookings.view', icon: '📋' },
+        { label: 'Trip Requests', path: '/admin/trip-requests', permission: 'trip_requests.view', icon: '🧳' },
         { label: 'Curated Tours', path: '/admin/tours', permission: 'tours.view', icon: '🗺️' },
         { label: 'Destinations', path: '/admin/destinations', permission: 'destinations.view', icon: '📍' },
         { label: 'Media Library', path: '/admin/media', permission: 'media.view', icon: '🖼️' },
         { label: 'Guest Reviews', path: '/admin/reviews', permission: 'reviews.view', icon: '💬' },
+        { label: 'Testimonials', path: '/admin/testimonials', permission: 'testimonials.view', icon: '🌟' },
         { label: 'Standard Pages', path: '/admin/pages', permission: 'pages.manage', icon: '📄' },
       ],
     },
@@ -106,7 +108,7 @@ export default function AdminLayout() {
     }
     if (location.pathname.includes('/new')) return { title: 'Create New Item', group: 'Management' };
     if (location.pathname.includes('/edit')) return { title: 'Edit Item', group: 'Management' };
-    return { title: 'Operations Console', group: 'Tramax Tours' };
+    return { title: 'Operations Console', group: 'Wanderer South India' };
   };
 
   const pageMeta = getCurrentPageMeta();
@@ -137,7 +139,7 @@ export default function AdminLayout() {
               <span className="logo-symbol">TT</span>
             </div>
             <div className="admin-brand-info">
-              <span className="admin-brand-title">TRAMAX TOURS</span>
+              <span className="admin-brand-title">WANDERER SOUTH INDIA</span>
               <span className="admin-portal-badge">TRAVEL MANAGEMENT</span>
             </div>
           </Link>
@@ -229,7 +231,7 @@ export default function AdminLayout() {
 
             <div className="admin-header-context">
               <div className="admin-breadcrumb">
-                <span>Tramax Operations</span>
+                <span>Wanderer Operations</span>
                 <span className="breadcrumb-sep">/</span>
                 <span className="breadcrumb-current">{pageMeta.group}</span>
               </div>

@@ -1,5 +1,5 @@
 /**
- * Tramax Tours - Footer Links Service
+ * Wanderer South India - Footer Links Service
  * Communicates with backend endpoints:
  * GET /api/v1/footer-links
  * GET /api/v1/footer-links/{id}

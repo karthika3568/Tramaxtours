@@ -141,9 +141,9 @@ class JWT
         }
 
         return [
-            'secret' => Env::get('JWT_SECRET', 'tramax_default_secret_key'),
+            'secret' => Env::get('JWT_SECRET', 'wanderer_default_secret_key'),
             'expiration' => (int) Env::get('JWT_EXPIRATION', 86400),
-            'issuer' => Env::get('JWT_ISSUER', 'TramaxToursAPI'),
+            'issuer' => Env::get('JWT_ISSUER', 'WandererSouthIndiaAPI'),
             'algorithm' => 'HS256',
         ];
     }

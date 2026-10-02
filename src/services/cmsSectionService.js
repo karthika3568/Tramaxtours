@@ -1,5 +1,5 @@
 /**
- * Tramax Tours - CMS Sections Service
+ * Wanderer South India - CMS Sections Service
  * Communicates with /api/v1/cms-sections
  */
 

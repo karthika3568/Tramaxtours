@@ -8,7 +8,7 @@ const SiteSettingsContext = createContext(null);
 
 const DEFAULT_SETTINGS = {
   general: {
-    site_name: 'Tramax Tours',
+    site_name: 'Wanderer South India',
     site_tagline: 'Curated Luxury & Adventure Travel',
     site_logo: '',
     site_favicon: '/favicon.svg',
@@ -18,20 +18,20 @@ const DEFAULT_SETTINGS = {
   },
   contact: {
     contact_person: 'P. Kishore',
-    contact_email: 'contact@tramaxtours.in',
-    contact_phone: '+91 98400 00000',
+    contact_email: 'contact@wanderersouthindia.com',
+    contact_phone: '+91 80725 66010',
     contact_address: 'Chennai, Tamil Nadu, India',
     contact_business_hours: 'Monday - Sunday: 08:00 AM - 09:00 PM IST',
   },
   footer: {
     footer_about:
-      'Tramax Tours specializes in foreign-client tourism, private sightseeing, cultural heritage expeditions, and custom luxury travel.',
-    footer_copyright: `© ${new Date().getFullYear()} Tramax Tours. All rights reserved.`,
+      'Wanderer South India specializes in foreign-client tourism, private sightseeing, cultural heritage expeditions, and custom luxury travel.',
+    footer_copyright: `© ${new Date().getFullYear()} Wanderer South India. All rights reserved.`,
   },
   seo: {
-    seo_default_title: 'Tramax Tours | Premier South India Tours & Travel Experiences',
+    seo_default_title: 'Wanderer South India | Premier South India Tours & Travel Experiences',
     seo_default_description:
-      'Discover premium South India tours, private sightseeing, cultural heritage packages, and luxury journeys with Tramax Tours.',
+      'Discover premium South India tours, private sightseeing, cultural heritage packages, and luxury journeys with Wanderer South India.',
   },
 };
 
@@ -47,10 +47,10 @@ const DEFAULT_FOOTER_LINKS = [
 ];
 
 const DEFAULT_SOCIAL_LINKS = [
-  { id: 1, platform: 'facebook', url: 'https://facebook.com/tramaxtours', icon: 'facebook', display_order: 1, status: 'active' },
-  { id: 2, platform: 'instagram', url: 'https://instagram.com/tramaxtours', icon: 'instagram', display_order: 2, status: 'active' },
-  { id: 3, platform: 'youtube', url: 'https://youtube.com/@tramaxtours', icon: 'youtube', display_order: 3, status: 'active' },
-  { id: 4, platform: 'x', url: 'https://x.com/tramaxtours', icon: 'twitter', display_order: 4, status: 'active' },
+  { id: 1, platform: 'facebook', url: 'https://facebook.com/wanderersouthindia', icon: 'facebook', display_order: 1, status: 'active' },
+  { id: 2, platform: 'instagram', url: 'https://instagram.com/wanderersouthindia', icon: 'instagram', display_order: 2, status: 'active' },
+  { id: 3, platform: 'youtube', url: 'https://youtube.com/@wanderersouthindia', icon: 'youtube', display_order: 3, status: 'active' },
+  { id: 4, platform: 'x', url: 'https://x.com/wanderersouthindia', icon: 'twitter', display_order: 4, status: 'active' },
   { id: 5, platform: 'tripadvisor', url: 'https://tripadvisor.com', icon: 'tripadvisor', display_order: 5, status: 'active' },
 ];
 

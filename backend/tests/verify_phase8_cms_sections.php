@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tramax Tours - Phase 8 Comprehensive End-to-End CMS Sections API Verification Test Suite
+ * Wanderer South India - Phase 8 Comprehensive End-to-End CMS Sections API Verification Test Suite
  * 
  * Verifies all Phase 8 requirements:
  * - Database schema, columns (including deleted_at, deleted_by, media_id FK) & homepage.manage permissions
@@ -57,7 +57,7 @@ function recordResult(string $title, bool $success, string $details = ''): void
 }
 
 echo PHP_EOL . "================================================================================" . PHP_EOL;
-echo "  TRAMAX TOURS — PHASE 8 CMS SECTIONS MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
+echo "  WANDERER SOUTH INDIA — PHASE 8 CMS SECTIONS MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
 echo "================================================================================" . PHP_EOL . PHP_EOL;
 
 // 2. Start Local Test Server
@@ -336,7 +336,7 @@ $sectionMediaId = $resMediaUpload['json']['data']['id'] ?? null;
 
 // 1. Create CMS Section 1 with automatic section_key generation
 $section1Payload = [
-    'title' => 'Test Why Choose Tramax Tours',
+    'title' => 'Test Why Choose Wanderer South India',
     'subtitle' => 'Experience authenticity, luxury transit, and local expert hospitality',
     'media_id' => $sectionMediaId,
     'content' => '<p>Over 15 years crafting unforgettable foreign and domestic journeys in South India.</p>',
@@ -355,7 +355,7 @@ recordResult(
 
 // 2. Create CMS Section 2 with duplicate title -> Auto-resolves collision with suffix -2
 $resCreateSec2 = apiRequest('POST', '/api/v1/cms-sections', [
-    'title' => 'Test Why Choose Tramax Tours',
+    'title' => 'Test Why Choose Wanderer South India',
     'content' => '<p>Second edition section block.</p>',
     'display_order' => 2,
 ], $superAdminToken);

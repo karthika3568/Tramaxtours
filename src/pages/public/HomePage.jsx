@@ -10,9 +10,9 @@ import TestimonialsSection from '../../components/public/home/TestimonialsSectio
 export default function HomePage() {
   useEffect(() => {
     updatePageMeta({
-      title: 'tramaxtours.in – Travel Made Simple & Memorable',
+      title: 'wanderersouthindia.com – Travel Made Simple & Memorable',
       description:
-        'Explore South India\'s most breathtaking destinations with Tramax Tours. Handcrafted tour packages, private cabs, spiritual pilgrimage & hill station getaways.',
+        'Explore South India\'s most breathtaking destinations with Wanderer South India. Handcrafted tour packages, private cabs, spiritual pilgrimage & hill station getaways.',
     });
   }, []);
 

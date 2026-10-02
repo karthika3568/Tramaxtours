@@ -25,7 +25,7 @@ export default function UserProfilePage() {
 
   useEffect(() => {
     updatePageMeta({
-      title: 'My Profile & Bookings — Tramax Tours',
+      title: 'My Profile & Bookings — Wanderer South India',
       description: 'Manage your tour reservations, download PDF vouchers, and view traveler details.',
     });
   }, []);
@@ -106,7 +106,7 @@ export default function UserProfilePage() {
       toast.success('Your tour reservation has been cancelled. Admin notification sent.', 'Booking Cancelled');
 
       // Auto trigger admin notification url helper
-      const adminAlertUrl = `https://wa.me/919840000000?text=${adminWhatsAppMsg}`;
+      const adminAlertUrl = `https://wa.me/918072566010?text=${adminWhatsAppMsg}`;
       window.open(adminAlertUrl, '_blank');
 
       setCancelModalBooking(null);
@@ -135,9 +135,9 @@ export default function UserProfilePage() {
     const currency = b.currency || 'INR';
 
     const msg = encodeURIComponent(
-      `🧾 *TRAMAX TOURS — BOOKING RECEIPT*\n\nReference: ${orderRef}\nGuest Name: ${user.name}\nTour: ${tourTitle}\nTravel Date: ${travelDate}\nGuests: ${guests}\nTotal Amount: ${currency} ${Number(price).toLocaleString()}\nStatus: ${b.status?.toUpperCase()}\n\nThank you for choosing Tramax Tours! Travel Made Simple & Memorable.`
+      `🧾 *WANDERER SOUTH INDIA — BOOKING RECEIPT*\n\nReference: ${orderRef}\nGuest Name: ${user.name}\nTour: ${tourTitle}\nTravel Date: ${travelDate}\nGuests: ${guests}\nTotal Amount: ${currency} ${Number(price).toLocaleString()}\nStatus: ${b.status?.toUpperCase()}\n\nThank you for choosing Wanderer South India! Travel Made Simple & Memorable.`
     );
-    window.open(`https://wa.me/919840000000?text=${msg}`, '_blank');
+    window.open(`https://wa.me/918072566010?text=${msg}`, '_blank');
   };
 
   // Email Receipt Handler
@@ -468,7 +468,7 @@ export default function UserProfilePage() {
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #01AA90', paddingBottom: '16px', marginBottom: '20px' }}>
               <div>
-                <img src="/logo.png" alt="Tramax Tours" style={{ height: '48px', marginBottom: '6px' }} />
+                <img src="/logo.png" alt="Wanderer South India" style={{ height: '48px', marginBottom: '6px' }} />
                 <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
                   Travel Made Simple & Memorable • Chennai, Tamil Nadu
                 </p>
@@ -490,7 +490,7 @@ export default function UserProfilePage() {
                 <strong style={{ fontSize: '13px', color: '#01AA90' }}>TRAVELER DETAILS:</strong>
                 <p style={{ margin: '4px 0 0', fontSize: '14px', fontWeight: '700' }}>{user.name}</p>
                 <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>Email: {user.email}</p>
-                <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>Phone: {user.phone || selectedReceiptBooking.phone || '+91 98400 00000'}</p>
+                <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>Phone: {user.phone || selectedReceiptBooking.phone || '+91 80725 66010'}</p>
               </div>
               <div>
                 <strong style={{ fontSize: '13px', color: '#01AA90' }}>TOUR RESERVATION:</strong>
@@ -530,7 +530,7 @@ export default function UserProfilePage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
               <div style={{ fontSize: '12px', color: '#64748b' }}>
                 <p style={{ margin: 0 }}>✓ Payment Mode: <strong>Pay on Arrival / Cash or UPI</strong></p>
-                <p style={{ margin: 0 }}>✓ 24/7 Helpline: <strong>+91 98400 00000</strong></p>
+                <p style={{ margin: 0 }}>✓ 24/7 Helpline: <strong>+91 80725 66010</strong></p>
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button

@@ -1,10 +1,10 @@
 /**
- * Tramax Tours - Foundation Design System
+ * Wanderer South India - Foundation Design System
  * CSS Tokens, Resets, Responsive Scale, and Foundation Component Styles
  */
 
 :root {
-  /* Tramax Tours Brand Colors (tramaxtours.in) */
+  /* Wanderer South India Brand Colors (wanderersouthindia.com) */
   --color-primary: #01AA90;
   --color-primary-dark: #01806C;
   --color-primary-light: #019982;
@@ -14064,7 +14064,7 @@ button {
 }
 
 /* ==========================================================================
-   TRAMAXTOURS.IN THEME & PUBLIC UI ENHANCEMENTS
+   WANDERERSOUTHINDIA.COM THEME & PUBLIC UI ENHANCEMENTS
    ========================================================================== */
 
 /* 1. Hero Section Carousel & Search Overlay */
@@ -18938,6 +18938,18 @@ button {
   display: block;
 }
 
+.deck-card-photo-initials {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+}
+
 .deck-card-body {
   padding: 18px 22px 24px 22px;
   text-align: center;
@@ -22557,7 +22569,7 @@ button {
 }
 
 /* ==========================================================================
-   DESTINATION DETAIL PAGE V2 (MATCHING TRAMAXTOURS.IN & WANDERER ASSETS)
+   DESTINATION DETAIL PAGE V2 (MATCHING WANDERERSOUTHINDIA.COM & DESTINATION ASSETS)
    ========================================================================== */
 
 .destination-detail-page-v2 {

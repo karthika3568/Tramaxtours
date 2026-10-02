@@ -230,7 +230,7 @@ export default function AdminHomeBenefitsPage() {
         <EmptyState
           icon="⭐"
           title="No Benefits Configured"
-          description="Highlight why travelers choose Tramax Tours with luxury guarantee cards."
+          description="Highlight why travelers choose Wanderer South India with luxury guarantee cards."
           actionText="+ Create First Benefit"
           onAction={handleOpenCreate}
         />

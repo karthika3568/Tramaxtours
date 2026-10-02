@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tramax Tours - Phase 4 Comprehensive End-to-End Media API Verification Test Suite
+ * Wanderer South India - Phase 4 Comprehensive End-to-End Media API Verification Test Suite
  * 
  * Verifies all 27+ requirements including:
  * - RBAC & JWT Authorization (media.view, media.upload, media.delete)
@@ -52,7 +52,7 @@ function recordResult(string $title, bool $success, string $details = ''): void
 }
 
 echo PHP_EOL . "================================================================================" . PHP_EOL;
-echo "  TRAMAX TOURS — PHASE 4 MEDIA LIBRARY END-TO-END VERIFICATION SUITE" . PHP_EOL;
+echo "  WANDERER SOUTH INDIA — PHASE 4 MEDIA LIBRARY END-TO-END VERIFICATION SUITE" . PHP_EOL;
 echo "================================================================================" . PHP_EOL . PHP_EOL;
 
 // 2. Start Local Test Server

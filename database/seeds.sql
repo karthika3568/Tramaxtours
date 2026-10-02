@@ -1,5 +1,5 @@
 -- ==============================================================================
--- Tramax Tours - Production Development Seed Data
+-- Wanderer South India - Production Development Seed Data
 -- Target Database: tramaxtours
 -- Phase: Phase 1 Database Architecture
 -- ==============================================================================
@@ -73,7 +73,13 @@ INSERT INTO `permissions` (`name`, `group_name`, `description`, `created_at`, `u
 ('settings.view', 'Site Settings', 'View site configuration and general settings', NOW(), NOW()),
 ('settings.manage', 'Site Settings', 'Update site settings, branding, and contact details', NOW(), NOW()),
 -- Audit Logs
-('audit_logs.view', 'Audit Logs', 'View administrative action audit trails and security logs', NOW(), NOW())
+('audit_logs.view', 'Audit Logs', 'View administrative action audit trails and security logs', NOW(), NOW()),
+-- Testimonials
+('testimonials.view', 'Testimonials', 'View customer testimonials', NOW(), NOW()),
+('testimonials.manage', 'Testimonials', 'Create, edit, delete, and publish customer testimonials', NOW(), NOW()),
+-- Trip Requests
+('trip_requests.view', 'Trip Requests', 'View custom trip/quote requests and their details', NOW(), NOW()),
+('trip_requests.manage', 'Trip Requests', 'Update trip request status, add notes, and manage documents', NOW(), NOW())
 ON DUPLICATE KEY UPDATE `group_name` = VALUES(`group_name`), `description` = VALUES(`description`);
 
 -- ------------------------------------------------------------------------------
@@ -106,18 +112,21 @@ WHERE `name` IN (
 -- ------------------------------------------------------------------------------
 INSERT IGNORE INTO `role_permissions` (`role_id`, `permission_id`)
 SELECT 4, `id` FROM `permissions`
-WHERE `name` IN ('dashboard.view', 'reviews.view', 'reviews.moderate', 'contact.view', 'contact.manage');
+WHERE `name` IN (
+    'dashboard.view', 'reviews.view', 'reviews.moderate', 'contact.view', 'contact.manage',
+    'testimonials.view', 'testimonials.manage', 'trip_requests.view', 'trip_requests.manage'
+);
 
 -- ------------------------------------------------------------------------------
 -- 7. SEED INITIAL SUPER ADMIN USER
--- Default email: admin@tramaxtours.com
+-- Default email: admin@wanderersouthindia.com
 -- Default password: Admin@Tramax2026! (Bcrypt hashed)
 -- ------------------------------------------------------------------------------
 INSERT INTO `users` (`id`, `name`, `email`, `password_hash`, `phone`, `status`, `email_verified_at`, `created_at`, `updated_at`)
 VALUES (
     1,
     'Super Admin',
-    'admin@tramaxtours.com',
+    'admin@wanderersouthindia.com',
     '$2y$12$3krWVQGArtFozBH1wu5O4uHVBKAUcyBtIJeCvXjjsPq61DG3D2I/i',
     '+919840000000',
     'active',
@@ -134,21 +143,19 @@ INSERT IGNORE INTO `user_roles` (`user_id`, `role_id`) VALUES (1, 1);
 -- 8. SEED DEFAULT TOUR CATEGORIES
 -- ------------------------------------------------------------------------------
 INSERT INTO `tour_categories` (`name`, `slug`, `badge_color`, `icon`, `description`, `display_order`, `status`, `created_at`, `updated_at`) VALUES
-('City Sightseeing Tours', 'city-sightseeing-tours', '#0284c7', 'compass', 'Explore vibrant city landmarks, architecture, and urban attractions', 1, 'active', NOW(), NOW()),
-('Cultural & Heritage Tours', 'cultural-heritage-tours', '#b45309', 'landmark', 'Immerse in ancient architecture, monuments, and UNESCO world heritage sites', 2, 'active', NOW(), NOW()),
-('Guided Tours', 'guided-tours', '#059669', 'user-check', 'Tours accompanied by knowledgeable and licensed professional guides', 3, 'active', NOW(), NOW()),
-('Historical Tours', 'historical-tours', '#7c3aed', 'book-open', 'Step back in time to explore historic dynasties, temples, and colonial history', 4, 'active', NOW(), NOW()),
-('One Day Tours', 'one-day-tours', '#ea580c', 'sun', 'Perfect single-day excursions designed with comfortable door-to-door transit', 5, 'active', NOW(), NOW()),
-('Private Tours', 'private-tours', '#0d9488', 'shield', 'Exclusive private cab transportation tailored to individual itineraries', 6, 'active', NOW(), NOW()),
-('Family Tours', 'family-tours', '#db2777', 'users', 'Comfortable, paced tours suitable for multi-generational families', 7, 'active', NOW(), NOW()),
-('Adventure & Nature Tours', 'adventure-nature-tours', '#16a34a', 'tree', 'Experience natural landscapes, hill stations, wildlife, and coastal views', 8, 'active', NOW(), NOW())
+('Cultural Tour', 'cultural-tour', '#b45309', 'landmark', 'Immerse in ancient architecture, monuments, and UNESCO world heritage sites', 1, 'active', NOW(), NOW()),
+('Pilgrimage', 'pilgrimage', '#7c3aed', 'temple', 'Visit sacred temples, churches, and historic places of worship', 2, 'active', NOW(), NOW()),
+('Beach Holiday', 'beach-holiday', '#0284c7', 'waves', 'Relax on sun-soaked coastlines and scenic beach destinations', 3, 'active', NOW(), NOW()),
+('Adventure Tour', 'adventure-tour', '#16a34a', 'tree', 'Experience natural landscapes, hill stations, backwaters, and plantations', 4, 'active', NOW(), NOW()),
+('Wildlife Tour', 'wildlife-tour', '#ea580c', 'paw', 'Explore national parks, sanctuaries, and natural wildlife habitats', 5, 'active', NOW(), NOW()),
+('Shopping Tour', 'shopping-tour', '#db2777', 'shopping-bag', 'Discover local markets, handicrafts, and curated shopping experiences', 6, 'active', NOW(), NOW())
 ON DUPLICATE KEY UPDATE `badge_color` = VALUES(`badge_color`), `description` = VALUES(`description`);
 
 -- ------------------------------------------------------------------------------
 -- 9. SEED ESSENTIAL SITE SETTINGS
 -- ------------------------------------------------------------------------------
 INSERT INTO `site_settings` (`setting_key`, `setting_value`, `setting_group`, `created_at`, `updated_at`) VALUES
-('site_name', 'Tramax Tours', 'general', NOW(), NOW()),
+('site_name', 'Wanderer South India', 'general', NOW(), NOW()),
 ('site_tagline', 'Travel Made Simple & Memorable', 'general', NOW(), NOW()),
 ('site_logo', '/uploads/branding/logo.png', 'general', NOW(), NOW()),
 ('site_favicon', '/favicon.svg', 'general', NOW(), NOW()),
@@ -156,14 +163,15 @@ INSERT INTO `site_settings` (`setting_key`, `setting_value`, `setting_group`, `c
 ('currency_symbol', '€', 'general', NOW(), NOW()),
 ('timezone', 'Asia/Kolkata', 'general', NOW(), NOW()),
 ('contact_person', 'P. Kishore', 'contact', NOW(), NOW()),
-('contact_email', 'contact@tramaxtours.in', 'contact', NOW(), NOW()),
-('contact_phone', '+91 98400 00000', 'contact', NOW(), NOW()),
+('contact_email', 'contact@wanderersouthindia.com', 'contact', NOW(), NOW()),
+('contact_phone', '+91 80725 66010', 'contact', NOW(), NOW()),
+('contact_whatsapp', '+91 80725 66010', 'contact', NOW(), NOW()),
 ('contact_address', 'Chennai, Tamil Nadu, India', 'contact', NOW(), NOW()),
 ('contact_business_hours', 'Monday - Sunday: 08:00 AM - 09:00 PM IST', 'contact', NOW(), NOW()),
-('footer_about', 'Tramax Tours specializes in foreign-client tourism, private sightseeing, cultural heritage expeditions, and custom travel across South India.', 'footer', NOW(), NOW()),
-('footer_copyright', '© 2026 Tramax Tours. All rights reserved.', 'footer', NOW(), NOW()),
-('seo_default_title', 'Tramax Tours | Premier South India Tours & Travel Experiences', 'seo', NOW(), NOW()),
-('seo_default_description', 'Discover premium South India tours, private sightseeing, cultural heritage packages, and hassle-free travel across Tamil Nadu, Kerala, Karnataka, and Goa with Tramax Tours.', 'seo', NOW(), NOW()),
+('footer_about', 'Wanderer South India specializes in foreign-client tourism, private sightseeing, cultural heritage expeditions, and custom travel across South India.', 'footer', NOW(), NOW()),
+('footer_copyright', '© 2026 Wanderer South India. All rights reserved.', 'footer', NOW(), NOW()),
+('seo_default_title', 'Wanderer South India | Premier South India Tours & Travel Experiences', 'seo', NOW(), NOW()),
+('seo_default_description', 'Discover premium South India tours, private sightseeing, cultural heritage packages, and hassle-free travel across Tamil Nadu, Kerala, Karnataka, and Goa with Wanderer South India.', 'seo', NOW(), NOW()),
 ('default_payment_method', 'pay_on_arrival', 'payment', NOW(), NOW())
 ON DUPLICATE KEY UPDATE `setting_value` = VALUES(`setting_value`);
 
@@ -171,10 +179,10 @@ ON DUPLICATE KEY UPDATE `setting_value` = VALUES(`setting_value`);
 -- 10. SEED DEFAULT POLICY & INFORMATION PAGES
 -- ------------------------------------------------------------------------------
 INSERT INTO `pages` (`slug`, `title`, `subtitle`, `content`, `seo_title`, `seo_description`, `status`, `created_at`, `updated_at`) VALUES
-('about-us', 'About Tramax Tours', 'Your Trusted Travel Partner for Authentic South Indian Experiences', '<h2>Welcome to Tramax Tours</h2><p>Tramax Tours is dedicated to providing high-quality, reliable, and personalized travel experiences across South India for international and discerning travelers. With years of local expertise, private luxury vehicle fleets, and expert guides, we turn vacations into unforgettable journeys.</p><h3>Our Mission</h3><p>To deliver authentic, safe, comfortable, and seamless travel memories with transparent pricing and exceptional hospitality.</p>', 'About Us | Tramax Tours', 'Learn about Tramax Tours, our commitment to hospitality, private travel expertise, and memorable South Indian experiences.', 'published', NOW(), NOW()),
-('terms-conditions', 'Terms & Conditions', 'Please read our terms and booking conditions carefully', '<h2>Terms & Conditions</h2><p>By using the Tramax Tours platform or booking any tour or travel package with us, you agree to comply with and be bound by the following terms and conditions.</p><h3>1. Booking & Payment</h3><p>Bookings are subject to availability. For Pay on Arrival bookings, payment in full is required at the commencement of the tour in the agreed currency.</p><h3>2. Tour Conduct & Safety</h3><p>Passengers must follow local safety guidelines and adhere to scheduled departure times for seamless service.</p>', 'Terms & Conditions | Tramax Tours', 'Read the official booking terms, passenger guidelines, and service conditions of Tramax Tours.', 'published', NOW(), NOW()),
-('refund-policy', 'Refund & Cancellation Policy', 'Clear and transparent policies for our travelers', '<h2>Refund & Cancellation Policy</h2><p>We understand that travel plans may change. Our cancellation and refund policy is outlined below:</p><h3>1. Cancellations</h3><p>Cancellations made at least 24 hours prior to scheduled tour departure will incur no penalty. Cancellations made within 24 hours of departure may be subject to a nominal administrative charge.</p><h3>2. Refunds</h3><p>Where applicable, refunds are processed within 5-7 business days through the original channel of payment.</p>', 'Refund & Cancellation Policy | Tramax Tours', 'Understand the refund and cancellation terms for tours booked with Tramax Tours.', 'published', NOW(), NOW()),
-('privacy-policy', 'Privacy Policy', 'How we protect and respect your personal information', '<h2>Privacy Policy</h2><p>Tramax Tours respects your privacy and is committed to protecting your personal data. This privacy statement explains how we collect, handle, and safeguard your details when booking tours or contacting us.</p><h3>Information We Collect</h3><p>We collect essential customer information such as name, email address, phone number, and billing details solely for fulfilling tour bookings and providing travel support.</p>', 'Privacy Policy | Tramax Tours', 'Learn how Tramax Tours collects, uses, and safeguards customer data.', 'published', NOW(), NOW())
+('about-us', 'About Wanderer South India', 'Your Trusted Travel Partner for Authentic South Indian Experiences', '<h2>Welcome to Wanderer South India</h2><p>Wanderer South India is dedicated to providing high-quality, reliable, and personalized travel experiences across South India for international and discerning travelers. With years of local expertise, private luxury vehicle fleets, and expert guides, we turn vacations into unforgettable journeys.</p><h3>Our Mission</h3><p>To deliver authentic, safe, comfortable, and seamless travel memories with transparent pricing and exceptional hospitality.</p>', 'About Us | Wanderer South India', 'Learn about Wanderer South India, our commitment to hospitality, private travel expertise, and memorable South Indian experiences.', 'published', NOW(), NOW()),
+('terms-conditions', 'Terms & Conditions', 'Please read our terms and booking conditions carefully', '<h2>Terms & Conditions</h2><p>By using the Wanderer South India platform or booking any tour or travel package with us, you agree to comply with and be bound by the following terms and conditions.</p><h3>1. Booking & Payment</h3><p>Bookings are subject to availability. For Pay on Arrival bookings, payment in full is required at the commencement of the tour in the agreed currency.</p><h3>2. Tour Conduct & Safety</h3><p>Passengers must follow local safety guidelines and adhere to scheduled departure times for seamless service.</p>', 'Terms & Conditions | Wanderer South India', 'Read the official booking terms, passenger guidelines, and service conditions of Wanderer South India.', 'published', NOW(), NOW()),
+('refund-policy', 'Refund & Cancellation Policy', 'Clear and transparent policies for our travelers', '<h2>Refund & Cancellation Policy</h2><p>We understand that travel plans may change. Our cancellation and refund policy is outlined below:</p><h3>1. Cancellations</h3><p>Cancellations made at least 24 hours prior to scheduled tour departure will incur no penalty. Cancellations made within 24 hours of departure may be subject to a nominal administrative charge.</p><h3>2. Refunds</h3><p>Where applicable, refunds are processed within 5-7 business days through the original channel of payment.</p>', 'Refund & Cancellation Policy | Wanderer South India', 'Understand the refund and cancellation terms for tours booked with Wanderer South India.', 'published', NOW(), NOW()),
+('privacy-policy', 'Privacy Policy', 'How we protect and respect your personal information', '<h2>Privacy Policy</h2><p>Wanderer South India respects your privacy and is committed to protecting your personal data. This privacy statement explains how we collect, handle, and safeguard your details when booking tours or contacting us.</p><h3>Information We Collect</h3><p>We collect essential customer information such as name, email address, phone number, and billing details solely for fulfilling tour bookings and providing travel support.</p>', 'Privacy Policy | Wanderer South India', 'Learn how Wanderer South India collects, uses, and safeguards customer data.', 'published', NOW(), NOW())
 ON DUPLICATE KEY UPDATE `title` = VALUES(`title`), `content` = VALUES(`content`);
 
 -- ------------------------------------------------------------------------------
@@ -195,10 +203,10 @@ ON DUPLICATE KEY UPDATE `label` = VALUES(`label`), `url` = VALUES(`url`);
 -- 12. SEED DEFAULT SOCIAL MEDIA LINKS
 -- ------------------------------------------------------------------------------
 INSERT INTO `social_links` (`platform`, `url`, `icon`, `display_order`, `status`, `created_at`, `updated_at`) VALUES
-('facebook', 'https://facebook.com/tramaxtours', 'facebook', 1, 'active', NOW(), NOW()),
-('instagram', 'https://instagram.com/tramaxtours', 'instagram', 2, 'active', NOW(), NOW()),
-('youtube', 'https://youtube.com/@tramaxtours', 'youtube', 3, 'active', NOW(), NOW()),
-('x', 'https://x.com/tramaxtours', 'twitter', 4, 'active', NOW(), NOW()),
+('facebook', 'https://facebook.com/wanderersouthindia', 'facebook', 1, 'active', NOW(), NOW()),
+('instagram', 'https://instagram.com/wanderersouthindia', 'instagram', 2, 'active', NOW(), NOW()),
+('youtube', 'https://youtube.com/@wanderersouthindia', 'youtube', 3, 'active', NOW(), NOW()),
+('x', 'https://x.com/wanderersouthindia', 'twitter', 4, 'active', NOW(), NOW()),
 ('tripadvisor', 'https://tripadvisor.com', 'tripadvisor', 5, 'active', NOW(), NOW())
 ON DUPLICATE KEY UPDATE `url` = VALUES(`url`), `icon` = VALUES(`icon`);
 

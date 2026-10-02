@@ -1,5 +1,5 @@
 /**
- * Tramax Tours - Reviews Service
+ * Wanderer South India - Reviews Service
  * Communicates with backend endpoints:
  * GET    /api/v1/reviews
  * GET    /api/v1/reviews/{id}

@@ -47,7 +47,7 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     updatePageMeta({
-      title: 'Customer Accounts & Bookings | Tramax Admin',
+      title: 'Customer Accounts & Bookings | Wanderer South India',
       description: 'Manage customer accounts, inspect booked tours, track traveler counts, and handle customer profiles.',
     });
   }, []);

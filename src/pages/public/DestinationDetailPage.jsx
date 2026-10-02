@@ -336,11 +336,11 @@ export default function DestinationDetailPage() {
               <a href="tel:+918072566010" className="dest-contact-pill">
                 📞 +91 80725 66010
               </a>
-              <a href="tel:+919840291110" className="dest-contact-pill">
-                📞 +91 98402 91110
+              <a href="tel:+918072566010" className="dest-contact-pill">
+                📞 +91 80725 66010
               </a>
-              <a href="mailto:info@tramaxtours.com" className="dest-contact-pill">
-                ✉️ info@tramaxtours.com
+              <a href="mailto:info@wanderersouthindia.com" className="dest-contact-pill">
+                ✉️ info@wanderersouthindia.com
               </a>
             </div>
           </div>

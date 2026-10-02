@@ -25,8 +25,8 @@ export default function AdminTourFormPage({ mode = 'create' }) {
   useEffect(() => {
     updatePageMeta({
       title: isEdit
-        ? `Admin - Edit Tour Package | Tramax Tours`
-        : `Admin - Create New Tour Package | Tramax Tours`,
+        ? `Admin - Edit Tour Package | Wanderer South India`
+        : `Admin - Create New Tour Package | Wanderer South India`,
       description: 'Author and configure tour package details, pricing, itineraries, and media visuals.',
     });
   }, [isEdit]);
@@ -45,7 +45,7 @@ export default function AdminTourFormPage({ mode = 'create' }) {
           setInitialData(data);
           if (data?.title) {
             updatePageMeta({
-              title: `Admin - Edit ${data.title} | Tramax Tours`,
+              title: `Admin - Edit ${data.title} | Wanderer South India`,
             });
           }
         }

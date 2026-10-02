@@ -19,12 +19,12 @@ export default function AdminFooterManagerPage() {
 
   // Settings
   const [footerSettings, setFooterSettings] = useState({
-    site_name: 'Tramax Tours',
+    site_name: 'Wanderer South India',
     site_tagline: 'Curated Luxury & Adventure Travel',
-    footer_about: 'Tramax Tours specializes in international tourist safaris, private sightseeing, cultural expeditions, and custom itineraries across premier destinations.',
-    footer_copyright: `© ${new Date().getFullYear()} Tramax Tours. All rights reserved.`,
-    contact_phone: '+91 98400 00000',
-    contact_email: 'contact@tramaxtours.in',
+    footer_about: 'Wanderer South India specializes in international tourist safaris, private sightseeing, cultural expeditions, and custom itineraries across premier destinations.',
+    footer_copyright: `© ${new Date().getFullYear()} Wanderer South India. All rights reserved.`,
+    contact_phone: '+91 80725 66010',
+    contact_email: 'contact@wanderersouthindia.com',
     contact_address: 'Chennai, Tamil Nadu, India',
   });
 
@@ -322,7 +322,7 @@ export default function AdminFooterManagerPage() {
 
           <div className="visual-footer-bottom-bar">
             <span className="v-copyright-text">{footerSettings.footer_copyright}</span>
-            <span className="v-powered-tag">Crafted with Tramax Tours CMS</span>
+            <span className="v-powered-tag">Crafted with Wanderer South India CMS</span>
           </div>
         </div>
       </div>

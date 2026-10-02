@@ -130,7 +130,7 @@ export default function TourBookingCard({ tour }) {
         payment_method: 'pay_on_arrival',
         payment_status: 'pending',
         status: 'pending',
-        special_requests: `Time Slot: ${selectedTimeSlot}. Adults: ${adults}, Children: ${children}. Pickup: ${pickupLocation || 'Standard'}. Notes: ${specialNotes || 'None'}. Booked via tramaxtours.in`,
+        special_requests: `Time Slot: ${selectedTimeSlot}. Adults: ${adults}, Children: ${children}. Pickup: ${pickupLocation || 'Standard'}. Notes: ${specialNotes || 'None'}. Booked via wanderersouthindia.com`,
       };
 
       const response = await bookingService.createBooking(payload);
@@ -144,7 +144,7 @@ export default function TourBookingCard({ tour }) {
   };
 
   const whatsappMessage = encodeURIComponent(
-    `Hello Tramax Tours! I am interested in booking "${tour.title}" for ${adults} Adults, ${children} Children on ${selectedDate} (${selectedTimeSlot}). Total: ${currencySymbol}${totalPrice.toLocaleString()}. Please provide availability and confirmation.`
+    `Hello Wanderer South India! I am interested in booking "${tour.title}" for ${adults} Adults, ${children} Children on ${selectedDate} (${selectedTimeSlot}). Total: ${currencySymbol}${totalPrice.toLocaleString()}. Please provide availability and confirmation.`
   );
 
   const handleDownloadReceipt = async () => {
@@ -158,7 +158,7 @@ export default function TourBookingCard({ tour }) {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `TramaxTours-Receipt-${bookingSuccess.order_number || bookingId}.pdf`;
+      link.download = `WandererSouthIndia-Receipt-${bookingSuccess.order_number || bookingId}.pdf`;
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -171,9 +171,9 @@ export default function TourBookingCard({ tour }) {
   const handleShareWhatsAppReceipt = () => {
     const orderRef = bookingSuccess?.order_number || `#${bookingSuccess?.id || 'TT-CONFIRMED'}`;
     const msg = encodeURIComponent(
-      `🧾 *TRAMAX TOURS — BOOKING RECEIPT*\n\nOrder: ${orderRef}\nGuest: ${customerName}\nTour: ${tour.title}\nTravel Date: ${selectedDate} (${selectedTimeSlot})\nGuests: ${adults} Adults, ${children} Children\nTotal Price: ${currencySymbol}${totalPrice.toLocaleString()}\nPayment: Pay on Arrival\n\nThank you for choosing Tramax Tours!`
+      `🧾 *WANDERER SOUTH INDIA — BOOKING RECEIPT*\n\nOrder: ${orderRef}\nGuest: ${customerName}\nTour: ${tour.title}\nTravel Date: ${selectedDate} (${selectedTimeSlot})\nGuests: ${adults} Adults, ${children} Children\nTotal Price: ${currencySymbol}${totalPrice.toLocaleString()}\nPayment: Pay on Arrival\n\nThank you for choosing Wanderer South India!`
     );
-    window.open(`https://wa.me/919840000000?text=${msg}`, '_blank');
+    window.open(`https://wa.me/918072566010?text=${msg}`, '_blank');
   };
 
   return (
@@ -350,7 +350,7 @@ export default function TourBookingCard({ tour }) {
           )}
 
           <a
-            href={`https://wa.me/919840000000?text=${whatsappMessage}`}
+            href={`https://wa.me/918072566010?text=${whatsappMessage}`}
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-whatsapp btn-block"
@@ -525,7 +525,7 @@ export default function TourBookingCard({ tour }) {
                       id="modal-customer-phone"
                       type="tel"
                       className="form-input"
-                      placeholder="e.g. +91 98400 00000"
+                      placeholder="e.g. +91 80725 66010"
                       value={customerPhone}
                       onChange={(e) => setCustomerPhone(e.target.value)}
                       required

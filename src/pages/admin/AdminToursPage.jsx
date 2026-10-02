@@ -23,7 +23,7 @@ export default function AdminToursPage() {
   // Page Title
   useEffect(() => {
     updatePageMeta({
-      title: 'Admin - Curated Journeys & Tour Catalog | Tramax Tours',
+      title: 'Admin - Curated Journeys & Tour Catalog | Wanderer South India',
       description: 'Manage destinations, experiences, pricing and published tour packages.',
     });
   }, []);

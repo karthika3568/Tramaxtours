@@ -139,7 +139,7 @@ export default function PageForm({
 
   const heroImageUrl = getMediaUrl(heroMedia);
   const currentSlugDisplay = slug || 'your-page-slug';
-  const previewSiteUrl = `https://tramaxtours.com/pages/${currentSlugDisplay}`;
+  const previewSiteUrl = `https://wanderersouthindia.com/pages/${currentSlugDisplay}`;
 
   return (
     <form className="admin-form-card" onSubmit={handleSubmit} noValidate>
@@ -263,7 +263,7 @@ export default function PageForm({
                 id="page-subtitle-input"
                 type="text"
                 className={`form-input ${errors.subtitle ? 'is-invalid' : ''}`}
-                placeholder="e.g. Learn how Tramax Tours handles customer information and privacy rights."
+                placeholder="e.g. Learn how Wanderer South India handles customer information and privacy rights."
                 value={subtitle}
                 onChange={(e) => setSubtitle(e.target.value)}
                 maxLength={255}
@@ -541,7 +541,7 @@ export default function PageForm({
                 id="page-seo-title-input"
                 type="text"
                 className="form-input"
-                placeholder="e.g. Terms and Conditions | Tramax Tours"
+                placeholder="e.g. Terms and Conditions | Wanderer South India"
                 value={seoTitle}
                 onChange={(e) => setSeoTitle(e.target.value)}
                 maxLength={255}
@@ -585,12 +585,12 @@ export default function PageForm({
               <div className="serp-preview-box">
                 <div className="serp-url">{previewSiteUrl}</div>
                 <div className="serp-title">
-                  {seoTitle || title || 'Tramax Tours — Page Title'}
+                  {seoTitle || title || 'Wanderer South India — Page Title'}
                 </div>
                 <div className="serp-desc">
                   {seoDescription ||
                     subtitle ||
-                    'Discover Tramax Tours policy and legal information. Read our official terms, privacy practices, and guidelines.'}
+                    'Discover Wanderer South India policy and legal information. Read our official terms, privacy practices, and guidelines.'}
                 </div>
               </div>
             </div>

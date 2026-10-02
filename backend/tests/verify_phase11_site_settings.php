@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tramax Tours - Phase 11 Comprehensive End-to-End Site Settings API Verification Test Suite
+ * Wanderer South India - Phase 11 Comprehensive End-to-End Site Settings API Verification Test Suite
  * 
  * Verifies all Phase 11 requirements:
  * - Database schema, columns (including deleted_at, deleted_by) & settings.view / settings.manage permissions
@@ -56,7 +56,7 @@ function recordResult(string $title, bool $success, string $details = ''): void
 }
 
 echo PHP_EOL . "================================================================================" . PHP_EOL;
-echo "  TRAMAX TOURS — PHASE 11 SITE SETTINGS MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
+echo "  WANDERER SOUTH INDIA — PHASE 11 SITE SETTINGS MANAGEMENT VERIFICATION SUITE" . PHP_EOL;
 echo "================================================================================" . PHP_EOL . PHP_EOL;
 
 // 2. Start Local Test Server
