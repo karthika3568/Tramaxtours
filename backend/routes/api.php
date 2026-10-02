@@ -15,7 +15,9 @@ use App\Controllers\ReviewController;
 use App\Controllers\RoleController;
 use App\Controllers\SiteSettingController;
 use App\Controllers\SocialLinkController;
+use App\Controllers\TestimonialController;
 use App\Controllers\TourController;
+use App\Controllers\TripRequestController;
 use App\Controllers\UserController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\PermissionMiddleware;
@@ -23,7 +25,7 @@ use App\Middleware\RoleMiddleware;
 use App\Utils\Router;
 
 /**
- * TramaxTours Backend API Routes Definition
+ * Wanderer South India Backend API Routes Definition
  * 
  * @var Router $router
  */
@@ -377,6 +379,62 @@ $router->group('/api/v1', function (Router $router) {
         $router->patch('/{id}/feature', [ReviewController::class, 'feature'], [new PermissionMiddleware('reviews.moderate')]);
         $router->post('/{id}/unfeature', [ReviewController::class, 'unfeature'], [new PermissionMiddleware('reviews.moderate')]);
         $router->patch('/{id}/unfeature', [ReviewController::class, 'unfeature'], [new PermissionMiddleware('reviews.moderate')]);
+    });
+
+    // Testimonials Management Routes
+    $router->group('/testimonials', function (Router $router) {
+        // List Testimonials (Public / Authenticated)
+        $router->get('', [TestimonialController::class, 'index']);
+
+        // Create Testimonial (Permission: testimonials.manage)
+        $router->post('', [TestimonialController::class, 'store'], [new PermissionMiddleware('testimonials.manage')]);
+
+        // Get Single Testimonial (Public / Authenticated)
+        $router->get('/{id}', [TestimonialController::class, 'show']);
+
+        // Update Testimonial (Permission: testimonials.manage)
+        $router->put('/{id}', [TestimonialController::class, 'update'], [new PermissionMiddleware('testimonials.manage')]);
+        $router->patch('/{id}', [TestimonialController::class, 'update'], [new PermissionMiddleware('testimonials.manage')]);
+
+        // Delete Testimonial (Permission: testimonials.manage)
+        $router->delete('/{id}', [TestimonialController::class, 'destroy'], [new PermissionMiddleware('testimonials.manage')]);
+    });
+
+    // Trip Request ("Request My Trip") Routes
+    $router->group('/trip-requests', function (Router $router) {
+        // Submit a Trip Request (Public)
+        $router->post('', [TripRequestController::class, 'store']);
+
+        // List Trip Requests (Permission: trip_requests.view)
+        $router->get('', [TripRequestController::class, 'index'], [new PermissionMiddleware('trip_requests.view')]);
+
+        // KPI Summary (Permission: trip_requests.view) — must be registered before /{id}
+        $router->get('/kpi-summary', [TripRequestController::class, 'kpiSummary'], [new PermissionMiddleware('trip_requests.view')]);
+
+        // Public Success Summary by Reference ID — must be registered before /{id}
+        $router->get('/reference/{referenceId}', [TripRequestController::class, 'showByReference']);
+
+        // Get Single Trip Request Detail (Permission: trip_requests.view)
+        $router->get('/{id}', [TripRequestController::class, 'show'], [new PermissionMiddleware('trip_requests.view')]);
+
+        // Update Trip Request Fields (Permission: trip_requests.manage)
+        $router->put('/{id}', [TripRequestController::class, 'update'], [new PermissionMiddleware('trip_requests.manage')]);
+        $router->patch('/{id}', [TripRequestController::class, 'update'], [new PermissionMiddleware('trip_requests.manage')]);
+
+        // Update Status (Permission: trip_requests.manage)
+        $router->patch('/{id}/status', [TripRequestController::class, 'updateStatus'], [new PermissionMiddleware('trip_requests.manage')]);
+
+        // Add Admin Note (Permission: trip_requests.manage)
+        $router->post('/{id}/notes', [TripRequestController::class, 'addNote'], [new PermissionMiddleware('trip_requests.manage')]);
+
+        // Status Change Timeline (Permission: trip_requests.view)
+        $router->get('/{id}/timeline', [TripRequestController::class, 'timeline'], [new PermissionMiddleware('trip_requests.view')]);
+
+        // Protected Document Download (Permission: trip_requests.manage)
+        $router->get('/{id}/documents/{documentId}/download', [TripRequestController::class, 'downloadDocument'], [new PermissionMiddleware('trip_requests.manage')]);
+
+        // Delete Trip Request (Permission: trip_requests.manage)
+        $router->delete('/{id}', [TripRequestController::class, 'destroy'], [new PermissionMiddleware('trip_requests.manage')]);
     });
 
     // Bookings & Orders Management Routes

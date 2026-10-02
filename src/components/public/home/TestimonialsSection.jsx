@@ -1,81 +1,47 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import reviewService from '../../../services/reviewService';
+import testimonialService from '../../../services/testimonialService';
 import { getMediaUrl } from '../../../utils/media';
 
-const CURATED_TESTIMONIALS = [
-  {
-    id: 1,
-    customer_name: 'Marc Knulle',
-    role: 'Hockey Player',
-    content: 'The tour was well organized and completely hassle-free. Great planning and smooth travel experience.',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 2,
-    customer_name: 'Sophie Vandermeer',
-    role: 'Traveler from Netherlands',
-    content: 'South India with Tramax Tours was the highlight of our year. Our driver was so polite and the heritage monuments were breathtaking.',
-    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 3,
-    customer_name: 'David Miller',
-    role: 'Guest from United Kingdom',
-    content: 'Impeccable private vehicle, punctuality and authentic cultural experiences. We felt safe and thoroughly looked after throughout our tour.',
-    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 4,
-    customer_name: 'Elena Rostova',
-    role: 'Architect from Germany',
-    content: 'Flawless arrangements and warm hospitality. The attention to detail was top-tier. Highly recommended for international explorers!',
-    image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 5,
-    customer_name: 'Jean-Luc Moreau',
-    role: 'Historian from France',
-    content: 'The day tour from Mahabalipuram to Pondicherry exceeded all expectations. Exceptional chauffeur guide and first-class service.',
-    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&auto=format&fit=crop&q=80',
-  },
-];
+function getInitials(name) {
+  if (!name) return '';
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('');
+}
 
 export default function TestimonialsSection() {
-  const [items, setItems] = useState(CURATED_TESTIMONIALS);
+  const [items, setItems] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef(null);
 
-  // Fetch verified reviews from backend and merge
   useEffect(() => {
     let isMounted = true;
-    async function loadReviews() {
+    async function loadTestimonials() {
       try {
-        const data = await reviewService.getReviews({ limit: 10, status: 'approved' });
-        const reviewItems = data.items || (Array.isArray(data) ? data : []);
+        const data = await testimonialService.getTestimonials({ limit: 10 });
+        const testimonialItems = data.items || (Array.isArray(data) ? data : []);
 
-        if (isMounted && reviewItems.length > 0) {
-          const mapped = reviewItems.map((r, idx) => {
-            const mediaUrl = r.media && r.media.length > 0 ? getMediaUrl(r.media[0]) : null;
-            const fallback = CURATED_TESTIMONIALS[idx % CURATED_TESTIMONIALS.length];
-
-            return {
-              id: r.id,
-              customer_name: r.customer_name || fallback.customer_name,
-              role: r.customer_country ? `Guest from ${r.customer_country}` : (r.title || fallback.role),
-              content: r.content || fallback.content,
-              image: mediaUrl || fallback.image,
-            };
-          });
+        if (isMounted) {
+          const mapped = testimonialItems.map((t) => ({
+            id: t.id,
+            customer_name: t.client_name,
+            role: t.location || null,
+            content: t.message,
+            image: t.client_image ? getMediaUrl(t.client_image) : null,
+          }));
 
           setItems(mapped);
         }
       } catch {
-        // Fallback gracefully
+        if (isMounted) setItems([]);
       }
     }
 
-    loadReviews();
+    loadTestimonials();
 
     return () => {
       isMounted = false;
@@ -162,12 +128,18 @@ export default function TestimonialsSection() {
                 >
                   {/* Portrait Photo Container */}
                   <div className="deck-card-photo-box">
-                    <img
-                      src={item.image}
-                      alt={item.customer_name}
-                      className="deck-card-photo"
-                      loading="lazy"
-                    />
+                    {item.image ? (
+                      <img
+                        src={item.image}
+                        alt={item.customer_name}
+                        className="deck-card-photo"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="deck-card-photo-initials" aria-hidden="true">
+                        {getInitials(item.customer_name)}
+                      </div>
+                    )}
                   </div>
 
                   {/* Card White Body Details */}

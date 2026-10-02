@@ -27,6 +27,8 @@ export { default as AdminPageFormPage } from '../pages/admin/AdminPageFormPage';
 
 export { default as AdminBookingsPage } from '../pages/admin/AdminBookingsPage';
 export { default as AdminReviewsPage } from '../pages/admin/AdminReviewsPage';
+export { default as AdminTestimonialsPage } from '../pages/admin/AdminTestimonialsPage';
+export { default as AdminTripRequestsPage } from '../pages/admin/AdminTripRequestsPage';
 
 // Access Control & Staff
 export { default as AdminUsersPage } from '../pages/admin/AdminUsersPage';
