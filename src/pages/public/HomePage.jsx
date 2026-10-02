@@ -4,20 +4,18 @@ import { updatePageMeta } from '../../utils/metadata';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import HeroSection from '../../components/public/home/HeroSection';
 import HomeSearchSection from '../../components/public/home/HomeSearchSection';
-import FeaturedDestinations from '../../components/public/home/FeaturedDestinations';
-import ThingsToDoSection from '../../components/public/home/ThingsToDoSection';
-import FeaturedTours from '../../components/public/home/FeaturedTours';
 import BenefitsSection from '../../components/public/home/BenefitsSection';
+import FeaturedDestinations from '../../components/public/home/FeaturedDestinations';
+import FeaturedTours from '../../components/public/home/FeaturedTours';
 import TestimonialsSection from '../../components/public/home/TestimonialsSection';
 import CmsSections from '../../components/public/home/CmsSections';
 
 const DEFAULT_SECTIONS = [
   'hero',
   'search',
-  'destinations',
-  'things_to_do',
-  'tours',
   'benefits',
+  'destinations',
+  'tours',
   'reviews',
   'cms',
 ];
@@ -79,14 +77,12 @@ export default function HomePage() {
         return <HeroSection key="hero" />;
       case 'search':
         return <HomeSearchSection key="search" />;
-      case 'destinations':
-        return <FeaturedDestinations key="destinations" />;
-      case 'things_to_do':
-        return <ThingsToDoSection key="things_to_do" />;
-      case 'tours':
-        return <FeaturedTours key="tours" />;
       case 'benefits':
         return <BenefitsSection key="benefits" />;
+      case 'destinations':
+        return <FeaturedDestinations key="destinations" />;
+      case 'tours':
+        return <FeaturedTours key="tours" />;
       case 'reviews':
         return <TestimonialsSection key="reviews" />;
       case 'cms':
