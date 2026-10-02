@@ -14,6 +14,14 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let isMounted = true;
 
+    const token = getAccessToken();
+    if (!token) {
+      setIsLoading(false);
+      return () => {
+        isMounted = false;
+      };
+    }
+
     authService
       .getCurrentUser()
       .then((data) => {
@@ -23,7 +31,9 @@ export function AuthProvider({ children }) {
         }
       })
       .catch(() => {
-        // Keep session
+        // Clear invalid token if session retrieval fails
+        removeAccessToken();
+        if (isMounted) setUser(null);
       })
       .finally(() => {
         if (isMounted) {
