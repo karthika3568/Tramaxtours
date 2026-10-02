@@ -56,9 +56,12 @@ import {
   AdminSocialLinksPage,
 } from './AdminRoutes';
 
+import ScrollToTop from '../components/common/ScrollToTop';
+
 export default function AppRouter() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Suspense fallback={<Loading fullscreen text="Loading Wanderer South India..." />}>
         <Routes>
           {/* Public Routes with PublicLayout */}
