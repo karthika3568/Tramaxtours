@@ -1,6 +1,9 @@
+import { getMediaUrl } from '../../../utils/media';
+
 export default function ReviewTable({
   reviews,
   onViewDetails,
+  onEditClick,
   onApprove,
   onReject,
   onToggleFeature,
@@ -66,14 +69,29 @@ export default function ReviewTable({
                     .toUpperCase()
                 : 'U';
 
+              const clientPhoto = review.image || (review.media && review.media.length > 0 ? getMediaUrl(review.media[0]) : null);
+
               return (
                 <tr key={review.id} className="admin-table-row">
                   {/* Customer Info */}
                   <td className="dest-table-name-cell">
                     <div className="review-customer-cell-wrapper">
-                      <div className="review-customer-avatar-mini">
-                        <span>{initials}</span>
-                      </div>
+                      {clientPhoto ? (
+                        <img
+                          src={getMediaUrl(clientPhoto)}
+                          alt={review.customer_name}
+                          className="review-customer-avatar-mini"
+                          style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #1226de', flexShrink: 0 }}
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(review.customer_name || 'Guest')}&background=1226de&color=fff&size=72`;
+                          }}
+                        />
+                      ) : (
+                        <div className="review-customer-avatar-mini">
+                          <span>{initials}</span>
+                        </div>
+                      )}
                       <div className="review-customer-info-col">
                         <strong className="review-customer-name">
                           {review.customer_name}
@@ -173,6 +191,19 @@ export default function ReviewTable({
                         👁️
                       </button>
 
+                      {/* Edit Testimonial */}
+                      {canModerate && onEditClick && (
+                        <button
+                          type="button"
+                          className="btn-action-icon"
+                          title="Edit Testimonial & Photo"
+                          aria-label={`Edit review from ${review.customer_name}`}
+                          onClick={() => onEditClick(review)}
+                        >
+                          ✎
+                        </button>
+                      )}
+
                       {/* Quick Approve */}
                       {canModerate && !isApproved && (
                         <button
@@ -247,7 +278,6 @@ export default function ReviewTable({
           const isFeatured = Boolean(review.is_featured);
           const isLoading = actionLoadingId === review.id;
           const mediaCount = review.media?.length || 0;
-
           const initials = review.customer_name
             ? review.customer_name
                 .split(' ')
@@ -256,13 +286,27 @@ export default function ReviewTable({
                 .join('')
                 .toUpperCase()
             : 'U';
+          const clientPhoto = review.image || (review.media && review.media.length > 0 ? getMediaUrl(review.media[0]) : null);
 
           return (
             <div key={review.id} className="admin-mobile-card">
               <div className="admin-mobile-card-header">
-                <div className="review-customer-avatar-mini">
-                  <span>{initials}</span>
-                </div>
+                {clientPhoto ? (
+                  <img
+                    src={getMediaUrl(clientPhoto)}
+                    alt={review.customer_name}
+                    className="review-customer-avatar-mini"
+                    style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #1226de', flexShrink: 0 }}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(review.customer_name || 'Guest')}&background=1226de&color=fff&size=72`;
+                    }}
+                  />
+                ) : (
+                  <div className="review-customer-avatar-mini">
+                    <span>{initials}</span>
+                  </div>
+                )}
 
                 <div className="admin-mobile-card-title-group">
                   <h3 className="admin-mobile-card-title">

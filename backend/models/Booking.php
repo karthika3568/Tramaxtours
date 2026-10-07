@@ -17,7 +17,7 @@ class Booking extends BaseModel
      */
     public static function generateOrderNumber(): string
     {
-        $prefix = 'TT-' . date('Ymd') . '-';
+        $prefix = 'WSI-' . date('Ymd') . '-';
         do {
             $suffix = strtoupper(bin2hex(random_bytes(2)));
             $orderNumber = $prefix . $suffix;
@@ -53,26 +53,30 @@ class Booking extends BaseModel
      * @param array $customerData
      * @param array $billingData
      * @param array|null $paymentData
-     * @return int
+     * @return array
      */
     public static function create(
         array $bookingData,
         array $customerData,
         array $billingData,
         ?array $paymentData = null
-    ): int {
+    ): array {
         $orderNumber = !empty($bookingData['order_number'])
             ? (string) $bookingData['order_number']
             : self::generateOrderNumber();
 
-        $ticketsCount = max(1, (int) ($bookingData['tickets_count'] ?? 1));
+        $adultsCount = isset($bookingData['adults_count']) ? (int) $bookingData['adults_count'] : 1;
+        $childrenCount = isset($bookingData['children_count']) ? (int) $bookingData['children_count'] : 0;
+        $infantsCount = isset($bookingData['infants_count']) ? (int) $bookingData['infants_count'] : 0;
+        $ticketsCount = max(1, (int) ($bookingData['tickets_count'] ?? ($adultsCount + $childrenCount)));
+
         $unitPrice = (float) ($bookingData['unit_price'] ?? 0.0);
         $subtotal = isset($bookingData['subtotal']) ? (float) $bookingData['subtotal'] : ($unitPrice * $ticketsCount);
         $taxAmount = (float) ($bookingData['tax_amount'] ?? 0.0);
         $discountAmount = (float) ($bookingData['discount_amount'] ?? 0.0);
         $totalPrice = isset($bookingData['total_price']) ? (float) $bookingData['total_price'] : ($subtotal + $taxAmount - $discountAmount);
 
-        $currency = !empty($bookingData['currency']) ? (string) $bookingData['currency'] : 'EUR';
+        $currency = !empty($bookingData['currency']) ? (string) $bookingData['currency'] : 'INR';
         $bookingStatus = in_array($bookingData['booking_status'] ?? '', self::ALLOWED_STATUSES, true)
             ? $bookingData['booking_status']
             : 'pending';
@@ -82,7 +86,11 @@ class Booking extends BaseModel
             : 'pending';
 
         $tourId = (int) $bookingData['tour_id'];
-        $bookingDate = !empty($bookingData['booking_date']) ? $bookingData['booking_date'] : date('Y-m-d');
+        $bookingDate = !empty($bookingData['booking_date']) ? $bookingData['booking_date'] : (!empty($bookingData['arrival_date']) ? $bookingData['arrival_date'] : date('Y-m-d'));
+
+        // Generate unguessable random access token for public customer verification
+        $plainToken = bin2hex(random_bytes(32));
+        $tokenHash = hash('sha256', $plainToken);
 
         Database::beginTransaction();
 
@@ -101,6 +109,7 @@ class Booking extends BaseModel
 
             $bookingId = self::insertBookingRecords($bookingData, $customerData, $billingData, $paymentData, [
                 'order_number' => $orderNumber,
+                'access_token_hash' => $tokenHash,
                 'tour_id' => $tourId,
                 'booking_date' => $bookingDate,
                 'tickets_count' => $ticketsCount,
@@ -116,7 +125,11 @@ class Booking extends BaseModel
             ]);
 
             Database::commit();
-            return $bookingId;
+            return [
+                'id' => $bookingId,
+                'access_token' => $plainToken,
+                'order_number' => $orderNumber,
+            ];
         } catch (\Throwable $e) {
             Database::rollBack();
             throw $e;
@@ -124,9 +137,8 @@ class Booking extends BaseModel
     }
 
     /**
-     * Insert the 5 related rows for a new booking (bookings, customer details, billing
-     * address, status history, payment). Split out of create() so the date-availability
-     * reservation above stays inside the same transaction as these inserts.
+     * Insert the related rows for a new booking (bookings, customer details, billing
+     * address, status history, payment).
      *
      * @return int
      */
@@ -137,30 +149,87 @@ class Booking extends BaseModel
         ?array $paymentData,
         array $computed
     ): int {
-        ['order_number' => $orderNumber, 'tour_id' => $tourId, 'booking_date' => $bookingDate,
+        ['order_number' => $orderNumber, 'access_token_hash' => $accessTokenHash, 'tour_id' => $tourId, 'booking_date' => $bookingDate,
          'tickets_count' => $ticketsCount, 'unit_price' => $unitPrice, 'subtotal' => $subtotal,
          'tax_amount' => $taxAmount, 'discount_amount' => $discountAmount, 'total_price' => $totalPrice,
          'currency' => $currency, 'booking_status' => $bookingStatus, 'payment_method' => $paymentMethod,
          'payment_status' => $paymentStatus] = $computed;
 
+        $tourTypes = isset($bookingData['tour_types'])
+            ? (is_array($bookingData['tour_types']) ? json_encode($bookingData['tour_types']) : (string) $bookingData['tour_types'])
+            : null;
+
+        $contactMethods = isset($bookingData['preferred_contact_methods'])
+            ? (is_array($bookingData['preferred_contact_methods']) ? json_encode($bookingData['preferred_contact_methods']) : (string) $bookingData['preferred_contact_methods'])
+            : null;
+
         $sql = 'INSERT INTO `bookings` (
-            `order_number`, `user_id`, `tour_id`, `pricing_tier_id`, `booking_date`,
-            `tickets_count`, `unit_price`, `subtotal`, `tax_amount`, `discount_amount`,
+            `order_number`, `access_token_hash`, `user_id`, `tour_id`, `pricing_tier_id`,
+            `first_name`, `middle_name`, `last_name`, `dial_code`, `country`, `destination_name`,
+            `pickup_location`, `arrival_date`, `departure_date`, `duration_days`,
+            `adults_count`, `children_count`, `infants_count`,
+            `tour_types`, `tour_guide_required`, `preferred_language`, `vehicle_preference`,
+            `airport_pickup`, `airport_drop`, `hotel_category`, `room_type`, `rooms_count`,
+            `arrival_flight_train_number`, `arrival_time`, `departure_flight_train_number`, `departure_time`,
+            `approximate_budget`, `budget_currency`, `passport_file_url`, `flight_ticket_url`,
+            `preferred_contact_methods`, `special_requests`,
+            `booking_date`, `tickets_count`, `unit_price`, `subtotal`, `tax_amount`, `discount_amount`,
             `total_price`, `currency`, `booking_status`, `payment_method`, `payment_status`,
             `customer_notes`, `admin_notes`, `created_at`, `updated_at`
         ) VALUES (
-            :order_number, :user_id, :tour_id, :pricing_tier_id, :booking_date,
-            :tickets_count, :unit_price, :subtotal, :tax_amount, :discount_amount,
+            :order_number, :access_token_hash, :user_id, :tour_id, :pricing_tier_id,
+            :first_name, :middle_name, :last_name, :dial_code, :country, :destination_name,
+            :pickup_location, :arrival_date, :departure_date, :duration_days,
+            :adults_count, :children_count, :infants_count,
+            :tour_types, :tour_guide_required, :preferred_language, :vehicle_preference,
+            :airport_pickup, :airport_drop, :hotel_category, :room_type, :rooms_count,
+            :arrival_flight_train_number, :arrival_time, :departure_flight_train_number, :departure_time,
+            :approximate_budget, :budget_currency, :passport_file_url, :flight_ticket_url,
+            :preferred_contact_methods, :special_requests,
+            :booking_date, :tickets_count, :unit_price, :subtotal, :tax_amount, :discount_amount,
             :total_price, :currency, :booking_status, :payment_method, :payment_status,
             :customer_notes, :admin_notes, NOW(), NOW()
         )';
 
         self::execute($sql, [
             ':order_number' => $orderNumber,
+            ':access_token_hash' => $accessTokenHash,
             ':user_id' => !empty($bookingData['user_id']) ? (int) $bookingData['user_id'] : null,
             ':tour_id' => (int) $bookingData['tour_id'],
             ':pricing_tier_id' => !empty($bookingData['pricing_tier_id']) ? (int) $bookingData['pricing_tier_id'] : null,
-            ':booking_date' => !empty($bookingData['booking_date']) ? $bookingData['booking_date'] : date('Y-m-d'),
+            ':first_name' => !empty($bookingData['first_name']) ? (string) $bookingData['first_name'] : (!empty($customerData['first_name']) ? (string) $customerData['first_name'] : null),
+            ':middle_name' => !empty($bookingData['middle_name']) ? (string) $bookingData['middle_name'] : (!empty($customerData['middle_name']) ? (string) $customerData['middle_name'] : null),
+            ':last_name' => !empty($bookingData['last_name']) ? (string) $bookingData['last_name'] : (!empty($customerData['last_name']) ? (string) $customerData['last_name'] : null),
+            ':dial_code' => !empty($bookingData['dial_code']) ? (string) $bookingData['dial_code'] : (!empty($customerData['dial_code']) ? (string) $customerData['dial_code'] : '+91'),
+            ':country' => !empty($bookingData['country']) ? (string) $bookingData['country'] : (!empty($customerData['country']) ? (string) $customerData['country'] : 'India'),
+            ':destination_name' => !empty($bookingData['destination_name']) ? (string) $bookingData['destination_name'] : (!empty($bookingData['destination']) ? (string) $bookingData['destination'] : null),
+            ':pickup_location' => !empty($bookingData['pickup_location']) ? (string) $bookingData['pickup_location'] : null,
+            ':arrival_date' => !empty($bookingData['arrival_date']) ? (string) $bookingData['arrival_date'] : $bookingDate,
+            ':departure_date' => !empty($bookingData['departure_date']) ? (string) $bookingData['departure_date'] : null,
+            ':duration_days' => !empty($bookingData['duration_days']) ? (string) $bookingData['duration_days'] : null,
+            ':adults_count' => isset($bookingData['adults_count']) ? (int) $bookingData['adults_count'] : $ticketsCount,
+            ':children_count' => isset($bookingData['children_count']) ? (int) $bookingData['children_count'] : 0,
+            ':infants_count' => isset($bookingData['infants_count']) ? (int) $bookingData['infants_count'] : 0,
+            ':tour_types' => $tourTypes,
+            ':tour_guide_required' => isset($bookingData['tour_guide_required']) ? ($bookingData['tour_guide_required'] ? 1 : 0) : 0,
+            ':preferred_language' => !empty($bookingData['preferred_language']) ? (string) $bookingData['preferred_language'] : null,
+            ':vehicle_preference' => !empty($bookingData['vehicle_preference']) ? (string) $bookingData['vehicle_preference'] : null,
+            ':airport_pickup' => isset($bookingData['airport_pickup']) ? ($bookingData['airport_pickup'] ? 1 : 0) : 0,
+            ':airport_drop' => isset($bookingData['airport_drop']) ? ($bookingData['airport_drop'] ? 1 : 0) : 0,
+            ':hotel_category' => !empty($bookingData['hotel_category']) ? (string) $bookingData['hotel_category'] : null,
+            ':room_type' => !empty($bookingData['room_type']) ? (string) $bookingData['room_type'] : null,
+            ':rooms_count' => isset($bookingData['rooms_count']) ? (int) $bookingData['rooms_count'] : 1,
+            ':arrival_flight_train_number' => !empty($bookingData['arrival_flight_train_number']) ? (string) $bookingData['arrival_flight_train_number'] : null,
+            ':arrival_time' => !empty($bookingData['arrival_time']) ? (string) $bookingData['arrival_time'] : null,
+            ':departure_flight_train_number' => !empty($bookingData['departure_flight_train_number']) ? (string) $bookingData['departure_flight_train_number'] : null,
+            ':departure_time' => !empty($bookingData['departure_time']) ? (string) $bookingData['departure_time'] : null,
+            ':approximate_budget' => !empty($bookingData['approximate_budget']) ? (string) $bookingData['approximate_budget'] : null,
+            ':budget_currency' => !empty($bookingData['budget_currency']) ? (string) $bookingData['budget_currency'] : 'INR',
+            ':passport_file_url' => !empty($bookingData['passport_file_url']) ? (string) $bookingData['passport_file_url'] : null,
+            ':flight_ticket_url' => !empty($bookingData['flight_ticket_url']) ? (string) $bookingData['flight_ticket_url'] : null,
+            ':preferred_contact_methods' => $contactMethods,
+            ':special_requests' => !empty($bookingData['special_requests']) ? (string) $bookingData['special_requests'] : null,
+            ':booking_date' => $bookingDate,
             ':tickets_count' => $ticketsCount,
             ':unit_price' => $unitPrice,
             ':subtotal' => $subtotal,
@@ -179,16 +248,19 @@ class Booking extends BaseModel
 
         // 2. Insert Customer Details
         $custSql = 'INSERT INTO `booking_customer_details` (
-            `booking_id`, `first_name`, `last_name`, `email`, `phone`, `created_at`, `updated_at`
+            `booking_id`, `first_name`, `middle_name`, `last_name`, `dial_code`, `country`, `email`, `phone`, `created_at`, `updated_at`
         ) VALUES (
-            :booking_id, :first_name, :last_name, :email, :phone, NOW(), NOW()
+            :booking_id, :first_name, :middle_name, :last_name, :dial_code, :country, :email, :phone, NOW(), NOW()
         )';
         self::execute($custSql, [
             ':booking_id' => $bookingId,
-            ':first_name' => (string) ($customerData['first_name'] ?? ''),
-            ':last_name' => (string) ($customerData['last_name'] ?? ''),
-            ':email' => (string) ($customerData['email'] ?? ''),
-            ':phone' => (string) ($customerData['phone'] ?? ''),
+            ':first_name' => (string) ($customerData['first_name'] ?? ($bookingData['first_name'] ?? '')),
+            ':middle_name' => !empty($customerData['middle_name']) ? (string) $customerData['middle_name'] : (!empty($bookingData['middle_name']) ? (string) $bookingData['middle_name'] : null),
+            ':last_name' => (string) ($customerData['last_name'] ?? ($bookingData['last_name'] ?? '')),
+            ':dial_code' => !empty($customerData['dial_code']) ? (string) $customerData['dial_code'] : (!empty($bookingData['dial_code']) ? (string) $bookingData['dial_code'] : '+91'),
+            ':country' => !empty($customerData['country']) ? (string) $customerData['country'] : (!empty($bookingData['country']) ? (string) $bookingData['country'] : 'India'),
+            ':email' => (string) ($customerData['email'] ?? ($bookingData['email'] ?? '')),
+            ':phone' => (string) ($customerData['phone'] ?? ($bookingData['phone'] ?? '')),
         ]);
 
         // 3. Insert Billing Address
@@ -199,12 +271,12 @@ class Booking extends BaseModel
         )';
         self::execute($billSql, [
             ':booking_id' => $bookingId,
-            ':address_line1' => (string) ($billingData['address_line1'] ?? ''),
+            ':address_line1' => (string) ($billingData['address_line1'] ?? ($bookingData['pickup_location'] ?? 'Hotel / Airport Pickup')),
             ':address_line2' => !empty($billingData['address_line2']) ? (string) $billingData['address_line2'] : null,
-            ':city' => (string) ($billingData['city'] ?? ''),
-            ':state' => !empty($billingData['state']) ? (string) $billingData['state'] : null,
-            ':postal_code' => (string) ($billingData['postal_code'] ?? ''),
-            ':country' => (string) ($billingData['country'] ?? ''),
+            ':city' => (string) ($billingData['city'] ?? ($bookingData['country'] ?? 'Chennai')),
+            ':state' => !empty($billingData['state']) ? (string) $billingData['state'] : 'Tamil Nadu',
+            ':postal_code' => (string) ($billingData['postal_code'] ?? '600001'),
+            ':country' => (string) ($billingData['country'] ?? ($bookingData['country'] ?? 'India')),
         ]);
 
         // 4. Record Initial Status History
@@ -714,12 +786,47 @@ class Booking extends BaseModel
             'payment_status' => $row['payment_status'],
             'customer_notes' => $row['customer_notes'],
             'admin_notes' => $row['admin_notes'],
+            'first_name' => $row['first_name'] ?? ($customer['first_name'] ?? null),
+            'middle_name' => $row['middle_name'] ?? ($customer['middle_name'] ?? null),
+            'last_name' => $row['last_name'] ?? ($customer['last_name'] ?? null),
+            'dial_code' => $row['dial_code'] ?? ($customer['dial_code'] ?? '+91'),
+            'country' => $row['country'] ?? ($customer['country'] ?? 'India'),
+            'destination_name' => $row['destination_name'] ?? ($row['tour_destination_name'] ?? null),
+            'pickup_location' => $row['pickup_location'] ?? null,
+            'arrival_date' => $row['arrival_date'] ?? $row['booking_date'],
+            'departure_date' => $row['departure_date'] ?? null,
+            'duration_days' => $row['duration_days'] ?? null,
+            'adults_count' => isset($row['adults_count']) ? (int) $row['adults_count'] : (int) $row['tickets_count'],
+            'children_count' => isset($row['children_count']) ? (int) $row['children_count'] : 0,
+            'infants_count' => isset($row['infants_count']) ? (int) $row['infants_count'] : 0,
+            'tour_types' => !empty($row['tour_types']) ? (json_decode($row['tour_types'], true) ?: $row['tour_types']) : [],
+            'tour_guide_required' => !empty($row['tour_guide_required']),
+            'preferred_language' => $row['preferred_language'] ?? null,
+            'vehicle_preference' => $row['vehicle_preference'] ?? null,
+            'airport_pickup' => !empty($row['airport_pickup']),
+            'airport_drop' => !empty($row['airport_drop']),
+            'hotel_category' => $row['hotel_category'] ?? null,
+            'room_type' => $row['room_type'] ?? null,
+            'rooms_count' => isset($row['rooms_count']) ? (int) $row['rooms_count'] : 1,
+            'arrival_flight_train_number' => $row['arrival_flight_train_number'] ?? null,
+            'arrival_time' => $row['arrival_time'] ?? null,
+            'departure_flight_train_number' => $row['departure_flight_train_number'] ?? null,
+            'departure_time' => $row['departure_time'] ?? null,
+            'approximate_budget' => $row['approximate_budget'] ?? null,
+            'budget_currency' => $row['budget_currency'] ?? 'INR',
+            'passport_file_url' => $row['passport_file_url'] ?? null,
+            'flight_ticket_url' => $row['flight_ticket_url'] ?? null,
+            'preferred_contact_methods' => !empty($row['preferred_contact_methods']) ? (json_decode($row['preferred_contact_methods'], true) ?: $row['preferred_contact_methods']) : [],
+            'special_requests' => $row['special_requests'] ?? null,
             'customer' => $customer ? [
-                'name' => $customerName,
-                'first_name' => $customer['first_name'],
-                'last_name' => $customer['last_name'],
-                'email' => $customer['email'],
-                'phone' => $customer['phone'],
+                'name' => $customerName ?: trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? '')),
+                'first_name' => $customer['first_name'] ?? ($row['first_name'] ?? null),
+                'middle_name' => $customer['middle_name'] ?? ($row['middle_name'] ?? null),
+                'last_name' => $customer['last_name'] ?? ($row['last_name'] ?? null),
+                'dial_code' => $customer['dial_code'] ?? ($row['dial_code'] ?? '+91'),
+                'country' => $customer['country'] ?? ($row['country'] ?? 'India'),
+                'email' => $customer['email'] ?? null,
+                'phone' => $customer['phone'] ?? null,
             ] : null,
             'billing_address' => $billing ? [
                 'address_line1' => $billing['address_line1'],
@@ -742,9 +849,131 @@ class Booking extends BaseModel
                     'created_at' => $p['created_at'],
                 ];
             }, $payments),
+            'customer_email_status' => $row['customer_email_status'] ?? 'pending',
+            'customer_email_sent_at' => $row['customer_email_sent_at'] ?? null,
+            'admin_email_status' => $row['admin_email_status'] ?? 'pending',
+            'admin_email_sent_at' => $row['admin_email_sent_at'] ?? null,
+            'email_send_count' => (int) ($row['email_send_count'] ?? 0),
+            'last_email_attempt_at' => $row['last_email_attempt_at'] ?? null,
+            'last_email_error' => $row['last_email_error'] ?? null,
             'created_at' => $row['created_at'],
             'updated_at' => $row['updated_at'],
             'deleted_at' => $row['deleted_at'] ?? null,
         ];
+    }
+
+    /**
+     * Verify the provided plain access token against the stored SHA-256 hash in constant time.
+     *
+     * @param int $bookingId
+     * @param string $token
+     * @return bool
+     */
+    public static function verifyAccessToken(int $bookingId, string $token): bool
+    {
+        $token = trim($token);
+        if ($token === '') {
+            return false;
+        }
+
+        $sql = 'SELECT `access_token_hash` FROM `bookings` WHERE `id` = :id';
+        $storedHash = (string) self::fetchColumn($sql, [':id' => $bookingId]);
+        if ($storedHash === '') {
+            return false;
+        }
+
+        return hash_equals($storedHash, hash('sha256', $token));
+    }
+
+    /**
+     * Attempt to claim an email dispatch slot atomically with cooldown and max-limit checks.
+     *
+     * @param int $bookingId
+     * @param int $cooldownSeconds Default 60 seconds
+     * @param int $maxSends Default 3 sends
+     * @return array [bool $allowed, string $code, ?string $message]
+     */
+    public static function claimEmailSendSlot(int $bookingId, int $cooldownSeconds = 60, int $maxSends = 3): array
+    {
+        Database::beginTransaction();
+        try {
+            $sql = 'SELECT `id`, `email_send_count`, `last_email_attempt_at`, TIMESTAMPDIFF(SECOND, `last_email_attempt_at`, NOW()) AS `elapsed_seconds`, `customer_email_status` FROM `bookings` WHERE `id` = :id FOR UPDATE';
+            $row = self::fetchOne($sql, [':id' => $bookingId]);
+
+            if (!$row) {
+                Database::rollBack();
+                return [false, 'NOT_FOUND', 'Booking record not found.'];
+            }
+
+            $sendCount = (int) ($row['email_send_count'] ?? 0);
+            if ($sendCount >= $maxSends) {
+                Database::rollBack();
+                return [false, 'LIMIT_EXCEEDED', "Maximum email dispatch limit ({$maxSends} sends) has been reached for this booking."];
+            }
+
+            if (!empty($row['last_email_attempt_at']) && $row['elapsed_seconds'] !== null) {
+                $elapsed = (int) $row['elapsed_seconds'];
+                if ($elapsed < $cooldownSeconds) {
+                    $remaining = $cooldownSeconds - $elapsed;
+                    Database::rollBack();
+                    return [false, 'COOLDOWN_ACTIVE', "Please wait {$remaining} seconds before requesting another email confirmation."];
+                }
+            }
+
+            $updateSql = 'UPDATE `bookings` SET `last_email_attempt_at` = NOW() WHERE `id` = :id';
+            self::execute($updateSql, [':id' => $bookingId]);
+
+            Database::commit();
+            return [true, 'CLAIMED', null];
+        } catch (\Throwable $e) {
+            Database::rollBack();
+            return [false, 'DB_ERROR', $e->getMessage()];
+        }
+    }
+
+    /**
+     * Record the result of an email dispatch attempt.
+     *
+     * @param int $bookingId
+     * @param bool $custSent
+     * @param string|null $custError
+     * @param bool $adminSent
+     * @param string|null $adminError
+     * @return void
+     */
+    public static function recordEmailDispatchResult(
+        int $bookingId,
+        bool $custSent,
+        ?string $custError,
+        bool $adminSent,
+        ?string $adminError
+    ): void {
+        $fields = [];
+        $params = [':id' => $bookingId];
+
+        if ($custSent) {
+            $fields[] = '`customer_email_status` = "sent"';
+            $fields[] = '`customer_email_sent_at` = NOW()';
+            $fields[] = '`email_send_count` = `email_send_count` + 1';
+            $fields[] = '`last_email_error` = NULL';
+        } else {
+            $fields[] = '`customer_email_status` = "failed"';
+            if ($custError) {
+                $fields[] = '`last_email_error` = :err';
+                $params[':err'] = substr($custError, 0, 255);
+            }
+        }
+
+        if ($adminSent) {
+            $fields[] = '`admin_email_status` = "sent"';
+            $fields[] = '`admin_email_sent_at` = NOW()';
+        } else {
+            $fields[] = '`admin_email_status` = "failed"';
+        }
+
+        if (!empty($fields)) {
+            $sql = 'UPDATE `bookings` SET ' . implode(', ', $fields) . ', `updated_at` = NOW() WHERE `id` = :id';
+            self::execute($sql, $params);
+        }
     }
 }

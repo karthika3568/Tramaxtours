@@ -152,11 +152,14 @@ export const bookingService = {
 
   /**
    * Resend the booking confirmation email (with PDF receipt attached).
-   * @param {number} id
+   * @param {number|string} id
+   * @param {string|null} [token] - Unguessable access verification token
    * @returns {Promise<Object>}
    */
-  resendConfirmation: async (id) => {
-    const res = await client.post(`/bookings/${id}/resend-confirmation`);
+  resendConfirmation: async (id, token = null) => {
+    const payload = token ? { token, access_token: token } : {};
+    const config = token ? { headers: { 'X-Access-Token': token } } : {};
+    const res = await client.post(`/bookings/${id}/resend-confirmation`, payload, config);
     return res.data;
   },
 };

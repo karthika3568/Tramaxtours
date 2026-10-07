@@ -32,3 +32,4 @@ backend/vendor/
 vendor/
 backend/uploads/*
 !backend/uploads/.gitkeep
+scratch/

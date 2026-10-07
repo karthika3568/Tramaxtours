@@ -19,7 +19,7 @@ export default function AdminBookingsPage() {
   // Page Title
   useEffect(() => {
     updatePageMeta({
-      title: 'Admin - Booking & Order Management | Wonderer South India',
+      title: 'Admin - Booking & Order Management | Wanderer South India',
       description: 'Manage customer tour bookings, reservations, status lifecycle, and Pay on Arrival transactions.',
     });
   }, []);

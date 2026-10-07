@@ -5,6 +5,7 @@ import reviewService from '../../services/reviewService';
 import { getMediaUrl } from '../../utils/media';
 import TourBookingCard from '../../components/public/tours/TourBookingCard';
 import TourCard from '../../components/public/tours/TourCard';
+import TourPlacesMap from '../../components/public/tours/TourPlacesMap';
 import Loading from '../../components/ui/Loading';
 import ErrorState from '../../components/ui/ErrorState';
 import { updatePageMeta } from '../../utils/metadata';
@@ -421,29 +422,21 @@ export default function TourDetailPage() {
               </ul>
             </section>
 
-            {/* Places Covered */}
-            <section className="detail-section-card">
-              <h2 className="detail-block-heading">Places Covered</h2>
-              <ol className="detail-numbered-list">
-                {tour.places && tour.places.length > 0 ? (
-                  tour.places.map((p, idx) => (
+            {/* Places Covered & Map */}
+            {tour.places && tour.places.length > 0 && (
+              <section className="detail-section-card">
+                <h2 className="detail-block-heading">Places Covered &amp; Route Map</h2>
+                <ol className="detail-numbered-list" style={{ marginBottom: '14px' }}>
+                  {tour.places.map((p, idx) => (
                     <li key={p.id || idx}>
                       <strong>{idx + 1}. {p.name}</strong>
                       {p.short_description && <span> — {p.short_description}</span>}
                     </li>
-                  ))
-                ) : (
-                  <>
-                    <li>1. Shore Temple (UNESCO World Heritage Site)</li>
-                    <li>2. Krishna's Butter Ball</li>
-                    <li>3. Arjuna's Penance (Descent of the Ganges)</li>
-                    <li>4. Pancha Rathas (Five Rathas)</li>
-                    <li>5. Covelong Beach</li>
-                    <li>6. ISKCON Temple</li>
-                  </>
-                )}
-              </ol>
-            </section>
+                  ))}
+                </ol>
+                <TourPlacesMap places={tour.places} tourTitle={tour.title} />
+              </section>
+            )}
 
             {/* Package Price (Pricing Tiers) */}
             <section className="detail-section-card">
@@ -595,35 +588,59 @@ export default function TourDetailPage() {
             </section>
 
             {/* =============================================================
-                5. TOUR MAP SECTION (View Map & Coordinates)
+                5. PLACES COVERED & ROUTE MAP (Leaflet + OpenStreetMap)
                 ============================================================= */}
-            <section className="detail-section-card tour-map-section">
-              <div className="section-title-with-actions">
-                <h2 className="detail-block-heading" style={{ margin: 0 }}>Tour Route & Location Map</h2>
-                <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-view-map-link"
-                >
-                  🗺️ View on Google Maps &rarr;
-                </a>
-              </div>
-              <p className="map-caption-text">{mapTitle} (Coordinates: {lat}, {lng})</p>
-              <div className="tour-map-embed-wrapper">
-                <iframe
-                  title="Tour Route Map"
-                  width="100%"
-                  height="340"
-                  frameBorder="0"
-                  scrolling="no"
-                  marginHeight="0"
-                  marginWidth="0"
-                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.05}%2C${lat - 0.05}%2C${lng + 0.05}%2C${lat + 0.05}&layer=mapnik&marker=${lat}%2C${lng}`}
-                  className="map-iframe"
-                />
-              </div>
-            </section>
+            {Array.isArray(tour.places) && tour.places.length > 0 ? (
+              <section className="detail-section-card tour-places-map-section tour-map-section">
+                <div className="section-title-with-actions">
+                  <div>
+                    <h2 className="detail-block-heading" style={{ margin: 0 }}>Places Covered &amp; Route Map</h2>
+                    <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748b' }}>
+                      {tour.places.length} covered destination{tour.places.length > 1 ? 's' : ''} on this tour package. Click any pin for details.
+                    </p>
+                  </div>
+                  {lat && lng && (
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-view-map-link"
+                    >
+                      🗺️ Open in Google Maps &rarr;
+                    </a>
+                  )}
+                </div>
+                <TourPlacesMap places={tour.places} tourTitle={tour.title} />
+              </section>
+            ) : lat && lng ? (
+              <section className="detail-section-card tour-map-section">
+                <div className="section-title-with-actions">
+                  <h2 className="detail-block-heading" style={{ margin: 0 }}>Tour Route &amp; Location Map</h2>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-view-map-link"
+                  >
+                    🗺️ Open in Google Maps &rarr;
+                  </a>
+                </div>
+                <p className="map-caption-text">{mapTitle} (Coordinates: {lat}, {lng})</p>
+                <div className="tour-map-embed-wrapper">
+                  <iframe
+                    title="Tour Route Map"
+                    width="100%"
+                    height="340"
+                    frameBorder="0"
+                    scrolling="no"
+                    marginHeight="0"
+                    marginWidth="0"
+                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.05}%2C${lat - 0.05}%2C${lng + 0.05}%2C${lat + 0.05}&layer=mapnik&marker=${lat}%2C${lng}`}
+                    className="map-iframe"
+                  />
+                </div>
+              </section>
+            ) : null}
 
             {/* =============================================================
                 6. FREQUENTLY ASKED QUESTIONS (ACCORDION)

@@ -1,26 +1,28 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import inquiryService from '../../../services/inquiryService';
-import { useSiteSettings } from '../../../context/SiteSettingsContext';
+import bookingService from '../../../services/bookingService';
 import { useToast } from '../../../context/ToastContext';
 
-const COUNTRIES = [
-  'India',
-  'United Kingdom',
-  'United States',
-  'Germany',
-  'France',
-  'Netherlands',
-  'Australia',
-  'Malaysia',
-  'Singapore',
-  'United Arab Emirates',
-  'Canada',
-  'Switzerland',
-  'Italy',
-  'Spain',
-  'Sri Lanka',
-  'Other',
+export const REQUIRE_GMAIL = true;
+
+export const COUNTRY_OPTIONS = [
+  { name: 'India', dialCode: '+91' },
+  { name: 'United Kingdom', dialCode: '+44' },
+  { name: 'United States', dialCode: '+1' },
+  { name: 'Germany', dialCode: '+49' },
+  { name: 'France', dialCode: '+33' },
+  { name: 'Netherlands', dialCode: '+31' },
+  { name: 'Australia', dialCode: '+61' },
+  { name: 'Malaysia', dialCode: '+60' },
+  { name: 'Singapore', dialCode: '+65' },
+  { name: 'United Arab Emirates', dialCode: '+971' },
+  { name: 'Canada', dialCode: '+1' },
+  { name: 'Switzerland', dialCode: '+41' },
+  { name: 'Italy', dialCode: '+39' },
+  { name: 'Spain', dialCode: '+34' },
+  { name: 'Sri Lanka', dialCode: '+94' },
+  { name: 'Other', dialCode: '+1' },
 ];
 
 const TOUR_TYPES = [
@@ -70,52 +72,79 @@ const LANGUAGES = [
 
 const CURRENCIES = ['INR', 'EUR', 'USD', 'GBP'];
 
-export default function TripRequestForm({ initialDestination = '', initialTour = '', prefilledData = {} }) {
+export default function TripRequestForm({
+  initialDestination = '',
+  initialTour = '',
+  prefilledData = {},
+  isBookingMode = false,
+  tour = null,
+  onBookingSuccess = null,
+}) {
   const navigate = useNavigate();
   const toast = useToast();
-  const { getSetting } = useSiteSettings();
-  const siteName = getSetting('site_name', 'Wanderer South India');
+  const formRef = useRef(null);
 
-  // Form Field State
+  // Today's date for date picker min constraint
+  const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
+
+  // Parse legacy prefilled name if passed
+  const initialFirstName = prefilledData.first_name || (prefilledData.name ? prefilledData.name.split(' ')[0] : '');
+  const initialLastName = prefilledData.last_name || (prefilledData.name ? prefilledData.name.split(' ').slice(1).join(' ') : '');
+
+  const tourDestination = tour?.destination?.name || tour?.destination_name || (typeof tour?.destination === 'string' ? tour.destination : '') || '';
+  const tourTitle = tour?.title || initialTour || '';
+
+  // Form Field State — ALL start completely empty (NO PREDEFINED/HARDCODED DEFAULTS)
   const [formData, setFormData] = useState({
-    name: prefilledData.name || '',
-    whatsapp_number: prefilledData.whatsapp_number || '',
+    first_name: initialFirstName || '',
+    middle_name: prefilledData.middle_name || '',
+    last_name: initialLastName || '',
+    country: prefilledData.country || '',
+    dial_code: prefilledData.dial_code || '',
+    phone: (prefilledData.phone || prefilledData.whatsapp_number || '').replace(/\D/g, ''),
     email: prefilledData.email || '',
-    country: prefilledData.country || 'India',
-    destination: initialDestination || prefilledData.destination || '',
+    destination: initialDestination || prefilledData.destination || tourDestination || tourTitle || '',
     pickup_location: prefilledData.pickup_location || '',
-    arrival_date: prefilledData.arrival_date || '',
+    arrival_date: prefilledData.arrival_date || (tour?.selectedDate || ''),
     departure_date: prefilledData.departure_date || '',
-    adults_count: prefilledData.adults_count || 2,
-    children_count: prefilledData.children_count || 0,
-    infants_count: prefilledData.infants_count || 0,
-    tour_types: ['Cultural Tour', 'Sightseeing'],
-    tour_guide_required: 'Yes',
-    preferred_language: 'English',
-    airport_pickup: 'Yes',
-    airport_drop: 'Yes',
-    vehicle_preference: 'Innova Crysta (Luxury 6/7 Seater)',
-    hotel_category: '4 Star Premium',
-    room_type: 'Double Room',
-    rooms_count: 1,
-    arrival_flight_train_number: '',
-    arrival_time: '',
-    departure_flight_train_number: '',
-    departure_time: '',
-    approximate_budget: '',
-    budget_currency: 'EUR',
-    preferred_contact_methods: ['WhatsApp', 'Email'],
-    special_requests: '',
+    adults_count: prefilledData.adults_count !== undefined && prefilledData.adults_count !== '' ? prefilledData.adults_count : '',
+    children_count: prefilledData.children_count !== undefined && prefilledData.children_count !== '' ? prefilledData.children_count : '',
+    infants_count: prefilledData.infants_count !== undefined && prefilledData.infants_count !== '' ? prefilledData.infants_count : '',
+    tour_types: Array.isArray(prefilledData.tour_types) ? prefilledData.tour_types : [],
+    tour_guide_required: prefilledData.tour_guide_required || '',
+    preferred_language: prefilledData.preferred_language || '',
+    vehicle_preference: prefilledData.vehicle_preference || '',
+    airport_pickup: prefilledData.airport_pickup || '',
+    airport_drop: prefilledData.airport_drop || '',
+    hotel_category: prefilledData.hotel_category || '',
+    room_type: prefilledData.room_type || '',
+    rooms_count: prefilledData.rooms_count !== undefined && prefilledData.rooms_count !== '' ? prefilledData.rooms_count : '',
+    arrival_flight_train_number: prefilledData.arrival_flight_train_number || '',
+    arrival_time: prefilledData.arrival_time || '',
+    departure_flight_train_number: prefilledData.departure_flight_train_number || '',
+    departure_time: prefilledData.departure_time || '',
+    approximate_budget: prefilledData.approximate_budget || '',
+    budget_currency: prefilledData.budget_currency || (tour?.currency || ''),
+    preferred_contact_methods: Array.isArray(prefilledData.preferred_contact_methods) ? prefilledData.preferred_contact_methods : [],
+    special_requests: prefilledData.special_requests || '',
   });
 
   // Pre-fill destination or tour if changed via props
   useEffect(() => {
     if (initialDestination) {
       setFormData((prev) => ({ ...prev, destination: initialDestination }));
+    } else if (tourDestination) {
+      setFormData((prev) => ({ ...prev, destination: tourDestination }));
     }
-  }, [initialDestination]);
+  }, [initialDestination, tourDestination]);
 
-  // Document attachments (client validated)
+  useEffect(() => {
+    if (tour?.selectedDate) {
+      setFormData((prev) => ({ ...prev, arrival_date: tour.selectedDate }));
+    }
+  }, [tour?.selectedDate]);
+
+  // Document attachments
   const [passportFile, setPassportFile] = useState(null);
   const [passportError, setPassportError] = useState('');
   const [ticketFile, setTicketFile] = useState(null);
@@ -129,6 +158,9 @@ export default function TripRequestForm({ initialDestination = '', initialTour =
 
   // Auto-calculated Number of Days
   const calculatedDays = useMemo(() => {
+    if (isBookingMode && tour?.duration_days) {
+      return tour.duration_text || `${tour.duration_days} Days`;
+    }
     if (!formData.arrival_date || !formData.departure_date) return '';
     const arr = new Date(formData.arrival_date);
     const dep = new Date(formData.departure_date);
@@ -138,45 +170,123 @@ export default function TripRequestForm({ initialDestination = '', initialTour =
     if (diffDays <= 0) return 'Invalid dates (Departure before arrival)';
     const nights = Math.max(0, diffDays - 1);
     return `${diffDays} Days / ${nights} Nights`;
-  }, [formData.arrival_date, formData.departure_date]);
+  }, [formData.arrival_date, formData.departure_date, isBookingMode, tour]);
+
+  // Live Price Calculation in Booking Mode
+  const bookingPricing = useMemo(() => {
+    if (!isBookingMode || !tour) return null;
+    const basePrice = Number(tour.base_price || 0);
+    const childPrice = Math.round(basePrice * 0.5);
+    const adults = Number(formData.adults_count) || 0;
+    const children = Number(formData.children_count) || 0;
+    const subtotal = (adults * basePrice) + (children * childPrice);
+    const currency = tour.currency || 'INR';
+    const symbol = currency === 'EUR' ? '€' : currency === 'INR' ? '₹' : currency;
+    return {
+      basePrice,
+      childPrice,
+      adults,
+      children,
+      subtotal,
+      total: subtotal,
+      currency,
+      symbol,
+    };
+  }, [isBookingMode, tour, formData.adults_count, formData.children_count]);
 
   // Validation Logic
-  const validateField = (field, value) => {
+  const validateField = (field, value, allData = formData) => {
     let err = '';
+    const nameRegex = /^[a-zA-Z\s'-]+$/;
+
     switch (field) {
-      case 'name':
-        if (!value || !value.trim()) err = 'Full Name is required.';
-        break;
-      case 'whatsapp_number':
-        if (!value || !value.trim()) {
-          err = 'WhatsApp Number is required for itinerary delivery.';
-        } else if (value.replace(/\D/g, '').length < 7) {
-          err = 'Please enter a valid phone/WhatsApp number with country code.';
+      case 'first_name': {
+        const val = (value || '').trim();
+        if (!val) {
+          err = 'First Name is required.';
+        } else if (val.length < 2) {
+          err = 'First Name must contain at least 2 characters.';
+        } else if (!nameRegex.test(val)) {
+          err = 'First Name can only contain letters, spaces, hyphens, and apostrophes.';
         }
         break;
-      case 'email':
-        if (!value || !value.trim()) {
+      }
+      case 'middle_name': {
+        const val = (value || '').trim();
+        if (val && !nameRegex.test(val)) {
+          err = 'Middle Name can only contain letters, spaces, hyphens, and apostrophes.';
+        }
+        break;
+      }
+      case 'last_name': {
+        const val = (value || '').trim();
+        if (!val) {
+          err = 'Last Name is required.';
+        } else if (val.length < 2) {
+          err = 'Last Name must contain at least 2 characters.';
+        } else if (!nameRegex.test(val)) {
+          err = 'Last Name can only contain letters, spaces, hyphens, and apostrophes.';
+        }
+        break;
+      }
+      case 'email': {
+        const val = (value || '').trim();
+        if (!val) {
           err = 'Email Address is required.';
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) {
+        } else if (REQUIRE_GMAIL) {
+          if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(val)) {
+            err = 'Please enter a valid Gmail address (example@gmail.com)';
+          }
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
           err = 'Please enter a valid email address.';
         }
         break;
-      case 'destination':
-        if (!value || !value.trim()) err = 'Please specify your destination(s).';
-        break;
-      case 'pickup_location':
-        if (!value || !value.trim()) err = 'Pickup location (City or Airport) is required.';
-        break;
-      case 'arrival_date':
-        if (!value) err = 'Arrival Date is required.';
-        break;
-      case 'departure_date':
-        if (!value) {
-          err = 'Departure Date is required.';
-        } else if (formData.arrival_date && value < formData.arrival_date) {
-          err = 'Departure date cannot be before arrival date.';
+      }
+      case 'phone': {
+        const digits = (value || '').replace(/\D/g, '');
+        if (!digits) {
+          err = 'Phone / WhatsApp number is required.';
+        } else if (digits.length < 7 || digits.length > 15) {
+          err = 'Please enter a valid phone number (7 to 15 digits).';
         }
         break;
+      }
+      case 'destination': {
+        if (!value || !value.trim()) {
+          err = 'Please specify your destination(s).';
+        }
+        break;
+      }
+      case 'pickup_location': {
+        if (!value || !value.trim()) {
+          err = 'Pickup location (City, Airport, or Hotel) is required.';
+        }
+        break;
+      }
+      case 'arrival_date': {
+        if (!value) {
+          err = isBookingMode ? 'Travel / Booking Date is required.' : 'Arrival Date is required.';
+        } else if (value < todayStr) {
+          err = 'Date cannot be in the past.';
+        }
+        break;
+      }
+      case 'departure_date': {
+        if (!isBookingMode) {
+          if (!value) {
+            err = 'Departure Date is required.';
+          } else if (allData.arrival_date && value < allData.arrival_date) {
+            err = 'Departure date cannot be before arrival date.';
+          }
+        }
+        break;
+      }
+      case 'adults_count': {
+        if (!value || Number(value) < 1) {
+          err = 'Please select at least 1 adult.';
+        }
+        break;
+      }
       default:
         break;
     }
@@ -190,21 +300,48 @@ export default function TripRequestForm({ initialDestination = '', initialTour =
   };
 
   const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (touched[field]) {
-      const err = validateField(field, value);
-      setErrors((prev) => ({ ...prev, [field]: err }));
+    setFormData((prev) => {
+      const next = { ...prev, [field]: value };
+      if (touched[field]) {
+        const err = validateField(field, value, next);
+        setErrors((prevErr) => ({ ...prevErr, [field]: err }));
+      }
+      // Re-validate departure date if arrival date changes
+      if (field === 'arrival_date' && touched.departure_date && next.departure_date) {
+        const depErr = validateField('departure_date', next.departure_date, next);
+        setErrors((prevErr) => ({ ...prevErr, departure_date: depErr }));
+      }
+      return next;
+    });
+  };
+
+  // Country Change: Auto-fills dial code
+  const handleCountryChange = (countryName) => {
+    const matched = COUNTRY_OPTIONS.find((c) => c.name === countryName);
+    setFormData((prev) => ({
+      ...prev,
+      country: countryName,
+      dial_code: matched ? matched.dialCode : prev.dial_code,
+    }));
+    if (touched.country) {
+      setErrors((prev) => ({ ...prev, country: '' }));
     }
   };
 
-  // Checkbox toggles
+  // Phone input: Filter digits only while typing / pasting
+  const handlePhoneChange = (rawInput) => {
+    const digitsOnly = rawInput.replace(/\D/g, '');
+    handleChange('phone', digitsOnly);
+  };
+
+  // Checkbox / pill toggles
   const handleToggleTourType = (type) => {
     setFormData((prev) => {
       const current = prev.tour_types || [];
       const updated = current.includes(type)
         ? current.filter((t) => t !== type)
         : [...current, type];
-      return { ...prev, tour_types: updated.length > 0 ? updated : [type] };
+      return { ...prev, tour_types: updated };
     });
   };
 
@@ -214,17 +351,17 @@ export default function TripRequestForm({ initialDestination = '', initialTour =
       const updated = current.includes(method)
         ? current.filter((m) => m !== method)
         : [...current, method];
-      return { ...prev, preferred_contact_methods: updated.length > 0 ? updated : [method] };
+      return { ...prev, preferred_contact_methods: updated };
     });
   };
 
-  // File Upload Handlers (Client validation <= 5MB, PDF / Images only)
+  // File Upload Handlers (Allowed: PDF, JPEG, PNG, WEBP, Max 10MB)
   const handleFileUpload = (e, setFile, setFileError) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
-    const maxSizeBytes = 5 * 1024 * 1024; // 5 MB
+    const maxSizeBytes = 10 * 1024 * 1024; // 10 MB
 
     if (!allowedTypes.includes(file.type)) {
       setFileError('Invalid file format. Please upload PDF, JPEG, PNG, or WEBP.');
@@ -233,7 +370,7 @@ export default function TripRequestForm({ initialDestination = '', initialTour =
     }
 
     if (file.size > maxSizeBytes) {
-      setFileError('File size exceeds 5MB limit. Please upload a smaller file.');
+      setFileError('File size exceeds 10MB limit. Please upload a smaller file.');
       setFile(null);
       return;
     }
@@ -242,117 +379,228 @@ export default function TripRequestForm({ initialDestination = '', initialTour =
     setFile(file);
   };
 
-  // Section completion progress
-  const progressPercent = useMemo(() => {
-    let completed = 0;
-    const total = 10;
-    if (formData.name && formData.whatsapp_number && formData.email) completed++;
-    if (formData.destination && formData.pickup_location && formData.arrival_date && formData.departure_date) completed++;
-    if (formData.adults_count >= 1) completed++;
-    if (formData.tour_types.length > 0) completed++;
-    if (formData.vehicle_preference) completed++;
-    if (formData.hotel_category) completed++;
-    if (formData.arrival_flight_train_number || formData.departure_flight_train_number || true) completed++;
-    if (formData.approximate_budget || true) completed++;
-    if (passportFile || ticketFile || true) completed++;
-    if (formData.preferred_contact_methods.length > 0) completed++;
-    return Math.min(100, Math.round((completed / total) * 100));
-  }, [formData, passportFile, ticketFile]);
+  // Focus helper for the first invalid input element
+  const focusFirstError = (validationErrors) => {
+    const fieldOrder = [
+      'first_name',
+      'middle_name',
+      'last_name',
+      'email',
+      'phone',
+      'destination',
+      'pickup_location',
+      'arrival_date',
+      'departure_date',
+      'adults_count',
+    ];
+
+    for (const f of fieldOrder) {
+      if (validationErrors[f]) {
+        const el = formRef.current?.querySelector(`[name="${f}"]`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.focus();
+          break;
+        }
+      }
+    }
+  };
 
   // Form Submit Handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setServerError('');
 
-    // Validate all required fields
+    const fieldsToValidate = [
+      'first_name',
+      'middle_name',
+      'last_name',
+      'email',
+      'phone',
+      'destination',
+      'pickup_location',
+      'arrival_date',
+      ...(!isBookingMode ? ['departure_date'] : []),
+      'adults_count',
+    ];
+
     const newErrors = {};
-    ['name', 'whatsapp_number', 'email', 'destination', 'pickup_location', 'arrival_date', 'departure_date'].forEach((field) => {
-      const err = validateField(field, formData[field]);
-      if (err) newErrors[field] = err;
+    const newTouched = {};
+
+    fieldsToValidate.forEach((f) => {
+      newTouched[f] = true;
+      const err = validateField(f, formData[f], formData);
+      if (err) newErrors[f] = err;
     });
 
+    setTouched((prev) => ({ ...prev, ...newTouched }));
+    setErrors(newErrors);
+
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      setTouched({
-        name: true,
-        whatsapp_number: true,
-        email: true,
-        destination: true,
-        pickup_location: true,
-        arrival_date: true,
-        departure_date: true,
-      });
-      toast.error('Please complete all required fields marked with *', 'Incomplete Form');
-      const firstErrorKey = Object.keys(newErrors)[0];
-      const el = document.querySelector(`[name="${firstErrorKey}"]`);
-      if (el) el.focus();
+      toast.error('Please fix the required fields marked in red.', 'Incomplete Details');
+      setTimeout(() => focusFirstError(newErrors), 50);
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      // Build clean payload according to API contract
-      const payload = {
-        name: formData.name.trim(),
-        whatsapp_number: formData.whatsapp_number.trim(),
-        phone: formData.whatsapp_number.trim(),
-        email: formData.email.trim(),
-        country: formData.country,
-        nationality: formData.country,
-        destination: formData.destination.trim(),
-        destination_name: formData.destination.trim(),
-        pickup_location: formData.pickup_location.trim(),
-        arrival_date: formData.arrival_date,
-        departure_date: formData.departure_date,
-        travel_date: formData.arrival_date,
-        duration_days: calculatedDays,
-        number_of_days: calculatedDays,
-        adults_count: Number(formData.adults_count),
-        children_count: Number(formData.children_count),
-        infants_count: Number(formData.infants_count),
-        travelers: Number(formData.adults_count) + Number(formData.children_count) + Number(formData.infants_count),
-        tour_types: formData.tour_types,
-        tour_preferences: formData.tour_types,
-        tour_guide_required: formData.tour_guide_required === 'Yes',
-        preferred_language: formData.preferred_language,
-        airport_pickup: formData.airport_pickup === 'Yes',
-        airport_drop: formData.airport_drop === 'Yes',
-        vehicle_preference: formData.vehicle_preference,
-        vehicle: formData.vehicle_preference,
-        hotel_category: formData.hotel_category,
-        room_type: formData.room_type,
-        rooms_count: Number(formData.rooms_count),
-        arrival_flight_train_number: formData.arrival_flight_train_number.trim() || null,
-        arrival_time: formData.arrival_time.trim() || null,
-        departure_flight_train_number: formData.departure_flight_train_number.trim() || null,
-        departure_time: formData.departure_time.trim() || null,
-        approximate_budget: formData.approximate_budget.trim() || null,
-        budget_currency: formData.budget_currency,
-        preferred_contact_methods: formData.preferred_contact_methods,
-        special_requests: formData.special_requests.trim() || null,
-        message: formData.special_requests.trim() || `Custom itinerary request for ${formData.destination} (${calculatedDays}).`,
-        subject: `Trip Request: ${formData.destination} (${calculatedDays})`,
-        tour_title: initialTour || (formData.destination ? `Custom Trip: ${formData.destination}` : null),
-      };
+      const computedFullName = `${formData.first_name.trim()} ${formData.middle_name.trim() ? formData.middle_name.trim() + ' ' : ''}${formData.last_name.trim()}`.trim();
+      const dialCodeVal = formData.dial_code.trim() || '+91';
+      const combinedPhone = `${dialCodeVal} ${formData.phone.trim()}`.trim();
+      const adultsNum = Number(formData.adults_count) || 1;
+      const childrenNum = formData.children_count !== '' ? Number(formData.children_count) : 0;
+      const infantsNum = formData.infants_count !== '' ? Number(formData.infants_count) : 0;
+      const totalGuests = adultsNum + childrenNum;
 
-      if (passportFile) {
-        payload.passport_file_url = `[Attached Document] ${passportFile.name} (${Math.round(passportFile.size / 1024)} KB)`;
+      if (isBookingMode && tour) {
+        // BOOKING MODE: Dispatch to bookingService.createBooking
+        const basePrice = Number(tour.base_price || 0);
+        const childPrice = Math.round(basePrice * 0.5);
+        const subtotal = (adultsNum * basePrice) + (childrenNum * childPrice);
+        const totalPrice = subtotal;
+
+        const bookingPayload = {
+          tour_id: tour.id,
+          first_name: formData.first_name.trim(),
+          middle_name: formData.middle_name.trim() || null,
+          last_name: formData.last_name.trim(),
+          name: computedFullName,
+          email: formData.email.trim().toLowerCase(),
+          phone: formData.phone.trim(),
+          dial_code: dialCodeVal,
+          country: formData.country || 'India',
+          address_line1: formData.pickup_location.trim() || 'Hotel / Airport Pickup',
+          city: 'Chennai',
+          state: 'Tamil Nadu',
+          postal_code: '600001',
+          destination_name: formData.destination.trim() || tour.title,
+          pickup_location: formData.pickup_location.trim(),
+          booking_date: formData.arrival_date,
+          arrival_date: formData.arrival_date,
+          departure_date: formData.departure_date || null,
+          duration_days: calculatedDays || (tour.duration_days ? `${tour.duration_days} Days` : null),
+          tickets_count: totalGuests,
+          adults_count: adultsNum,
+          children_count: childrenNum,
+          infants_count: infantsNum,
+          tour_types: formData.tour_types.length > 0 ? formData.tour_types : null,
+          tour_guide_required: formData.tour_guide_required === 'Yes',
+          preferred_language: formData.preferred_language || null,
+          vehicle_preference: formData.vehicle_preference || null,
+          airport_pickup: formData.airport_pickup === 'Yes',
+          airport_drop: formData.airport_drop === 'Yes',
+          hotel_category: formData.hotel_category || null,
+          room_type: formData.room_type || null,
+          rooms_count: formData.rooms_count !== '' ? Number(formData.rooms_count) : null,
+          arrival_flight_train_number: formData.arrival_flight_train_number.trim() || null,
+          arrival_time: formData.arrival_time.trim() || null,
+          departure_flight_train_number: formData.departure_flight_train_number.trim() || null,
+          departure_time: formData.departure_time.trim() || null,
+          approximate_budget: formData.approximate_budget.trim() || null,
+          budget_currency: formData.budget_currency || (tour.currency || 'INR'),
+          preferred_contact_methods: formData.preferred_contact_methods.length > 0 ? formData.preferred_contact_methods : null,
+          special_requests: formData.special_requests.trim() || null,
+          unit_price: basePrice,
+          subtotal: subtotal,
+          total_price: totalPrice,
+          currency: tour.currency || 'INR',
+          payment_method: 'pay_on_arrival',
+          payment_status: 'pending',
+          booking_status: 'pending',
+        };
+
+        if (passportFile) {
+          bookingPayload.passport_file_url = `[Attached Document] ${passportFile.name} (${Math.round(passportFile.size / 1024)} KB)`;
+        }
+        if (ticketFile) {
+          bookingPayload.flight_ticket_url = `[Attached Document] ${ticketFile.name} (${Math.round(ticketFile.size / 1024)} KB)`;
+        }
+
+        const response = await bookingService.createBooking(bookingPayload);
+        const createdData = response?.data || response;
+        toast.success('Your tour booking reservation has been placed successfully!', 'Booking Confirmed');
+
+        if (onBookingSuccess) {
+          onBookingSuccess(createdData);
+        }
+      } else {
+        // TRIP REQUEST MODE: Dispatch to inquiryService.createTripRequest
+        const payload = {
+          first_name: formData.first_name.trim(),
+          middle_name: formData.middle_name.trim() || null,
+          last_name: formData.last_name.trim(),
+          name: computedFullName,
+          dial_code: dialCodeVal,
+          phone: formData.phone.trim(),
+          whatsapp_number: combinedPhone,
+          email: formData.email.trim().toLowerCase(),
+          country: formData.country || null,
+          nationality: formData.country || null,
+          destination: formData.destination.trim(),
+          destination_name: formData.destination.trim(),
+          pickup_location: formData.pickup_location.trim(),
+          arrival_date: formData.arrival_date,
+          departure_date: formData.departure_date,
+          travel_date: formData.arrival_date,
+          duration_days: calculatedDays || null,
+          number_of_days: calculatedDays || null,
+          adults_count: adultsNum,
+          children_count: childrenNum,
+          infants_count: infantsNum,
+          travelers: adultsNum + childrenNum + infantsNum,
+          tour_types: formData.tour_types.length > 0 ? formData.tour_types : null,
+          tour_preferences: formData.tour_types.length > 0 ? formData.tour_types : null,
+          tour_guide_required: formData.tour_guide_required ? (formData.tour_guide_required === 'Yes') : null,
+          preferred_language: formData.preferred_language || null,
+          vehicle_preference: formData.vehicle_preference || null,
+          vehicle: formData.vehicle_preference || null,
+          airport_pickup: formData.airport_pickup ? (formData.airport_pickup === 'Yes') : null,
+          airport_drop: formData.airport_drop ? (formData.airport_drop === 'Yes') : null,
+          hotel_category: formData.hotel_category || null,
+          room_type: formData.room_type || null,
+          rooms_count: formData.rooms_count !== '' ? Number(formData.rooms_count) : null,
+          arrival_flight_train_number: formData.arrival_flight_train_number.trim() || null,
+          arrival_time: formData.arrival_time.trim() || null,
+          departure_flight_train_number: formData.departure_flight_train_number.trim() || null,
+          departure_time: formData.departure_time.trim() || null,
+          approximate_budget: formData.approximate_budget.trim() || null,
+          budget_currency: formData.budget_currency || null,
+          preferred_contact_methods: formData.preferred_contact_methods.length > 0 ? formData.preferred_contact_methods : null,
+          special_requests: formData.special_requests.trim() || null,
+          message: formData.special_requests.trim() || `Custom itinerary request for ${formData.destination} (${calculatedDays}).`,
+          subject: `Trip Request: ${formData.destination} (${calculatedDays})`,
+          tour_title: tourTitle || (formData.destination ? `Custom Trip: ${formData.destination}` : null),
+        };
+
+        if (passportFile) {
+          payload.passport_file_url = `[Attached Document] ${passportFile.name} (${Math.round(passportFile.size / 1024)} KB)`;
+        }
+        if (ticketFile) {
+          payload.flight_ticket_url = `[Attached Document] ${ticketFile.name} (${Math.round(ticketFile.size / 1024)} KB)`;
+        }
+
+        const response = await inquiryService.createTripRequest(payload);
+        const dataObj = response?.data || response;
+        const refId = dataObj?.reference_id || (dataObj?.id ? `TRP-${new Date().getFullYear()}-${String(dataObj.id).padStart(6, '0')}` : 'TRP-CONFIRMED');
+
+        toast.success('Your trip request has been submitted successfully!', 'Request Received');
+        navigate(`/trip-request/success/${refId}`, {
+          state: { tripSummary: dataObj, referenceId: refId },
+        });
       }
-      if (ticketFile) {
-        payload.flight_ticket_url = `[Attached Document] ${ticketFile.name} (${Math.round(ticketFile.size / 1024)} KB)`;
-      }
-
-      const response = await inquiryService.createTripRequest(payload);
-      const dataObj = response?.data || response;
-      const refId = dataObj?.reference_id || (dataObj?.id ? `TRP-${new Date().getFullYear()}-${String(dataObj.id).padStart(6, '0')}` : 'TRP-CONFIRMED');
-
-      toast.success('Your trip request has been submitted successfully!', 'Request Received');
-      navigate(`/trip-request/success/${refId}`, {
-        state: { tripSummary: dataObj, referenceId: refId },
-      });
     } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || 'Failed to submit trip request. Please check your connection and try again.';
+      const serverErrors = err?.response?.data?.errors;
+      if (serverErrors && typeof serverErrors === 'object') {
+        setErrors(serverErrors);
+        const firstKey = Object.keys(serverErrors)[0];
+        const el = formRef.current?.querySelector(`[name="${firstKey}"]`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.focus();
+        }
+      }
+      const msg = err?.response?.data?.message || err?.message || 'Failed to submit. Please check your connection and try again.';
       setServerError(msg);
       toast.error(msg, 'Submission Failed');
     } finally {
@@ -361,307 +609,386 @@ export default function TripRequestForm({ initialDestination = '', initialTour =
   };
 
   return (
-    <form onSubmit={handleSubmit} className="trip-request-form-container glass-card-panel" noValidate>
-      {/* Progress Bar & Header */}
-      <div className="form-progress-header" style={{ marginBottom: '32px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-          <span style={{ fontSize: '12.5px', fontWeight: 800, color: '#01AA90', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            ✨ Custom Holiday Itinerary Planner
-          </span>
-          <span style={{ fontSize: '13px', fontWeight: 700, color: '#064d71' }}>
-            {progressPercent}% Complete
-          </span>
-        </div>
-        <div style={{ height: '6px', background: '#e2e8f0', borderRadius: '9999px', overflow: 'hidden' }}>
-          <div
-            style={{
-              height: '100%',
-              width: `${progressPercent}%`,
-              background: 'linear-gradient(90deg, #01AA90 0%, #01806C 100%)',
-              transition: 'width 0.3s ease',
-            }}
-          />
-        </div>
-      </div>
-
+    <form ref={formRef} onSubmit={handleSubmit} className="trip-request-single-card" noValidate>
       {/* Global Server Error Banner */}
       {serverError && (
-        <div className="alert-box-error" style={{ padding: '16px', borderRadius: '12px', background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', marginBottom: '24px', fontSize: '14px' }}>
+        <div style={{ padding: '16px 20px', borderRadius: '12px', background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', marginBottom: '24px', fontSize: '14px' }}>
           <strong>⚠️ Submission Error:</strong> {serverError}
         </div>
       )}
 
-      {/* SECTION 1: CONTACT INFORMATION */}
-      <div className="form-section-card">
-        <div className="form-section-header">
-          <span className="section-step-num">1</span>
-          <div>
-            <h3 className="section-step-title">Contact Information</h3>
-            <p className="section-step-desc">Where should we deliver your custom quote and WhatsApp itinerary?</p>
+      {/* Booking Mode Tour Summary Header */}
+      {isBookingMode && tour && (
+        <div style={{ padding: '16px 20px', borderRadius: '12px', background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+            <div>
+              <span style={{ fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#15803d' }}>
+                Selected Tour Package
+              </span>
+              <h3 style={{ margin: '4px 0 0', fontSize: '18px', fontWeight: 800, color: '#14532d' }}>
+                {tour.title}
+              </h3>
+            </div>
+            {bookingPricing && (
+              <div style={{ textAlign: 'right' }}>
+                <span style={{ fontSize: '12px', color: '#166534' }}>Estimated Total</span>
+                <div style={{ fontSize: '20px', fontWeight: 800, color: '#15803d' }}>
+                  {bookingPricing.symbol}{bookingPricing.total.toLocaleString()}
+                </div>
+              </div>
+            )}
           </div>
         </div>
+      )}
 
-        <div className="form-grid-2col">
-          <div className="form-field-wrap">
-            <label htmlFor="req-name" className="form-field-label">
-              Full Name <span className="req-star">*</span>
-            </label>
-            <input
-              id="req-name"
-              name="name"
-              type="text"
-              className={`form-field-input ${errors.name && touched.name ? 'is-invalid' : ''}`}
-              placeholder="e.g. Eleanor Vance"
-              value={formData.name}
-              onChange={(e) => handleChange('name', e.target.value)}
-              onBlur={() => handleBlur('name')}
-              required
-              aria-required="true"
-              aria-invalid={Boolean(errors.name && touched.name)}
-            />
-            {errors.name && touched.name && <span className="field-error-text" role="alert">{errors.name}</span>}
-          </div>
-
-          <div className="form-field-wrap">
-            <label htmlFor="req-whatsapp" className="form-field-label">
-              WhatsApp Number <span className="req-star">*</span>
-            </label>
-            <input
-              id="req-whatsapp"
-              name="whatsapp_number"
-              type="tel"
-              className={`form-field-input ${errors.whatsapp_number && touched.whatsapp_number ? 'is-invalid' : ''}`}
-              placeholder="e.g. +44 7911 123456 or +91 9876543210"
-              value={formData.whatsapp_number}
-              onChange={(e) => handleChange('whatsapp_number', e.target.value)}
-              onBlur={() => handleBlur('whatsapp_number')}
-              required
-              aria-required="true"
-              aria-invalid={Boolean(errors.whatsapp_number && touched.whatsapp_number)}
-            />
-            {errors.whatsapp_number && touched.whatsapp_number && <span className="field-error-text" role="alert">{errors.whatsapp_number}</span>}
-          </div>
-
-          <div className="form-field-wrap">
-            <label htmlFor="req-email" className="form-field-label">
-              Email Address <span className="req-star">*</span>
-            </label>
-            <input
-              id="req-email"
-              name="email"
-              type="email"
-              className={`form-field-input ${errors.email && touched.email ? 'is-invalid' : ''}`}
-              placeholder="e.g. eleanor@example.com"
-              value={formData.email}
-              onChange={(e) => handleChange('email', e.target.value)}
-              onBlur={() => handleBlur('email')}
-              required
-              aria-required="true"
-              aria-invalid={Boolean(errors.email && touched.email)}
-            />
-            {errors.email && touched.email && <span className="field-error-text" role="alert">{errors.email}</span>}
-          </div>
-
-          <div className="form-field-wrap">
-            <label htmlFor="req-country" className="form-field-label">
-              Country / Nationality
-            </label>
-            <select
-              id="req-country"
-              name="country"
-              className="form-field-select"
-              value={formData.country}
-              onChange={(e) => handleChange('country', e.target.value)}
-            >
-              {COUNTRIES.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </div>
+      {/* 1. First Name */}
+      <div className="trip-form-row">
+        <label htmlFor="req-first-name" className="trip-form-label">
+          <span>First Name <span className="req-star">*</span></span>
+        </label>
+        <div className="trip-form-control">
+          <input
+            id="req-first-name"
+            name="first_name"
+            type="text"
+            className={`trip-form-input ${errors.first_name && touched.first_name ? 'is-invalid' : ''}`}
+            placeholder="e.g. John"
+            value={formData.first_name}
+            onChange={(e) => handleChange('first_name', e.target.value)}
+            onBlur={() => handleBlur('first_name')}
+            required
+            aria-required="true"
+            aria-invalid={Boolean(errors.first_name && touched.first_name)}
+          />
+          {errors.first_name && touched.first_name && <span className="field-error-text" role="alert">{errors.first_name}</span>}
         </div>
       </div>
 
-      {/* SECTION 2: TRIP DESTINATION & DATES */}
-      <div className="form-section-card">
-        <div className="form-section-header">
-          <span className="section-step-num">2</span>
-          <div>
-            <h3 className="section-step-title">Trip Itinerary &amp; Travel Dates</h3>
-            <p className="section-step-desc">Which regions would you like to explore and when?</p>
-          </div>
+      {/* 2. Middle Name */}
+      <div className="trip-form-row">
+        <label htmlFor="req-middle-name" className="trip-form-label">
+          <span>Middle Name</span>
+          <span className="label-subtitle">(Optional)</span>
+        </label>
+        <div className="trip-form-control">
+          <input
+            id="req-middle-name"
+            name="middle_name"
+            type="text"
+            className={`trip-form-input ${errors.middle_name && touched.middle_name ? 'is-invalid' : ''}`}
+            placeholder="e.g. Robert"
+            value={formData.middle_name}
+            onChange={(e) => handleChange('middle_name', e.target.value)}
+            onBlur={() => handleBlur('middle_name')}
+            aria-invalid={Boolean(errors.middle_name && touched.middle_name)}
+          />
+          {errors.middle_name && touched.middle_name && <span className="field-error-text" role="alert">{errors.middle_name}</span>}
         </div>
+      </div>
 
-        <div className="form-grid-2col">
-          <div className="form-field-wrap">
-            <label htmlFor="req-destination" className="form-field-label">
-              Destination(s) to Visit <span className="req-star">*</span>
-            </label>
+      {/* 3. Last Name */}
+      <div className="trip-form-row">
+        <label htmlFor="req-last-name" className="trip-form-label">
+          <span>Last Name <span className="req-star">*</span></span>
+        </label>
+        <div className="trip-form-control">
+          <input
+            id="req-last-name"
+            name="last_name"
+            type="text"
+            className={`trip-form-input ${errors.last_name && touched.last_name ? 'is-invalid' : ''}`}
+            placeholder="e.g. Smith"
+            value={formData.last_name}
+            onChange={(e) => handleChange('last_name', e.target.value)}
+            onBlur={() => handleBlur('last_name')}
+            required
+            aria-required="true"
+            aria-invalid={Boolean(errors.last_name && touched.last_name)}
+          />
+          {errors.last_name && touched.last_name && <span className="field-error-text" role="alert">{errors.last_name}</span>}
+        </div>
+      </div>
+
+      {/* 4. Country / Nationality */}
+      <div className="trip-form-row">
+        <label htmlFor="req-country" className="trip-form-label">
+          <span>Country / Nationality <span className="req-star">*</span></span>
+        </label>
+        <div className="trip-form-control">
+          <select
+            id="req-country"
+            name="country"
+            className="trip-form-select"
+            value={formData.country}
+            onChange={(e) => handleCountryChange(e.target.value)}
+          >
+            <option value="">Select country...</option>
+            {COUNTRY_OPTIONS.map((c) => (
+              <option key={c.name} value={c.name}>
+                {c.name} ({c.dialCode})
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* 5. Phone / WhatsApp Number */}
+      <div className="trip-form-row">
+        <label htmlFor="req-phone" className="trip-form-label">
+          <span>Phone / WhatsApp <span className="req-star">*</span></span>
+          <span className="label-subtitle">Digits only, country code stored separately</span>
+        </label>
+        <div className="trip-form-control">
+          <div className="trip-phone-group">
             <input
-              id="req-destination"
-              name="destination"
+              id="req-dial-code"
+              name="dial_code"
               type="text"
-              className={`form-field-input ${errors.destination && touched.destination ? 'is-invalid' : ''}`}
-              placeholder="e.g. Kerala, Tamil Nadu Temples, Ooty & Mysore, Goa"
-              value={formData.destination}
-              onChange={(e) => handleChange('destination', e.target.value)}
-              onBlur={() => handleBlur('destination')}
-              required
-              aria-required="true"
+              className="trip-form-input"
+              value={formData.dial_code}
+              onChange={(e) => handleChange('dial_code', e.target.value)}
+              placeholder="+91"
+              title="Country dial code"
+              style={{ fontWeight: 700, textAlign: 'center' }}
             />
-            {errors.destination && touched.destination && <span className="field-error-text" role="alert">{errors.destination}</span>}
-          </div>
-
-          <div className="form-field-wrap">
-            <label htmlFor="req-pickup" className="form-field-label">
-              Pickup Location (Airport / City) <span className="req-star">*</span>
-            </label>
             <input
-              id="req-pickup"
-              name="pickup_location"
-              type="text"
-              className={`form-field-input ${errors.pickup_location && touched.pickup_location ? 'is-invalid' : ''}`}
-              placeholder="e.g. Chennai (MAA), Cochin (COK), Bangalore (BLR)"
-              value={formData.pickup_location}
-              onChange={(e) => handleChange('pickup_location', e.target.value)}
-              onBlur={() => handleBlur('pickup_location')}
+              id="req-phone"
+              name="phone"
+              type="tel"
+              className={`trip-form-input ${errors.phone && touched.phone ? 'is-invalid' : ''}`}
+              placeholder="e.g. 9876543210"
+              value={formData.phone}
+              onChange={(e) => handlePhoneChange(e.target.value)}
+              onBlur={() => handleBlur('phone')}
               required
               aria-required="true"
+              aria-invalid={Boolean(errors.phone && touched.phone)}
             />
-            {errors.pickup_location && touched.pickup_location && <span className="field-error-text" role="alert">{errors.pickup_location}</span>}
           </div>
+          {errors.phone && touched.phone && <span className="field-error-text" role="alert">{errors.phone}</span>}
+        </div>
+      </div>
 
-          <div className="form-field-wrap">
-            <label htmlFor="req-arrival-date" className="form-field-label">
-              Arrival Date <span className="req-star">*</span>
-            </label>
-            <input
-              id="req-arrival-date"
-              name="arrival_date"
-              type="date"
-              className={`form-field-input ${errors.arrival_date && touched.arrival_date ? 'is-invalid' : ''}`}
-              value={formData.arrival_date}
-              onChange={(e) => handleChange('arrival_date', e.target.value)}
-              onBlur={() => handleBlur('arrival_date')}
-              required
-              aria-required="true"
-            />
-            {errors.arrival_date && touched.arrival_date && <span className="field-error-text" role="alert">{errors.arrival_date}</span>}
-          </div>
+      {/* 6. Email Address */}
+      <div className="trip-form-row">
+        <label htmlFor="req-email" className="trip-form-label">
+          <span>Email Address <span className="req-star">*</span></span>
+          {REQUIRE_GMAIL && <span className="label-subtitle">@gmail.com required</span>}
+        </label>
+        <div className="trip-form-control">
+          <input
+            id="req-email"
+            name="email"
+            type="email"
+            className={`trip-form-input ${errors.email && touched.email ? 'is-invalid' : ''}`}
+            placeholder="e.g. yourname@gmail.com"
+            value={formData.email}
+            onChange={(e) => handleChange('email', e.target.value)}
+            onBlur={() => handleBlur('email')}
+            required
+            aria-required="true"
+            aria-invalid={Boolean(errors.email && touched.email)}
+          />
+          {errors.email && touched.email && <span className="field-error-text" role="alert">{errors.email}</span>}
+        </div>
+      </div>
 
-          <div className="form-field-wrap">
-            <label htmlFor="req-departure-date" className="form-field-label">
-              Departure Date <span className="req-star">*</span>
-            </label>
+      {/* 7. Destination(s) to Visit */}
+      <div className="trip-form-row">
+        <label htmlFor="req-destination" className="trip-form-label">
+          <span>Destination(s) <span className="req-star">*</span></span>
+          {isBookingMode && <span className="label-subtitle">(From Selected Tour)</span>}
+        </label>
+        <div className="trip-form-control">
+          <input
+            id="req-destination"
+            name="destination"
+            type="text"
+            className={`trip-form-input ${errors.destination && touched.destination ? 'is-invalid' : ''}`}
+            placeholder="e.g. Kerala, Tamil Nadu Temples, Ooty & Mysore"
+            value={formData.destination}
+            onChange={(e) => handleChange('destination', e.target.value)}
+            onBlur={() => handleBlur('destination')}
+            required
+            aria-required="true"
+            aria-invalid={Boolean(errors.destination && touched.destination)}
+          />
+          {errors.destination && touched.destination && <span className="field-error-text" role="alert">{errors.destination}</span>}
+        </div>
+      </div>
+
+      {/* 8. Pickup Location */}
+      <div className="trip-form-row">
+        <label htmlFor="req-pickup" className="trip-form-label">
+          <span>Pickup Location <span className="req-star">*</span></span>
+          <span className="label-subtitle">Airport, City, or Hotel</span>
+        </label>
+        <div className="trip-form-control">
+          <input
+            id="req-pickup"
+            name="pickup_location"
+            type="text"
+            className={`trip-form-input ${errors.pickup_location && touched.pickup_location ? 'is-invalid' : ''}`}
+            placeholder="e.g. Chennai (MAA), Cochin (COK), Bangalore (BLR)"
+            value={formData.pickup_location}
+            onChange={(e) => handleChange('pickup_location', e.target.value)}
+            onBlur={() => handleBlur('pickup_location')}
+            required
+            aria-required="true"
+            aria-invalid={Boolean(errors.pickup_location && touched.pickup_location)}
+          />
+          {errors.pickup_location && touched.pickup_location && <span className="field-error-text" role="alert">{errors.pickup_location}</span>}
+        </div>
+      </div>
+
+      {/* 9. Arrival Date / Travel Date */}
+      <div className="trip-form-row">
+        <label htmlFor="req-arrival-date" className="trip-form-label">
+          <span>{isBookingMode ? 'Travel / Booking Date' : 'Arrival Date'} <span className="req-star">*</span></span>
+        </label>
+        <div className="trip-form-control">
+          <input
+            id="req-arrival-date"
+            name="arrival_date"
+            type="date"
+            min={todayStr}
+            className={`trip-form-input ${errors.arrival_date && touched.arrival_date ? 'is-invalid' : ''}`}
+            value={formData.arrival_date}
+            onChange={(e) => handleChange('arrival_date', e.target.value)}
+            onBlur={() => handleBlur('arrival_date')}
+            required
+            aria-required="true"
+            aria-invalid={Boolean(errors.arrival_date && touched.arrival_date)}
+          />
+          {errors.arrival_date && touched.arrival_date && <span className="field-error-text" role="alert">{errors.arrival_date}</span>}
+        </div>
+      </div>
+
+      {/* 10. Departure Date (Optional in single-day booking mode, Required in Trip Request) */}
+      {!isBookingMode && (
+        <div className="trip-form-row">
+          <label htmlFor="req-departure-date" className="trip-form-label">
+            <span>Departure Date <span className="req-star">*</span></span>
+          </label>
+          <div className="trip-form-control">
             <input
               id="req-departure-date"
               name="departure_date"
               type="date"
-              min={formData.arrival_date || undefined}
-              className={`form-field-input ${errors.departure_date && touched.departure_date ? 'is-invalid' : ''}`}
+              min={formData.arrival_date || todayStr}
+              className={`trip-form-input ${errors.departure_date && touched.departure_date ? 'is-invalid' : ''}`}
               value={formData.departure_date}
               onChange={(e) => handleChange('departure_date', e.target.value)}
               onBlur={() => handleBlur('departure_date')}
               required
               aria-required="true"
+              aria-invalid={Boolean(errors.departure_date && touched.departure_date)}
             />
             {errors.departure_date && touched.departure_date && <span className="field-error-text" role="alert">{errors.departure_date}</span>}
           </div>
+        </div>
+      )}
 
-          <div className="form-field-wrap form-col-full">
-            <label htmlFor="req-calculated-days" className="form-field-label">
-              Number of Days (Auto-calculated)
-            </label>
-            <input
-              id="req-calculated-days"
-              type="text"
-              readOnly
-              className="form-field-input is-readonly"
-              value={calculatedDays || 'Select Arrival and Departure dates to calculate duration'}
-              style={{ background: '#f1f5f9', fontWeight: 700, color: '#01806C' }}
-            />
-          </div>
+      {/* 11. Number of Days */}
+      <div className="trip-form-row">
+        <label htmlFor="req-calculated-days" className="trip-form-label">
+          <span>Tour Duration</span>
+          <span className="label-subtitle">{isBookingMode ? '(Package Duration)' : '(Auto-calculated)'}</span>
+        </label>
+        <div className="trip-form-control">
+          <input
+            id="req-calculated-days"
+            type="text"
+            readOnly
+            className="trip-form-input"
+            value={calculatedDays || (isBookingMode ? 'Standard Package Duration' : 'Select Arrival and Departure dates to calculate duration')}
+            style={{ background: '#f1f5f9', fontWeight: 700, color: '#1226de' }}
+          />
         </div>
       </div>
 
-      {/* SECTION 3: TRAVELERS COUNT */}
-      <div className="form-section-card">
-        <div className="form-section-header">
-          <span className="section-step-num">3</span>
-          <div>
-            <h3 className="section-step-title">Travelers</h3>
-            <p className="section-step-desc">Who is traveling in your private party?</p>
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '20px' }}>
-          <div className="counter-box">
-            <label htmlFor="req-adults" className="form-field-label">
-              Adults (12+ yrs)
-            </label>
-            <select
-              id="req-adults"
-              name="adults_count"
-              className="form-field-select"
-              value={formData.adults_count}
-              onChange={(e) => handleChange('adults_count', Number(e.target.value))}
-            >
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, '12+'].map((num) => (
-                <option key={num} value={typeof num === 'number' ? num : 12}>{num} Adult{num > 1 ? 's' : ''}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="counter-box">
-            <label htmlFor="req-children" className="form-field-label">
-              Children (2-11 yrs)
-            </label>
-            <select
-              id="req-children"
-              name="children_count"
-              className="form-field-select"
-              value={formData.children_count}
-              onChange={(e) => handleChange('children_count', Number(e.target.value))}
-            >
-              {[0, 1, 2, 3, 4, 5].map((num) => (
-                <option key={num} value={num}>{num} Child{num !== 1 ? 'ren' : ''}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="counter-box">
-            <label htmlFor="req-infants" className="form-field-label">
-              Infants (&lt;2 yrs)
-            </label>
-            <select
-              id="req-infants"
-              name="infants_count"
-              className="form-field-select"
-              value={formData.infants_count}
-              onChange={(e) => handleChange('infants_count', Number(e.target.value))}
-            >
-              {[0, 1, 2, 3].map((num) => (
-                <option key={num} value={num}>{num} Infant{num > 1 ? 's' : ''}</option>
-              ))}
-            </select>
-          </div>
+      {/* 12. Adults */}
+      <div className="trip-form-row">
+        <label htmlFor="req-adults" className="trip-form-label">
+          <span>Adults (12+ yrs) <span className="req-star">*</span></span>
+        </label>
+        <div className="trip-form-control">
+          <select
+            id="req-adults"
+            name="adults_count"
+            className={`trip-form-select ${errors.adults_count && touched.adults_count ? 'is-invalid' : ''}`}
+            value={formData.adults_count}
+            onChange={(e) => handleChange('adults_count', e.target.value === '' ? '' : Number(e.target.value))}
+            onBlur={() => handleBlur('adults_count')}
+            required
+          >
+            <option value="">Select adults...</option>
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, '12+'].map((num) => (
+              <option key={num} value={typeof num === 'number' ? num : 12}>
+                {num} Adult{num > 1 ? 's' : ''}
+              </option>
+            ))}
+          </select>
+          {errors.adults_count && touched.adults_count && <span className="field-error-text" role="alert">{errors.adults_count}</span>}
         </div>
       </div>
 
-      {/* SECTION 4: TOUR PREFERENCES */}
-      <div className="form-section-card">
-        <div className="form-section-header">
-          <span className="section-step-num">4</span>
-          <div>
-            <h3 className="section-step-title">Tour Preferences &amp; Guide</h3>
-            <p className="section-step-desc">Select your desired travel themes and guide language preferences.</p>
-          </div>
+      {/* 13. Children */}
+      <div className="trip-form-row">
+        <label htmlFor="req-children" className="trip-form-label">
+          <span>Children (2-11 yrs)</span>
+          <span className="label-subtitle">(Optional)</span>
+        </label>
+        <div className="trip-form-control">
+          <select
+            id="req-children"
+            name="children_count"
+            className="trip-form-select"
+            value={formData.children_count}
+            onChange={(e) => handleChange('children_count', e.target.value === '' ? '' : Number(e.target.value))}
+          >
+            <option value="">Select children...</option>
+            {[0, 1, 2, 3, 4, 5].map((num) => (
+              <option key={num} value={num}>
+                {num} Child{num !== 1 ? 'ren' : ''}
+              </option>
+            ))}
+          </select>
         </div>
+      </div>
 
-        <div style={{ marginBottom: '20px' }}>
-          <label className="form-field-label" style={{ marginBottom: '10px', display: 'block' }}>
-            Tour Type (Select all that apply):
-          </label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+      {/* 14. Infants */}
+      <div className="trip-form-row">
+        <label htmlFor="req-infants" className="trip-form-label">
+          <span>Infants (&lt;2 yrs)</span>
+          <span className="label-subtitle">(Optional)</span>
+        </label>
+        <div className="trip-form-control">
+          <select
+            id="req-infants"
+            name="infants_count"
+            className="trip-form-select"
+            value={formData.infants_count}
+            onChange={(e) => handleChange('infants_count', e.target.value === '' ? '' : Number(e.target.value))}
+          >
+            <option value="">Select infants...</option>
+            {[0, 1, 2, 3].map((num) => (
+              <option key={num} value={num}>
+                {num} Infant{num > 1 ? 's' : ''}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* 15. Tour Types */}
+      <div className="trip-form-row">
+        <label className="trip-form-label">
+          <span>Tour Preferences</span>
+          <span className="label-subtitle">Select all that apply</span>
+        </label>
+        <div className="trip-form-control">
+          <div className="trip-pills-container">
             {TOUR_TYPES.map((type) => {
               const isSelected = formData.tour_types.includes(type);
               return (
@@ -678,278 +1005,273 @@ export default function TripRequestForm({ initialDestination = '', initialTour =
             })}
           </div>
         </div>
+      </div>
 
-        <div className="form-grid-2col">
-          <div className="form-field-wrap">
-            <label htmlFor="req-guide" className="form-field-label">
-              Tour Guide Required?
-            </label>
-            <select
-              id="req-guide"
-              name="tour_guide_required"
-              className="form-field-select"
-              value={formData.tour_guide_required}
-              onChange={(e) => handleChange('tour_guide_required', e.target.value)}
-            >
-              <option value="Yes">Yes (Accredited Chauffeur / Guide)</option>
-              <option value="No">No (Private Chauffeur Only)</option>
-            </select>
-          </div>
-
-          <div className="form-field-wrap">
-            <label htmlFor="req-lang" className="form-field-label">
-              Preferred Guide Language
-            </label>
-            <select
-              id="req-lang"
-              name="preferred_language"
-              className="form-field-select"
-              value={formData.preferred_language}
-              onChange={(e) => handleChange('preferred_language', e.target.value)}
-            >
-              {LANGUAGES.map((l) => (
-                <option key={l} value={l}>{l}</option>
-              ))}
-            </select>
-          </div>
+      {/* 16. Tour Guide Required */}
+      <div className="trip-form-row">
+        <label htmlFor="req-guide" className="trip-form-label">
+          <span>Tour Guide Required?</span>
+        </label>
+        <div className="trip-form-control">
+          <select
+            id="req-guide"
+            name="tour_guide_required"
+            className="trip-form-select"
+            value={formData.tour_guide_required}
+            onChange={(e) => handleChange('tour_guide_required', e.target.value)}
+          >
+            <option value="">Select...</option>
+            <option value="Yes">Yes (Accredited Guide at monuments)</option>
+            <option value="No">No (Private Chauffeur Only)</option>
+          </select>
         </div>
       </div>
 
-      {/* SECTION 5: TRANSPORTATION */}
-      <div className="form-section-card">
-        <div className="form-section-header">
-          <span className="section-step-num">5</span>
-          <div>
-            <h3 className="section-step-title">Transportation &amp; Private Vehicle</h3>
-            <p className="section-step-desc">Air-conditioned chauffeur-driven vehicle options for your tour.</p>
-          </div>
-        </div>
-
-        <div className="form-grid-2col">
-          <div className="form-field-wrap form-col-full">
-            <label htmlFor="req-vehicle" className="form-field-label">
-              Vehicle Type
-            </label>
-            <select
-              id="req-vehicle"
-              name="vehicle_preference"
-              className="form-field-select"
-              value={formData.vehicle_preference}
-              onChange={(e) => handleChange('vehicle_preference', e.target.value)}
-            >
-              {VEHICLE_OPTIONS.map((v) => (
-                <option key={v} value={v}>{v}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-field-wrap">
-            <label htmlFor="req-pickup-yn" className="form-field-label">
-              Airport Pickup Required?
-            </label>
-            <select
-              id="req-pickup-yn"
-              name="airport_pickup"
-              className="form-field-select"
-              value={formData.airport_pickup}
-              onChange={(e) => handleChange('airport_pickup', e.target.value)}
-            >
-              <option value="Yes">Yes (Driver with paging board at arrivals)</option>
-              <option value="No">No (I will reach hotel directly)</option>
-            </select>
-          </div>
-
-          <div className="form-field-wrap">
-            <label htmlFor="req-drop-yn" className="form-field-label">
-              Airport Drop Required?
-            </label>
-            <select
-              id="req-drop-yn"
-              name="airport_drop"
-              className="form-field-select"
-              value={formData.airport_drop}
-              onChange={(e) => handleChange('airport_drop', e.target.value)}
-            >
-              <option value="Yes">Yes (Drop-off for outbound flight)</option>
-              <option value="No">No</option>
-            </select>
-          </div>
+      {/* 17. Preferred Guide Language */}
+      <div className="trip-form-row">
+        <label htmlFor="req-lang" className="trip-form-label">
+          <span>Guide Language</span>
+        </label>
+        <div className="trip-form-control">
+          <select
+            id="req-lang"
+            name="preferred_language"
+            className="trip-form-select"
+            value={formData.preferred_language}
+            onChange={(e) => handleChange('preferred_language', e.target.value)}
+          >
+            <option value="">Select language...</option>
+            {LANGUAGES.map((l) => (
+              <option key={l} value={l}>{l}</option>
+            ))}
+          </select>
         </div>
       </div>
 
-      {/* SECTION 6: ACCOMMODATION */}
-      <div className="form-section-card">
-        <div className="form-section-header">
-          <span className="section-step-num">6</span>
-          <div>
-            <h3 className="section-step-title">Accommodation &amp; Hotels</h3>
-            <p className="section-step-desc">Select your preferred hotel category and room arrangement.</p>
-          </div>
-        </div>
-
-        <div className="form-grid-3col">
-          <div className="form-field-wrap">
-            <label htmlFor="req-hotel-cat" className="form-field-label">
-              Hotel Category
-            </label>
-            <select
-              id="req-hotel-cat"
-              name="hotel_category"
-              className="form-field-select"
-              value={formData.hotel_category}
-              onChange={(e) => handleChange('hotel_category', e.target.value)}
-            >
-              {HOTEL_CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-field-wrap">
-            <label htmlFor="req-room-type" className="form-field-label">
-              Room Type
-            </label>
-            <select
-              id="req-room-type"
-              name="room_type"
-              className="form-field-select"
-              value={formData.room_type}
-              onChange={(e) => handleChange('room_type', e.target.value)}
-            >
-              {ROOM_TYPES.map((rt) => (
-                <option key={rt} value={rt}>{rt}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-field-wrap">
-            <label htmlFor="req-rooms-count" className="form-field-label">
-              Number of Rooms
-            </label>
-            <select
-              id="req-rooms-count"
-              name="rooms_count"
-              className="form-field-select"
-              value={formData.rooms_count}
-              onChange={(e) => handleChange('rooms_count', Number(e.target.value))}
-            >
-              {[1, 2, 3, 4, 5, 6, 8, 10].map((n) => (
-                <option key={n} value={n}>{n} Room{n > 1 ? 's' : ''}</option>
-              ))}
-            </select>
-          </div>
+      {/* 18. Vehicle Preference */}
+      <div className="trip-form-row">
+        <label htmlFor="req-vehicle" className="trip-form-label">
+          <span>Vehicle Type</span>
+        </label>
+        <div className="trip-form-control">
+          <select
+            id="req-vehicle"
+            name="vehicle_preference"
+            className="trip-form-select"
+            value={formData.vehicle_preference}
+            onChange={(e) => handleChange('vehicle_preference', e.target.value)}
+          >
+            <option value="">Select vehicle...</option>
+            {VEHICLE_OPTIONS.map((v) => (
+              <option key={v} value={v}>{v}</option>
+            ))}
+          </select>
         </div>
       </div>
 
-      {/* SECTION 7: FLIGHT / TRAIN SCHEDULE (OPTIONAL) */}
-      <div className="form-section-card">
-        <div className="form-section-header">
-          <span className="section-step-num">7</span>
-          <div>
-            <h3 className="section-step-title">Flight / Train Details <span className="opt-tag">(Optional)</span></h3>
-            <p className="section-step-desc">Provide your arrival &amp; departure flight/train numbers if already booked.</p>
-          </div>
-        </div>
-
-        <div className="form-grid-2col">
-          <div className="form-field-wrap">
-            <label htmlFor="req-arr-flight" className="form-field-label">
-              Arrival Flight / Train Number
-            </label>
-            <input
-              id="req-arr-flight"
-              name="arrival_flight_train_number"
-              type="text"
-              className="form-field-input"
-              placeholder="e.g. BA 035 or AI 570"
-              value={formData.arrival_flight_train_number}
-              onChange={(e) => handleChange('arrival_flight_train_number', e.target.value)}
-            />
-          </div>
-
-          <div className="form-field-wrap">
-            <label htmlFor="req-arr-time" className="form-field-label">
-              Arrival Time
-            </label>
-            <input
-              id="req-arr-time"
-              name="arrival_time"
-              type="time"
-              className="form-field-input"
-              value={formData.arrival_time}
-              onChange={(e) => handleChange('arrival_time', e.target.value)}
-            />
-          </div>
-
-          <div className="form-field-wrap">
-            <label htmlFor="req-dep-flight" className="form-field-label">
-              Departure Flight / Train Number
-            </label>
-            <input
-              id="req-dep-flight"
-              name="departure_flight_train_number"
-              type="text"
-              className="form-field-input"
-              placeholder="e.g. LH 759 or 6E 412"
-              value={formData.departure_flight_train_number}
-              onChange={(e) => handleChange('departure_flight_train_number', e.target.value)}
-            />
-          </div>
-
-          <div className="form-field-wrap">
-            <label htmlFor="req-dep-time" className="form-field-label">
-              Departure Time
-            </label>
-            <input
-              id="req-dep-time"
-              name="departure_time"
-              type="time"
-              className="form-field-input"
-              value={formData.departure_time}
-              onChange={(e) => handleChange('departure_time', e.target.value)}
-            />
-          </div>
+      {/* 19. Airport Pickup */}
+      <div className="trip-form-row">
+        <label htmlFor="req-pickup-yn" className="trip-form-label">
+          <span>Airport Pickup?</span>
+        </label>
+        <div className="trip-form-control">
+          <select
+            id="req-pickup-yn"
+            name="airport_pickup"
+            className="trip-form-select"
+            value={formData.airport_pickup}
+            onChange={(e) => handleChange('airport_pickup', e.target.value)}
+          >
+            <option value="">Select...</option>
+            <option value="Yes">Yes (Driver with paging board at arrivals)</option>
+            <option value="No">No (I will reach hotel directly)</option>
+          </select>
         </div>
       </div>
 
-      {/* SECTION 8: BUDGET */}
-      <div className="form-section-card">
-        <div className="form-section-header">
-          <span className="section-step-num">8</span>
-          <div>
-            <h3 className="section-step-title">Approximate Budget <span className="opt-tag">(Optional)</span></h3>
-            <p className="section-step-desc">Enter your target holiday budget (per person or total party).</p>
-          </div>
+      {/* 20. Airport Drop */}
+      <div className="trip-form-row">
+        <label htmlFor="req-drop-yn" className="trip-form-label">
+          <span>Airport Drop?</span>
+        </label>
+        <div className="trip-form-control">
+          <select
+            id="req-drop-yn"
+            name="airport_drop"
+            className="trip-form-select"
+            value={formData.airport_drop}
+            onChange={(e) => handleChange('airport_drop', e.target.value)}
+          >
+            <option value="">Select...</option>
+            <option value="Yes">Yes (Drop-off for outbound flight)</option>
+            <option value="No">No</option>
+          </select>
         </div>
+      </div>
 
-        <div className="form-grid-2col">
-          <div className="form-field-wrap">
-            <label htmlFor="req-budget" className="form-field-label">
-              Budget Amount
-            </label>
+      {/* 21. Hotel Category */}
+      <div className="trip-form-row">
+        <label htmlFor="req-hotel-cat" className="trip-form-label">
+          <span>Hotel Category</span>
+        </label>
+        <div className="trip-form-control">
+          <select
+            id="req-hotel-cat"
+            name="hotel_category"
+            className="trip-form-select"
+            value={formData.hotel_category}
+            onChange={(e) => handleChange('hotel_category', e.target.value)}
+          >
+            <option value="">Select hotel category...</option>
+            {HOTEL_CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* 22. Room Type */}
+      <div className="trip-form-row">
+        <label htmlFor="req-room-type" className="trip-form-label">
+          <span>Room Type</span>
+        </label>
+        <div className="trip-form-control">
+          <select
+            id="req-room-type"
+            name="room_type"
+            className="trip-form-select"
+            value={formData.room_type}
+            onChange={(e) => handleChange('room_type', e.target.value)}
+          >
+            <option value="">Select room type...</option>
+            {ROOM_TYPES.map((rt) => (
+              <option key={rt} value={rt}>{rt}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* 23. Number of Rooms */}
+      <div className="trip-form-row">
+        <label htmlFor="req-rooms-count" className="trip-form-label">
+          <span>Number of Rooms</span>
+        </label>
+        <div className="trip-form-control">
+          <select
+            id="req-rooms-count"
+            name="rooms_count"
+            className="trip-form-select"
+            value={formData.rooms_count}
+            onChange={(e) => handleChange('rooms_count', e.target.value === '' ? '' : Number(e.target.value))}
+          >
+            <option value="">Select rooms...</option>
+            {[1, 2, 3, 4, 5, 6, 8, 10].map((n) => (
+              <option key={n} value={n}>{n} Room{n > 1 ? 's' : ''}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* 24. Arrival Flight/Train Number */}
+      <div className="trip-form-row">
+        <label htmlFor="req-arr-flight" className="trip-form-label">
+          <span>Arrival Flight / Train #</span>
+          <span className="label-subtitle">(Optional)</span>
+        </label>
+        <div className="trip-form-control">
+          <input
+            id="req-arr-flight"
+            name="arrival_flight_train_number"
+            type="text"
+            className="trip-form-input"
+            placeholder="e.g. BA 035 or AI 570"
+            value={formData.arrival_flight_train_number}
+            onChange={(e) => handleChange('arrival_flight_train_number', e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* 25. Arrival Time */}
+      <div className="trip-form-row">
+        <label htmlFor="req-arr-time" className="trip-form-label">
+          <span>Arrival Time</span>
+          <span className="label-subtitle">(Optional)</span>
+        </label>
+        <div className="trip-form-control">
+          <input
+            id="req-arr-time"
+            name="arrival_time"
+            type="time"
+            className="trip-form-input"
+            value={formData.arrival_time}
+            onChange={(e) => handleChange('arrival_time', e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* 26. Departure Flight/Train Number */}
+      <div className="trip-form-row">
+        <label htmlFor="req-dep-flight" className="trip-form-label">
+          <span>Departure Flight / Train #</span>
+          <span className="label-subtitle">(Optional)</span>
+        </label>
+        <div className="trip-form-control">
+          <input
+            id="req-dep-flight"
+            name="departure_flight_train_number"
+            type="text"
+            className="trip-form-input"
+            placeholder="e.g. LH 759 or 6E 412"
+            value={formData.departure_flight_train_number}
+            onChange={(e) => handleChange('departure_flight_train_number', e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* 27. Departure Time */}
+      <div className="trip-form-row">
+        <label htmlFor="req-dep-time" className="trip-form-label">
+          <span>Departure Time</span>
+          <span className="label-subtitle">(Optional)</span>
+        </label>
+        <div className="trip-form-control">
+          <input
+            id="req-dep-time"
+            name="departure_time"
+            type="time"
+            className="trip-form-input"
+            value={formData.departure_time}
+            onChange={(e) => handleChange('departure_time', e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* 28. Budget Amount & Currency */}
+      <div className="trip-form-row">
+        <label htmlFor="req-budget" className="trip-form-label">
+          <span>Approximate Budget</span>
+          <span className="label-subtitle">(Optional)</span>
+        </label>
+        <div className="trip-form-control">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px', gap: '12px' }}>
             <input
               id="req-budget"
               name="approximate_budget"
               type="number"
               min="0"
-              className="form-field-input"
+              className="trip-form-input"
               placeholder="e.g. 2500"
               value={formData.approximate_budget}
               onChange={(e) => handleChange('approximate_budget', e.target.value)}
             />
-          </div>
-
-          <div className="form-field-wrap">
-            <label htmlFor="req-currency" className="form-field-label">
-              Currency
-            </label>
             <select
               id="req-currency"
               name="budget_currency"
-              className="form-field-select"
+              className="trip-form-select"
               value={formData.budget_currency}
               onChange={(e) => handleChange('budget_currency', e.target.value)}
             >
+              <option value="">Currency...</option>
               {CURRENCIES.map((curr) => (
                 <option key={curr} value={curr}>{curr}</option>
               ))}
@@ -958,82 +1280,62 @@ export default function TripRequestForm({ initialDestination = '', initialTour =
         </div>
       </div>
 
-      {/* SECTION 9: DOCUMENTS (OPTIONAL) */}
-      <div className="form-section-card">
-        <div className="form-section-header">
-          <span className="section-step-num">9</span>
-          <div>
-            <h3 className="section-step-title">Documents <span className="opt-tag">(Optional)</span></h3>
-            <p className="section-step-desc">Attach passport copy or flight tickets for faster processing.</p>
-          </div>
-        </div>
-
-        <div className="form-grid-2col">
-          <div className="form-field-wrap">
-            <label className="form-field-label">
-              Passport Copy (PDF or Image, max 5MB)
-            </label>
-            <div className="doc-upload-box">
-              {passportFile ? (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#e6f7f4', padding: '10px 14px', borderRadius: '8px' }}>
-                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#01806C' }}>📄 {passportFile.name}</span>
-                  <button type="button" onClick={() => setPassportFile(null)} style={{ background: 'none', border: 'none', color: '#ef4444', fontWeight: 700, cursor: 'pointer' }}>Remove</button>
-                </div>
-              ) : (
-                <input
-                  type="file"
-                  accept=".pdf,.jpg,.jpeg,.png,.webp"
-                  onChange={(e) => handleFileUpload(e, setPassportFile, setPassportError)}
-                  className="form-field-input"
-                />
-              )}
-              {passportError && <span className="field-error-text" role="alert">{passportError}</span>}
+      {/* 29. Passport Copy */}
+      <div className="trip-form-row">
+        <label className="trip-form-label">
+          <span>Passport Copy</span>
+          <span className="label-subtitle">PDF / Image, max 10MB (Optional)</span>
+        </label>
+        <div className="trip-form-control">
+          {passportFile ? (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#eff6ff', border: '1px solid #bfdbfe', padding: '10px 14px', borderRadius: '10px' }}>
+              <span style={{ fontSize: '13.5px', fontWeight: 600, color: '#1d4ed8' }}>📄 {passportFile.name}</span>
+              <button type="button" onClick={() => setPassportFile(null)} style={{ background: 'none', border: 'none', color: '#ef4444', fontWeight: 700, cursor: 'pointer' }}>Remove</button>
             </div>
-          </div>
-
-          <div className="form-field-wrap">
-            <label className="form-field-label">
-              Flight Ticket (PDF or Image, max 5MB)
-            </label>
-            <div className="doc-upload-box">
-              {ticketFile ? (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#e6f7f4', padding: '10px 14px', borderRadius: '8px' }}>
-                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#01806C' }}>📄 {ticketFile.name}</span>
-                  <button type="button" onClick={() => setTicketFile(null)} style={{ background: 'none', border: 'none', color: '#ef4444', fontWeight: 700, cursor: 'pointer' }}>Remove</button>
-                </div>
-              ) : (
-                <input
-                  type="file"
-                  accept=".pdf,.jpg,.jpeg,.png,.webp"
-                  onChange={(e) => handleFileUpload(e, setTicketFile, setTicketError)}
-                  className="form-field-input"
-                />
-              )}
-              {ticketError && <span className="field-error-text" role="alert">{ticketError}</span>}
-            </div>
-          </div>
+          ) : (
+            <input
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png,.webp"
+              onChange={(e) => handleFileUpload(e, setPassportFile, setPassportError)}
+              className="trip-form-input"
+            />
+          )}
+          {passportError && <span className="field-error-text" role="alert">{passportError}</span>}
         </div>
-
-        <p style={{ fontSize: '12px', color: '#64748b', marginTop: '12px', fontStyle: 'italic' }}>
-          🔒 <strong>Privacy Assurance:</strong> All uploaded documents are stored securely and encrypted. They are strictly accessed by our verified operations desk only for permit applications and hotel check-ins. No public links are ever generated.
-        </p>
       </div>
 
-      {/* SECTION 10: PREFERRED CONTACT METHOD & SPECIAL REQUESTS */}
-      <div className="form-section-card">
-        <div className="form-section-header">
-          <span className="section-step-num">10</span>
-          <div>
-            <h3 className="section-step-title">Preferred Contact &amp; Special Requests</h3>
-            <p className="section-step-desc">How would you prefer our travel desk to coordinate with you?</p>
-          </div>
+      {/* 30. Flight Ticket */}
+      <div className="trip-form-row">
+        <label className="trip-form-label">
+          <span>Flight Ticket</span>
+          <span className="label-subtitle">PDF / Image, max 10MB (Optional)</span>
+        </label>
+        <div className="trip-form-control">
+          {ticketFile ? (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#eff6ff', border: '1px solid #bfdbfe', padding: '10px 14px', borderRadius: '10px' }}>
+              <span style={{ fontSize: '13.5px', fontWeight: 600, color: '#1d4ed8' }}>📄 {ticketFile.name}</span>
+              <button type="button" onClick={() => setTicketFile(null)} style={{ background: 'none', border: 'none', color: '#ef4444', fontWeight: 700, cursor: 'pointer' }}>Remove</button>
+            </div>
+          ) : (
+            <input
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png,.webp"
+              onChange={(e) => handleFileUpload(e, setTicketFile, setTicketError)}
+              className="trip-form-input"
+            />
+          )}
+          {ticketError && <span className="field-error-text" role="alert">{ticketError}</span>}
         </div>
+      </div>
 
-        <div style={{ marginBottom: '20px' }}>
-          <label className="form-field-label" style={{ marginBottom: '10px', display: 'block' }}>
-            Preferred Contact Channel(s):
-          </label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+      {/* 31. Preferred Contact Channel(s) */}
+      <div className="trip-form-row">
+        <label className="trip-form-label">
+          <span>Preferred Contact</span>
+          <span className="label-subtitle">Select all that apply</span>
+        </label>
+        <div className="trip-form-control">
+          <div className="trip-pills-container">
             {['WhatsApp', 'Phone Call', 'Email'].map((method) => {
               const isSelected = formData.preferred_contact_methods.includes(method);
               return (
@@ -1050,16 +1352,20 @@ export default function TripRequestForm({ initialDestination = '', initialTour =
             })}
           </div>
         </div>
+      </div>
 
-        <div className="form-field-wrap">
-          <label htmlFor="req-special-requests" className="form-field-label">
-            Special Requests, Dietary Requirements or Sightseeing Notes <span className="opt-tag">(Optional)</span>
-          </label>
+      {/* 32. Special Requests */}
+      <div className="trip-form-row">
+        <label htmlFor="req-special-requests" className="trip-form-label">
+          <span>Special Requests</span>
+          <span className="label-subtitle">Dietary, monument notes (Optional)</span>
+        </label>
+        <div className="trip-form-control">
           <textarea
             id="req-special-requests"
             name="special_requests"
             rows="3"
-            className="form-field-textarea"
+            className="trip-form-textarea"
             placeholder="Tell us about specific monuments you wish to visit, dietary needs (e.g. Vegetarian, Halal, Gluten-free), child seats, or special occasions..."
             value={formData.special_requests}
             onChange={(e) => handleChange('special_requests', e.target.value)}
@@ -1067,34 +1373,44 @@ export default function TripRequestForm({ initialDestination = '', initialTour =
         </div>
       </div>
 
-      {/* STICKY SUBMIT BAR */}
-      <div className="trip-form-submit-bar" style={{ marginTop: '36px', textAlign: 'center' }}>
+      {/* 33. Submit Button */}
+      <div style={{ marginTop: '36px', textAlign: 'center' }}>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="btn btn-primary btn-lg trip-request-submit-btn"
+          className="btn btn-primary btn-lg"
           style={{
-            padding: '16px 42px',
+            padding: '16px 44px',
             fontSize: '17px',
             fontWeight: 800,
             borderRadius: '9999px',
-            boxShadow: '0 8px 24px rgba(1, 170, 144, 0.3)',
+            background: 'linear-gradient(135deg, #1226de 0%, #0a178c 100%)',
+            border: 'none',
+            color: '#ffffff',
+            boxShadow: '0 8px 24px rgba(18, 38, 222, 0.35)',
             minWidth: '280px',
             cursor: isSubmitting ? 'not-allowed' : 'pointer',
             opacity: isSubmitting ? 0.75 : 1,
+            transition: 'all 0.2s ease',
           }}
         >
           {isSubmitting ? (
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '10px' }}>
-              <span className="spinner-dot" /> Submitting Request...
+              <span className="spinner-dot" /> Submitting...
             </span>
+          ) : isBookingMode ? (
+            '🔒 Confirm & Complete Booking Reservation →'
           ) : (
             '✨ Request My Trip & Quotation →'
           )}
         </button>
 
-        <p style={{ fontSize: '12.5px', color: '#64748b', marginTop: '12px' }}>
-          ✓ 100% Free &amp; No Obligation • Custom Quote within 4 Hours • Direct WhatsApp Delivery
+        <p style={{ fontSize: '13px', color: '#64748b', marginTop: '14px', marginBottom: 0 }}>
+          {isBookingMode ? (
+            '✓ Official Receipt Generated Instantly • No Upfront Fee • Free Cancellation'
+          ) : (
+            '✓ 100% Free & No Obligation • Custom Quote within 4 Hours • Direct WhatsApp Delivery'
+          )}
         </p>
       </div>
     </form>

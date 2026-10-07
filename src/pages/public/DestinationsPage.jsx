@@ -9,8 +9,6 @@ import EmptyState from '../../components/ui/EmptyState';
 import ErrorState from '../../components/ui/ErrorState';
 import { updatePageMeta } from '../../utils/metadata';
 
-const QUICK_DESTINATIONS = ['Tamil Nadu', 'Kerala', 'Karnataka', 'Goa'];
-
 export default function DestinationsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
@@ -112,17 +110,6 @@ export default function DestinationsPage() {
     setSearchParams({ page: '1' });
   };
 
-  const handleSelectQuickDest = (name) => {
-    if (appliedSearch.toLowerCase() === name.toLowerCase()) {
-      handleClearSearch();
-    } else {
-      setSearchQuery(name);
-      setAppliedSearch(name);
-      setCurrentPage(1);
-      setSearchParams({ search: name, page: '1' });
-    }
-  };
-
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
     const newParams = {};
@@ -147,28 +134,46 @@ export default function DestinationsPage() {
           </div>
 
           {/* Search Bar inside Destination Page */}
-          <div className="catalog-search-wrapper" style={{ maxWidth: '680px', margin: '24px auto 0' }}>
-            <form onSubmit={handleSearchSubmit} className="catalog-search-form" role="search" style={{ display: 'flex', gap: '10px', alignItems: 'stretch' }}>
-              <div className="search-input-group" style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
-                <span className="search-icon" aria-hidden="true" style={{ position: 'absolute', left: '16px', fontSize: '16px', color: '#64748b', pointerEvents: 'none' }}>🔍</span>
+          <div className="catalog-search-wrapper" style={{ maxWidth: '850px', width: '100%', margin: '28px auto 0' }}>
+            <form
+              onSubmit={handleSearchSubmit}
+              className="catalog-search-form"
+              role="search"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                background: '#ffffff',
+                padding: '6px 8px 6px 18px',
+                borderRadius: '50px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+                border: '1.5px solid #e2e8f0',
+                width: '100%',
+                boxSizing: 'border-box',
+              }}
+            >
+              <div className="search-input-group" style={{ flex: '1 1 auto', position: 'relative', display: 'flex', alignItems: 'center', minWidth: 0 }}>
+                <span className="search-icon" aria-hidden="true" style={{ position: 'relative', fontSize: '18px', color: '#1226de', marginRight: '10px', pointerEvents: 'none', flexShrink: 0 }}>🔍</span>
                 <input
                   type="text"
                   className="search-input"
-                  placeholder="Search destinations (e.g. Tamil Nadu, Kerala, Karnataka, Goa)..."
+                  placeholder="Search destinations by name or state (e.g. Tamil Nadu, Kerala)..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   aria-label="Search destinations"
                   style={{
                     width: '100%',
-                    padding: '14px 44px 14px 44px',
+                    flex: '1 1 auto',
+                    minWidth: 0,
+                    padding: '8px 28px 8px 0',
                     fontSize: '15px',
-                    fontWeight: 600,
+                    fontWeight: 500,
                     color: '#0f172a',
-                    background: '#ffffff',
-                    border: '1.5px solid #cbd5e1',
-                    borderRadius: '12px',
+                    background: 'transparent',
+                    border: 'none',
                     outline: 'none',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+                    boxShadow: 'none',
+                    borderRadius: 0,
                   }}
                 />
                 {searchQuery && (
@@ -179,18 +184,19 @@ export default function DestinationsPage() {
                     aria-label="Clear search input"
                     style={{
                       position: 'absolute',
-                      right: '14px',
-                      background: '#f1f5f9',
+                      right: '4px',
+                      background: '#e2e8f0',
                       border: 'none',
                       borderRadius: '50%',
-                      width: '24px',
-                      height: '24px',
+                      width: '20px',
+                      height: '20px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: '#64748b',
-                      fontSize: '12px',
+                      color: '#475569',
+                      fontSize: '10px',
                       cursor: 'pointer',
+                      flexShrink: 0,
                     }}
                   >
                     ✕
@@ -199,53 +205,33 @@ export default function DestinationsPage() {
               </div>
               <button
                 type="submit"
-                className="btn btn-primary search-submit-btn"
                 style={{
-                  padding: '14px 28px',
-                  borderRadius: '12px',
-                  fontWeight: 700,
-                  fontSize: '15px',
+                  padding: '9px 24px',
+                  borderRadius: '50px',
+                  fontWeight: 600,
+                  fontSize: '14px',
+                  height: '40px',
+                  minWidth: '90px',
+                  width: 'auto',
+                  flex: '0 0 auto',
+                  flexShrink: 0,
                   whiteSpace: 'nowrap',
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  backgroundColor: '#1226de',
+                  color: '#ffffff',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(18, 38, 222, 0.3)',
+                  transition: 'background-color 0.2s ease, transform 0.2s ease',
                 }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#0a178c'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#1226de'; }}
               >
                 Search
               </button>
             </form>
-
-            {/* Quick Filter Destination Pills */}
-            <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
-              <button
-                type="button"
-                onClick={handleClearSearch}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors ${
-                  !appliedSearch
-                    ? 'bg-teal-600 text-white shadow-sm'
-                    : 'bg-white/80 text-slate-700 hover:bg-white border border-slate-200'
-                }`}
-              >
-                All Destinations
-              </button>
-              {QUICK_DESTINATIONS.map((q) => {
-                const isSelected = appliedSearch.toLowerCase() === q.toLowerCase();
-                return (
-                  <button
-                    type="button"
-                    key={q}
-                    onClick={() => handleSelectQuickDest(q)}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors ${
-                      isSelected
-                        ? 'bg-teal-600 text-white shadow-sm'
-                        : 'bg-white/80 text-slate-700 hover:bg-white border border-slate-200'
-                    }`}
-                  >
-                    {q}
-                  </button>
-                );
-              })}
-            </div>
           </div>
         </div>
       </section>

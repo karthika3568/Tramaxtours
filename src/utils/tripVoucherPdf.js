@@ -45,7 +45,7 @@ export function printTripVoucher(data, siteSettings = {}) {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 2px solid #01aa90;
+      border-bottom: 2px solid #1226de;
       padding-bottom: 16px;
       margin-bottom: 20px;
     }
@@ -58,7 +58,7 @@ export function printTripVoucher(data, siteSettings = {}) {
     }
     .brand-tagline {
       font-size: 11px;
-      color: #01aa90;
+      color: #1226de;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -69,13 +69,13 @@ export function printTripVoucher(data, siteSettings = {}) {
     }
     .ref-badge {
       display: inline-block;
-      background: #e6f7f4;
-      color: #01aa90;
+      background: rgba(18, 38, 222, 0.08);
+      color: #1226de;
       font-weight: 800;
       font-size: 12px;
       padding: 4px 12px;
       border-radius: 999px;
-      border: 1px solid #b2ede4;
+      border: 1px solid rgba(18, 38, 222, 0.25);
     }
     .date-label {
       font-size: 11px;
@@ -176,7 +176,7 @@ export function printTripVoucher(data, siteSettings = {}) {
 <body>
   <div class="no-print" style="background: #0B1329; color: #fff; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;">
     <div><strong>Ready to Print or Save as PDF:</strong> Click the button on the right or press Ctrl+P.</div>
-    <button onclick="window.print()" style="background: #01aa90; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 800; cursor: pointer;">🖨️ Print / Save PDF</button>
+    <button onclick="window.print()" style="background: #1226de; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 800; cursor: pointer;">🖨️ Print / Save PDF</button>
   </div>
 
   <div class="voucher-header">
@@ -190,7 +190,7 @@ export function printTripVoucher(data, siteSettings = {}) {
     <div class="voucher-ref-box">
       <span class="ref-badge">${refNumber}</span>
       <div class="date-label">Date: ${new Date(data.created_at || Date.now()).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
-      <div class="date-label">Status: <strong style="text-transform: uppercase; color: #01aa90;">${data.status || 'Pending Quotation'}</strong></div>
+      <div class="date-label">Status: <strong style="text-transform: uppercase; color: #1226de;">${data.status || 'Pending Quotation'}</strong></div>
     </div>
   </div>
 

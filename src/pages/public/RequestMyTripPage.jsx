@@ -80,7 +80,7 @@ export default function RequestMyTripPage() {
         <div className="container">
           <Breadcrumbs items={[{ label: 'Request My Trip' }]} />
           <div className="catalog-header-content" style={{ marginTop: '14px' }}>
-            <span className="section-badge" style={{ fontSize: '12px', fontWeight: 800, color: '#01AA90', textTransform: 'uppercase', letterSpacing: '0.08em', background: '#e6f7f4', padding: '4px 12px', borderRadius: '9999px', display: 'inline-block', marginBottom: '8px' }}>
+            <span className="section-badge" style={{ fontSize: '12px', fontWeight: 800, color: '#1226de', textTransform: 'uppercase', letterSpacing: '0.08em', background: 'rgba(18, 38, 222, 0.08)', padding: '4px 12px', borderRadius: '9999px', display: 'inline-block', marginBottom: '8px' }}>
               Bespoke Private Journeys
             </span>
             <h1 className="catalog-page-title" style={{ fontSize: '32px', fontWeight: 800, color: '#0f172a', margin: '6px 0 8px' }}>
@@ -94,92 +94,20 @@ export default function RequestMyTripPage() {
       </section>
 
       {/* Main Workspace Layout */}
-      <div className="container" style={{ padding: '48px 20px 80px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '40px', alignItems: 'start' }}>
-          {/* Left Column: Why Plan With Us + WhatsApp Help Card */}
-          <aside className="planner-sidebar" style={{ position: 'sticky', top: '100px' }}>
-            <div className="glass-card-panel" style={{ padding: '30px', borderRadius: '20px', background: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(12px)', border: '1px solid rgba(226, 232, 240, 0.8)', boxShadow: '0 8px 24px rgba(15, 23, 42, 0.05)', marginBottom: '24px' }}>
-              <span style={{ fontSize: '12px', fontWeight: 800, color: '#01AA90', textTransform: 'uppercase', letterSpacing: '0.08em', background: '#e6f7f4', padding: '4px 12px', borderRadius: '9999px', display: 'inline-block', marginBottom: '14px' }}>
-                Why Plan With Us?
-              </span>
-              <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginBottom: '14px', lineHeight: 1.3 }}>
-                100% Tailor-Made Private Vacations
-              </h2>
-              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: 1.6, marginBottom: '24px' }}>
-                From sacred temples of Tamil Nadu and serene backwaters of Kerala to the majestic palaces of Mysore — our dedicated local team crafts the perfect journey for your family.
-              </p>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <span style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#e0f2fe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>🚗</span>
-                  <div>
-                    <h4 style={{ fontSize: '14px', fontWeight: 700, margin: 0, color: '#0f172a' }}>Verified AC Chauffeurs</h4>
-                    <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Innova Crysta, Tempo Traveller &amp; Sedans</p>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <span style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>🗣️</span>
-                  <div>
-                    <h4 style={{ fontSize: '14px', fontWeight: 700, margin: 0, color: '#0f172a' }}>Multi-Language Guides</h4>
-                    <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>English, German, French, Spanish &amp; Regional</p>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <span style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>⚡</span>
-                  <div>
-                    <h4 style={{ fontSize: '14px', fontWeight: 700, margin: 0, color: '#0f172a' }}>Instant WhatsApp Quotes</h4>
-                    <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Transparent pricing with zero hidden fees</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Direct WhatsApp Concierge Card */}
-            <div className="glass-card-panel" style={{ padding: '24px', borderRadius: '18px', background: 'linear-gradient(135deg, #f0fdf4 0%, #e6f7f4 100%)', border: '1px solid #bbf7d0' }}>
-              <div style={{ fontSize: '13px', fontWeight: 700, color: '#166534', marginBottom: '8px' }}>Need immediate booking assistance?</div>
-              <a
-                href={whatsappLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  background: '#25D366',
-                  color: '#ffffff',
-                  padding: '12px 18px',
-                  borderRadius: '10px',
-                  fontWeight: 700,
-                  fontSize: '14px',
-                  textDecoration: 'none',
-                  boxShadow: '0 4px 12px rgba(37, 211, 102, 0.3)',
-                }}
-              >
-                <span>💬 Chat with Concierge</span>
-              </a>
-              <div style={{ fontSize: '11.5px', color: '#475569', textAlign: 'center', marginTop: '8px' }}>
-                WhatsApp: {contactWhatsApp} • Call: {contactPhone}
-              </div>
-            </div>
-          </aside>
-
-          {/* Right Column: 10-Section Trip Request Form */}
-          <main style={{ minWidth: 0 }}>
-            <TripRequestForm
-              initialDestination={prefilledDestName}
-              initialTour={prefilledTourTitle}
-              prefilledData={{
-                arrival_date: prefilledDate,
-                adults_count: prefilledAdults,
-                children_count: prefilledChildren,
-              }}
-            />
-          </main>
-        </div>
+      <div className="container" style={{ padding: '40px 20px 80px' }}>
+        <main style={{ maxWidth: '960px', margin: '0 auto' }}>
+          <TripRequestForm
+            initialDestination={prefilledDestName}
+            initialTour={prefilledTourTitle}
+            prefilledData={{
+              arrival_date: prefilledDate,
+              adults_count: prefilledAdults,
+              children_count: prefilledChildren,
+            }}
+          />
+        </main>
       </div>
     </div>
   );
 }
+

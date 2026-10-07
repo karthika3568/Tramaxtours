@@ -21,11 +21,11 @@ function BenefitVectorIcon({ iconName = '' }) {
   if (name === 'globe' || name === 'world' || name === 'discover') {
     return (
       <svg width="40" height="40" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-        <circle cx="30" cy="28" r="18" stroke="#01AA90" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-        <ellipse cx="30" cy="28" rx="8" ry="18" stroke="#01806C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M12 28h36" stroke="#01806C" strokeWidth="2" strokeLinecap="round" />
-        <path d="M15 20c4 3 26 3 30 0" stroke="#01806C" strokeWidth="1.75" strokeLinecap="round" />
-        <path d="M15 36c4-3 26-3 30 0" stroke="#01806C" strokeWidth="1.75" strokeLinecap="round" />
+        <circle cx="30" cy="28" r="18" stroke="#1226de" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <ellipse cx="30" cy="28" rx="8" ry="18" stroke="#0a178c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M12 28h36" stroke="#0a178c" strokeWidth="2" strokeLinecap="round" />
+        <path d="M15 20c4 3 26 3 30 0" stroke="#0a178c" strokeWidth="1.75" strokeLinecap="round" />
+        <path d="M15 36c4-3 26-3 30 0" stroke="#0a178c" strokeWidth="1.75" strokeLinecap="round" />
         <path d="M48 28c0 10-8 18-18 18s-18-8-18-18" stroke="#0B1329" strokeWidth="2.5" strokeLinecap="round" />
         <path d="M30 46v10" stroke="#0B1329" strokeWidth="2.5" strokeLinecap="round" />
         <path d="M22 56h16" stroke="#0B1329" strokeWidth="2.5" strokeLinecap="round" />
@@ -38,9 +38,9 @@ function BenefitVectorIcon({ iconName = '' }) {
       <svg width="40" height="40" viewBox="0 0 64 64" fill="none" aria-hidden="true">
         <path d="M34 14l16 16-20 20-16-16 10-20h10z" stroke="#0B1329" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
         <circle cx="24" cy="24" r="3" fill="#FC961B" stroke="#0B1329" strokeWidth="1.5" />
-        <path d="M36 28l-8 8" stroke="#01AA90" strokeWidth="2.5" strokeLinecap="round" />
-        <circle cx="31" cy="30" r="1.5" fill="#01AA90" />
-        <circle cx="33" cy="34" r="1.5" fill="#01AA90" />
+        <path d="M36 28l-8 8" stroke="#1226de" strokeWidth="2.5" strokeLinecap="round" />
+        <circle cx="31" cy="30" r="1.5" fill="#1226de" />
+        <circle cx="33" cy="34" r="1.5" fill="#1226de" />
         <path d="M48 18l4-4" stroke="#FC961B" strokeWidth="2" strokeLinecap="round" />
         <path d="M52 24l5 1" stroke="#FC961B" strokeWidth="2" strokeLinecap="round" />
       </svg>
@@ -52,10 +52,10 @@ function BenefitVectorIcon({ iconName = '' }) {
       <svg width="40" height="40" viewBox="0 0 64 64" fill="none" aria-hidden="true">
         <circle cx="46" cy="18" r="4" stroke="#0B1329" strokeWidth="2" />
         <path d="M46 10v3M46 23v3M38 18h3M51 18h3" stroke="#FC961B" strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M18 34c0-10 8-16 18-16s18 6 18 16H18z" stroke="#01AA90" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        <path d="M18 34c0-10 8-16 18-16s18 6 18 16H18z" stroke="#1226de" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
         <path d="M27 34c0-8 4-16 9-16s9 8 9 16" stroke="#0B1329" strokeWidth="1.5" />
         <path d="M36 18v22c0 3 2 4 4 4" stroke="#0B1329" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M12 48c8-3 28-3 40 0" stroke="#01806C" strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M12 48c8-3 28-3 40 0" stroke="#0a178c" strokeWidth="2.5" strokeLinecap="round" />
       </svg>
     );
   }
@@ -64,7 +64,7 @@ function BenefitVectorIcon({ iconName = '' }) {
     <svg width="40" height="40" viewBox="0 0 64 64" fill="none" aria-hidden="true">
       <circle cx="32" cy="26" r="14" stroke="#0B1329" strokeWidth="2.5" strokeLinecap="round" />
       <circle cx="32" cy="26" r="9" stroke="#FC961B" strokeWidth="2" />
-      <circle cx="32" cy="26" r="4" fill="#01AA90" />
+      <circle cx="32" cy="26" r="4" fill="#1226de" />
       <path d="M26 38l-4 16 10-4 10 4-4-16" stroke="#0B1329" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -72,11 +72,11 @@ function BenefitVectorIcon({ iconName = '' }) {
 
 // 8 Locked Protected Categories
 const LOCKED_TOUR_CATEGORIES = [
-  { id: 1, name: 'City Sightseeing Tours', slug: 'city-sightseeing-tours', subtitle: 'Urban Exploration & Highlights', icon: '🏙️', badgeColor: '#01AA90' },
+  { id: 1, name: 'City Sightseeing Tours', slug: 'city-sightseeing-tours', subtitle: 'Urban Exploration & Highlights', icon: '🏙️', badgeColor: '#1226de' },
   { id: 2, name: 'Cultural & Heritage Tours', slug: 'cultural-heritage-tours', subtitle: 'Ancient Traditions & Architecture', icon: '🏛️', badgeColor: '#FC961B' },
   { id: 3, name: 'Guided Tours', slug: 'guided-tours', subtitle: 'Escorted Journeys with Local Guides', icon: '🧭', badgeColor: '#8B5CF6' },
   { id: 4, name: 'One Day Tours', slug: 'one-day-tours', subtitle: 'Quick Day Trips & Escapes', icon: '☀️', badgeColor: '#4BA7FC' },
-  { id: 5, name: 'Private Tours', slug: 'private-tours', subtitle: 'Exclusive Chauffeur Driven Itineraries', icon: '🚙', badgeColor: '#01806C' },
+  { id: 5, name: 'Private Tours', slug: 'private-tours', subtitle: 'Exclusive Chauffeur Driven Itineraries', icon: '🚙', badgeColor: '#0a178c' },
   { id: 6, name: 'Family Tours', slug: 'family-tours', subtitle: 'Relaxing Vacations for All Ages', icon: '👨‍👩‍👧‍👦', badgeColor: '#10B981' },
   { id: 7, name: 'Historical Tours', slug: 'historical-tours', subtitle: 'Forts, Palaces & Royal Legacies', icon: '📜', badgeColor: '#EC4899' },
   { id: 8, name: 'Pilgrimage / Temple Tours', slug: 'pilgrimage-temple-tours', subtitle: 'Sacred Shrines & Divine Darshan', icon: '🛕', badgeColor: '#F59E0B' },
@@ -877,7 +877,7 @@ export default function AdminHomePageManager() {
                               <span className="hide-on-tablet">💬 WhatsApp: {navSettings.whatsapp}</span>
                             </div>
                             <div className="top-bar-auth">
-                              <span style={{ color: '#01AA90', fontWeight: 'bold' }}>Staff Portal</span>
+                              <span style={{ color: '#1226de', fontWeight: 'bold' }}>Staff Portal</span>
                             </div>
                           </div>
                         </div>
@@ -891,7 +891,7 @@ export default function AdminHomePageManager() {
                           </div>
 
                           <div className="header-nav-wrapper hide-on-mobile" style={{ display: 'flex', gap: '20px', fontWeight: '600', color: '#0B1329' }}>
-                            <span style={{ color: '#01AA90' }}>Home</span>
+                            <span style={{ color: '#1226de' }}>Home</span>
                             <span>Destinations</span>
                             <span>Tours</span>
                             <span>About</span>
@@ -1292,7 +1292,7 @@ export default function AdminHomePageManager() {
                           <div className="footer-col brand">
                             <img src="/logo.png" alt={navSettings.site_name} style={{ height: '36px', marginBottom: '12px' }} />
                             <p style={{ fontSize: '13px', color: '#94a3b8', lineHeight: 1.6 }}>{footerSettings.about_text}</p>
-                            <small style={{ display: 'block', marginTop: '10px', color: '#01AA90' }}>📍 {footerSettings.address}</small>
+                            <small style={{ display: 'block', marginTop: '10px', color: '#1226de' }}>📍 {footerSettings.address}</small>
                           </div>
 
                           <div className="footer-col">

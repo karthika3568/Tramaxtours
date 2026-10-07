@@ -110,12 +110,12 @@ export default function TripRequestSuccessPage() {
         <div
           className="glass-card-panel"
           style={{
-            background: 'linear-gradient(135deg, #01AA90 0%, #01806C 100%)',
+            background: 'linear-gradient(135deg, #1226de 0%, #0a178c 100%)',
             color: '#ffffff',
             padding: '36px 30px',
             borderRadius: '24px',
             textAlign: 'center',
-            boxShadow: '0 16px 40px rgba(1, 170, 144, 0.25)',
+            boxShadow: '0 16px 40px rgba(18, 38, 222, 0.25)',
             marginBottom: '28px',
           }}
         >

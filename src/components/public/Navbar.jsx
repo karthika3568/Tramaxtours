@@ -55,18 +55,18 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                   `nav-cta-pill ${isActive ? 'nav-cta-active' : ''}`
                 }
                 style={{
-                  background: 'linear-gradient(135deg, #01AA90 0%, #01806C 100%)',
+                  background: 'linear-gradient(135deg, #1226de 0%, #0a178c 100%)',
                   color: '#ffffff',
-                  padding: isMobile ? '10px 18px' : '8px 18px',
+                  padding: isMobile ? '14px 20px' : '9px 22px',
                   borderRadius: '9999px',
-                  fontWeight: 700,
-                  fontSize: '13.5px',
+                  fontWeight: 800,
+                  fontSize: isMobile ? '18px' : '16px',
                   textDecoration: 'none',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  boxShadow: '0 4px 14px rgba(1, 170, 144, 0.25)',
-                  transition: 'all 0.2s ease',
+                  gap: '8px',
+                  boxShadow: '0 4px 16px rgba(18, 38, 222, 0.35)',
+                  transition: 'all 0.25s ease',
                   marginLeft: isMobile ? '0' : '8px',
                 }}
               >

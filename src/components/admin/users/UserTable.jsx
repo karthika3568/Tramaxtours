@@ -94,7 +94,7 @@ export default function UserTable({
                   {/* Customer Info */}
                   <td>
                     <div className="user-avatar-cell">
-                      <div className="user-avatar" aria-hidden="true" style={{ background: '#01AA90', color: '#fff', fontWeight: 'bold' }}>
+                      <div className="user-avatar" aria-hidden="true" style={{ background: '#1226de', color: '#fff', fontWeight: 'bold' }}>
                         {userInitial}
                       </div>
                       <div className="user-identity">
@@ -127,7 +127,7 @@ export default function UserTable({
                             alignItems: 'center',
                             gap: '6px',
                             background: '#e6f7f4',
-                            color: '#01806C',
+                            color: '#0a178c',
                             padding: '4px 10px',
                             borderRadius: '6px',
                             fontWeight: 700,
@@ -193,7 +193,7 @@ export default function UserTable({
                           <span
                             style={{
                               fontSize: '11px',
-                              color: '#01AA90',
+                              color: '#1226de',
                               fontWeight: 700,
                               alignSelf: 'center',
                             }}
@@ -295,7 +295,7 @@ export default function UserTable({
             <div key={u.id} className={`user-mobile-card ${isSelf ? 'mobile-card-self' : ''}`}>
               <div className="mobile-card-header">
                 <div className="user-avatar-cell">
-                  <div className="user-avatar" aria-hidden="true" style={{ background: '#01AA90', color: '#fff', fontWeight: 'bold' }}>
+                  <div className="user-avatar" aria-hidden="true" style={{ background: '#1226de', color: '#fff', fontWeight: 'bold' }}>
                     {userInitial}
                   </div>
                   <div>
@@ -314,7 +314,7 @@ export default function UserTable({
               <div className="mobile-card-body">
                 <div className="mobile-meta-row">
                   <span className="meta-label">Bookings:</span>
-                  <span style={{ fontWeight: 700, color: '#01806C' }}>
+                  <span style={{ fontWeight: 700, color: '#0a178c' }}>
                     🎟️ {bookingsCount} Bookings ({totalTravelers} Travelers)
                   </span>
                 </div>

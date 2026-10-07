@@ -108,7 +108,7 @@ export default function LoginPage() {
         <div className="admin-login-form-card">
           <div className="form-card-header text-center">
             <Link to="/" className="login-brand-header-link" aria-label="Wonderer South India Home">
-              <img src="/logo.svg" alt="Wonderer South India" className="login-brand-logo-img" />
+              <img src="/logo.png" alt="Wonderer South India" className="login-brand-logo-img" style={{ maxHeight: '64px', objectFit: 'contain' }} />
             </Link>
             <h1 className="form-portal-title">Sign In</h1>
             <p className="form-portal-subtitle">

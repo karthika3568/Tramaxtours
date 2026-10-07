@@ -20,7 +20,7 @@ export const userService = {
    * @returns {Promise<{data: Array, meta: Object, stats: Object}>}
    */
   getUsers: async (params = {}) => {
-    const response = await client.get('/users', { params });
+    const response = await client.get('/users', params);
     return response.data;
   },
 

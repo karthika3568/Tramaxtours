@@ -124,7 +124,7 @@ export default function ContactPage() {
         <div className="container">
           <Breadcrumbs items={[{ label: 'Contact Us' }]} />
           <div className="catalog-header-content" style={{ marginTop: '14px' }}>
-            <span className="section-badge" style={{ fontSize: '12px', fontWeight: 800, color: '#01AA90', textTransform: 'uppercase', letterSpacing: '0.08em', background: '#e6f7f4', padding: '4px 12px', borderRadius: '9999px', display: 'inline-block', marginBottom: '8px' }}>
+            <span className="section-badge" style={{ fontSize: '12px', fontWeight: 800, color: '#1226de', textTransform: 'uppercase', letterSpacing: '0.08em', background: 'rgba(18, 38, 222, 0.08)', padding: '4px 12px', borderRadius: '9999px', display: 'inline-block', marginBottom: '8px' }}>
               Direct Support &amp; Inquiries
             </span>
             <h1 className="catalog-page-title" style={{ fontSize: '32px', fontWeight: 800, color: '#0f172a', margin: '6px 0 8px' }}>
@@ -147,10 +147,10 @@ export default function ContactPage() {
               style={{
                 fontSize: '12px',
                 fontWeight: '800',
-                color: '#01AA90',
+                color: '#1226de',
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
-                background: '#e6f7f4',
+                background: 'rgba(18, 38, 222, 0.08)',
                 padding: '4px 12px',
                 borderRadius: '9999px',
                 display: 'inline-block',
@@ -268,10 +268,10 @@ export default function ContactPage() {
                   style={{
                     fontSize: '12px',
                     fontWeight: 800,
-                    color: '#01AA90',
+                    color: '#1226de',
                     textTransform: 'uppercase',
                     letterSpacing: '0.08em',
-                    background: '#e6f7f4',
+                    background: 'rgba(18, 38, 222, 0.08)',
                     padding: '4px 12px',
                     borderRadius: '9999px',
                     display: 'inline-block',

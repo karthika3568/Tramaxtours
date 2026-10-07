@@ -75,8 +75,9 @@ export default function AppRouter() {
           <Route path="tours/:slug" element={<TourDetailPage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="testimonials" element={<Navigate to="/#testimonials" replace />} />
-          <Route path="reviews" element={<Navigate to="/#testimonials" replace />} />
           <Route path="request-my-trip" element={<RequestMyTripPage />} />
+          <Route path="trip-request" element={<RequestMyTripPage />} />
+          <Route path="trip-requests" element={<RequestMyTripPage />} />
           <Route path="trip-request/success/:referenceId" element={<TripRequestSuccessPage />} />
           <Route path="trip-requests/success/:referenceId" element={<TripRequestSuccessPage />} />
           <Route path="plan-your-trip" element={<RequestMyTripPage />} />

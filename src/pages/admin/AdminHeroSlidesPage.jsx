@@ -29,16 +29,14 @@ export default function AdminHeroSlidesPage() {
     cta_url: '',
     display_order: 0,
     status: 'active',
-    start_date: '',
-    end_date: '',
   });
 
   const fetchSlides = () => setReloadTrigger((prev) => prev + 1);
 
   useEffect(() => {
     updatePageMeta({
-      title: 'Admin - Hero Carousel Management',
-      description: 'Visually manage public homepage hero carousel slides and CTAs',
+      title: 'Admin - Hero Carousel Management | Wonderer South India',
+      description: 'Manage homepage hero carousel images, display sequences, and activation status.',
     });
   }, []);
 
@@ -48,7 +46,7 @@ export default function AdminHeroSlidesPage() {
       try {
         setLoading(true);
         const res = await homeHeroService.getSlides({ limit: 50, sort_by: 'display_order', sort_order: 'ASC' });
-        const slideList = res?.data?.slides || res?.data || (Array.isArray(res) ? res : []);
+        const slideList = Array.isArray(res) ? res : (res?.data?.slides || res?.data || []);
         if (isMounted) {
           setSlides(slideList);
         }
@@ -70,16 +68,14 @@ export default function AdminHeroSlidesPage() {
   const handleOpenCreate = () => {
     setEditingSlide(null);
     setFormData({
-      title: '',
+      title: `Hero Slide ${slides.length + 1}`,
       subtitle: '',
       desktop_media_id: '',
       desktop_media_url: '',
-      cta_label: 'Explore Tours',
-      cta_url: '/tours',
+      cta_label: '',
+      cta_url: '',
       display_order: slides.length + 1,
       status: 'active',
-      start_date: '',
-      end_date: '',
     });
     setIsModalOpen(true);
   };
@@ -96,8 +92,6 @@ export default function AdminHeroSlidesPage() {
       cta_url: slide.cta_url || '',
       display_order: slide.display_order ?? 0,
       status: slide.status || 'active',
-      start_date: slide.start_date ? slide.start_date.split(' ')[0] : '',
-      end_date: slide.end_date ? slide.end_date.split(' ')[0] : '',
     });
     setIsModalOpen(true);
   };
@@ -107,30 +101,29 @@ export default function AdminHeroSlidesPage() {
       ...prev,
       desktop_media_id: asset.id,
       desktop_media_url: getMediaUrl(asset.file_path || asset.url),
+      title: prev.title || asset.title || asset.original_name || 'Hero Slide',
     }));
     setIsMediaPickerOpen(false);
-    toast.success('Media asset selected');
+    toast.success('Hero slide image selected');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.title.trim()) {
-      toast.warning('Please enter a slide title/heading');
+    if (!formData.desktop_media_id && !formData.desktop_media_url) {
+      toast.warning('Please select a slide image from the media library.');
       return;
     }
 
     try {
       setSubmitting(true);
       const payload = {
-        title: formData.title.trim(),
-        subtitle: formData.subtitle.trim() || null,
+        title: formData.title.trim() || 'Hero Slide',
+        subtitle: formData.subtitle?.trim() || null,
         desktop_media_id: formData.desktop_media_id ? Number(formData.desktop_media_id) : null,
-        cta_label: formData.cta_label.trim() || null,
-        cta_url: formData.cta_url.trim() || null,
+        cta_label: formData.cta_label?.trim() || null,
+        cta_url: formData.cta_url?.trim() || null,
         display_order: Number(formData.display_order) || 0,
         status: formData.status,
-        start_date: formData.start_date || null,
-        end_date: formData.end_date || null,
       };
 
       if (editingSlide) {
@@ -166,7 +159,7 @@ export default function AdminHeroSlidesPage() {
   };
 
   const handleDelete = async (slide) => {
-    if (!window.confirm(`Are you sure you want to delete the slide "${slide.title}"?`)) {
+    if (!window.confirm(`Are you sure you want to delete the slide "${slide.title || `#${slide.id}`}"?`)) {
       return;
     }
     try {
@@ -186,7 +179,6 @@ export default function AdminHeroSlidesPage() {
     const targetSlide = slides[targetIndex];
 
     try {
-      // Swap display_orders
       const currentOrder = currentSlide.display_order ?? slideIndex + 1;
       const targetOrder = targetSlide.display_order ?? targetIndex + 1;
 
@@ -218,7 +210,7 @@ export default function AdminHeroSlidesPage() {
           </div>
           <h1 className="admin-page-title">Hero Carousel Management</h1>
           <p className="admin-page-subtitle">
-            Visually manage high-impact hero slides, luxury banners, and call-to-action buttons for the public homepage.
+            Manage high-impact hero image slides and visual sequencing for the public homepage carousel.
           </p>
         </div>
 
@@ -257,8 +249,8 @@ export default function AdminHeroSlidesPage() {
           <span className="stat-value text-muted">{slides.length - activeCount}</span>
         </div>
         <div className="stat-pill">
-          <span className="stat-label">Connected Public Route:</span>
-          <span className="stat-value font-mono">/ (Hero Carousel)</span>
+          <span className="stat-label">Display Mode:</span>
+          <span className="stat-value font-mono">Images Only (Public)</span>
         </div>
       </div>
 
@@ -276,7 +268,7 @@ export default function AdminHeroSlidesPage() {
       ) : (
         <div className="visual-hero-slides-grid">
           {slides.map((slide, index) => {
-            const mediaPath = slide.desktop_media?.file_path || slide.desktop_media?.url;
+            const mediaPath = slide.desktop_media?.file_path || slide.desktop_media?.url || slide.media;
             const bgImage = mediaPath ? getMediaUrl(mediaPath) : '/images/hero-default.jpg';
 
             return (
@@ -284,10 +276,16 @@ export default function AdminHeroSlidesPage() {
                 key={slide.id}
                 className={`visual-hero-card ${slide.status === 'inactive' ? 'is-inactive' : ''}`}
               >
-                {/* Visual Slide Mock Banner */}
+                {/* Visual Slide Image Banner */}
                 <div
                   className="visual-hero-card-banner"
-                  style={{ backgroundImage: `linear-gradient(rgba(11, 19, 41, 0.45), rgba(11, 19, 41, 0.8)), url(${bgImage})` }}
+                  style={{
+                    backgroundImage: `url(${bgImage})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    minHeight: '220px',
+                    position: 'relative',
+                  }}
                 >
                   <div className="visual-hero-card-badges">
                     <span className="order-badge">#{index + 1} • Order: {slide.display_order}</span>
@@ -296,17 +294,21 @@ export default function AdminHeroSlidesPage() {
                     </span>
                   </div>
 
-                  <div className="visual-hero-card-content">
-                    <h3 className="visual-hero-title">{slide.title}</h3>
-                    {slide.subtitle && <p className="visual-hero-subtitle">{slide.subtitle}</p>}
-                    {slide.cta_label && (
-                      <div className="visual-hero-cta-preview">
-                        <span className="btn-hero-preview">
-                          {slide.cta_label} →
-                        </span>
-                        {slide.cta_url && <span className="cta-target-url">Links to: {slide.cta_url}</span>}
-                      </div>
-                    )}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: '12px',
+                      left: '16px',
+                      background: 'rgba(15, 23, 42, 0.75)',
+                      backdropFilter: 'blur(8px)',
+                      padding: '4px 12px',
+                      borderRadius: '8px',
+                      color: '#ffffff',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                    }}
+                  >
+                    🏷️ {slide.title || `Slide #${slide.id}`}
                   </div>
                 </div>
 
@@ -371,34 +373,23 @@ export default function AdminHeroSlidesPage() {
         size="lg"
       >
         <form onSubmit={handleSubmit} className="admin-form-luxury">
-          {/* Live Preview Inside Modal */}
-          <div className="form-group-visual-preview">
-            <label className="form-label">Live Slide Preview</label>
-            <div
-              className="modal-hero-live-preview"
-              style={{
-                backgroundImage: `linear-gradient(rgba(11, 19, 41, 0.45), rgba(11, 19, 41, 0.8)), url(${formData.desktop_media_url || '/images/hero-default.jpg'})`,
-              }}
-            >
-              <h2 className="preview-heading">{formData.title || 'Your Slide Headline Here'}</h2>
-              <p className="preview-sub">{formData.subtitle || 'Discover handpicked luxury journeys across Sri Lanka and beyond.'}</p>
-              {formData.cta_label && (
-                <div className="preview-cta">
-                  <span className="btn-preview-mock">{formData.cta_label} →</span>
-                </div>
-              )}
-            </div>
-          </div>
-
           {/* Media Selector */}
           <div className="form-group">
-            <label className="form-label">Slide Background Image</label>
+            <label className="form-label">
+              Slide Image <span className="text-danger">*</span>
+            </label>
             <div className="media-selector-row">
-              <div className="media-thumbnail-preview">
+              <div className="media-thumbnail-preview" style={{ width: '180px', height: '110px', borderRadius: '12px', overflow: 'hidden', background: '#0f172a' }}>
                 {formData.desktop_media_url ? (
-                  <img src={formData.desktop_media_url} alt="Slide Preview" />
+                  <img
+                    src={formData.desktop_media_url}
+                    alt="Slide Preview"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
                 ) : (
-                  <div className="no-media-placeholder">No Image Selected</div>
+                  <div className="no-media-placeholder" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', fontSize: '13px' }}>
+                    No Image Selected
+                  </div>
                 )}
               </div>
               <div className="media-selector-actions">
@@ -423,64 +414,20 @@ export default function AdminHeroSlidesPage() {
             </div>
           </div>
 
-          {/* Title & Subtitle */}
+          {/* Internal Title / Identifier */}
           <div className="form-group">
             <label htmlFor="slide-title" className="form-label">
-              Slide Heading / Title <span className="text-danger">*</span>
+              Internal Slide Name / Identifier
             </label>
             <input
               id="slide-title"
               type="text"
               className="form-input"
-              placeholder="e.g. Travel Made Simple & Memorable"
+              placeholder="e.g. Tamil Nadu Temples / Kerala Backwaters"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              required
             />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="slide-subtitle" className="form-label">
-              Subtitle / Description
-            </label>
-            <textarea
-              id="slide-subtitle"
-              className="form-textarea"
-              rows="3"
-              placeholder="e.g. Discover handpicked luxury safaris, serene beaches, and historic tea plantations with private concierge service."
-              value={formData.subtitle}
-              onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-            />
-          </div>
-
-          {/* CTA & Link */}
-          <div className="form-row-2col">
-            <div className="form-group">
-              <label htmlFor="slide-cta-label" className="form-label">
-                Call-to-Action (CTA) Label
-              </label>
-              <input
-                id="slide-cta-label"
-                type="text"
-                className="form-input"
-                placeholder="e.g. Explore Curated Tours"
-                value={formData.cta_label}
-                onChange={(e) => setFormData({ ...formData, cta_label: e.target.value })}
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="slide-cta-url" className="form-label">
-                Call-to-Action URL
-              </label>
-              <input
-                id="slide-cta-url"
-                type="text"
-                className="form-input"
-                placeholder="e.g. /tours or /destinations/sigiriya"
-                value={formData.cta_url}
-                onChange={(e) => setFormData({ ...formData, cta_url: e.target.value })}
-              />
-            </div>
+            <span className="form-help">Used for internal admin identification. The public homepage hero renders the full image cleanly.</span>
           </div>
 
           {/* Display Order & Status */}
@@ -508,37 +455,9 @@ export default function AdminHeroSlidesPage() {
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
               >
-                <option value="active">● Active (Visible on Public Homepage)</option>
+                <option value="active">● Active (Live on Homepage)</option>
                 <option value="inactive">○ Inactive (Draft / Hidden)</option>
               </select>
-            </div>
-          </div>
-
-          {/* Date Range Scheduling */}
-          <div className="form-row-2col">
-            <div className="form-group">
-              <label htmlFor="slide-start-date" className="form-label">
-                Start Date (Optional)
-              </label>
-              <input
-                id="slide-start-date"
-                type="date"
-                className="form-input"
-                value={formData.start_date}
-                onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="slide-end-date" className="form-label">
-                End Date (Optional)
-              </label>
-              <input
-                id="slide-end-date"
-                type="date"
-                className="form-input"
-                value={formData.end_date}
-                onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-              />
             </div>
           </div>
 

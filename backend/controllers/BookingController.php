@@ -112,9 +112,12 @@ class BookingController extends BaseController
 
         // 2. Validate Customer Details
         $firstName = trim($body['first_name'] ?? ($body['customer']['first_name'] ?? ''));
+        $middleName = trim($body['middle_name'] ?? ($body['customer']['middle_name'] ?? ''));
         $lastName = trim($body['last_name'] ?? ($body['customer']['last_name'] ?? ''));
         $email = trim($body['email'] ?? ($body['customer']['email'] ?? ''));
         $phone = trim($body['phone'] ?? ($body['customer']['phone'] ?? ''));
+        $dialCode = trim($body['dial_code'] ?? ($body['customer']['dial_code'] ?? '+91'));
+        $country = trim($body['country'] ?? ($body['customer']['country'] ?? ($body['billing_address']['country'] ?? 'India')));
 
         if ($firstName === '') {
             $errors['first_name'] = 'Customer first name is required.';
@@ -131,34 +134,26 @@ class BookingController extends BaseController
             $errors['phone'] = 'Customer contact phone number is required.';
         }
 
-        // 3. Validate Billing Address
-        $address1 = trim($body['address_line1'] ?? ($body['billing_address']['address_line1'] ?? ''));
+        // 3. Billing Address (smart fallback to pickup location / customer country if not explicitly provided)
+        $pickupLocation = trim($body['pickup_location'] ?? ($body['address_line1'] ?? ($body['billing_address']['address_line1'] ?? 'Hotel / Airport Pickup')));
+        $address1 = trim($body['address_line1'] ?? ($body['billing_address']['address_line1'] ?? $pickupLocation));
         $address2 = trim($body['address_line2'] ?? ($body['billing_address']['address_line2'] ?? ''));
-        $city = trim($body['city'] ?? ($body['billing_address']['city'] ?? ''));
-        $state = trim($body['state'] ?? ($body['billing_address']['state'] ?? ''));
-        $postalCode = trim($body['postal_code'] ?? ($body['billing_address']['postal_code'] ?? ''));
-        $country = trim($body['country'] ?? ($body['billing_address']['country'] ?? ''));
+        $city = trim($body['city'] ?? ($body['billing_address']['city'] ?? 'Chennai'));
+        $state = trim($body['state'] ?? ($body['billing_address']['state'] ?? 'Tamil Nadu'));
+        $postalCode = trim($body['postal_code'] ?? ($body['billing_address']['postal_code'] ?? '600001'));
+        $billingCountry = trim($body['country'] ?? ($body['billing_address']['country'] ?? $country));
 
-        if ($address1 === '') {
-            $errors['address_line1'] = 'Billing address line is required.';
-        }
-        if ($city === '') {
-            $errors['city'] = 'Billing city is required.';
-        }
-        if ($postalCode === '') {
-            $errors['postal_code'] = 'Postal / ZIP code is required.';
-        }
-        if ($country === '') {
-            $errors['country'] = 'Billing country is required.';
-        }
-
-        // 4. Validate Booking Date & Tickets Count
-        $bookingDate = !empty($body['booking_date']) ? trim($body['booking_date']) : date('Y-m-d');
+        // 4. Validate Booking Date & Travelers Count
+        $bookingDate = !empty($body['booking_date']) ? trim($body['booking_date']) : (!empty($body['arrival_date']) ? trim($body['arrival_date']) : date('Y-m-d'));
         if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $bookingDate)) {
             $errors['booking_date'] = 'Booking date must be a valid date in YYYY-MM-DD format.';
         }
 
-        $ticketsCount = isset($body['tickets_count']) ? (int) $body['tickets_count'] : 1;
+        $adultsCount = isset($body['adults_count']) ? (int) $body['adults_count'] : 1;
+        $childrenCount = isset($body['children_count']) ? (int) $body['children_count'] : 0;
+        $infantsCount = isset($body['infants_count']) ? (int) $body['infants_count'] : 0;
+        $ticketsCount = isset($body['tickets_count']) ? (int) $body['tickets_count'] : max(1, $adultsCount + $childrenCount);
+
         if ($ticketsCount < 1) {
             $errors['tickets_count'] = 'Ticket / guest count must be at least 1.';
         }
@@ -174,7 +169,7 @@ class BookingController extends BaseController
             $taxAmount = (float) ($body['tax_amount'] ?? 0.0);
             $discountAmount = (float) ($body['discount_amount'] ?? 0.0);
             $totalPrice = isset($body['total_price']) ? (float) $body['total_price'] : ($subtotal + $taxAmount - $discountAmount);
-            $currency = !empty($body['currency']) ? (string) $body['currency'] : ($tour['currency'] ?? 'EUR');
+            $currency = !empty($body['currency']) ? (string) $body['currency'] : ($tour['currency'] ?? 'INR');
 
             $userId = Request::getUserId();
 
@@ -183,6 +178,38 @@ class BookingController extends BaseController
                 'user_id' => $userId,
                 'tour_id' => $tourId,
                 'pricing_tier_id' => !empty($body['pricing_tier_id']) ? (int) $body['pricing_tier_id'] : null,
+                'first_name' => $firstName,
+                'middle_name' => $middleName ?: null,
+                'last_name' => $lastName,
+                'dial_code' => $dialCode,
+                'country' => $country,
+                'destination_name' => $body['destination_name'] ?? ($body['destination'] ?? ($tour['title'] ?? null)),
+                'pickup_location' => $pickupLocation,
+                'arrival_date' => $body['arrival_date'] ?? $bookingDate,
+                'departure_date' => $body['departure_date'] ?? null,
+                'duration_days' => $body['duration_days'] ?? null,
+                'adults_count' => $adultsCount,
+                'children_count' => $childrenCount,
+                'infants_count' => $infantsCount,
+                'tour_types' => $body['tour_types'] ?? null,
+                'tour_guide_required' => !empty($body['tour_guide_required']),
+                'preferred_language' => $body['preferred_language'] ?? null,
+                'vehicle_preference' => $body['vehicle_preference'] ?? null,
+                'airport_pickup' => !empty($body['airport_pickup']),
+                'airport_drop' => !empty($body['airport_drop']),
+                'hotel_category' => $body['hotel_category'] ?? null,
+                'room_type' => $body['room_type'] ?? null,
+                'rooms_count' => isset($body['rooms_count']) ? (int) $body['rooms_count'] : 1,
+                'arrival_flight_train_number' => $body['arrival_flight_train_number'] ?? null,
+                'arrival_time' => $body['arrival_time'] ?? null,
+                'departure_flight_train_number' => $body['departure_flight_train_number'] ?? null,
+                'departure_time' => $body['departure_time'] ?? null,
+                'approximate_budget' => $body['approximate_budget'] ?? null,
+                'budget_currency' => $body['budget_currency'] ?? 'INR',
+                'passport_file_url' => $body['passport_file_url'] ?? null,
+                'flight_ticket_url' => $body['flight_ticket_url'] ?? null,
+                'preferred_contact_methods' => $body['preferred_contact_methods'] ?? null,
+                'special_requests' => $body['special_requests'] ?? ($body['customer_notes'] ?? null),
                 'booking_date' => $bookingDate,
                 'tickets_count' => $ticketsCount,
                 'unit_price' => $unitPrice,
@@ -201,7 +228,10 @@ class BookingController extends BaseController
 
             $customerData = [
                 'first_name' => $firstName,
+                'middle_name' => $middleName ?: null,
                 'last_name' => $lastName,
+                'dial_code' => $dialCode,
+                'country' => $country,
                 'email' => $email,
                 'phone' => $phone,
             ];
@@ -212,11 +242,17 @@ class BookingController extends BaseController
                 'city' => $city,
                 'state' => $state ?: null,
                 'postal_code' => $postalCode,
-                'country' => $country,
+                'country' => $billingCountry,
             ];
 
-            $bookingId = Booking::create($bookingData, $customerData, $billingData);
+            $bookingResult = Booking::create($bookingData, $customerData, $billingData);
+            $bookingId = is_array($bookingResult) ? (int) $bookingResult['id'] : (int) $bookingResult;
+            $accessToken = is_array($bookingResult) ? ($bookingResult['access_token'] ?? null) : null;
+
             $createdBooking = Booking::findById($bookingId);
+            if ($accessToken) {
+                $createdBooking['access_token'] = $accessToken;
+            }
 
             // Audit log
             if ($userId) {
@@ -227,14 +263,17 @@ class BookingController extends BaseController
                 ]);
             }
 
-            // Generate the PDF receipt and email it to the customer. Best-effort —
-            // a mail/PDF failure must not block the booking itself from succeeding.
+            // Generate the PDF receipt and dispatch customer ticket + admin copy.
+            // Best-effort — a mail/PDF failure must never roll back or fail the saved booking.
             try {
                 $pdfPath = PdfService::generateBookingReceipt($createdBooking);
                 $receiptUrl = $this->buildReceiptUrl($bookingId, $createdBooking['order_number']);
-                MailService::sendBookingConfirmation($createdBooking, $pdfPath, $receiptUrl);
+                [$custSent, $custError] = MailService::sendCustomerTicket($createdBooking, $pdfPath, $receiptUrl);
+                [$adminSent, $adminError] = MailService::sendAdminNotification($createdBooking, $pdfPath);
+                Booking::recordEmailDispatchResult($bookingId, $custSent, $custError, $adminSent, $adminError);
             } catch (Throwable $e) {
-                error_log('[Wanderer Booking] Receipt generation/email failed for booking ' . $bookingId . ': ' . $e->getMessage());
+                error_log('[Wanderer Booking] Automatic email dispatch failed for booking ' . $bookingId . ': ' . $e->getMessage());
+                Booking::recordEmailDispatchResult($bookingId, false, $e->getMessage(), false, $e->getMessage());
             }
 
             $this->success($createdBooking, 'Booking placed successfully', 201);
@@ -531,39 +570,63 @@ class BookingController extends BaseController
     }
 
     /**
-     * Resend the booking confirmation email (with PDF attached) to the customer.
+     * Resend the booking confirmation ticket email to the customer and admin copy.
+     * Protected by booking reference + unguessable access_token verification or admin session.
      * POST /api/v1/bookings/{id}/resend-confirmation
+     * POST /api/v1/bookings/{id}/send-confirmation
      *
      * @param string $id
      * @return void
      */
     public function resendConfirmation(string $id): void
     {
-        $bookingId = (int) $id;
-        $booking = Booking::findById($bookingId);
+        $id = trim($id);
+        if (is_numeric($id)) {
+            $booking = Booking::findById((int) $id);
+        } else {
+            $booking = Booking::findByOrderNumber($id);
+        }
 
         if (!$booking) {
             $this->error('Booking not found.', 404, null, 'BOOKING_NOT_FOUND');
+            return;
         }
 
-        if (!$this->canAccessReceipt($booking)) {
-            $this->error('You do not have permission to resend this confirmation.', 403, null, 'FORBIDDEN');
+        if (!$this->canAccessConfirmation($booking)) {
+            $this->error('You do not have permission to resend this confirmation. A valid booking access token or admin credentials are required.', 403, null, 'FORBIDDEN');
+            return;
+        }
+
+        $bookingId = (int) $booking['id'];
+
+        // Atomic rate-limiting: max 3 customer sends per booking, 60s minimum cooldown gap
+        [$allowed, $code, $rateLimitMsg] = Booking::claimEmailSendSlot($bookingId, 60, 3);
+        if (!$allowed) {
+            $this->error($rateLimitMsg ?: 'Please wait before requesting another email confirmation.', 429, null, $code);
+            return;
         }
 
         try {
             $pdfPath = PdfService::generateBookingReceipt($booking);
             $receiptUrl = $this->buildReceiptUrl($bookingId, $booking['order_number']);
-            $sent = MailService::sendBookingConfirmation($booking, $pdfPath, $receiptUrl);
+
+            [$custSent, $custError] = MailService::sendCustomerTicket($booking, $pdfPath, $receiptUrl);
+            [$adminSent, $adminError] = MailService::sendAdminNotification($booking, $pdfPath);
+
+            Booking::recordEmailDispatchResult($bookingId, $custSent, $custError, $adminSent, $adminError);
         } catch (Throwable $e) {
-            $this->error('Failed to resend confirmation: ' . $e->getMessage(), 500, null, 'RESEND_FAILED');
+            Booking::recordEmailDispatchResult($bookingId, false, $e->getMessage(), false, $e->getMessage());
+            $this->error('Failed to generate receipt or connect to mail service: ' . $e->getMessage(), 500, null, 'RESEND_FAILED');
             return;
         }
 
-        if (!$sent) {
-            $this->error('Could not send the confirmation email. Please check the mail server configuration.', 502, null, 'MAIL_SEND_FAILED');
+        if (!$custSent) {
+            $this->error($custError ?: 'Could not send the confirmation email. Please check the mail server configuration in backend/.env.', 502, null, 'MAIL_SEND_FAILED');
+            return;
         }
 
-        $this->success(null, 'Confirmation email resent successfully');
+        $customerEmail = $booking['customer']['email'] ?? 'your registered email';
+        $this->success(null, "Ticket sent to {$customerEmail}");
     }
 
     /**
@@ -590,6 +653,11 @@ class BookingController extends BaseController
             return true;
         }
 
+        // Check if plain access_token matches
+        if ($providedToken !== '' && Booking::verifyAccessToken((int) $booking['id'], $providedToken)) {
+            return true;
+        }
+
         $authHeader = Request::getHeader('Authorization');
         if ($authHeader && preg_match('/^Bearer\s+(.*?)$/i', trim($authHeader), $matches)) {
             try {
@@ -609,6 +677,33 @@ class BookingController extends BaseController
             } catch (Throwable $e) {
                 // fall through to deny
             }
+        }
+
+        return false;
+    }
+
+    /**
+     * Verify ownership before allowing confirmation resends.
+     * Requires valid access_token, signed receipt token, or admin permissions.
+     */
+    private function canAccessConfirmation(array $booking): bool
+    {
+        if ($this->canAccessReceipt($booking)) {
+            return true;
+        }
+
+        $body = Request::getBody();
+        $token = trim((string) (
+            $body['token'] 
+            ?? $body['access_token'] 
+            ?? Request::getQueryParams('token', '') 
+            ?? Request::getQueryParams('access_token', '')
+            ?? Request::getHeader('X-Access-Token') 
+            ?? ''
+        ));
+
+        if ($token !== '' && Booking::verifyAccessToken((int) $booking['id'], $token)) {
+            return true;
         }
 
         return false;

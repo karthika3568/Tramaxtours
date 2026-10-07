@@ -110,32 +110,51 @@ class Database
     }
 
     /**
-     * Begin a transaction.
+     * Check if currently inside a database transaction.
+     *
+     * @return bool
+     */
+    public static function inTransaction(): bool
+    {
+        return self::getConnection()->inTransaction();
+    }
+
+    /**
+     * Begin a transaction safely if one is not already active.
      *
      * @return bool
      */
     public static function beginTransaction(): bool
     {
+        if (self::inTransaction()) {
+            return true;
+        }
         return self::getConnection()->beginTransaction();
     }
 
     /**
-     * Commit active transaction.
+     * Commit active transaction safely.
      *
      * @return bool
      */
     public static function commit(): bool
     {
+        if (!self::inTransaction()) {
+            return true;
+        }
         return self::getConnection()->commit();
     }
 
     /**
-     * Rollback active transaction.
+     * Rollback active transaction safely.
      *
      * @return bool
      */
     public static function rollBack(): bool
     {
+        if (!self::inTransaction()) {
+            return true;
+        }
         return self::getConnection()->rollBack();
     }
 

@@ -78,7 +78,7 @@ export default function UserDetailModal({ user, onClose }) {
             <div
               className="user-profile-avatar"
               style={{
-                background: '#01AA90',
+                background: '#1226de',
                 color: '#ffffff',
                 fontWeight: 800,
                 fontSize: '24px',
@@ -114,10 +114,10 @@ export default function UserDetailModal({ user, onClose }) {
           {/* Quick Metrics Summary */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
             <div style={{ background: '#e6f7f4', padding: '14px', borderRadius: '8px', border: '1px solid #a7f3d0' }}>
-              <span style={{ fontSize: '12px', fontWeight: 700, color: '#01806C', textTransform: 'uppercase' }}>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: '#0a178c', textTransform: 'uppercase' }}>
                 Total Bookings
               </span>
-              <div style={{ fontSize: '24px', fontWeight: 800, color: '#01806C', marginTop: '4px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0a178c', marginTop: '4px' }}>
                 🎟️ {bookingsCount}
               </div>
             </div>
@@ -157,7 +157,7 @@ export default function UserDetailModal({ user, onClose }) {
                       return (
                         <tr key={b.booking_id || idx}>
                           <td style={{ padding: '10px 12px', fontWeight: 700, color: '#1e293b' }}>
-                            <Link to={`/admin/bookings`} style={{ color: '#01AA90', textDecoration: 'none' }}>
+                            <Link to={`/admin/bookings`} style={{ color: '#1226de', textDecoration: 'none' }}>
                               {b.order_number}
                             </Link>
                           </td>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from './Navbar';
 import MobileMenu from './MobileMenu';
@@ -10,18 +10,28 @@ import { isAdminRole } from '../../utils/roles';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { getSetting } = useSiteSettings();
   const { t } = useLanguage();
   const { isAuthenticated, user, logout } = useAuth();
 
   const siteName = getSetting('site_name', 'Wonderer South India');
-  const logoUrl = getSetting('site_logo_url', '') || getSetting('site_logo', '') || '/logo.svg';
+  const logoUrl = getSetting('site_logo_url', '') || getSetting('site_logo', '') || '/logo.png';
   const isAdmin = isAdminRole(user?.role);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <>
       {/* Main Sticky Header */}
-      <header className="public-header" id="site-header">
+      <header className={`public-header ${isScrolled ? 'header-scrolled' : ''}`.trim()} id="site-header">
         <div className="container header-main-inner">
           {/* Brand Logo */}
           <Link to="/" className="site-brand-link" aria-label={`${siteName} Home`}>

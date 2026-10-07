@@ -37,7 +37,7 @@ class Inquiry extends BaseModel
         $type = !empty($data['type']) ? $data['type'] : 'trip_request';
 
         $sql = 'INSERT INTO `contact_messages` (
-            `public_token`, `type`, `name`, `email`, `phone`, `whatsapp_number`, `country`, `subject`, `message`,
+            `public_token`, `type`, `first_name`, `middle_name`, `last_name`, `dial_code`, `name`, `email`, `phone`, `whatsapp_number`, `country`, `subject`, `message`,
             `tour_id`, `destination_id`, `destination_name`, `pickup_location`, `tour_title`,
             `travel_date`, `arrival_date`, `departure_date`, `duration_days`,
             `travelers`, `adults_count`, `children_count`, `infants_count`,
@@ -51,7 +51,7 @@ class Inquiry extends BaseModel
             `status`, `admin_notes`, `quotation_amount`,
             `created_at`, `updated_at`
         ) VALUES (
-            :public_token, :type, :name, :email, :phone, :whatsapp_number, :country, :subject, :message,
+            :public_token, :type, :first_name, :middle_name, :last_name, :dial_code, :name, :email, :phone, :whatsapp_number, :country, :subject, :message,
             :tour_id, :destination_id, :destination_name, :pickup_location, :tour_title,
             :travel_date, :arrival_date, :departure_date, :duration_days,
             :travelers, :adults_count, :children_count, :infants_count,
@@ -91,6 +91,18 @@ class Inquiry extends BaseModel
             }
         }
 
+        $firstName = !empty($data['first_name']) ? trim((string)$data['first_name']) : '';
+        $middleName = !empty($data['middle_name']) ? trim((string)$data['middle_name']) : null;
+        $lastName = !empty($data['last_name']) ? trim((string)$data['last_name']) : '';
+
+        // Combine into full name if separate fields are provided; otherwise use provided name
+        $computedName = trim((string)($data['name'] ?? ''));
+        if ($firstName && $lastName) {
+            $computedName = $firstName . ($middleName ? ' ' . $middleName : '') . ' ' . $lastName;
+        }
+
+        $dialCode = !empty($data['dial_code']) ? trim((string)$data['dial_code']) : '+91';
+
         $adults = isset($data['adults_count']) ? (int)$data['adults_count'] : (isset($data['adults']) ? (int)$data['adults'] : 2);
         $children = isset($data['children_count']) ? (int)$data['children_count'] : (isset($data['children']) ? (int)$data['children'] : 0);
         $infants = isset($data['infants_count']) ? (int)$data['infants_count'] : (isset($data['infants']) ? (int)$data['infants'] : 0);
@@ -102,7 +114,11 @@ class Inquiry extends BaseModel
         self::execute($sql, [
             ':public_token' => $publicToken,
             ':type' => $type,
-            ':name' => trim((string)$data['name']),
+            ':first_name' => $firstName ?: null,
+            ':middle_name' => $middleName ?: null,
+            ':last_name' => $lastName ?: null,
+            ':dial_code' => $dialCode,
+            ':name' => $computedName ?: 'Guest Traveler',
             ':email' => !empty($data['email']) ? trim((string)$data['email']) : 'guest@wonderersouthindia.in',
             ':phone' => !empty($data['phone']) ? trim((string)$data['phone']) : (!empty($data['whatsapp_number']) ? trim((string)$data['whatsapp_number']) : null),
             ':whatsapp_number' => !empty($data['whatsapp_number']) ? trim((string)$data['whatsapp_number']) : (!empty($data['phone']) ? trim((string)$data['phone']) : null),

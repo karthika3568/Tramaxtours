@@ -282,22 +282,43 @@ class Tour extends BaseModel
         self::execute('DELETE FROM `tour_places` WHERE `tour_id` = :id', [':id' => $tourId]);
         if (empty($places)) return;
 
+        // Fetch destination name context if available
+        $destContext = null;
+        try {
+            $destRow = self::fetchOne('SELECT d.name FROM destinations d JOIN tours t ON t.destination_id = d.id WHERE t.id = :id LIMIT 1', [':id' => $tourId]);
+            if ($destRow && !empty($destRow['name'])) {
+                $destContext = $destRow['name'];
+            }
+        } catch (\Throwable $e) {
+            // Ignore context query failure
+        }
+
         $pdo = self::db();
         $stmt = $pdo->prepare('INSERT INTO `tour_places` (`tour_id`, `name`, `short_description`, `media_id`, `latitude`, `longitude`, `display_order`, `status`, `created_at`, `updated_at`) VALUES (:tour_id, :name, :short_description, :media_id, :latitude, :longitude, :display_order, :status, NOW(), NOW())');
         $order = 0;
         foreach ($places as $pl) {
-            $name = trim((string) ($pl['name'] ?? ''));
+            $name = trim((string) ($pl['name'] ?? ($pl['place_name'] ?? '')));
             if (empty($name)) continue;
 
+            $shortDescription = !empty($pl['short_description']) ? (string) $pl['short_description'] : (!empty($pl['description']) ? (string) $pl['description'] : null);
             $mediaId = !empty($pl['media_id']) ? (int) $pl['media_id'] : null;
             $lat = isset($pl['latitude']) && $pl['latitude'] !== '' && $pl['latitude'] !== null ? (float) $pl['latitude'] : null;
             $lng = isset($pl['longitude']) && $pl['longitude'] !== '' && $pl['longitude'] !== null ? (float) $pl['longitude'] : null;
             $status = in_array($pl['status'] ?? '', ['active', 'inactive'], true) ? $pl['status'] : 'active';
 
+            // If coordinates not provided by admin, auto-geocode on backend using OpenStreetMap Nominatim
+            if (($lat === null || $lng === null) && class_exists(\App\Services\GeocodingService::class)) {
+                $geocoded = \App\Services\GeocodingService::geocode($name, $destContext);
+                if ($geocoded !== null) {
+                    $lat = $geocoded[0];
+                    $lng = $geocoded[1];
+                }
+            }
+
             $stmt->execute([
                 ':tour_id' => $tourId,
                 ':name' => $name,
-                ':short_description' => !empty($pl['short_description']) ? (string) $pl['short_description'] : null,
+                ':short_description' => $shortDescription,
                 ':media_id' => $mediaId,
                 ':latitude' => $lat,
                 ':longitude' => $lng,
@@ -306,6 +327,7 @@ class Tour extends BaseModel
             ]);
         }
     }
+
 
     /**
      * Synchronize includes for a tour.
@@ -889,7 +911,22 @@ class Tour extends BaseModel
                       LEFT JOIN `media` m ON tp.`media_id` = m.`id`
                       WHERE tp.`tour_id` = :id
                       ORDER BY tp.`display_order` ASC, tp.`id` ASC';
-        $places = self::fetchAll($placesSql, [':id' => $tourId]);
+        $placesRows = self::fetchAll($placesSql, [':id' => $tourId]);
+        $places = array_map(function ($p) {
+            return [
+                'id' => (int) $p['id'],
+                'name' => $p['name'],
+                'place_name' => $p['name'],
+                'short_description' => $p['short_description'],
+                'description' => $p['short_description'],
+                'media_id' => $p['media_id'] ? (int) $p['media_id'] : null,
+                'media_file_path' => $p['media_file_path'] ?? null,
+                'latitude' => $p['latitude'] !== null ? (float) $p['latitude'] : null,
+                'longitude' => $p['longitude'] !== null ? (float) $p['longitude'] : null,
+                'display_order' => (int) $p['display_order'],
+                'status' => $p['status'] ?? 'active',
+            ];
+        }, $placesRows);
 
         // Includes
         $includesSql = 'SELECT `id`, `item_text`, `display_order` FROM `tour_includes` WHERE `tour_id` = :id ORDER BY `display_order` ASC, `id` ASC';

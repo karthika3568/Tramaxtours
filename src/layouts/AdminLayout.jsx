@@ -3,6 +3,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import { useToast } from '../context/ToastContext';
 import inquiryService from '../services/inquiryService';
+import { getAccessToken } from '../utils/storage';
 
 export default function AdminLayout() {
   const location = useLocation();
@@ -20,6 +21,11 @@ export default function AdminLayout() {
   // Fetch live new trip requests count from API
   useEffect(() => {
     let isMounted = true;
+    const token = getAccessToken();
+    if (!token || !user) {
+      return;
+    }
+
     async function loadStats() {
       try {
         const stats = await inquiryService.getInquiryStats();
@@ -27,17 +33,17 @@ export default function AdminLayout() {
           setNewRequestsCount(stats.new);
         }
       } catch {
-        // Silently ignore network errors on polling
+        // Silently ignore network / auth errors on background polling
       }
     }
 
     loadStats();
-    const interval = setInterval(loadStats, 20000);
+    const interval = setInterval(loadStats, 30000);
     return () => {
       isMounted = false;
       clearInterval(interval);
     };
-  }, []);
+  }, [user]);
 
   // Handle escape key to close drawer
   useEffect(() => {
@@ -164,10 +170,8 @@ export default function AdminLayout() {
         aria-label="Admin Portal Navigation"
       >
         <div className="admin-sidebar-header">
-          <Link to="/admin" className="admin-brand-link" onClick={closeSidebar}>
-            <div className="admin-logo-box">
-              <span className="logo-symbol">WSI</span>
-            </div>
+          <Link to="/admin" className="admin-brand-link" onClick={closeSidebar} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <img src="/logo.png" alt="Wonderer South India" style={{ height: '42px', width: 'auto', objectFit: 'contain' }} />
             <div className="admin-brand-info">
               <span className="admin-brand-title">WONDERER SOUTH INDIA</span>
               <span className="admin-portal-badge">TRAVEL MANAGEMENT</span>

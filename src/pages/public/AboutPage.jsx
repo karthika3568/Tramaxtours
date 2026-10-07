@@ -58,7 +58,7 @@ export default function AboutPage() {
         <div className="container">
           <Breadcrumbs items={[{ label: 'About Us' }]} />
           <div className="catalog-header-content" style={{ marginTop: '14px' }}>
-            <span className="section-badge" style={{ fontSize: '12px', fontWeight: 800, color: '#01AA90', textTransform: 'uppercase', letterSpacing: '0.08em', background: '#e6f7f4', padding: '4px 12px', borderRadius: '9999px', display: 'inline-block', marginBottom: '8px' }}>
+            <span className="section-badge" style={{ fontSize: '12px', fontWeight: 800, color: '#1226de', textTransform: 'uppercase', letterSpacing: '0.08em', background: 'rgba(18, 38, 222, 0.08)', padding: '4px 12px', borderRadius: '9999px', display: 'inline-block', marginBottom: '8px' }}>
               Our Heritage &amp; Philosophy
             </span>
             <h1 className="catalog-page-title" style={{ fontSize: '32px', fontWeight: 800, color: '#0f172a', margin: '6px 0 8px' }}>
@@ -79,10 +79,10 @@ export default function AboutPage() {
               style={{
                 fontSize: '12px',
                 fontWeight: '800',
-                color: '#01AA90',
+                color: '#1226de',
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
-                background: '#e6f7f4',
+                background: 'rgba(18, 38, 222, 0.08)',
                 padding: '4px 12px',
                 borderRadius: '9999px',
                 display: 'inline-block',
@@ -129,7 +129,7 @@ export default function AboutPage() {
                 maxWidth: '240px',
               }}
             >
-              <strong style={{ fontSize: '24px', color: '#01AA90', display: 'block', lineHeight: 1 }}>100%</strong>
+              <strong style={{ fontSize: '24px', color: '#1226de', display: 'block', lineHeight: 1 }}>100%</strong>
               <span style={{ fontSize: '12.5px', opacity: 0.9 }}>Private Escorted Vehicles & Tailored Hospitality</span>
             </div>
           </div>
@@ -144,10 +144,10 @@ export default function AboutPage() {
               style={{
                 fontSize: '12px',
                 fontWeight: '800',
-                color: '#01AA90',
+                color: '#1226de',
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
-                background: '#e6f7f4',
+                background: 'rgba(18, 38, 222, 0.08)',
                 padding: '4px 12px',
                 borderRadius: '9999px',
                 display: 'inline-block',
@@ -182,19 +182,19 @@ export default function AboutPage() {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ color: '#01AA90', fontSize: '20px' }}>✓</span>
+              <span style={{ color: '#1226de', fontSize: '20px' }}>✓</span>
               <span style={{ fontSize: '14px', fontWeight: '600' }}>Planning your trip is simple and fun</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ color: '#01AA90', fontSize: '20px' }}>✓</span>
-              <span style={{ fontSize: '14px', fontWeight: '600' }}>Local expert tour guides & chauffeurs</span>
+              <span style={{ color: '#1226de', fontSize: '20px' }}>✓</span>
+              <span style={{ fontSize: '14px', fontWeight: '600' }}>Local expert tour guides & Chauffeurs</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ color: '#01AA90', fontSize: '20px' }}>✓</span>
+              <span style={{ color: '#1226de', fontSize: '20px' }}>✓</span>
               <span style={{ fontSize: '14px', fontWeight: '600' }}>Sensational value & Pay on Arrival option</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ color: '#01AA90', fontSize: '20px' }}>✓</span>
+              <span style={{ color: '#1226de', fontSize: '20px' }}>✓</span>
               <span style={{ fontSize: '14px', fontWeight: '600' }}>Private tours operated solely for your group</span>
             </div>
           </div>
@@ -208,10 +208,10 @@ export default function AboutPage() {
             style={{
               fontSize: '12px',
               fontWeight: '800',
-              color: '#01AA90',
+              color: '#1226de',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
-              background: '#e6f7f4',
+              background: 'rgba(18, 38, 222, 0.08)',
               padding: '4px 12px',
               borderRadius: '9999px',
               display: 'inline-block',

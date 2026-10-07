@@ -10,8 +10,10 @@ const DEFAULT_MENU_ITEMS = [
   { id: 'home', label: 'Home', path: '/', is_active: true, is_protected: true },
   { id: 'destinations', label: 'Destinations', path: '/destinations', is_active: true, is_protected: true },
   { id: 'tours', label: 'Tours', path: '/tours', is_active: true, is_protected: true },
+  { id: 'testimonials', label: 'Testimonials', path: '/#testimonials', is_active: true, is_protected: true },
   { id: 'about', label: 'About', path: '/about', is_active: true, is_protected: true },
   { id: 'contact', label: 'Contact', path: '/contact', is_active: true, is_protected: true },
+  { id: 'request_trip', label: 'Request My Trip', path: '/request-my-trip', is_active: true, is_protected: true, is_cta: true },
 ];
 
 export default function AdminNavigationPage() {
@@ -22,10 +24,10 @@ export default function AdminNavigationPage() {
 
   const [settings, setSettings] = useState({
     site_name: 'Wonderer South India',
-    site_tagline: 'Luxury & Adventure Safaris',
+    site_tagline: 'Tailored Journeys Across South India',
     logo_url: '',
-    header_cta_label: 'Book Now',
-    header_cta_url: '/tours',
+    header_cta_label: 'Request My Trip',
+    header_cta_url: '/request-my-trip',
     top_bar_phone: '+91 8072566010',
     top_bar_email: 'contact@wonderersouthindia.in',
     show_top_bar: 'true',
@@ -53,7 +55,7 @@ export default function AdminNavigationPage() {
           ...prev,
           site_name: flatSettings.site_name || prev.site_name,
           site_tagline: flatSettings.site_tagline || prev.site_tagline,
-          logo_url: flatSettings.logo_url || prev.logo_url,
+          logo_url: flatSettings.site_logo_url || flatSettings.logo_url || prev.logo_url,
           header_cta_label: flatSettings.header_cta_label || prev.header_cta_label,
           header_cta_url: flatSettings.header_cta_url || prev.header_cta_url,
           top_bar_phone: flatSettings.contact_phone || prev.top_bar_phone,
@@ -77,6 +79,7 @@ export default function AdminNavigationPage() {
         site_name: settings.site_name,
         site_tagline: settings.site_tagline,
         logo_url: settings.logo_url,
+        site_logo_url: settings.logo_url,
         header_cta_label: settings.header_cta_label,
         header_cta_url: settings.header_cta_url,
         contact_phone: settings.top_bar_phone,
@@ -133,7 +136,7 @@ export default function AdminNavigationPage() {
           </div>
           <h1 className="admin-page-title">Public Website Navigation</h1>
           <p className="admin-page-subtitle">
-            Visually manage the primary public navbar, brand identity, header CTA button, and top contact bar.
+            Visually manage the primary public navbar, brand identity, header CTA button, and contact details matching the live website.
           </p>
         </div>
 
@@ -158,48 +161,53 @@ export default function AdminNavigationPage() {
       </div>
 
       {/* Live Interactive Navbar Preview */}
-      <div className="visual-navbar-preview-card">
-        <div className="preview-card-header">
-          <span className="preview-card-tag">LIVE NAVBAR VISUAL PREVIEW</span>
-          <span className="preview-badge-status">Interactive Simulation</span>
-        </div>
-
-        {/* Top utility bar */}
-        <div className="mock-top-bar">
-          <div className="mock-top-contact">
-            <span>📞 {settings.top_bar_phone}</span>
-            <span>✉️ {settings.top_bar_email}</span>
-          </div>
-          <div className="mock-top-auth">
-            <span className="mock-portal-pill">🔒 Staff Portal</span>
-          </div>
+      <div className="visual-navbar-preview-card" style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', marginBottom: '28px' }}>
+        <div className="preview-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 20px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+          <span className="preview-card-tag" style={{ fontWeight: 800, fontSize: '12px', letterSpacing: '0.05em', color: '#1226de' }}>LIVE NAVBAR VISUAL PREVIEW</span>
+          <span className="preview-badge-status" style={{ fontSize: '12px', color: '#64748b' }}>● Live Site Navbar Simulation</span>
         </div>
 
         {/* Main Navbar */}
-        <div className="mock-main-navbar">
-          <div className="mock-brand-box">
+        <div className="mock-main-navbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', background: '#ffffff' }}>
+          <div className="mock-brand-box" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {settings.logo_url ? (
-              <img src={settings.logo_url} alt="Logo" className="mock-logo-img" />
+              <img src={settings.logo_url} alt="Logo" className="mock-logo-img" style={{ maxHeight: '40px' }} />
             ) : (
-              <div className="mock-logo-symbol">TT</div>
+              <div className="mock-logo-symbol" style={{ fontWeight: 900, color: '#1226de', fontSize: '20px' }}>
+                {settings.site_name}
+              </div>
             )}
-            <div className="mock-brand-text">
-              <span className="mock-brand-name">{settings.site_name}</span>
-              <span className="mock-brand-tagline">{settings.site_tagline}</span>
-            </div>
           </div>
 
-          <div className="mock-nav-links">
+          <div className="mock-nav-links" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             {menuItems.filter((i) => i.is_active).map((item) => (
-              <span key={item.id} className="mock-nav-link">
-                {item.label}
-              </span>
+              item.is_cta ? (
+                <span
+                  key={item.id}
+                  className="mock-nav-cta-pill"
+                  style={{
+                    background: 'linear-gradient(135deg, #1226de 0%, #0a178c 100%)',
+                    color: '#ffffff',
+                    padding: '8px 18px',
+                    borderRadius: '9999px',
+                    fontWeight: 700,
+                    fontSize: '13px',
+                    boxShadow: '0 4px 14px rgba(1, 170, 144, 0.25)',
+                  }}
+                >
+                  ✨ {item.label}
+                </span>
+              ) : (
+                <span key={item.id} className="mock-nav-link" style={{ fontSize: '14px', fontWeight: 600, color: '#334155' }}>
+                  {item.label}
+                </span>
+              )
             ))}
           </div>
 
-          <div className="mock-nav-cta">
-            <span className="btn-mock-cta">
-              {settings.header_cta_label}
+          <div className="mock-nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '13px', padding: '6px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', color: '#475569', fontWeight: 600 }}>
+              Sign In
             </span>
           </div>
         </div>

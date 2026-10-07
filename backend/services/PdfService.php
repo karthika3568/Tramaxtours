@@ -72,6 +72,10 @@ class PdfService
             $billing['country'] ?? '',
         ])));
 
+        $logoPath = dirname(__DIR__, 2) . '/public/logo.png';
+        $logoBase64 = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : '';
+        $logoTag = $logoBase64 ? '<img src="' . $logoBase64 . '" style="height: 50px; margin-bottom: 8px;" alt="Wanderer South India" />' : '';
+
         return <<<HTML
 <!DOCTYPE html>
 <html>
@@ -94,6 +98,7 @@ class PdfService
 </head>
 <body>
     <div class="header">
+        {$logoTag}
         <div class="brand">Wanderer South India</div>
         <div class="subtitle">Booking Confirmation &amp; Receipt</div>
     </div>

@@ -58,8 +58,8 @@ export default function MobileMenu({ isOpen, onClose }) {
         id="mobile-navigation-drawer"
       >
         <div className="mobile-menu-header">
-          <Link to="/" className="site-logo" onClick={onClose}>
-            <span className="logo-brand">{siteName.toUpperCase()}</span>
+          <Link to="/" className="site-logo" onClick={onClose} style={{ display: 'flex', alignItems: 'center' }}>
+            <img src="/logo.png" alt={siteName} style={{ height: '38px', width: 'auto', objectFit: 'contain' }} />
           </Link>
           <button
             type="button"

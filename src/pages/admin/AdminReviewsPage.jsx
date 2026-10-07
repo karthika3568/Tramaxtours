@@ -9,9 +9,48 @@ import ReviewTable from '../../components/admin/reviews/ReviewTable';
 import ReviewDetailModal from '../../components/admin/reviews/ReviewDetailModal';
 import ReviewDeleteModal from '../../components/admin/reviews/ReviewDeleteModal';
 import Modal from '../../components/ui/Modal';
+import MediaPickerModal from '../../components/admin/media/MediaPickerModal';
 import Loading from '../../components/ui/Loading';
 import EmptyState from '../../components/ui/EmptyState';
 import ErrorState from '../../components/ui/ErrorState';
+
+function StarRatingSelector({ value = 5, onChange }) {
+  const [hoverVal, setHoverVal] = useState(0);
+  const activeRating = hoverVal || value || 5;
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ display: 'flex', gap: '4px', cursor: 'pointer' }} onMouseLeave={() => setHoverVal(0)}>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            type="button"
+            onClick={() => onChange(star)}
+            onMouseEnter={() => setHoverVal(star)}
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: '2px',
+              fontSize: '24px',
+              lineHeight: 1,
+              cursor: 'pointer',
+              color: star <= activeRating ? '#f59e0b' : '#cbd5e1',
+              transition: 'transform 0.15s ease, color 0.15s ease',
+              transform: star <= activeRating ? 'scale(1.15)' : 'scale(1)',
+            }}
+            title={`Rate ${star} Star${star > 1 ? 's' : ''}`}
+            aria-label={`${star} star rating`}
+          >
+            ★
+          </button>
+        ))}
+      </div>
+      <span style={{ fontSize: '13px', fontWeight: 700, color: '#0B1329', background: '#fef3c7', padding: '2px 8px', borderRadius: '6px', border: '1px solid #fde68a' }}>
+        {activeRating}.0 ({activeRating === 5 ? 'Exceptional' : activeRating === 4 ? 'Very Good' : activeRating === 3 ? 'Average' : activeRating === 2 ? 'Poor' : 'Terrible'})
+      </span>
+    </div>
+  );
+}
 
 export default function AdminReviewsPage() {
   const { hasPermission } = useAuth();
@@ -61,8 +100,85 @@ export default function AdminReviewsPage() {
   const [reviewToDelete, setReviewToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Edit Testimonial State
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingReview, setEditingReview] = useState(null);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    customer_name: '',
+    customer_email: '',
+    customer_country: '',
+    title: '',
+    content: '',
+    rating: 5,
+    image_url: '',
+    is_active: true,
+    is_featured: false,
+    tour_id: '',
+  });
+
+  const [activeMediaTarget, setActiveMediaTarget] = useState('add'); // 'add' or 'edit'
+
+  const handleOpenEdit = (review) => {
+    setEditingReview(review);
+    const existingImg = review.image || review.image_url || (review.media && review.media.length > 0 ? (review.media[0].file_path || review.media[0].url) : '');
+    setEditFormData({
+      customer_name: review.customer_name || '',
+      customer_email: review.customer_email || '',
+      customer_country: review.customer_country || '',
+      title: review.title || '',
+      content: review.content || '',
+      rating: Number(review.rating) || 5,
+      image_url: existingImg || '',
+      is_active: review.status === 'approved',
+      is_featured: Boolean(review.is_featured),
+      tour_id: review.tour_id || '',
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateTestimonial = async (e) => {
+    e.preventDefault();
+    if (!editingReview) return;
+    if (!editFormData.customer_name.trim() || !editFormData.content.trim()) {
+      toast.warning('Please provide client name and testimonial message.', 'Required Fields');
+      return;
+    }
+
+    try {
+      setIsSavingEdit(true);
+      const payload = {
+        customer_name: editFormData.customer_name.trim(),
+        customer_email: editFormData.customer_email.trim() || editingReview.customer_email,
+        customer_country: editFormData.customer_country.trim() || null,
+        title: editFormData.title.trim() || 'Traveler Testimonial',
+        content: editFormData.content.trim(),
+        image: editFormData.image_url ? editFormData.image_url.trim() : null,
+        image_url: editFormData.image_url ? editFormData.image_url.trim() : null,
+        rating: Number(editFormData.rating) || 5,
+        status: editFormData.is_active ? 'approved' : 'pending',
+        is_featured: Boolean(editFormData.is_featured),
+      };
+
+      if (editFormData.tour_id) {
+        payload.tour_id = Number(editFormData.tour_id);
+      }
+
+      await reviewService.updateReview(editingReview.id, payload);
+      toast.success('Testimonial updated successfully!', 'Testimonial Updated');
+      setIsEditModalOpen(false);
+      setEditingReview(null);
+      setReloadTrigger((prev) => prev + 1);
+    } catch (err) {
+      toast.error(err?.message || 'Failed to update testimonial.', 'Update Error');
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
+
   // Add Testimonial State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
   const [isSavingNew, setIsSavingNew] = useState(false);
   const [addFormData, setAddFormData] = useState({
     customer_name: '',
@@ -92,15 +208,13 @@ export default function AdminReviewsPage() {
         customer_country: addFormData.customer_country.trim() || null,
         title: addFormData.title.trim() || 'Traveler Testimonial',
         content: addFormData.content.trim(),
+        image: addFormData.image_url.trim() || null,
+        image_url: addFormData.image_url.trim() || null,
         rating: Number(addFormData.rating) || 5,
         status: addFormData.is_active ? 'approved' : 'pending',
         is_featured: Boolean(addFormData.is_featured),
         tour_id: addFormData.tour_id ? Number(addFormData.tour_id) : null,
       };
-
-      if (addFormData.image_url.trim()) {
-        payload.media = [addFormData.image_url.trim()];
-      }
 
       await reviewService.createReview(payload);
       toast.success('Testimonial added successfully and published!', 'Testimonial Created');
@@ -528,6 +642,7 @@ export default function AdminReviewsPage() {
           <ReviewTable
             reviews={reviews}
             onViewDetails={(review) => setSelectedReview(review)}
+            onEditClick={handleOpenEdit}
             onApprove={handleApprove}
             onReject={handleReject}
             onToggleFeature={handleToggleFeature}
@@ -642,33 +757,81 @@ export default function AdminReviewsPage() {
             </div>
             <div>
               <label className="form-label" style={{ display: 'block', marginBottom: '6px', fontWeight: 600 }}>
-                Rating (1–5 Stars)
+                Rating (1–5 Stars) *
               </label>
-              <select
-                className="form-select form-control"
+              <StarRatingSelector
                 value={addFormData.rating}
-                onChange={(e) => setAddFormData((prev) => ({ ...prev, rating: Number(e.target.value) }))}
-              >
-                <option value={5}>⭐⭐⭐⭐⭐ 5 Stars</option>
-                <option value={4}>⭐⭐⭐⭐ 4 Stars</option>
-                <option value={3}>⭐⭐⭐ 3 Stars</option>
-                <option value={2}>⭐⭐ 2 Stars</option>
-                <option value={1}>⭐ 1 Star</option>
-              </select>
+                onChange={(newRating) => setAddFormData((prev) => ({ ...prev, rating: newRating }))}
+              />
             </div>
           </div>
 
           <div>
             <label className="form-label" style={{ display: 'block', marginBottom: '6px', fontWeight: 600 }}>
-              Client Photo / Avatar URL
+              Client Photo / Avatar
             </label>
-            <input
-              type="url"
-              className="form-control"
-              placeholder="https://images.unsplash.com/... or /uploads/media/photo.jpg"
-              value={addFormData.image_url}
-              onChange={(e) => setAddFormData((prev) => ({ ...prev, image_url: e.target.value }))}
-            />
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              {addFormData.image_url ? (
+                <img
+                  src={addFormData.image_url}
+                  alt="Client Preview"
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                    border: '2px solid #1226de',
+                    flexShrink: 0,
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    background: '#e2e8f0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '16px',
+                    color: '#64748b',
+                    flexShrink: 0,
+                  }}
+                >
+                  👤
+                </div>
+              )}
+              <input
+                type="text"
+                className="form-control"
+                style={{ flex: 1 }}
+                placeholder="Image URL or choose from Media Library..."
+                value={addFormData.image_url}
+                onChange={(e) => setAddFormData((prev) => ({ ...prev, image_url: e.target.value }))}
+              />
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => {
+                  setActiveMediaTarget('add');
+                  setIsMediaPickerOpen(true);
+                }}
+                style={{ whiteSpace: 'nowrap' }}
+              >
+                🖼 Select Image
+              </button>
+              {addFormData.image_url && (
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => setAddFormData((prev) => ({ ...prev, image_url: '' }))}
+                  title="Remove Image"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
 
           <div>
@@ -724,6 +887,200 @@ export default function AdminReviewsPage() {
           </div>
         </form>
       </Modal>
+
+      {/* Edit Testimonial Modal */}
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingReview(null);
+        }}
+        title={`Edit Testimonial #${editingReview?.id || ''}`}
+        size="md"
+      >
+        <form onSubmit={handleUpdateTestimonial} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div>
+            <label className="form-label" style={{ display: 'block', marginBottom: '6px', fontWeight: 600 }}>
+              Customer / Traveler Name *
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              required
+              value={editFormData.customer_name}
+              onChange={(e) => setEditFormData((prev) => ({ ...prev, customer_name: e.target.value }))}
+            />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div>
+              <label className="form-label" style={{ display: 'block', marginBottom: '6px', fontWeight: 600 }}>
+                Country / Origin
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="e.g. United Kingdom"
+                value={editFormData.customer_country}
+                onChange={(e) => setEditFormData((prev) => ({ ...prev, customer_country: e.target.value }))}
+              />
+            </div>
+            <div>
+              <label className="form-label" style={{ display: 'block', marginBottom: '6px', fontWeight: 600 }}>
+                Rating (1–5 Stars) *
+              </label>
+              <StarRatingSelector
+                value={editFormData.rating}
+                onChange={(newRating) => setEditFormData((prev) => ({ ...prev, rating: newRating }))}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="form-label" style={{ display: 'block', marginBottom: '6px', fontWeight: 600 }}>
+              Client Photo / Avatar
+            </label>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              {editFormData.image_url ? (
+                <img
+                  src={editFormData.image_url}
+                  alt="Client Preview"
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                    border: '2px solid #1226de',
+                    flexShrink: 0,
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    background: '#e2e8f0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '16px',
+                    color: '#64748b',
+                    flexShrink: 0,
+                  }}
+                >
+                  👤
+                </div>
+              )}
+              <input
+                type="text"
+                className="form-control"
+                style={{ flex: 1 }}
+                placeholder="Image URL or choose from Media Library..."
+                value={editFormData.image_url}
+                onChange={(e) => setEditFormData((prev) => ({ ...prev, image_url: e.target.value }))}
+              />
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => {
+                  setActiveMediaTarget('edit');
+                  setIsMediaPickerOpen(true);
+                }}
+                style={{ whiteSpace: 'nowrap' }}
+              >
+                🖼 Replace Image
+              </button>
+              {editFormData.image_url && (
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => setEditFormData((prev) => ({ ...prev, image_url: '' }))}
+                  title="Remove Image"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <label className="form-label" style={{ display: 'block', marginBottom: '6px', fontWeight: 600 }}>
+              Testimonial Message / Feedback *
+            </label>
+            <textarea
+              className="form-control"
+              rows={4}
+              required
+              value={editFormData.content}
+              onChange={(e) => setEditFormData((prev) => ({ ...prev, content: e.target.value }))}
+            />
+          </div>
+
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'center', background: '#f8fafc', padding: '12px 16px', borderRadius: '8px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '14px' }}>
+              <input
+                type="checkbox"
+                checked={editFormData.is_active}
+                onChange={(e) => setEditFormData((prev) => ({ ...prev, is_active: e.target.checked }))}
+              />
+              <span>🟢 Active &amp; Approved (Visible on Live Site)</span>
+            </label>
+
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '14px' }}>
+              <input
+                type="checkbox"
+                checked={editFormData.is_featured}
+                onChange={(e) => setEditFormData((prev) => ({ ...prev, is_featured: e.target.checked }))}
+              />
+              <span>⭐ Featured on Homepage</span>
+            </label>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => {
+                setIsEditModalOpen(false);
+                setEditingReview(null);
+              }}
+              disabled={isSavingEdit}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={isSavingEdit}
+            >
+              {isSavingEdit ? 'Saving Changes...' : 'Update Testimonial'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Media Picker Modal for selecting client photos */}
+      <MediaPickerModal
+        isOpen={isMediaPickerOpen}
+        onClose={() => setIsMediaPickerOpen(false)}
+        onSelect={(asset) => {
+          const selectedUrl = asset.file_path || asset.url;
+          if (activeMediaTarget === 'edit') {
+            setEditFormData((prev) => ({
+              ...prev,
+              image_url: selectedUrl,
+            }));
+          } else {
+            setAddFormData((prev) => ({
+              ...prev,
+              image_url: selectedUrl,
+            }));
+          }
+          setIsMediaPickerOpen(false);
+          toast.success('Testimonial client photo selected');
+        }}
+      />
     </div>
   );
 }

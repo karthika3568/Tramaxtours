@@ -19,7 +19,7 @@ class CorsMiddleware
 
         $allowedOrigins = $config['allowed_origins'] ?? ['http://localhost:5173', 'http://127.0.0.1:5173'];
         $allowedMethods = $config['allowed_methods'] ?? ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
-        $allowedHeaders = $config['allowed_headers'] ?? ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'];
+        $allowedHeaders = $config['allowed_headers'] ?? ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'X-Access-Token', 'x-access-token', 'X-CSRF-Token'];
         $exposedHeaders = $config['exposed_headers'] ?? ['Content-Range', 'X-Total-Count'];
         $allowCredentials = $config['allow_credentials'] ?? true;
         $maxAge = $config['max_age'] ?? 86400;

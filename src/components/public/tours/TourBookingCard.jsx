@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import bookingService from '../../../services/bookingService';
 import { useToast } from '../../../context/ToastContext';
 import { useSiteSettings } from '../../../context/SiteSettingsContext';
 import useAuth from '../../../hooks/useAuth';
-import { formatWhatsAppUrl } from '../../../utils/whatsapp';
+import { formatWhatsAppUrl, getCleanWhatsAppNumber } from '../../../utils/whatsapp';
+import TripRequestForm from '../planner/TripRequestForm';
 
 export default function TourBookingCard({ tour }) {
   const toast = useToast();
@@ -28,34 +30,28 @@ export default function TourBookingCard({ tour }) {
   const [selectedTimeSlot, setSelectedTimeSlot] = useState('09:00 AM');
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
-  const [customerName, setCustomerName] = useState('');
-  const [customerEmail, setCustomerEmail] = useState('');
-  const [customerPhone, setCustomerPhone] = useState('');
-  const [pickupLocation, setPickupLocation] = useState('');
-  const [specialNotes, setSpecialNotes] = useState('');
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(null);
+  const [accessToken, setAccessToken] = useState(null);
+  const [isResendingEmail, setIsResendingEmail] = useState(false);
+  const [emailSentStatus, setEmailSentStatus] = useState(null); // 'sent' | 'failed' | null
+  const [cooldownRemaining, setCooldownRemaining] = useState(0);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
 
-  // Auto-fill logged-in customer info
+  // Cooldown countdown timer
   useEffect(() => {
-    function applyUserDefaults() {
-      if (user) {
-        if (user.name) setCustomerName(user.name);
-        if (user.email) setCustomerEmail(user.email);
-        if (user.phone) setCustomerPhone(user.phone);
-      }
-    }
-    applyUserDefaults();
-  }, [user]);
+    if (cooldownRemaining <= 0) return;
+    const timer = setInterval(() => {
+      setCooldownRemaining((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldownRemaining]);
 
   if (!tour) return null;
 
   const usesDateAvailability = Boolean(tour.uses_date_availability);
   const availabilityDates = tour.availability_dates || [];
 
-  // For tours with configured dates, the selected date must be one of the bookable
-  // ones; otherwise fall back to the tour's legacy global seat count.
   const selectedDateAvailability = usesDateAvailability
     ? availabilityDates.find((d) => d.travel_date === selectedDate) || null
     : null;
@@ -90,62 +86,12 @@ export default function TourBookingCard({ tour }) {
       );
       return;
     }
-
-    // Directly open the booking & reservation modal for guests without login requirement
     setShowBookingModal(true);
   };
 
-  const handleBookingSubmit = async (e) => {
-    e.preventDefault();
-    if (!customerName.trim() || !customerEmail.trim() || !customerPhone.trim()) {
-      toast.warning('Please provide your name, email, and phone number to complete booking.', 'Details Required');
-      return;
-    }
-
-    try {
-      setIsSubmitting(true);
-      const nameParts = customerName.trim().split(' ');
-      const firstName = nameParts[0] || 'Traveler';
-      const lastName = nameParts.slice(1).join(' ') || 'Guest';
-
-      const payload = {
-        tour_id: tour.id,
-        first_name: firstName,
-        last_name: lastName,
-        email: customerEmail.trim().toLowerCase(),
-        phone: customerPhone.trim(),
-        address_line1: pickupLocation.trim() || 'Hotel Pickup in South India',
-        city: 'Chennai',
-        state: 'Tamil Nadu',
-        postal_code: '600001',
-        country: 'India',
-        booking_date: selectedDate,
-        tickets_count: adults + children,
-        adults: Number(adults),
-        children: Number(children),
-        unit_price: basePrice,
-        subtotal: totalPrice,
-        total_price: totalPrice,
-        currency: tour.currency || 'INR',
-        payment_method: 'pay_on_arrival',
-        payment_status: 'pending',
-        status: 'pending',
-        special_requests: `Time Slot: ${selectedTimeSlot}. Adults: ${adults}, Children: ${children}. Pickup: ${pickupLocation || 'Standard'}. Notes: ${specialNotes || 'None'}. Booked via Wonderer South India`,
-      };
-
-      const response = await bookingService.createBooking(payload);
-      setBookingSuccess(response?.data || response || { success: true, order_number: 'WSI-' + Math.floor(100000 + Math.random() * 900000) });
-      toast.success('Your tour booking reservation has been placed successfully!', 'Booking Confirmed');
-    } catch (err) {
-      toast.error(err?.message || 'Failed to place booking. Please try again or contact us directly.', 'Booking Error');
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handlePrintSummary = () => {
+    window.print();
   };
-
-  const whatsappMessage = encodeURIComponent(
-    `Hello Wonderer South India! I am interested in booking "${tour.title}" for ${adults} Adults, ${children} Children on ${selectedDate} (${selectedTimeSlot}). Total: ${currencySymbol}${totalPrice.toLocaleString()}. Please provide availability and confirmation.`
-  );
 
   const handleDownloadReceipt = async () => {
     const bookingId = bookingSuccess?.id;
@@ -154,27 +100,73 @@ export default function TourBookingCard({ tour }) {
       return;
     }
     try {
+      setIsDownloadingPdf(true);
       const blob = await bookingService.downloadReceipt(bookingId);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `WondererSouthIndia-Receipt-${bookingSuccess.order_number || bookingId}.pdf`;
+      link.download = `WandererSouthIndia-Receipt-${bookingSuccess.order_number || bookingId}.pdf`;
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
+      toast.success('Official PDF receipt downloaded successfully.', 'Download Complete');
     } catch {
-      toast.error('Failed to download receipt. Please try again.', 'Download Error');
+      toast.error('Failed to download PDF receipt from server. You can also use the Print button to print or save as PDF.', 'Download Error');
+    } finally {
+      setIsDownloadingPdf(false);
     }
   };
 
   const handleShareWhatsAppReceipt = () => {
-    const orderRef = bookingSuccess?.order_number || `#${bookingSuccess?.id || 'WSI-CONFIRMED'}`;
-    const cleanNum = getCleanWhatsAppNumber(businessWhatsApp);
-    const msg = encodeURIComponent(
-      `🧾 *WONDERER SOUTH INDIA — BOOKING RECEIPT*\n\nOrder: ${orderRef}\nGuest: ${customerName}\nTour: ${tour.title}\nTravel Date: ${selectedDate} (${selectedTimeSlot})\nGuests: ${adults} Adults, ${children} Children\nTotal Price: ${currencySymbol}${totalPrice.toLocaleString()}\nPayment: Pay on Arrival\n\nThank you for choosing Wonderer South India!`
-    );
-    window.open(`https://wa.me/${cleanNum}?text=${msg}`, '_blank');
+    try {
+      const orderRef = bookingSuccess?.order_number || `#${bookingSuccess?.id || 'WSI-CONFIRMED'}`;
+      const cleanNum = getCleanWhatsAppNumber(businessWhatsApp);
+      const custName = bookingSuccess?.customer?.name || bookingSuccess?.first_name || (user?.name || 'Valued Guest');
+      const tourName = tour.title || bookingSuccess?.tour?.title || 'Wanderer South India Tour';
+      const bDate = bookingSuccess?.arrival_date || bookingSuccess?.booking_date || selectedDate;
+      const guests = bookingSuccess?.tickets_count || (adults + children);
+      const totPrice = bookingSuccess?.total_price || totalPrice;
+      const msg = encodeURIComponent(
+        `🧾 *WANDERER SOUTH INDIA — BOOKING SUMMARY*\n\n• Order Reference: ${orderRef}\n• Customer: ${custName}\n• Tour: ${tourName}\n• Travel Date: ${bDate}\n• Guests: ${guests}\n• Total: ${currencySymbol}${totPrice.toLocaleString()}\n• Payment: Pay on Arrival\n\nThank you for choosing Wanderer South India! Please reply to confirm pickup details.`
+      );
+      toast.info('Opening WhatsApp chat with booking summary...', 'WhatsApp');
+      window.open(`https://wa.me/${cleanNum}?text=${msg}`, '_blank');
+    } catch (e) {
+      console.error('WhatsApp receipt error:', e);
+      toast.error('Unable to open WhatsApp chat. Please check your browser popup settings.');
+    }
+  };
+
+  const handleResendEmail = async () => {
+    const bookingId = bookingSuccess?.id;
+    if (!bookingId) return;
+    if (cooldownRemaining > 0) {
+      toast.warning(`Please wait ${cooldownRemaining}s before resending.`, 'Cooldown Active');
+      return;
+    }
+
+    try {
+      setIsResendingEmail(true);
+      const tokenToUse = accessToken || sessionStorage.getItem(`booking_token_${bookingId}`) || null;
+      await bookingService.resendConfirmation(bookingId, tokenToUse);
+      setEmailSentStatus('sent');
+      setCooldownRemaining(60); // Start 60s cooldown timer
+      const custEmail = bookingSuccess?.customer?.email || bookingSuccess?.email || user?.email || 'your registered email';
+      toast.success(`Booking confirmation receipt has been sent to ${custEmail}.`, 'Email Sent');
+    } catch (err) {
+      setEmailSentStatus('failed');
+      const status = err?.response?.status;
+      const msg = err?.response?.data?.message || err?.message || 'Unable to send the ticket. Please try again.';
+      if (status === 429) {
+        setCooldownRemaining(60);
+        toast.warning(msg, 'Rate Limit Notice');
+      } else {
+        toast.error(msg, 'Email Delivery Notice');
+      }
+    } finally {
+      setIsResendingEmail(false);
+    }
   };
 
   return (
@@ -369,14 +361,51 @@ export default function TourBookingCard({ tour }) {
         </div>
       </div>
 
-      {/* Booking Checkout Modal */}
-      {showBookingModal && (
-        <div className="admin-modal-backdrop" onClick={() => setShowBookingModal(false)} role="dialog" aria-modal="true">
-          <div className="admin-modal-container booking-checkout-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="admin-modal-header">
+      {/* Unified Booking Checkout Modal (reusing TripRequestForm) */}
+      {showBookingModal && typeof document !== 'undefined' && createPortal(
+        <div
+          className="admin-modal-backdrop"
+          onClick={() => setShowBookingModal(false)}
+          role="dialog"
+          aria-modal="true"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(11, 19, 41, 0.75)',
+            backdropFilter: 'blur(6px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+          }}
+        >
+          <div
+            className="admin-modal-container booking-checkout-modal"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'relative',
+              zIndex: 100000,
+              background: '#ffffff',
+              borderRadius: '20px',
+              boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.35)',
+              maxWidth: '900px',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              width: '95%',
+              padding: '28px',
+            }}
+          >
+            <div className="admin-modal-header" style={{ marginBottom: '20px' }}>
               <div className="modal-header-info">
-                <span className="modal-eyebrow">Online Reservation & Checkout</span>
-                <h3 className="admin-modal-title">{tour.title}</h3>
+                <span className="modal-eyebrow" style={{ color: '#1226de', fontWeight: 700 }}>
+                  Wanderer South India • Official Tour Reservation
+                </span>
+                <h3 className="admin-modal-title" style={{ fontSize: '22px', fontWeight: 800, margin: '4px 0 0' }}>
+                  {tour.title}
+                </h3>
               </div>
               <button
                 type="button"
@@ -386,6 +415,7 @@ export default function TourBookingCard({ tour }) {
                   setBookingSuccess(null);
                 }}
                 aria-label="Close dialog"
+                style={{ fontSize: '20px', background: 'none', border: 'none', cursor: 'pointer' }}
               >
                 ✕
               </button>
@@ -393,14 +423,14 @@ export default function TourBookingCard({ tour }) {
 
             <div className="admin-modal-body">
               {bookingSuccess ? (
-                <div className="booking-success-box text-center" style={{ padding: '20px 10px' }}>
-                  <div className="success-icon-big" style={{ fontSize: '48px', marginBottom: '8px' }}>🎉</div>
-                  <h4 className="success-title" style={{ fontSize: '20px', fontWeight: '800', color: '#01AA90', margin: '0 0 6px' }}>
+                <div className="booking-success-box text-center" style={{ padding: '24px 12px' }}>
+                  <div className="success-icon-big" style={{ fontSize: '52px', marginBottom: '12px' }}>🎉</div>
+                  <h4 className="success-title" style={{ fontSize: '22px', fontWeight: '800', color: '#1226de', margin: '0 0 8px' }}>
                     Reservation Placed Successfully!
                   </h4>
-                  <p className="success-desc" style={{ fontSize: '14px', color: '#475569', marginBottom: '16px' }}>
-                    Thank you, <strong>{customerName}</strong>! Your reservation reference is{' '}
-                    <strong style={{ color: '#0B1329' }}>#{bookingSuccess.order_number || bookingSuccess.id}</strong>.
+                  <p className="success-desc" style={{ fontSize: '15px', color: '#475569', marginBottom: '20px' }}>
+                    Thank you, <strong>{bookingSuccess?.customer?.name || bookingSuccess?.first_name || (user?.name || 'Valued Traveler')}</strong>! Your reservation reference is{' '}
+                    <strong style={{ color: '#0B1329', fontSize: '16px' }}>#{bookingSuccess?.order_number || bookingSuccess?.id}</strong>.
                   </p>
 
                   <div
@@ -408,56 +438,81 @@ export default function TourBookingCard({ tour }) {
                     style={{
                       background: '#f8fafc',
                       borderRadius: '12px',
-                      padding: '16px',
+                      padding: '20px',
                       textAlign: 'left',
-                      fontSize: '13px',
+                      fontSize: '14px',
                       color: '#0B1329',
                       border: '1px solid #e2e8f0',
-                      marginBottom: '16px',
+                      marginBottom: '20px',
                     }}
                   >
-                    <p style={{ margin: '0 0 6px' }}><strong>Tour:</strong> {tour.title}</p>
-                    <p style={{ margin: '0 0 6px' }}><strong>Travel Date:</strong> {selectedDate} ({selectedTimeSlot})</p>
-                    <p style={{ margin: '0 0 6px' }}><strong>Guests:</strong> {adults} Adults, {children} Children</p>
-                    <p style={{ margin: '0 0 6px' }}><strong>Total Amount:</strong> {currencySymbol}{totalPrice.toLocaleString()} (Pay on Arrival)</p>
-                    <p style={{ margin: 0 }}><strong>Customer:</strong> {customerName} • {customerEmail} • {customerPhone}</p>
+                    <p style={{ margin: '0 0 8px' }}><strong>Tour Package:</strong> {tour.title}</p>
+                    <p style={{ margin: '0 0 8px' }}><strong>Travel Date:</strong> {bookingSuccess?.arrival_date || bookingSuccess?.booking_date || selectedDate} ({selectedTimeSlot})</p>
+                    <p style={{ margin: '0 0 8px' }}><strong>Guests / Travelers:</strong> {bookingSuccess?.tickets_count || (adults + children)} ({bookingSuccess?.adults_count || adults} Adults, {bookingSuccess?.children_count || children} Children)</p>
+                    <p style={{ margin: '0 0 8px' }}><strong>Total Amount:</strong> {currencySymbol}{(bookingSuccess?.total_price || totalPrice).toLocaleString()} (Pay on Arrival)</p>
+                    <p style={{ margin: '0 0 8px' }}><strong>Pickup Location:</strong> {bookingSuccess?.pickup_location || 'Hotel / Airport in South India'}</p>
+                    <p style={{ margin: 0 }}><strong>Contact:</strong> {bookingSuccess?.customer?.email || user?.email} • {bookingSuccess?.customer?.phone || user?.phone}</p>
                   </div>
 
                   {/* Receipt Action Buttons */}
-                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '20px' }}>
                     <button
                       type="button"
-                      className="btn btn-outline btn-sm"
-                      onClick={handleDownloadReceipt}
+                      className="btn btn-outline btn-md"
+                      onClick={handlePrintSummary}
+                      title="Print or Save as PDF via browser"
                     >
-                      📄 Download / Print PDF Receipt
+                      🖨️ Print Summary
                     </button>
                     <button
                       type="button"
-                      className="btn btn-primary btn-sm"
+                      className="btn btn-outline btn-md"
+                      onClick={handleDownloadReceipt}
+                      disabled={isDownloadingPdf}
+                      title="Download official PDF voucher"
+                    >
+                      {isDownloadingPdf ? '⏳ Generating PDF...' : '📄 Download PDF Voucher'}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-md"
                       onClick={handleShareWhatsAppReceipt}
                       style={{ background: '#16a34a', borderColor: '#16a34a' }}
+                      title="Open WhatsApp chat with booking details"
                     >
-                      💬 Send to WhatsApp
+                      💬 WhatsApp Confirmation
                     </button>
                     <button
                       type="button"
-                      className="btn btn-outline btn-sm"
-                      onClick={async () => {
-                        try {
-                          await bookingService.resendConfirmation(bookingSuccess.id);
-                          toast.success(`Confirmation resent to ${customerEmail}.`, 'Email Sent');
-                        } catch (err) {
-                          toast.error(err?.message || 'Failed to resend confirmation email.', 'Email Error');
-                        }
+                      className="btn btn-outline btn-md"
+                      onClick={handleResendEmail}
+                      disabled={isResendingEmail || cooldownRemaining > 0}
+                      title="Email official confirmation with receipt PDF"
+                      style={{
+                        borderColor: emailSentStatus === 'sent' ? '#16a34a' : '#1226de',
+                        color: emailSentStatus === 'sent' ? '#16a34a' : '#1226de',
                       }}
                     >
-                      ✉️ Resend Email Receipt
+                      {isResendingEmail
+                        ? '⏳ Sending Ticket...'
+                        : cooldownRemaining > 0
+                        ? `⏳ Wait ${cooldownRemaining}s`
+                        : emailSentStatus === 'sent'
+                        ? '✓ Send Ticket to Email'
+                        : '✉️ Send Ticket to Email'}
                     </button>
                   </div>
 
-                  <p style={{ fontSize: '11.5px', color: '#64748b', marginBottom: '12px' }}>
-                    A confirmation with your PDF receipt has already been emailed to <strong>{customerEmail}</strong>.
+                  <p style={{ fontSize: '12.5px', color: '#64748b', marginBottom: '14px' }}>
+                    {emailSentStatus === 'sent' ? (
+                      <span style={{ color: '#16a34a', fontWeight: 600 }}>
+                        ✓ Ticket sent to <strong>{bookingSuccess?.customer?.email || bookingSuccess?.email || user?.email}</strong>.
+                      </span>
+                    ) : (
+                      <>
+                        Confirmation ticket & voucher dispatched to <strong>{bookingSuccess?.customer?.email || bookingSuccess?.email || user?.email}</strong>.
+                      </>
+                    )}
                   </p>
 
                   {isAuthenticated && (
@@ -472,105 +527,37 @@ export default function TourBookingCard({ tour }) {
                   )}
                 </div>
               ) : (
-                <form onSubmit={handleBookingSubmit} className="checkout-form">
-                  <div className="checkout-summary-bar">
-                    <div>
-                      <strong>{selectedDate}</strong> at <strong>{selectedTimeSlot}</strong>
-                    </div>
-                    <div className="checkout-total-tag">
-                      Total: <strong>{currencySymbol}{totalPrice.toLocaleString()}</strong> ({adults + children} Guests)
-                    </div>
-                  </div>
-
-                  <div className="form-field-group">
-                    <label htmlFor="modal-customer-name" className="form-label required">
-                      Your Full Name
-                    </label>
-                    <input
-                      id="modal-customer-name"
-                      type="text"
-                      className="form-input"
-                      placeholder="e.g. Karthik Ramaswamy"
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="form-field-group">
-                    <label htmlFor="modal-customer-email" className="form-label required">
-                      Email Address
-                    </label>
-                    <input
-                      id="modal-customer-email"
-                      type="email"
-                      className="form-input"
-                      placeholder="e.g. karthik@gmail.com"
-                      value={customerEmail}
-                      onChange={(e) => setCustomerEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="form-field-group">
-                    <label htmlFor="modal-customer-phone" className="form-label required">
-                      Mobile / WhatsApp Number
-                    </label>
-                    <input
-                      id="modal-customer-phone"
-                      type="tel"
-                      className="form-input"
-                      placeholder="e.g. +91 8072566010"
-                      value={customerPhone}
-                      onChange={(e) => setCustomerPhone(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="form-field-group">
-                    <label htmlFor="modal-pickup-location" className="form-label">
-                      Hotel Pickup Address / Location
-                    </label>
-                    <input
-                      id="modal-pickup-location"
-                      type="text"
-                      className="form-input"
-                      placeholder="e.g. Radisson Blu Hotel, Chennai or Central Station"
-                      value={pickupLocation}
-                      onChange={(e) => setPickupLocation(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="form-field-group">
-                    <label htmlFor="modal-special-notes" className="form-label">
-                      Special Requests / Notes (Optional)
-                    </label>
-                    <textarea
-                      id="modal-special-notes"
-                      className="form-input"
-                      rows={2}
-                      placeholder="e.g. Need child booster seat, vegetarian lunch preference, etc."
-                      value={specialNotes}
-                      onChange={(e) => setSpecialNotes(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="checkout-terms-note">
-                    🔒 No advance payment required now. Pay on arrival with Cash, UPI, or Card.
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="btn btn-primary btn-block btn-lg"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? 'Confirming Reservation...' : `Confirm Booking • ${currencySymbol}${totalPrice.toLocaleString()}`}
-                  </button>
-                </form>
+                <TripRequestForm
+                  isBookingMode={true}
+                  tour={{
+                    ...tour,
+                    selectedDate,
+                    timeSlot: selectedTimeSlot,
+                  }}
+                  prefilledData={{
+                    first_name: user?.name ? user.name.split(' ')[0] : '',
+                    last_name: user?.name ? user.name.split(' ').slice(1).join(' ') : '',
+                    email: user?.email || '',
+                    phone: user?.phone || '',
+                    arrival_date: selectedDate,
+                    adults_count: adults,
+                    children_count: children,
+                  }}
+                  onBookingSuccess={(res) => {
+                    setBookingSuccess(res);
+                    if (res?.access_token) {
+                      setAccessToken(res.access_token);
+                      try {
+                        sessionStorage.setItem(`booking_token_${res.id}`, res.access_token);
+                      } catch (_) {}
+                    }
+                  }}
+                />
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

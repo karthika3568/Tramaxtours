@@ -5,8 +5,8 @@ import TourGalleryManager from './TourGalleryManager';
 import TourHighlightsManager from './TourHighlightsManager';
 import TourItineraryManager from './TourItineraryManager';
 import TourPricingManager from './TourPricingManager';
-import TourExtrasManager from './TourExtrasManager';
 import TourAvailabilityManager from './TourAvailabilityManager';
+import TourPlacesManager from './TourPlacesManager';
 import { getMediaUrl } from '../../../utils/media';
 import destinationService from '../../../services/destinationService';
 import tourService, { ALLOWED_TOUR_TYPES } from '../../../services/tourService';
@@ -101,6 +101,7 @@ export default function TourForm({
 
   // Child Modules State
   const [gallery, setGallery] = useState(initialData?.gallery || []);
+  const [places, setPlaces] = useState(initialData?.places || []);
   const [highlights, setHighlights] = useState(initialData?.highlights || []);
   const [itineraries, setItineraries] = useState(initialData?.itineraries || []);
   const [pricingTiers, setPricingTiers] = useState(initialData?.pricing_tiers || []);
@@ -284,6 +285,7 @@ export default function TourForm({
       canonical_url: canonicalUrl.trim() || null,
       category_ids: selectedCategories,
       gallery,
+      places,
       highlights,
       itineraries,
       pricing_tiers: pricingTiers,
@@ -357,11 +359,20 @@ export default function TourForm({
         <button
           type="button"
           role="tab"
+          aria-selected={activeTab === 'places'}
+          className={`tour-tab-btn ${activeTab === 'places' ? 'active' : ''}`}
+          onClick={() => setActiveTab('places')}
+        >
+          6. Places Covered ({places.length})
+        </button>
+        <button
+          type="button"
+          role="tab"
           aria-selected={activeTab === 'highlights'}
           className={`tour-tab-btn ${activeTab === 'highlights' ? 'active' : ''}`}
           onClick={() => setActiveTab('highlights')}
         >
-          6. Highlights ({highlights.length})
+          7. Highlights ({highlights.length})
         </button>
         <button
           type="button"
@@ -585,7 +596,7 @@ export default function TourForm({
               <span style={{ fontSize: '12px', color: '#64748b' }}>
                 <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: '#2563eb', marginRight: '4px' }} />
                 <strong>Blue:</strong> One Day Tour &nbsp;|&nbsp;
-                <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: '#01AA90', marginRight: '4px', marginLeft: '6px' }} />
+                <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: '#1226de', marginRight: '4px', marginLeft: '6px' }} />
                 <strong>Green:</strong> Sightseeing & Other Tours
               </span>
             </div>
@@ -612,7 +623,7 @@ export default function TourForm({
                         gap: '10px',
                         transition: 'all 0.15s ease',
                         border: isChecked
-                          ? (isOneDay ? '2px solid #2563eb' : '2px solid #01AA90')
+                          ? (isOneDay ? '2px solid #2563eb' : '2px solid #1226de')
                           : '1px solid #e2e8f0',
                         background: isChecked
                           ? (isOneDay ? '#dbeafe' : '#e6f7f4')
@@ -622,7 +633,7 @@ export default function TourForm({
                       <input
                         type="checkbox"
                         checked={isChecked}
-                        style={{ accentColor: isOneDay ? '#2563eb' : '#01AA90', width: '17px', height: '17px' }}
+                        style={{ accentColor: isOneDay ? '#2563eb' : '#1226de', width: '17px', height: '17px' }}
                         onChange={(e) => {
                           if (e.target.checked) {
                             setSelectedCategories((prev) => [...prev, cat.id]);
@@ -635,7 +646,7 @@ export default function TourForm({
                         className="cat-checkbox-label"
                         style={{
                           fontWeight: isChecked ? 700 : 500,
-                          color: isChecked ? (isOneDay ? '#1d4ed8' : '#01806C') : '#334155',
+                          color: isChecked ? (isOneDay ? '#1d4ed8' : '#0a178c') : '#334155',
                           fontSize: '13.5px',
                         }}
                       >
@@ -676,7 +687,7 @@ export default function TourForm({
                         alignItems: 'center',
                         gap: '10px',
                         border: isChecked
-                          ? (isOneDay ? '2px solid #2563eb' : '2px solid #01AA90')
+                          ? (isOneDay ? '2px solid #2563eb' : '2px solid #1226de')
                           : '1px solid #e2e8f0',
                         background: isChecked
                           ? (isOneDay ? '#dbeafe' : '#e6f7f4')
@@ -686,7 +697,7 @@ export default function TourForm({
                       <input
                         type="checkbox"
                         checked={isChecked}
-                        style={{ accentColor: isOneDay ? '#2563eb' : '#01AA90', width: '17px', height: '17px' }}
+                        style={{ accentColor: isOneDay ? '#2563eb' : '#1226de', width: '17px', height: '17px' }}
                         onChange={(e) => {
                           if (e.target.checked) {
                             setSelectedCategories((prev) => [...prev, idx + 1]);
@@ -699,7 +710,7 @@ export default function TourForm({
                         className="cat-checkbox-label"
                         style={{
                           fontWeight: isChecked ? 700 : 500,
-                          color: isChecked ? (isOneDay ? '#1d4ed8' : '#01806C') : '#334155',
+                          color: isChecked ? (isOneDay ? '#1d4ed8' : '#0a178c') : '#334155',
                           fontSize: '13.5px',
                         }}
                       >
@@ -735,7 +746,7 @@ export default function TourForm({
                           fontWeight: 700,
                           padding: '5px 12px',
                           borderRadius: '6px',
-                          background: isOneDay ? '#2563eb' : '#01AA90',
+                          background: isOneDay ? '#2563eb' : '#1226de',
                           color: '#ffffff',
                           display: 'inline-flex',
                           alignItems: 'center',
@@ -1106,7 +1117,14 @@ export default function TourForm({
         </div>
       )}
 
-      {/* TAB 6: Tour Highlights */}
+      {/* TAB 6: Places Covered & Map */}
+      {activeTab === 'places' && (
+        <div className="tour-form-section-card">
+          <TourPlacesManager places={places} onChange={setPlaces} />
+        </div>
+      )}
+
+      {/* TAB 7: Tour Highlights */}
       {activeTab === 'highlights' && (
         <div className="tour-form-section-card">
           <TourHighlightsManager highlights={highlights} onChange={setHighlights} />

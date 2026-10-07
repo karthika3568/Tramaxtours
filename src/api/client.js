@@ -35,7 +35,11 @@ function buildUrl(endpoint, params) {
   const url = new URL(`${API_BASE_URL}${cleanEndpoint}`);
 
   if (params && typeof params === 'object') {
-    Object.entries(params).forEach(([key, value]) => {
+    const queryObj = params.params && typeof params.params === 'object' && !Array.isArray(params.params)
+      ? params.params
+      : params;
+
+    Object.entries(queryObj).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         url.searchParams.append(key, String(value));
       }

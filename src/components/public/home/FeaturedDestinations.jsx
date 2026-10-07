@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import destinationService from '../../../services/destinationService';
 import { getMediaUrl } from '../../../utils/media';
@@ -39,6 +39,7 @@ export default function FeaturedDestinations() {
   const [isPaused, setIsPaused] = useState(false);
   const [hoveredId, setHoveredId] = useState(null);
   const sliderRef = useRef(null);
+  const isInteractingRef = useRef(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -62,39 +63,75 @@ export default function FeaturedDestinations() {
     };
   }, []);
 
+  // Multiplied destination list for seamless infinite continuous sliding
+  const repeatCount = destinations.length > 0 ? (destinations.length <= 4 ? 3 : 2) : 1;
+  const slidingDestinations = useMemo(() => {
+    if (!destinations || destinations.length === 0) return [];
+    return Array.from({ length: repeatCount }, () => destinations).flat();
+  }, [destinations, repeatCount]);
+
+  // Automatic Smooth Continuous Sliding (60/120fps hardware-accelerated ticker)
+  useEffect(() => {
+    const container = sliderRef.current;
+    if (!container || slidingDestinations.length === 0) return;
+
+    let animationFrameId;
+    let lastTime = performance.now();
+    const speed = 42; // pixels per second for silky smooth, continuous luxurious sliding
+
+    const animate = (currentTime) => {
+      const delta = (currentTime - lastTime) / 1000;
+      lastTime = currentTime;
+
+      if (!isPaused && !isInteractingRef.current && container) {
+        container.scrollLeft += speed * delta;
+
+        const singleSetWidth = container.scrollWidth / repeatCount;
+        if (singleSetWidth > 0 && container.scrollLeft >= singleSetWidth) {
+          container.scrollLeft -= singleSetWidth;
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animationFrameId = requestAnimationFrame(animate);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [isPaused, slidingDestinations.length, repeatCount]);
+
   const handleScroll = useCallback((direction) => {
     if (!sliderRef.current) return;
     const container = sliderRef.current;
-    const cardWidth = container.querySelector('.top-dest-card')?.offsetWidth || 300;
-    const scrollAmount = cardWidth + 20; // card width + gap
+    const card = container.querySelector('.top-dest-card');
+    const cardWidth = card ? card.offsetWidth + 22 : 340; // card width + gap
+
+    isInteractingRef.current = true;
+    container.style.scrollBehavior = 'smooth';
 
     if (direction === 'next') {
-      const isAtEnd = container.scrollLeft + container.offsetWidth >= container.scrollWidth - 10;
-      if (isAtEnd) {
-        container.scrollTo({ left: 0, behavior: 'smooth' });
-      } else {
-        container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-      }
+      container.scrollBy({ left: cardWidth, behavior: 'smooth' });
     } else {
-      const isAtStart = container.scrollLeft <= 10;
-      if (isAtStart) {
-        container.scrollTo({ left: container.scrollWidth, behavior: 'smooth' });
-      } else {
-        container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-      }
+      container.scrollBy({ left: -cardWidth, behavior: 'smooth' });
     }
-  }, []);
 
-  // Automatic Smooth Continuous Scrolling / Carousel
-  useEffect(() => {
-    if (isPaused) return;
-
-    const timer = setInterval(() => {
-      handleScroll('next');
-    }, 3600);
-
-    return () => clearInterval(timer);
-  }, [isPaused, handleScroll]);
+    setTimeout(() => {
+      if (container) {
+        container.style.scrollBehavior = 'auto';
+        const singleSetWidth = container.scrollWidth / repeatCount;
+        if (singleSetWidth > 0) {
+          if (container.scrollLeft >= singleSetWidth * (repeatCount - 1)) {
+            container.scrollLeft -= singleSetWidth;
+          } else if (container.scrollLeft <= 0) {
+            container.scrollLeft += singleSetWidth;
+          }
+        }
+      }
+      isInteractingRef.current = false;
+    }, 450);
+  }, [repeatCount]);
 
   return (
     <section className="top-destinations-section" aria-label="Top Destinations">
@@ -131,7 +168,7 @@ export default function FeaturedDestinations() {
           </div>
         </div>
 
-        {/* Carousel Slider Cards Track */}
+        {/* Continuous Automatic Smooth Sliding Track */}
         <div
           ref={sliderRef}
           className="top-dest-slider-track"
@@ -143,20 +180,21 @@ export default function FeaturedDestinations() {
           onTouchStart={() => setIsPaused(true)}
           onTouchEnd={() => setIsPaused(false)}
         >
-          {destinations.map((dest, index) => {
+          {slidingDestinations.map((dest, index) => {
+            const uniqueKey = `${dest.id || dest.slug}-${index}`;
             const rawImg = dest.featured_image?.file_path || dest.featured_image?.url || dest.featured_image || dest.image;
             const bgImage = typeof rawImg === 'string' && rawImg.startsWith('http')
               ? rawImg
               : getMediaUrl(rawImg);
 
-            const isHovered = hoveredId === dest.id || (hoveredId === null && index === 1);
+            const isHovered = hoveredId === uniqueKey;
             const destinationUrl = `/destinations/${dest.slug}`;
 
             return (
               <article
-                key={dest.id || dest.slug}
+                key={uniqueKey}
                 className={`top-dest-card ${isHovered ? 'is-active-card' : ''}`}
-                onMouseEnter={() => setHoveredId(dest.id)}
+                onMouseEnter={() => setHoveredId(uniqueKey)}
               >
                 <div
                   className="top-dest-card-bg"

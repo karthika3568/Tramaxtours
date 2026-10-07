@@ -195,7 +195,7 @@ export default function AdminSocialLinksPage() {
                 </div>
 
                 <div style={{ wordBreak: 'break-all', fontSize: '13px', color: '#64748b', background: '#f8fafc', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '16px' }}>
-                  <a href={link.url} target="_blank" rel="noopener noreferrer" style={{ color: '#01aa90', textDecoration: 'none' }}>
+                  <a href={link.url} target="_blank" rel="noopener noreferrer" style={{ color: '#1226de', textDecoration: 'none' }}>
                     {link.url || 'No URL configured'}
                   </a>
                 </div>

@@ -91,15 +91,19 @@ class ReviewController extends BaseController
         $data = Request::getBody();
         $errors = [];
 
-        // 1. Tour ID Validation
-        if (!isset($data['tour_id']) || !is_numeric($data['tour_id']) || (int) $data['tour_id'] <= 0) {
-            $errors['tour_id'] = 'Valid tour ID is required.';
-        } else {
-            $tourId = (int) $data['tour_id'];
-            $tour = Tour::findById($tourId);
-            if (!$tour) {
-                $errors['tour_id'] = "Referenced tour ID [{$tourId}] does not exist or has been deleted.";
+        // 1. Tour ID Validation (Optional for standalone testimonials)
+        $tourId = null;
+        if (isset($data['tour_id']) && is_numeric($data['tour_id']) && (int) $data['tour_id'] > 0) {
+            $tId = (int) $data['tour_id'];
+            $tour = Tour::findById($tId);
+            if ($tour) {
+                $tourId = $tId;
             }
+        }
+        if (!$tourId) {
+            // Pick first active tour as default associated package
+            $firstTour = Tour::fetchOne('SELECT `id` FROM `tours` WHERE `deleted_at` IS NULL ORDER BY `id` ASC LIMIT 1');
+            $tourId = $firstTour ? (int) $firstTour['id'] : 1;
         }
 
         // 2. User ID Validation (Optional)
@@ -191,7 +195,7 @@ class ReviewController extends BaseController
             $authUserId = Request::getUserId();
 
             $reviewData = [
-                'tour_id' => (int) $data['tour_id'],
+                'tour_id' => (int) $tourId,
                 'user_id' => $userId,
                 'customer_name' => $customerName,
                 'customer_email' => $customerEmail,
@@ -199,6 +203,7 @@ class ReviewController extends BaseController
                 'rating' => (int) $data['rating'],
                 'title' => $title,
                 'content' => $content,
+                'image' => !empty($data['image']) ? trim((string) $data['image']) : (!empty($data['image_url']) ? trim((string) $data['image_url']) : null),
                 'status' => $status,
                 'is_featured' => $isFeatured,
                 'moderated_by' => $status !== 'pending' ? $authUserId : null,
@@ -355,6 +360,12 @@ class ReviewController extends BaseController
             } else {
                 $updatePayload['content'] = $content;
             }
+        }
+
+        // Image / Avatar
+        if (array_key_exists('image', $data) || array_key_exists('image_url', $data)) {
+            $img = array_key_exists('image', $data) ? $data['image'] : $data['image_url'];
+            $updatePayload['image'] = $img !== null && $img !== '' ? trim((string) $img) : null;
         }
 
         // Status

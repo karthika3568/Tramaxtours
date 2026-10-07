@@ -21,13 +21,15 @@ export default function TestimonialsSection() {
         if (isMounted) {
           if (reviewItems.length > 0) {
             const mapped = reviewItems.map((r) => {
-              const mediaUrl = r.media && r.media.length > 0 ? getMediaUrl(r.media[0]) : (r.image_url || r.image || null);
+              const rawImg = r.image || r.image_url || (r.media && r.media.length > 0 ? r.media[0] : null);
+              const avatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(r.customer_name || 'Guest')}&background=1226de&color=fff&size=128`;
+              const mediaUrl = rawImg ? getMediaUrl(rawImg, avatarFallback) : avatarFallback;
               return {
                 id: r.id,
                 customer_name: r.customer_name || 'Verified Explorer',
                 role: r.customer_country ? `Guest from ${r.customer_country}` : (r.title || 'Traveler'),
                 content: r.content || r.review_text || '',
-                image: mediaUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(r.customer_name || 'Guest')}&background=0D9488&color=fff&size=128`,
+                image: mediaUrl,
                 rating: Number(r.rating || 5),
               };
             });
@@ -133,56 +135,41 @@ export default function TestimonialsSection() {
                   <div
                     className="deck-card-inner glass-card-panel"
                     style={{
-                      padding: '32px 28px',
-                      borderRadius: '20px',
-                      background: 'rgba(255, 255, 255, 0.88)',
-                      backdropFilter: 'blur(12px)',
-                      border: '1px solid rgba(226, 232, 240, 0.8)',
-                      boxShadow: '0 12px 32px rgba(15, 23, 42, 0.08)',
+                      padding: '32px 30px',
+                      borderRadius: '24px',
+                      background: 'rgba(255, 255, 255, 0.96)',
+                      backdropFilter: 'blur(16px)',
+                      border: '1.5px solid rgba(226, 232, 240, 0.9)',
+                      boxShadow: '0 16px 36px rgba(15, 23, 42, 0.08)',
                       display: 'flex',
                       flexDirection: 'column',
-                      alignItems: 'center',
-                      textAlign: 'center',
-                      maxWidth: '620px',
+                      alignItems: 'flex-start',
+                      textAlign: 'left',
+                      maxWidth: '640px',
                       margin: '0 auto',
                     }}
                   >
-                    {/* 5-Star Rating Row */}
-                    <div style={{ display: 'flex', gap: '4px', color: '#f59e0b', fontSize: '18px', marginBottom: '16px' }} aria-label="5 stars rating">
-                      ★★★★★
-                    </div>
-
-                    {/* Large Prominent Review Message */}
-                    <blockquote
-                      style={{
-                        fontSize: '18px',
-                        lineHeight: 1.65,
-                        fontWeight: 500,
-                        color: '#1e293b',
-                        fontStyle: 'italic',
-                        margin: '0 0 24px 0',
-                        position: 'relative',
-                      }}
-                    >
-                      &ldquo;{item.content}&rdquo;
-                    </blockquote>
-
-                    {/* Client Info with Small Avatar */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginTop: 'auto' }}>
+                    {/* 1. TOP-LEFT: Client Avatar & Details */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '18px', width: '100%' }}>
                       <img
                         src={item.image}
                         alt={item.customer_name}
                         loading="lazy"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.customer_name || 'Guest')}&background=1226de&color=fff&size=96`;
+                        }}
                         style={{
-                          width: '54px',
-                          height: '54px',
+                          width: '48px',
+                          height: '48px',
                           borderRadius: '50%',
                           objectFit: 'cover',
-                          border: '2px solid #01AA90',
-                          boxShadow: '0 2px 8px rgba(1, 170, 144, 0.2)',
+                          border: '2px solid #1226de',
+                          boxShadow: '0 2px 8px rgba(18, 38, 222, 0.25)',
+                          flexShrink: 0,
                         }}
                       />
-                      <div style={{ textAlign: 'left' }}>
+                      <div>
                         <h4 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
                           {item.customer_name}
                         </h4>
@@ -192,6 +179,47 @@ export default function TestimonialsSection() {
                           </p>
                         )}
                       </div>
+                    </div>
+
+                    {/* 2. MIDDLE: Review Content Below Image */}
+                    <blockquote
+                      style={{
+                        fontSize: '16.5px',
+                        lineHeight: 1.7,
+                        fontWeight: 500,
+                        color: '#1e293b',
+                        fontStyle: 'normal',
+                        margin: '0 0 18px 0',
+                        position: 'relative',
+                        letterSpacing: '-0.01em',
+                        flex: '1 1 auto',
+                      }}
+                    >
+                      &ldquo;{item.content}&rdquo;
+                    </blockquote>
+
+                    {/* 3. BOTTOM: Star Rating Below Review Content */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        color: '#f59e0b',
+                        fontSize: '18px',
+                        paddingTop: '12px',
+                        borderTop: '1px solid #f1f5f9',
+                        width: '100%',
+                      }}
+                      aria-label={`${item.rating || 5} out of 5 stars`}
+                    >
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <span key={star} style={{ color: star <= (item.rating || 5) ? '#f59e0b' : '#cbd5e1' }}>
+                          ★
+                        </span>
+                      ))}
+                      <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#64748b', marginLeft: '6px' }}>
+                        {item.rating || 5}.0 / 5.0
+                      </span>
                     </div>
                   </div>
                 </article>

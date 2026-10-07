@@ -9,6 +9,12 @@ use App\Utils\Response;
 class InquiryController extends BaseController
 {
     /**
+     * Gmail enforcement rule (toggleable).
+     * When true, only @gmail.com email addresses are accepted for trip inquiries.
+     */
+    public const REQUIRE_GMAIL = true;
+
+    /**
      * Public Submission Endpoint: Store customer inquiry.
      * POST /api/v1/inquiries
      * POST /api/v1/contact-messages
@@ -18,76 +24,170 @@ class InquiryController extends BaseController
     public function store(): void
     {
         $body = Request::getBody();
+        $errors = [];
 
-        $name = trim((string) ($body['name'] ?? ''));
+        // 1. Name validation (First Name, Middle Name, Last Name)
+        $firstName = trim((string) ($body['first_name'] ?? ''));
+        $middleName = trim((string) ($body['middle_name'] ?? ''));
+        $lastName = trim((string) ($body['last_name'] ?? ''));
+        $legacyName = trim((string) ($body['name'] ?? ''));
+
+        if ($firstName === '' && $lastName === '' && $legacyName !== '') {
+            // Legacy client support: split legacy name
+            $parts = preg_split('/\s+/', $legacyName);
+            $firstName = $parts[0] ?? '';
+            $lastName = count($parts) > 1 ? implode(' ', array_slice($parts, 1)) : $firstName;
+        }
+
+        $nameRegex = '/^[a-zA-Z\s\'-]+$/';
+
+        if ($firstName === '') {
+            $errors['first_name'] = 'First Name is required.';
+        } elseif (mb_strlen($firstName) < 2) {
+            $errors['first_name'] = 'First Name must contain at least 2 characters.';
+        } elseif (!preg_match($nameRegex, $firstName)) {
+            $errors['first_name'] = 'First Name can only contain letters, spaces, hyphens, and apostrophes.';
+        }
+
+        if ($middleName !== '' && !preg_match($nameRegex, $middleName)) {
+            $errors['middle_name'] = 'Middle Name can only contain letters, spaces, hyphens, and apostrophes.';
+        }
+
+        if ($lastName === '') {
+            $errors['last_name'] = 'Last Name is required.';
+        } elseif (mb_strlen($lastName) < 2) {
+            $errors['last_name'] = 'Last Name must contain at least 2 characters.';
+        } elseif (!preg_match($nameRegex, $lastName)) {
+            $errors['last_name'] = 'Last Name can only contain letters, spaces, hyphens, and apostrophes.';
+        }
+
+        $computedFullName = trim($firstName . ($middleName !== '' ? ' ' . $middleName : '') . ' ' . $lastName);
+
+        // 2. Email validation (with Gmail enforcement constant)
         $email = trim((string) ($body['email'] ?? ''));
-        $phone = trim((string) ($body['phone'] ?? $body['whatsapp_number'] ?? ''));
-        $whatsappNumber = trim((string) ($body['whatsapp_number'] ?? $body['phone'] ?? ''));
-        $message = trim((string) ($body['message'] ?? $body['special_requests'] ?? ''));
-
-        // 1. Full name validation
-        if (empty($name)) {
-            $this->error('Full name is required.', 422, ['name' => 'Name cannot be blank.']);
-            return;
+        if ($email === '') {
+            $errors['email'] = 'Email address is required.';
+        } elseif (self::REQUIRE_GMAIL) {
+            if (!preg_match('/^[a-zA-Z0-9._%+-]+@gmail\.com$/i', $email)) {
+                $errors['email'] = 'Please enter a valid Gmail address (example@gmail.com).';
+            }
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Please enter a valid email address format.';
         }
 
-        // 2. Phone / WhatsApp validation
-        $rawPhoneDigits = preg_replace('/\D/', '', $phone ?: $whatsappNumber);
-        if (empty($phone) && empty($whatsappNumber)) {
-            $this->error('WhatsApp or contact phone number is required.', 422, ['phone' => 'Please provide a contact number for quotation delivery.']);
-            return;
-        } elseif (strlen($rawPhoneDigits) < 7) {
-            $this->error('Invalid phone number format.', 422, ['phone' => 'Phone number must contain at least 7 valid digits including country code.']);
-            return;
+        // 3. Country & Dial Code & Phone validation
+        $country = trim((string) ($body['country'] ?? ($body['nationality'] ?? 'India')));
+        $dialCode = trim((string) ($body['dial_code'] ?? '+91'));
+        $rawPhone = trim((string) ($body['phone'] ?? ($body['whatsapp_number'] ?? '')));
+        $phoneDigits = preg_replace('/\D/', '', $rawPhone);
+
+        if ($phoneDigits === '') {
+            $errors['phone'] = 'Phone / WhatsApp number is required.';
+        } elseif (strlen($phoneDigits) < 7 || strlen($phoneDigits) > 15) {
+            $errors['phone'] = 'Phone number must contain between 7 and 15 digits.';
         }
 
-        // 3. Email validation
-        if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->error('Invalid email address format.', 422, ['email' => 'Please provide a valid email address.']);
-            return;
-        }
-        if (empty($email)) {
-            $email = 'guest_' . time() . '@wonderersouthindia.in';
+        // 4. Destination & Pickup Location validation (for Trip Requests)
+        $destination = trim((string) ($body['destination'] ?? ($body['destination_name'] ?? '')));
+        $pickupLocation = trim((string) ($body['pickup_location'] ?? ''));
+        $type = (!empty($body['type']) && in_array($body['type'], ['trip_request', 'general_inquiry'], true))
+            ? $body['type']
+            : ((!empty($destination) || !empty($body['arrival_date'])) ? 'trip_request' : 'general_inquiry');
+
+        if ($type === 'trip_request') {
+            if ($destination === '') {
+                $errors['destination'] = 'Please specify your desired destination(s).';
+            }
+            if ($pickupLocation === '') {
+                $errors['pickup_location'] = 'Pickup location (Airport, Hotel, or City) is required.';
+            }
         }
 
-        // 4. Date validation (departure >= arrival)
+        // 5. Date validation
+        $today = date('Y-m-d');
         $arrivalDate = !empty($body['arrival_date']) ? trim((string)$body['arrival_date']) : null;
         $departureDate = !empty($body['departure_date']) ? trim((string)$body['departure_date']) : null;
-        if ($arrivalDate && $departureDate && $departureDate < $arrivalDate) {
-            $this->error('Departure date cannot be before arrival date.', 422, ['departure_date' => 'Departure date cannot be earlier than arrival date.']);
-            return;
+
+        if ($type === 'trip_request') {
+            if (!$arrivalDate) {
+                $errors['arrival_date'] = 'Arrival date is required.';
+            } elseif (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $arrivalDate)) {
+                $errors['arrival_date'] = 'Arrival date must be in YYYY-MM-DD format.';
+            } elseif ($arrivalDate < $today) {
+                $errors['arrival_date'] = 'Arrival date cannot be in the past.';
+            }
+
+            if (!$departureDate) {
+                $errors['departure_date'] = 'Departure date is required.';
+            } elseif (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $departureDate)) {
+                $errors['departure_date'] = 'Departure date must be in YYYY-MM-DD format.';
+            } elseif ($arrivalDate && $departureDate < $arrivalDate) {
+                $errors['departure_date'] = 'Departure date cannot be earlier than arrival date.';
+            }
         }
 
-        // 5. Enum validations
-        $allowedHotels = ['Standard (3-Star)', 'Deluxe (4-Star)', 'Luxury Heritage (5-Star)', 'Boutique Resorts / Homestays', 'Standard', 'Deluxe', 'Luxury', 'Heritage'];
+        // 6. Number validation
+        $adultsCount = isset($body['adults_count']) ? (int)$body['adults_count'] : (isset($body['adults']) ? (int)$body['adults'] : 1);
+        if ($adultsCount < 1) {
+            $errors['adults_count'] = 'Number of adults must be at least 1.';
+        }
+
+        $childrenCount = isset($body['children_count']) ? (int)$body['children_count'] : 0;
+        if ($childrenCount < 0) {
+            $errors['children_count'] = 'Children count cannot be negative.';
+        }
+
+        $infantsCount = isset($body['infants_count']) ? (int)$body['infants_count'] : 0;
+        if ($infantsCount < 0) {
+            $errors['infants_count'] = 'Infants count cannot be negative.';
+        }
+
+        $roomsCount = isset($body['rooms_count']) ? (int)$body['rooms_count'] : 1;
+        if ($roomsCount < 1) {
+            $errors['rooms_count'] = 'Rooms count must be at least 1.';
+        }
+
+        // 7. Hotel category & budget currency enums
+        $allowedHotels = [
+            'Budget / Homestay', 'Standard (3-Star)', 'Deluxe (4-Star)', 'Luxury Heritage (5-Star)',
+            'Boutique Resorts / Homestays', '3 Star Standard', '4 Star Premium', '5 Star Luxury',
+            'Heritage / Luxury Resort', 'Standard', 'Deluxe', 'Luxury', 'Heritage'
+        ];
         $hotelCat = !empty($body['hotel_category']) ? trim((string)$body['hotel_category']) : null;
         if ($hotelCat && !in_array($hotelCat, $allowedHotels, true)) {
-            $this->error('Invalid hotel category selected.', 422, ['hotel_category' => 'Please choose a valid hotel category from the list.']);
-            return;
+            $errors['hotel_category'] = 'Please choose a valid hotel category from the list.';
         }
 
         $allowedCurrencies = ['INR', 'USD', 'EUR', 'GBP', 'AUD', 'CAD', 'SGD', 'AED'];
         $budgetCurr = !empty($body['budget_currency']) ? trim((string)$body['budget_currency']) : 'INR';
         if ($budgetCurr && !in_array($budgetCurr, $allowedCurrencies, true)) {
-            $this->error('Invalid budget currency selected.', 422, ['budget_currency' => 'Please choose a supported currency code.']);
+            $errors['budget_currency'] = 'Please choose a supported currency code.';
+        }
+
+        // Return all field-level validation errors
+        if (!empty($errors)) {
+            $this->error('Validation failed. Please correct the highlighted fields.', 422, $errors, 'VALIDATION_ERROR');
             return;
         }
 
-        // Duplicate Submission Guard (15 seconds window) - Generic message only (no reference_id leak)
-        $dupCheck = Inquiry::findDuplicateRecent($phone ?: $whatsappNumber, $email, 15);
+        $phone = $phoneDigits;
+        $whatsappNumber = $phoneDigits;
+        $message = trim((string) ($body['message'] ?? ($body['special_requests'] ?? '')));
+
+        // Duplicate Submission Guard (15 seconds window)
+        $dupCheck = Inquiry::findDuplicateRecent($phone, $email, 15);
         if ($dupCheck) {
             $this->error('Duplicate request detected. Your travel inquiry has already been recorded and is currently being processed.', 409);
             return;
         }
 
-        // Type definition: general contact form submissions vs trip planner requests
-        $type = (!empty($body['type']) && in_array($body['type'], ['trip_request', 'general_inquiry'], true))
-            ? $body['type']
-            : ((!empty($body['destination']) || !empty($body['destination_name']) || !empty($body['arrival_date'])) ? 'trip_request' : 'general_inquiry');
-
         $inquiryId = Inquiry::create([
             'type' => $type,
-            'name' => $name,
+            'first_name' => $firstName,
+            'middle_name' => $middleName ?: null,
+            'last_name' => $lastName,
+            'dial_code' => $dialCode,
+            'name' => $computedFullName,
             'email' => $email,
             'phone' => $phone ?: $whatsappNumber,
             'whatsapp_number' => $whatsappNumber ?: $phone,

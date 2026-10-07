@@ -123,6 +123,111 @@ export default function BookingDetailModal({
                 </div>
               </div>
 
+              {/* Extended Traveler & Itinerary Information */}
+              <div className="detail-card">
+                <h3 className="detail-card-heading">🧳 Trip & Travel Specifications</h3>
+                <div className="detail-fields-list">
+                  <div className="detail-field-row">
+                    <span className="field-label">Destination:</span>
+                    <span className="field-value">
+                      <strong>{booking.destination_name || booking.tour?.destination_name || booking.tour?.title || 'Not provided'}</strong>
+                    </span>
+                  </div>
+                  <div className="detail-field-row">
+                    <span className="field-label">Pickup Location:</span>
+                    <span className="field-value">{booking.pickup_location || 'Not provided'}</span>
+                  </div>
+                  <div className="detail-field-row">
+                    <span className="field-label">Travel / Arrival Date:</span>
+                    <span className="field-value">{booking.arrival_date || booking.booking_date || 'Not provided'}</span>
+                  </div>
+                  {booking.departure_date && (
+                    <div className="detail-field-row">
+                      <span className="field-label">Departure Date:</span>
+                      <span className="field-value">{booking.departure_date}</span>
+                    </div>
+                  )}
+                  {booking.duration_days && (
+                    <div className="detail-field-row">
+                      <span className="field-label">Duration:</span>
+                      <span className="field-value font-semibold">{booking.duration_days}</span>
+                    </div>
+                  )}
+                  <div className="detail-field-row">
+                    <span className="field-label">Guests Breakdown:</span>
+                    <span className="field-value font-bold text-accent">
+                      {booking.adults_count ?? booking.tickets_count ?? 1} Adult(s)
+                      {booking.children_count ? `, ${booking.children_count} Child(ren)` : ''}
+                      {booking.infants_count ? `, ${booking.infants_count} Infant(s)` : ''}
+                    </span>
+                  </div>
+                  {booking.vehicle_preference && (
+                    <div className="detail-field-row">
+                      <span className="field-label">Vehicle Preference:</span>
+                      <span className="field-value">{booking.vehicle_preference}</span>
+                    </div>
+                  )}
+                  {booking.hotel_category && (
+                    <div className="detail-field-row">
+                      <span className="field-label">Hotel Category:</span>
+                      <span className="field-value">{booking.hotel_category} {booking.room_type ? `(${booking.room_type})` : ''}</span>
+                    </div>
+                  )}
+                  {booking.rooms_count && (
+                    <div className="detail-field-row">
+                      <span className="field-label">Number of Rooms:</span>
+                      <span className="field-value">{booking.rooms_count}</span>
+                    </div>
+                  )}
+                  {booking.preferred_language && (
+                    <div className="detail-field-row">
+                      <span className="field-label">Guide Language:</span>
+                      <span className="field-value">{booking.preferred_language}</span>
+                    </div>
+                  )}
+                  <div className="detail-field-row">
+                    <span className="field-label">Airport Transfers:</span>
+                    <span className="field-value">
+                      Pickup: {booking.airport_pickup ? 'Yes' : 'No'} • Drop: {booking.airport_drop ? 'Yes' : 'No'}
+                    </span>
+                  </div>
+                  {(booking.arrival_flight_train_number || booking.arrival_time) && (
+                    <div className="detail-field-row">
+                      <span className="field-label">Arrival Transit:</span>
+                      <span className="field-value">
+                        {booking.arrival_flight_train_number || ''} {booking.arrival_time ? `@ ${booking.arrival_time}` : ''}
+                      </span>
+                    </div>
+                  )}
+                  {(booking.departure_flight_train_number || booking.departure_time) && (
+                    <div className="detail-field-row">
+                      <span className="field-label">Departure Transit:</span>
+                      <span className="field-value">
+                        {booking.departure_flight_train_number || ''} {booking.departure_time ? `@ ${booking.departure_time}` : ''}
+                      </span>
+                    </div>
+                  )}
+                  {booking.approximate_budget && (
+                    <div className="detail-field-row">
+                      <span className="field-label">Budget:</span>
+                      <span className="field-value">{booking.budget_currency || 'INR'} {booking.approximate_budget}</span>
+                    </div>
+                  )}
+                  {booking.passport_file_url && (
+                    <div className="detail-field-row">
+                      <span className="field-label">Passport File:</span>
+                      <span className="field-value">{booking.passport_file_url}</span>
+                    </div>
+                  )}
+                  {booking.flight_ticket_url && (
+                    <div className="detail-field-row">
+                      <span className="field-label">Ticket File:</span>
+                      <span className="field-value">{booking.flight_ticket_url}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {/* Billing Address Card */}
               <div className="detail-card">
                 <h3 className="detail-card-heading">📍 Billing Address</h3>
@@ -361,6 +466,49 @@ export default function BookingDetailModal({
                     Created on {booking.created_at ? new Date(booking.created_at).toLocaleString() : 'N/A'}. No additional status updates recorded yet.
                   </p>
                 )}
+              </div>
+
+              {/* Email & Notification Status */}
+              <div className="detail-card">
+                <h3 className="detail-card-heading">✉️ Email & Notification Status</h3>
+                <div className="detail-fields-list">
+                  <div className="detail-field-row">
+                    <span className="field-label">Customer Email:</span>
+                    <span className="field-value">
+                      <span className={`badge badge-sm ${booking.customer_email_status === 'sent' ? 'badge-success' : booking.customer_email_status === 'failed' ? 'badge-danger' : 'badge-warning'}`}>
+                        {booking.customer_email_status ? booking.customer_email_status.toUpperCase() : 'PENDING'}
+                      </span>
+                      {booking.customer_email_sent_at && (
+                        <span className="text-muted-sm" style={{ display: 'block', fontSize: '11px', marginTop: '2px' }}>
+                          Sent: {new Date(booking.customer_email_sent_at).toLocaleString()}
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="detail-field-row">
+                    <span className="field-label">Admin Copy:</span>
+                    <span className="field-value">
+                      <span className={`badge badge-sm ${booking.admin_email_status === 'sent' ? 'badge-success' : booking.admin_email_status === 'failed' ? 'badge-danger' : 'badge-warning'}`}>
+                        {booking.admin_email_status ? booking.admin_email_status.toUpperCase() : 'PENDING'}
+                      </span>
+                      {booking.admin_email_sent_at && (
+                        <span className="text-muted-sm" style={{ display: 'block', fontSize: '11px', marginTop: '2px' }}>
+                          Sent: {new Date(booking.admin_email_sent_at).toLocaleString()}
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="detail-field-row">
+                    <span className="field-label">Customer Send Count:</span>
+                    <span className="field-value">{booking.email_send_count || 0} of 3 maximum</span>
+                  </div>
+                  {booking.last_email_error && (
+                    <div className="detail-field-row text-danger">
+                      <span className="field-label">Last Error:</span>
+                      <span className="field-value" style={{ fontSize: '12px' }}>{booking.last_email_error}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

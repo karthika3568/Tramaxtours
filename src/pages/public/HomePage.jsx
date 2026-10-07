@@ -8,7 +8,6 @@ import BenefitsSection from '../../components/public/home/BenefitsSection';
 import FeaturedDestinations from '../../components/public/home/FeaturedDestinations';
 import FeaturedTours from '../../components/public/home/FeaturedTours';
 import TestimonialsSection from '../../components/public/home/TestimonialsSection';
-import CmsSections from '../../components/public/home/CmsSections';
 
 const DEFAULT_SECTIONS = [
   'hero',
@@ -17,7 +16,6 @@ const DEFAULT_SECTIONS = [
   'destinations',
   'tours',
   'reviews',
-  'cms',
 ];
 
 export default function HomePage() {
@@ -85,8 +83,6 @@ export default function HomePage() {
         return <FeaturedTours key="tours" />;
       case 'reviews':
         return <TestimonialsSection key="reviews" />;
-      case 'cms':
-        return <CmsSections key="cms" />;
       default:
         return null;
     }

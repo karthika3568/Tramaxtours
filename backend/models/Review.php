@@ -20,11 +20,11 @@ class Review extends BaseModel
     {
         $sql = 'INSERT INTO `reviews` (
             `tour_id`, `user_id`, `customer_name`, `customer_email`, `customer_country`,
-            `rating`, `title`, `content`, `status`, `is_featured`,
+            `rating`, `title`, `content`, `image`, `status`, `is_featured`,
             `moderated_by`, `moderated_at`, `created_at`, `updated_at`
         ) VALUES (
             :tour_id, :user_id, :customer_name, :customer_email, :customer_country,
-            :rating, :title, :content, :status, :is_featured,
+            :rating, :title, :content, :image, :status, :is_featured,
             :moderated_by, :moderated_at, NOW(), NOW()
         )';
 
@@ -32,15 +32,26 @@ class Review extends BaseModel
         $moderatedBy = !empty($data['moderated_by']) ? (int) $data['moderated_by'] : null;
         $moderatedAt = !empty($data['moderated_at']) ? $data['moderated_at'] : ($status !== 'pending' && $moderatedBy ? date('Y-m-d H:i:s') : null);
 
+        $tourId = !empty($data['tour_id']) ? (int) $data['tour_id'] : null;
+        if ($tourId === null) {
+            $fallbackTour = self::fetchOne('SELECT id FROM tours WHERE deleted_at IS NULL LIMIT 1');
+            $tourId = $fallbackTour ? (int) $fallbackTour['id'] : 1;
+        }
+
+        $customerName = !empty($data['customer_name']) ? $data['customer_name'] : (!empty($data['author_name']) ? $data['author_name'] : 'Guest Traveler');
+        $customerEmail = !empty($data['customer_email']) ? $data['customer_email'] : (!empty($data['email']) ? $data['email'] : 'guest@wanderersouthindia.com');
+        $customerCountry = !empty($data['customer_country']) ? $data['customer_country'] : (!empty($data['location']) ? $data['location'] : null);
+
         self::execute($sql, [
-            ':tour_id' => (int) $data['tour_id'],
+            ':tour_id' => $tourId,
             ':user_id' => !empty($data['user_id']) ? (int) $data['user_id'] : null,
-            ':customer_name' => $data['customer_name'],
-            ':customer_email' => $data['customer_email'],
-            ':customer_country' => !empty($data['customer_country']) ? $data['customer_country'] : null,
-            ':rating' => (int) $data['rating'],
+            ':customer_name' => $customerName,
+            ':customer_email' => $customerEmail,
+            ':customer_country' => $customerCountry,
+            ':rating' => (int) ($data['rating'] ?? 5),
             ':title' => !empty($data['title']) ? $data['title'] : null,
-            ':content' => $data['content'],
+            ':content' => $data['content'] ?? '',
+            ':image' => !empty($data['image']) ? $data['image'] : null,
             ':status' => $status,
             ':is_featured' => !empty($data['is_featured']) ? 1 : 0,
             ':moderated_by' => $moderatedBy,
@@ -71,7 +82,7 @@ class Review extends BaseModel
 
         $allowedColumns = [
             'tour_id', 'user_id', 'customer_name', 'customer_email', 'customer_country',
-            'rating', 'title', 'content', 'status', 'is_featured',
+            'rating', 'title', 'content', 'image', 'status', 'is_featured',
             'moderated_by', 'moderated_at'
         ];
 
@@ -406,6 +417,8 @@ class Review extends BaseModel
             ];
         }
 
+        $imageUrl = !empty($row['image']) ? $row['image'] : (!empty($media[0]['file_path']) ? $media[0]['file_path'] : null);
+
         return [
             'id' => $reviewId,
             'tour_id' => (int) $row['tour_id'],
@@ -417,6 +430,8 @@ class Review extends BaseModel
             'rating' => (int) $row['rating'],
             'title' => $row['title'] ?? null,
             'content' => $row['content'],
+            'image' => $imageUrl,
+            'image_url' => $imageUrl,
             'status' => $row['status'],
             'is_featured' => (bool) ($row['is_featured'] ?? false),
             'moderated_by' => !empty($row['moderated_by']) ? (int) $row['moderated_by'] : null,

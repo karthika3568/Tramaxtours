@@ -394,11 +394,9 @@ $router->group('/api/v1', function (Router $router) {
         // Get Single Booking Detail by ID or Order Number (Permission: bookings.view)
         $router->get('/{id}', [BookingController::class, 'show'], [new PermissionMiddleware('bookings.view')]);
 
-        // Download/View the PDF Receipt (owner, staff with bookings.view, or signed email token)
-        $router->get('/{id}/receipt', [BookingController::class, 'receipt']);
-
         // Resend the booking confirmation email (owner, staff with bookings.view, or signed email token)
         $router->post('/{id}/resend-confirmation', [BookingController::class, 'resendConfirmation']);
+        $router->post('/{id}/send-confirmation', [BookingController::class, 'resendConfirmation']);
 
         // Update Booking Notes / Info (Permission: bookings.edit_status)
         $router->put('/{id}', [BookingController::class, 'update'], [new PermissionMiddleware('bookings.edit_status')]);

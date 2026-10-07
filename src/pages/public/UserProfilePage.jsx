@@ -123,6 +123,8 @@ export default function UserProfilePage() {
     }
   };
 
+  const [emailingBookingId, setEmailingBookingId] = useState(null);
+
   // Printable / Download PDF Receipt Handler
   const handlePrintReceipt = (booking) => {
     setSelectedReceiptBooking(booking);
@@ -141,15 +143,25 @@ export default function UserProfilePage() {
     const currency = b.currency || 'INR';
 
     const msg = encodeURIComponent(
-      `🧾 *WONDERER SOUTH INDIA — BOOKING RECEIPT*\n\nReference: ${orderRef}\nGuest Name: ${user.name}\nTour: ${tourTitle}\nTravel Date: ${travelDate}\nGuests: ${guests}\nTotal Amount: ${currency} ${Number(price).toLocaleString()}\nStatus: ${b.status?.toUpperCase()}\n\nThank you for choosing Wonderer South India! Travel Made Simple & Memorable.`
+      `🧾 *WONDERER SOUTH INDIA — BOOKING SUMMARY*\n\n• Reference: ${orderRef}\n• Guest Name: ${user.name}\n• Tour: ${tourTitle}\n• Travel Date: ${travelDate}\n• Guests: ${guests}\n• Total Amount: ${currency} ${Number(price).toLocaleString()}\n• Status: ${(b.status || 'pending').toUpperCase()}\n\nThank you for choosing Wonderer South India! Please reply with any questions.`
     );
+    toast.info('Opening WhatsApp chat with booking details...', 'WhatsApp');
     window.open(`https://wa.me/${cleanWhatsApp}?text=${msg}`, '_blank');
   };
 
-  // Email Receipt Handler
-  const handleSendEmailReceipt = (b) => {
+  // Real Email Receipt Handler with Honest Server Status
+  const handleSendEmailReceipt = async (b) => {
     const orderRef = b.order_number || `#${b.id}`;
-    toast.success(`Booking confirmation receipt for ${orderRef} has been emailed to ${user.email}!`, 'Email Sent');
+    try {
+      setEmailingBookingId(b.id);
+      await bookingService.resendConfirmation(b.id);
+      toast.success(`Booking confirmation receipt for ${orderRef} has been emailed to ${user.email}!`, 'Email Sent');
+    } catch (err) {
+      const serverMsg = err?.response?.data?.message || err?.message || 'Failed to send confirmation email. Please check server SMTP configuration.';
+      toast.error(serverMsg, 'Email Delivery Status');
+    } finally {
+      setEmailingBookingId(null);
+    }
   };
 
   const filteredBookings = bookings.filter((b) => {
@@ -193,14 +205,14 @@ export default function UserProfilePage() {
                 width: '72px',
                 height: '72px',
                 borderRadius: '50%',
-                background: 'linear-gradient(135deg, #01AA90 0%, #01806C 100%)',
+                background: 'linear-gradient(135deg, #1226de 0%, #0a178c 100%)',
                 color: '#ffffff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: '28px',
                 fontWeight: '800',
-                boxShadow: '0 4px 12px rgba(1, 170, 144, 0.3)',
+                boxShadow: '0 4px 12px rgba(18, 38, 222, 0.3)',
               }}
             >
               {user.name ? user.name.charAt(0).toUpperCase() : '👤'}
@@ -212,13 +224,13 @@ export default function UserProfilePage() {
                 </h1>
                 <span
                   style={{
-                    background: '#e6f7f4',
-                    color: '#01AA90',
+                    background: 'rgba(18, 38, 222, 0.08)',
+                    color: '#1226de',
                     fontSize: '12px',
                     fontWeight: '700',
                     padding: '3px 10px',
                     borderRadius: '9999px',
-                    border: '1px solid rgba(1, 170, 144, 0.2)',
+                    border: '1px solid rgba(18, 38, 222, 0.2)',
                   }}
                 >
                   Verified Traveler
@@ -270,7 +282,7 @@ export default function UserProfilePage() {
                   onClick={() => setFilterStatus(st)}
                   style={{
                     border: 'none',
-                    background: filterStatus === st ? '#01AA90' : 'transparent',
+                    background: filterStatus === st ? '#1226de' : 'transparent',
                     color: filterStatus === st ? '#ffffff' : '#475569',
                     fontSize: '12.5px',
                     fontWeight: '700',
@@ -324,7 +336,7 @@ export default function UserProfilePage() {
                 const currency = b.currency === 'EUR' ? '€' : b.currency === 'INR' ? '₹' : (b.currency || '₹');
 
                 let statusBadgeStyle = { background: '#fef3c7', color: '#d97706', border: '1px solid #fde68a' };
-                if (status === 'confirmed') statusBadgeStyle = { background: '#e6f7f4', color: '#01AA90', border: '1px solid #99f6e4' };
+                if (status === 'confirmed') statusBadgeStyle = { background: 'rgba(18, 38, 222, 0.08)', color: '#1226de', border: '1px solid rgba(18, 38, 222, 0.2)' };
                 if (status === 'completed') statusBadgeStyle = { background: '#e0e7ff', color: '#4338ca', border: '1px solid #c7d2fe' };
                 if (status === 'cancelled') statusBadgeStyle = { background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5' };
 
@@ -371,7 +383,7 @@ export default function UserProfilePage() {
                     {/* Booking Details */}
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-                        <span style={{ fontSize: '13px', fontWeight: '800', color: '#01AA90' }}>
+                        <span style={{ fontSize: '13px', fontWeight: '800', color: '#1226de' }}>
                           {orderRef}
                         </span>
                         <span
@@ -436,9 +448,10 @@ export default function UserProfilePage() {
                           type="button"
                           className="btn btn-outline btn-xs"
                           onClick={() => handleSendEmailReceipt(b)}
+                          disabled={emailingBookingId === b.id}
                           title="Send confirmation email"
                         >
-                          ✉️ Email
+                          {emailingBookingId === b.id ? '⏳ Sending...' : '✉️ Email'}
                         </button>
                         {status !== 'cancelled' && status !== 'completed' && (
                           <button
@@ -472,15 +485,15 @@ export default function UserProfilePage() {
         >
           <div className="receipt-print-container" style={{ padding: '20px', color: '#0B1329' }}>
             {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #01AA90', paddingBottom: '16px', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #1226de', paddingBottom: '16px', marginBottom: '20px' }}>
               <div>
-                <img src="/logo.svg" alt="Wonderer South India" style={{ height: '48px', marginBottom: '6px' }} />
+                <img src="/logo.png" alt="Wonderer South India" style={{ height: '48px', marginBottom: '6px', objectFit: 'contain' }} />
                 <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
                   Travel Made Simple & Memorable • Chennai, Tamil Nadu
                 </p>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <h3 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#01AA90' }}>
+                <h3 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#1226de' }}>
                   OFFICIAL BOOKING RECEIPT
                 </h3>
                 <p style={{ margin: '4px 0 0', fontSize: '13px', fontWeight: '700' }}>
@@ -493,13 +506,13 @@ export default function UserProfilePage() {
             {/* Guest & Itinerary Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px', background: '#f8fafc', padding: '16px', borderRadius: '12px' }}>
               <div>
-                <strong style={{ fontSize: '13px', color: '#01AA90' }}>TRAVELER DETAILS:</strong>
+                <strong style={{ fontSize: '13px', color: '#1226de' }}>TRAVELER DETAILS:</strong>
                 <p style={{ margin: '4px 0 0', fontSize: '14px', fontWeight: '700' }}>{user.name}</p>
                 <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>Email: {user.email}</p>
                 <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>Phone: {user.phone || selectedReceiptBooking.phone || contactPhone}</p>
               </div>
               <div>
-                <strong style={{ fontSize: '13px', color: '#01AA90' }}>TOUR RESERVATION:</strong>
+                <strong style={{ fontSize: '13px', color: '#1226de' }}>TOUR RESERVATION:</strong>
                 <p style={{ margin: '4px 0 0', fontSize: '14px', fontWeight: '700' }}>{selectedReceiptBooking.tour?.title || 'South India Tour'}</p>
                 <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>Date: {selectedReceiptBooking.booking_date || selectedReceiptBooking.travel_date}</p>
                 <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>Status: {selectedReceiptBooking.status?.toUpperCase()}</p>

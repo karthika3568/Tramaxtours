@@ -48,6 +48,13 @@ class PermissionMiddleware
         $missingPermissions = [];
         foreach ($this->requiredPermissions as $permission) {
             if (!in_array($permission, $userPermissions, true)) {
+                // Check allowable permission aliases for backward/cross compatibility
+                if ($permission === 'trip_requests.view' && (in_array('contact.view', $userPermissions, true) || in_array('bookings.view', $userPermissions, true))) {
+                    continue;
+                }
+                if ($permission === 'trip_requests.manage' && (in_array('contact.manage', $userPermissions, true) || in_array('bookings.edit_status', $userPermissions, true))) {
+                    continue;
+                }
                 $missingPermissions[] = $permission;
             }
         }

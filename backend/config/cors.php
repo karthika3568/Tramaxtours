@@ -15,6 +15,8 @@ return [
         'Accept',
         'Origin',
         'X-CSRF-Token',
+        'X-Access-Token',
+        'x-access-token',
     ],
     'exposed_headers' => [
         'Content-Range',

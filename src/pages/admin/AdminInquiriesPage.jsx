@@ -551,9 +551,17 @@ export default function AdminInquiriesPage() {
                           {inq.reference_id || `#${inq.id}`}
                         </td>
                         <td className="py-3.5 px-4">
-                          <div className="font-bold text-slate-900">{inq.name}</div>
+                          <div className="font-bold text-slate-900">
+                            {inq.first_name ? (
+                              `${inq.first_name} ${inq.middle_name ? inq.middle_name + ' ' : ''}${inq.last_name || ''}`.trim()
+                            ) : (
+                              inq.name || 'Anonymous'
+                            )}
+                          </div>
                           <div className="text-xs text-slate-500">{inq.email}</div>
-                          <div className="text-xs font-mono text-teal-700 mt-0.5">{inq.phone || '—'}</div>
+                          <div className="text-xs font-mono text-teal-700 mt-0.5">
+                            {inq.dial_code ? `${inq.dial_code} ` : ''}{inq.phone || inq.whatsapp_number || '—'}
+                          </div>
                         </td>
                         <td className="py-3.5 px-4">
                           <div className="font-medium text-slate-900">
@@ -678,7 +686,13 @@ export default function AdminInquiriesPage() {
                 <span className="text-xs font-bold text-teal-700 uppercase tracking-wider block">
                   Trip Ref {selectedInquiry.reference_id || `#${selectedInquiry.id}`} • {selectedInquiry.created_at ? new Date(selectedInquiry.created_at).toLocaleString() : 'Recent'}
                 </span>
-                <h3 className="text-xl font-black text-slate-900 mt-0.5">{selectedInquiry.name}</h3>
+                <h3 className="text-xl font-black text-slate-900 mt-0.5">
+                  {selectedInquiry.first_name ? (
+                    `${selectedInquiry.first_name} ${selectedInquiry.middle_name ? selectedInquiry.middle_name + ' ' : ''}${selectedInquiry.last_name || ''}`.trim()
+                  ) : (
+                    selectedInquiry.name
+                  )}
+                </h3>
               </div>
               <div className="flex items-center gap-2">
                 <span className={`px-2.5 py-1 text-xs font-bold rounded-full border capitalize ${getStatusBadgeClass(selectedInquiry.status)}`}>
@@ -700,7 +714,10 @@ export default function AdminInquiriesPage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-slate-50 rounded-2xl text-xs border border-slate-200/70">
                 <div>
                   <span className="text-slate-400 block font-medium">WhatsApp / Phone</span>
-                  <span className="font-bold text-slate-900 font-mono text-sm">{selectedInquiry.whatsapp_number || selectedInquiry.phone || 'Not provided'}</span>
+                  <span className="font-bold text-slate-900 font-mono text-sm">
+                    {selectedInquiry.dial_code ? `${selectedInquiry.dial_code} ` : ''}
+                    {selectedInquiry.phone || selectedInquiry.whatsapp_number || 'Not provided'}
+                  </span>
                 </div>
                 <div>
                   <span className="text-slate-400 block font-medium">Email Address</span>
@@ -713,18 +730,14 @@ export default function AdminInquiriesPage() {
                   <span className="font-bold text-slate-900">{selectedInquiry.country || 'Not provided'}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block font-medium">Preferred Contact</span>
-                  <div className="flex flex-wrap gap-1 mt-0.5">
-                    {selectedInquiry.preferred_contact_methods && selectedInquiry.preferred_contact_methods.length > 0 ? (
-                      selectedInquiry.preferred_contact_methods.map((m, i) => (
-                        <span key={i} className="px-2 py-0.5 bg-teal-100 text-teal-800 rounded font-semibold text-[11px]">
-                          {m}
-                        </span>
-                      ))
+                  <span className="text-slate-400 block font-medium">Name Breakdown</span>
+                  <span className="font-medium text-slate-700">
+                    {selectedInquiry.first_name ? (
+                      `First: ${selectedInquiry.first_name}${selectedInquiry.middle_name ? `, Middle: ${selectedInquiry.middle_name}` : ''}, Last: ${selectedInquiry.last_name}`
                     ) : (
-                      <span className="text-slate-500">Not provided</span>
+                      selectedInquiry.name || 'Not provided'
                     )}
-                  </div>
+                  </span>
                 </div>
               </div>
             </div>
