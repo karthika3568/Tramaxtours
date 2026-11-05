@@ -321,7 +321,7 @@ export default function MedicalTripDetailPage() {
                 }}
               >
                 {assessments.map((item, idx) => {
-                  const cardImg = getMediaUrl(item.image, `/uploads/media/medical_mri_scanner.svg`);
+                  const cardImg = getMediaUrl(item.image, `/uploads/media/medical_full_body_mri.jpg`);
                   return (
                     <article
                       key={item.id || idx}

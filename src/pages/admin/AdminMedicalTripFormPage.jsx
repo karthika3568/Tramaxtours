@@ -9,12 +9,12 @@ import { getMediaUrl } from '../../utils/media';
 
 const MEDICAL_PRESET_IMAGES = [
   { label: '🩺 Package Banner (Blood Pro, DEXA, MRI)', url: '/uploads/media/medical_package_banner.jpg' },
+  { label: '🧲 Full Body MRI Scan', url: '/uploads/media/medical_full_body_mri.jpg' },
+  { label: '🧬 Blood Pro (120+ Biomarkers)', url: '/uploads/media/medical_blood_pro.jpg' },
+  { label: '🏃 VO₂ Max Test', url: '/uploads/media/medical_vo2_max.jpg' },
   { label: '🦴 DEXA Scan', url: '/uploads/media/medical_dexa_scan.jpg' },
   { label: '💪 Strength Pro Assessment', url: '/uploads/media/medical_strength_pro.jpg' },
   { label: '🫁 Resting Metabolic Rate (RMR)', url: '/uploads/media/medical_rmr_metabolic.jpg' },
-  { label: '🧬 Blood Pro', url: '/uploads/media/medical_blood_pro.svg' },
-  { label: '🧲 Full Body MRI Scanner', url: '/uploads/media/medical_mri_scanner.svg' },
-  { label: '🏃 VO₂ Max Test', url: '/uploads/media/medical_vo2_max.svg' },
 ];
 
 export default function AdminMedicalTripFormPage({ mode = 'create' }) {
@@ -200,7 +200,7 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
       subtitle: '',
       short_description: '',
       description: '',
-      image: '/uploads/media/medical_mri_scanner.svg',
+      image: '/uploads/media/medical_full_body_mri.jpg',
       icon: 'Activity',
       covers: '',
       display_order: assessments.length + 1,
