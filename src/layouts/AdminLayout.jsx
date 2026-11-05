@@ -101,6 +101,7 @@ export default function AdminLayout() {
         { label: 'Inquiries & Leads', path: '/admin/inquiries', permission: 'contact.view', icon: '📩' },
         { label: 'Bookings & Orders', path: '/admin/bookings', permission: 'bookings.view', icon: '📋' },
         { label: 'Curated Tours', path: '/admin/tours', permission: 'tours.view', icon: '🗺️' },
+        { label: 'Medical Trips', path: '/admin/medical-trips', permission: 'tours.view', icon: '🩺' },
         { label: 'Destinations', path: '/admin/destinations', permission: 'destinations.view', icon: '📍' },
         { label: 'Media Library', path: '/admin/media', permission: 'media.view', icon: '🖼️' },
         { label: 'Guest Reviews', path: '/admin/reviews', permission: 'reviews.view', icon: '💬' },

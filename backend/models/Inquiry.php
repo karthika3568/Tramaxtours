@@ -420,11 +420,13 @@ class Inquiry extends BaseModel
         }
 
         $createdYear = !empty($row['created_at']) ? date('Y', strtotime($row['created_at'])) : date('Y');
-        $referenceId = 'TRP-' . $createdYear . '-' . str_pad((string)$row['id'], 6, '0', STR_PAD_LEFT);
+        $referenceId = !empty($row['reference_id']) ? $row['reference_id'] : ('TRP-' . $createdYear . '-' . str_pad((string)$row['id'], 6, '0', STR_PAD_LEFT));
 
         return [
             'id' => (int) $row['id'],
             'reference_id' => $referenceId,
+            'is_medical_trip' => !empty($row['is_medical_trip']) ? 1 : 0,
+            'medical_trip_id' => !empty($row['medical_trip_id']) ? (int) $row['medical_trip_id'] : null,
             'name' => $row['name'],
             'email' => $row['email'],
             'phone' => $row['phone'],

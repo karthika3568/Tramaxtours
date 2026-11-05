@@ -400,7 +400,7 @@ export default function TourBookingCard({ tour }) {
           >
             <div className="admin-modal-header" style={{ marginBottom: '20px' }}>
               <div className="modal-header-info">
-                <span className="modal-eyebrow" style={{ color: '#1226de', fontWeight: 700 }}>
+                <span className="modal-eyebrow" style={{ color: '#01aa90', fontWeight: 700 }}>
                   Wanderer South India • Official Tour Reservation
                 </span>
                 <h3 className="admin-modal-title" style={{ fontSize: '22px', fontWeight: 800, margin: '4px 0 0' }}>
@@ -425,7 +425,7 @@ export default function TourBookingCard({ tour }) {
               {bookingSuccess ? (
                 <div className="booking-success-box text-center" style={{ padding: '24px 12px' }}>
                   <div className="success-icon-big" style={{ fontSize: '52px', marginBottom: '12px' }}>🎉</div>
-                  <h4 className="success-title" style={{ fontSize: '22px', fontWeight: '800', color: '#1226de', margin: '0 0 8px' }}>
+                  <h4 className="success-title" style={{ fontSize: '22px', fontWeight: '800', color: '#01aa90', margin: '0 0 8px' }}>
                     Reservation Placed Successfully!
                   </h4>
                   <p className="success-desc" style={{ fontSize: '15px', color: '#475569', marginBottom: '20px' }}>
@@ -489,8 +489,8 @@ export default function TourBookingCard({ tour }) {
                       disabled={isResendingEmail || cooldownRemaining > 0}
                       title="Email official confirmation with receipt PDF"
                       style={{
-                        borderColor: emailSentStatus === 'sent' ? '#16a34a' : '#1226de',
-                        color: emailSentStatus === 'sent' ? '#16a34a' : '#1226de',
+                        borderColor: emailSentStatus === 'sent' ? '#16a34a' : '#01aa90',
+                        color: emailSentStatus === 'sent' ? '#16a34a' : '#01aa90',
                       }}
                     >
                       {isResendingEmail

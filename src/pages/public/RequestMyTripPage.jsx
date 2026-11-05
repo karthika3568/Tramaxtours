@@ -80,7 +80,7 @@ export default function RequestMyTripPage() {
         <div className="container">
           <Breadcrumbs items={[{ label: 'Request My Trip' }]} />
           <div className="catalog-header-content" style={{ marginTop: '14px' }}>
-            <span className="section-badge" style={{ fontSize: '12px', fontWeight: 800, color: '#1226de', textTransform: 'uppercase', letterSpacing: '0.08em', background: 'rgba(18, 38, 222, 0.08)', padding: '4px 12px', borderRadius: '9999px', display: 'inline-block', marginBottom: '8px' }}>
+            <span className="section-badge" style={{ fontSize: '12px', fontWeight: 800, color: '#01aa90', textTransform: 'uppercase', letterSpacing: '0.08em', background: 'rgba(1, 170, 144, 0.08)', padding: '4px 12px', borderRadius: '9999px', display: 'inline-block', marginBottom: '8px' }}>
               Bespoke Private Journeys
             </span>
             <h1 className="catalog-page-title" style={{ fontSize: '32px', fontWeight: 800, color: '#0f172a', margin: '6px 0 8px' }}>

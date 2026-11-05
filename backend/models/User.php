@@ -522,7 +522,7 @@ class User extends BaseModel
             }
 
             // Target admin emails to ensure they exist and have valid credentials
-            $adminEmails = ['admin@wanderersouthindia.com'];
+            $adminEmails = ['admin@wanderersouthindia.com', 'admin@example.com', 'admin@tramaxtours.com'];
             if ($adminEmail !== '' && !in_array(strtolower($adminEmail), array_map('strtolower', $adminEmails), true)) {
                 $adminEmails[] = $adminEmail;
             }

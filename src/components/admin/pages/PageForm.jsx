@@ -1,8 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import MediaPickerModal from '../media/MediaPickerModal';
 import CmsContentRenderer from '../../public/common/CmsContentRenderer';
-import { getMediaUrl } from '../../../utils/media';
 
 export default function PageForm({
   initialData = null,
@@ -173,23 +171,12 @@ export default function PageForm({
         <button
           type="button"
           role="tab"
-          aria-selected={activeTab === 'media'}
-          className={`admin-form-tab-btn ${activeTab === 'media' ? 'active' : ''}`}
-          onClick={() => setActiveTab('media')}
-        >
-          <span className="tab-icon">🖼️</span>
-          <span>3. Hero Media</span>
-        </button>
-
-        <button
-          type="button"
-          role="tab"
           aria-selected={activeTab === 'seo'}
           className={`admin-form-tab-btn ${activeTab === 'seo' ? 'active' : ''}`}
           onClick={() => setActiveTab('seo')}
         >
           <span className="tab-icon">🔍</span>
-          <span>4. SEO & SERP Preview</span>
+          <span>3. SEO & SERP Preview</span>
         </button>
       </div>
 
@@ -448,71 +435,7 @@ export default function PageForm({
         </div>
       )}
 
-      {/* TAB 3: HERO MEDIA */}
-      {activeTab === 'media' && (
-        <div className="admin-form-tab-content">
-          <div className="admin-form-section-header">
-            <h3 className="admin-form-section-title">Hero Banner Image</h3>
-            <p className="admin-form-section-desc">
-              Select an image from the central Media Library to serve as the hero banner background for this page.
-            </p>
-          </div>
-
-          <div className="admin-form-grid">
-            <div className="form-group span-2">
-              <div className="media-preview-slot">
-                {heroImageUrl ? (
-                  <div className="media-preview-card">
-                    <img
-                      src={heroImageUrl}
-                      alt={heroMedia.alt_text || heroMedia.title || title}
-                      className="media-preview-image"
-                    />
-                    <div className="media-preview-info">
-                      <strong className="media-preview-name">
-                        {heroMedia.title || heroMedia.filename || 'Hero Image'}
-                      </strong>
-                      <span className="media-preview-meta text-muted">
-                        ID: #{heroMedia.id} | {heroMedia.mime_type || 'Image'}
-                      </span>
-                      <div className="media-preview-actions">
-                        <button
-                          type="button"
-                          className="btn btn-outline btn-sm"
-                          onClick={() => setIsMediaPickerOpen(true)}
-                        >
-                          Change Media
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-outline btn-sm btn-delete-danger"
-                          onClick={() => setHeroMedia(null)}
-                        >
-                          Remove Media
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="media-empty-slot">
-                    <div className="media-empty-icon">🖼️</div>
-                    <p className="media-empty-text">No hero banner image assigned.</p>
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-sm"
-                      onClick={() => setIsMediaPickerOpen(true)}
-                    >
-                      Select from Media Library
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 4: SEO & SERP PREVIEW */}
+      {/* TAB 3: SEO & SERP PREVIEW */}
       {activeTab === 'seo' && (
         <div className="admin-form-tab-content">
           <div className="admin-form-section-header">
@@ -623,17 +546,6 @@ export default function PageForm({
           </button>
         </div>
       </div>
-
-      {/* Media Picker Modal */}
-      <MediaPickerModal
-        isOpen={isMediaPickerOpen}
-        onClose={() => setIsMediaPickerOpen(false)}
-        onSelectMedia={(mediaItem) => {
-          setHeroMedia(mediaItem);
-          setIsMediaPickerOpen(false);
-        }}
-        selectedMediaId={heroMedia?.id}
-      />
     </form>
   );
 }

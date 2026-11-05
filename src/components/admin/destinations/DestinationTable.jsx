@@ -66,9 +66,6 @@ export default function DestinationTable({
                         </span>
                       )}
                     </div>
-                    {dest.hero_title && (
-                      <span className="dest-row-sub">{dest.hero_title}</span>
-                    )}
                   </div>
                 </td>
 

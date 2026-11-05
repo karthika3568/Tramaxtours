@@ -43,9 +43,9 @@ export default function LanguageSwitcher({ isMobile = false }) {
                   gap: '8px',
                   padding: '8px 12px',
                   borderRadius: '8px',
-                  border: isActive ? '2px solid #1226de' : '1px solid #e2e8f0',
-                  background: isActive ? 'rgba(18, 38, 222, 0.08)' : '#ffffff',
-                  color: isActive ? '#1226de' : '#334155',
+                  border: isActive ? '2px solid #01aa90' : '1px solid #e2e8f0',
+                  background: isActive ? 'rgba(1, 170, 144, 0.08)' : '#ffffff',
+                  color: isActive ? '#01aa90' : '#334155',
                   fontWeight: isActive ? 700 : 500,
                   fontSize: '13px',
                   cursor: 'pointer',
@@ -140,9 +140,9 @@ export default function LanguageSwitcher({ isMobile = false }) {
                   width: '100%',
                   padding: '8px 12px',
                   borderRadius: '6px',
-                  background: isSelected ? 'rgba(18, 38, 222, 0.08)' : 'transparent',
+                  background: isSelected ? 'rgba(1, 170, 144, 0.08)' : 'transparent',
                   border: 'none',
-                  color: isSelected ? '#1226de' : '#334155',
+                  color: isSelected ? '#01aa90' : '#334155',
                   fontWeight: isSelected ? 700 : 500,
                   fontSize: '13.5px',
                   cursor: 'pointer',
@@ -160,7 +160,7 @@ export default function LanguageSwitcher({ isMobile = false }) {
                   </div>
                 </div>
                 {isSelected && (
-                  <span style={{ color: '#1226de', fontWeight: 'bold' }}>✓</span>
+                  <span style={{ color: '#01aa90', fontWeight: 'bold' }}>✓</span>
                 )}
               </button>
             );

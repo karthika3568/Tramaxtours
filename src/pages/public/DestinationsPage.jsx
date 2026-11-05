@@ -121,28 +121,19 @@ export default function DestinationsPage() {
 
   return (
     <div className="destinations-catalog-page">
-      {/* Page Header / Hero */}
-      <section className="catalog-header-section">
-        <div className="container">
-          <Breadcrumbs items={[{ label: 'Destinations' }]} />
-          <div className="catalog-header-content">
-            <span className="section-badge">World of Wonders</span>
-            <h1 className="catalog-page-title">Explore Our Destinations</h1>
-            <p className="catalog-page-subtitle">
-              Immerse yourself in ancient Dravidian heritage, palm-fringed emerald backwaters, majestic palaces, and sun-kissed beaches.
-            </p>
-          </div>
+      <div className="container" style={{ padding: '28px 20px 0' }}>
+        <Breadcrumbs items={[{ label: 'Destinations' }]} />
 
-          {/* Search Bar inside Destination Page */}
-          <div className="catalog-search-wrapper" style={{ maxWidth: '850px', width: '100%', margin: '28px auto 0' }}>
-            <form
-              onSubmit={handleSearchSubmit}
-              className="catalog-search-form"
-              role="search"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
+        {/* Search Bar inside Destination Page */}
+        <div className="catalog-search-wrapper" style={{ maxWidth: '850px', width: '100%', margin: '20px auto 28px' }}>
+          <form
+            onSubmit={handleSearchSubmit}
+            className="catalog-search-form"
+            role="search"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
                 background: '#ffffff',
                 padding: '6px 8px 6px 18px',
                 borderRadius: '50px',
@@ -153,7 +144,7 @@ export default function DestinationsPage() {
               }}
             >
               <div className="search-input-group" style={{ flex: '1 1 auto', position: 'relative', display: 'flex', alignItems: 'center', minWidth: 0 }}>
-                <span className="search-icon" aria-hidden="true" style={{ position: 'relative', fontSize: '18px', color: '#1226de', marginRight: '10px', pointerEvents: 'none', flexShrink: 0 }}>🔍</span>
+                <span className="search-icon" aria-hidden="true" style={{ position: 'relative', fontSize: '18px', color: '#01aa90', marginRight: '10px', pointerEvents: 'none', flexShrink: 0 }}>🔍</span>
                 <input
                   type="text"
                   className="search-input"
@@ -219,22 +210,21 @@ export default function DestinationsPage() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: '#1226de',
+                  backgroundColor: '#01aa90',
                   color: '#ffffff',
                   border: 'none',
                   cursor: 'pointer',
-                  boxShadow: '0 2px 8px rgba(18, 38, 222, 0.3)',
+                  boxShadow: '0 2px 8px rgba(1, 170, 144, 0.3)',
                   transition: 'background-color 0.2s ease, transform 0.2s ease',
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#0a178c'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#1226de'; }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#01806c'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#01aa90'; }}
               >
                 Search
               </button>
             </form>
           </div>
         </div>
-      </section>
 
       {/* Catalog Content Section */}
       <section className="catalog-body-section container">

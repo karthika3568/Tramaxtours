@@ -16,6 +16,7 @@ import {
   DestinationDetailPage,
   ToursPage,
   TourDetailPage,
+  MedicalTripDetailPage,
   AboutPage,
   ContactPage,
   TestimonialsPage,
@@ -43,6 +44,8 @@ import {
   AdminDestinationFormPage,
   AdminToursPage,
   AdminTourFormPage,
+  AdminMedicalTripsPage,
+  AdminMedicalTripFormPage,
   AdminPagesPage,
   AdminPageFormPage,
   AdminBookingsPage,
@@ -73,6 +76,9 @@ export default function AppRouter() {
           <Route path="tour-destination/:slug" element={<DestinationDetailPage />} />
           <Route path="tours" element={<ToursPage />} />
           <Route path="tours/:slug" element={<TourDetailPage />} />
+          <Route path="tours/medical-trip/:slug" element={<MedicalTripDetailPage />} />
+          <Route path="medical-trips/:slug" element={<MedicalTripDetailPage />} />
+          <Route path="medical-trip/:slug" element={<MedicalTripDetailPage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="testimonials" element={<Navigate to="/#testimonials" replace />} />
           <Route path="request-my-trip" element={<RequestMyTripPage />} />
@@ -273,6 +279,32 @@ export default function AppRouter() {
           />
 
 
+
+          {/* Medical Trips Management */}
+          <Route
+            path="medical-trips"
+            element={
+              <PermissionRoute permission="tours.view">
+                <AdminMedicalTripsPage />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="medical-trips/new"
+            element={
+              <PermissionRoute permission="tours.create">
+                <AdminMedicalTripFormPage mode="create" />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="medical-trips/:id/edit"
+            element={
+              <PermissionRoute permission="tours.edit">
+                <AdminMedicalTripFormPage mode="edit" />
+              </PermissionRoute>
+            }
+          />
 
           {/* Pages Management */}
           <Route

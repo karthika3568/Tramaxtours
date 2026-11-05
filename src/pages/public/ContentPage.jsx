@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import pageService from '../../services/pageService';
-import PageHero from '../../components/public/common/PageHero';
+import Breadcrumbs from '../../components/public/common/Breadcrumbs';
 import CmsContentRenderer from '../../components/public/common/CmsContentRenderer';
 import Loading from '../../components/ui/Loading';
 import ErrorState from '../../components/ui/ErrorState';
@@ -91,15 +91,10 @@ export default function ContentPage({ defaultSlug = null }) {
 
   return (
     <div className="cms-page-wrapper">
-      <PageHero
-        title={page.title}
-        subtitle={page.subtitle}
-        badge="Legal & Information"
-        breadcrumbs={[{ label: 'Information' }, { label: page.title }]}
-        heroMedia={page.hero_media}
-      />
-
       <div className="container cms-body-container">
+        <div style={{ marginBottom: '20px' }}>
+          <Breadcrumbs items={[{ label: 'Information & Policies' }, { label: page.title }]} />
+        </div>
         {canManagePages && (
           <div className="cms-admin-notice-bar">
             <div className="cms-admin-notice-info">

@@ -596,7 +596,7 @@ export default function TourForm({
               <span style={{ fontSize: '12px', color: '#64748b' }}>
                 <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: '#2563eb', marginRight: '4px' }} />
                 <strong>Blue:</strong> One Day Tour &nbsp;|&nbsp;
-                <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: '#1226de', marginRight: '4px', marginLeft: '6px' }} />
+                <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: '#01aa90', marginRight: '4px', marginLeft: '6px' }} />
                 <strong>Green:</strong> Sightseeing & Other Tours
               </span>
             </div>
@@ -623,7 +623,7 @@ export default function TourForm({
                         gap: '10px',
                         transition: 'all 0.15s ease',
                         border: isChecked
-                          ? (isOneDay ? '2px solid #2563eb' : '2px solid #1226de')
+                          ? (isOneDay ? '2px solid #2563eb' : '2px solid #01aa90')
                           : '1px solid #e2e8f0',
                         background: isChecked
                           ? (isOneDay ? '#dbeafe' : '#e6f7f4')
@@ -633,7 +633,7 @@ export default function TourForm({
                       <input
                         type="checkbox"
                         checked={isChecked}
-                        style={{ accentColor: isOneDay ? '#2563eb' : '#1226de', width: '17px', height: '17px' }}
+                        style={{ accentColor: isOneDay ? '#2563eb' : '#01aa90', width: '17px', height: '17px' }}
                         onChange={(e) => {
                           if (e.target.checked) {
                             setSelectedCategories((prev) => [...prev, cat.id]);
@@ -646,7 +646,7 @@ export default function TourForm({
                         className="cat-checkbox-label"
                         style={{
                           fontWeight: isChecked ? 700 : 500,
-                          color: isChecked ? (isOneDay ? '#1d4ed8' : '#0a178c') : '#334155',
+                          color: isChecked ? (isOneDay ? '#1d4ed8' : '#01806c') : '#334155',
                           fontSize: '13.5px',
                         }}
                       >
@@ -687,7 +687,7 @@ export default function TourForm({
                         alignItems: 'center',
                         gap: '10px',
                         border: isChecked
-                          ? (isOneDay ? '2px solid #2563eb' : '2px solid #1226de')
+                          ? (isOneDay ? '2px solid #2563eb' : '2px solid #01aa90')
                           : '1px solid #e2e8f0',
                         background: isChecked
                           ? (isOneDay ? '#dbeafe' : '#e6f7f4')
@@ -697,7 +697,7 @@ export default function TourForm({
                       <input
                         type="checkbox"
                         checked={isChecked}
-                        style={{ accentColor: isOneDay ? '#2563eb' : '#1226de', width: '17px', height: '17px' }}
+                        style={{ accentColor: isOneDay ? '#2563eb' : '#01aa90', width: '17px', height: '17px' }}
                         onChange={(e) => {
                           if (e.target.checked) {
                             setSelectedCategories((prev) => [...prev, idx + 1]);
@@ -710,7 +710,7 @@ export default function TourForm({
                         className="cat-checkbox-label"
                         style={{
                           fontWeight: isChecked ? 700 : 500,
-                          color: isChecked ? (isOneDay ? '#1d4ed8' : '#0a178c') : '#334155',
+                          color: isChecked ? (isOneDay ? '#1d4ed8' : '#01806c') : '#334155',
                           fontSize: '13.5px',
                         }}
                       >
@@ -746,7 +746,7 @@ export default function TourForm({
                           fontWeight: 700,
                           padding: '5px 12px',
                           borderRadius: '6px',
-                          background: isOneDay ? '#2563eb' : '#1226de',
+                          background: isOneDay ? '#2563eb' : '#01aa90',
                           color: '#ffffff',
                           display: 'inline-flex',
                           alignItems: 'center',

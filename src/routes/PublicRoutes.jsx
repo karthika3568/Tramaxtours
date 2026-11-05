@@ -7,6 +7,7 @@ export const DestinationsPage = lazy(() => import('../pages/public/DestinationsP
 export const DestinationDetailPage = lazy(() => import('../pages/public/DestinationDetailPage'));
 export const ToursPage = lazy(() => import('../pages/public/ToursPage'));
 export const TourDetailPage = lazy(() => import('../pages/public/TourDetailPage'));
+export const MedicalTripDetailPage = lazy(() => import('../pages/public/MedicalTripDetailPage'));
 
 export const AboutPage = lazy(() => import('../pages/public/AboutPage'));
 export const ContactPage = lazy(() => import('../pages/public/ContactPage'));

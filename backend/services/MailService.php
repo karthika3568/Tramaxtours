@@ -242,7 +242,7 @@ class MailService
         if ($receiptUrl) {
             $receiptButtonHtml = <<<HTML
             <div style="text-align: center; margin: 24px 0 16px;">
-                <a href="{$e($receiptUrl)}" style="display: inline-block; background: linear-gradient(135deg, #1226de, #0a178c); color: #ffffff; padding: 13px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px; box-shadow: 0 4px 12px rgba(18,38,222,0.3);">📄 Download Official PDF Voucher</a>
+                <a href="{$e($receiptUrl)}" style="display: inline-block; background: linear-gradient(135deg, #01aa90, #01806c); color: #ffffff; padding: 13px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px; box-shadow: 0 4px 12px rgba(1,170,144,0.3);">📄 Download Official PDF Voucher</a>
             </div>
 HTML;
         }
@@ -259,7 +259,7 @@ HTML;
     <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid #e2e8f0;">
         
         <!-- Header Banner -->
-        <div style="background: linear-gradient(135deg, #0B1329 0%, #1226de 100%); padding: 32px 24px; text-align: center; color: #ffffff;">
+        <div style="background: linear-gradient(135deg, #0B1329 0%, #01aa90 100%); padding: 32px 24px; text-align: center; color: #ffffff;">
             <div style="font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #93c5fd; margin-bottom: 6px;">🌴 WANDERER SOUTH INDIA</div>
             <h1 style="margin: 0 0 8px; font-size: 24px; font-weight: 800; color: #ffffff;">Booking Confirmed ✓</h1>
             <p style="margin: 0; font-size: 14px; color: #e2e8f0;">Reservation Reference: <strong style="color: #67e8f9; font-size: 16px;">#{$e($booking['order_number'])}</strong></p>
@@ -274,7 +274,7 @@ HTML;
 
             <!-- Key Summary Card -->
             <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-                <h3 style="margin: 0 0 14px; font-size: 16px; font-weight: 700; color: #1226de; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
+                <h3 style="margin: 0 0 14px; font-size: 16px; font-weight: 700; color: #01aa90; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
                     🧳 Tour Reservation Details
                 </h3>
                 <table style="width: 100%; border-collapse: collapse; font-size: 13.5px;">
@@ -314,7 +314,7 @@ HTML;
             </div>
 
             <!-- Special Requests / Notes -->
-            <div style="background: #eff6ff; border-left: 4px solid #1226de; padding: 12px 16px; border-radius: 4px; margin-bottom: 24px; font-size: 13px;">
+            <div style="background: #eff6ff; border-left: 4px solid #01aa90; padding: 12px 16px; border-radius: 4px; margin-bottom: 24px; font-size: 13px;">
                 <strong style="color: #1e3a8a;">Special Requests & Preferences:</strong><br>
                 {$e($specialRequests)}
             </div>
@@ -325,7 +325,7 @@ HTML;
             <div style="border-top: 1px solid #e2e8f0; padding-top: 18px; margin-top: 24px; font-size: 13px; color: #64748b; line-height: 1.6;">
                 <p style="margin: 0 0 8px;"><strong>Need assistance or modifications?</strong></p>
                 <p style="margin: 0 0 4px;">📞 WhatsApp / Call: <strong>+91 8072566010</strong></p>
-                <p style="margin: 0;">✉️ Email Support: <a href="mailto:info@wanderersouthindia.com" style="color: #1226de; text-decoration: none;">info@wanderersouthindia.com</a></p>
+                <p style="margin: 0;">✉️ Email Support: <a href="mailto:info@wanderersouthindia.com" style="color: #01aa90; text-decoration: none;">info@wanderersouthindia.com</a></p>
             </div>
         </div>
 
@@ -391,7 +391,7 @@ HTML;
 <head><meta charset="utf-8"></head>
 <body style="font-family: Arial, sans-serif; background-color: #f8fafc; padding: 20px; color: #0B1329;">
     <div style="max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 10px; padding: 24px; border: 1px solid #e2e8f0;">
-        <h2 style="color: #1226de; margin: 0 0 12px; font-size: 18px;">🔔 New Booking Placed — #{$e($booking['order_number'])}</h2>
+        <h2 style="color: #01aa90; margin: 0 0 12px; font-size: 18px;">🔔 New Booking Placed — #{$e($booking['order_number'])}</h2>
         <p style="font-size: 14px; margin: 0 0 16px;">A new reservation has been placed by <strong>{$e($customer['name'] ?? 'Customer')}</strong>.</p>
         <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
             <tr><td style="padding: 6px 0; color: #64748b;">Customer Name:</td><td style="font-weight: bold; text-align: right;">{$e($customer['name'] ?? '')}</td></tr>

@@ -902,7 +902,7 @@ export default function TripRequestForm({
             readOnly
             className="trip-form-input"
             value={calculatedDays || (isBookingMode ? 'Standard Package Duration' : 'Select Arrival and Departure dates to calculate duration')}
-            style={{ background: '#f1f5f9', fontWeight: 700, color: '#1226de' }}
+            style={{ background: '#f1f5f9', fontWeight: 700, color: '#01aa90' }}
           />
         </div>
       </div>
@@ -1384,10 +1384,10 @@ export default function TripRequestForm({
             fontSize: '17px',
             fontWeight: 800,
             borderRadius: '9999px',
-            background: 'linear-gradient(135deg, #1226de 0%, #0a178c 100%)',
+            background: 'linear-gradient(135deg, #01aa90 0%, #01806c 100%)',
             border: 'none',
             color: '#ffffff',
-            boxShadow: '0 8px 24px rgba(18, 38, 222, 0.35)',
+            boxShadow: '0 8px 24px rgba(1, 170, 144, 0.35)',
             minWidth: '280px',
             cursor: isSubmitting ? 'not-allowed' : 'pointer',
             opacity: isSubmitting ? 0.75 : 1,

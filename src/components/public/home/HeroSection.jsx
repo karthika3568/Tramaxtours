@@ -113,25 +113,6 @@ export default function HeroSection() {
         })}
       </div>
 
-      {/* Carousel Navigation Arrows */}
-      <button
-        type="button"
-        className="hero-nav-arrow arrow-prev"
-        onClick={prevSlide}
-        aria-label="Previous Slide"
-      >
-        &#10094;
-      </button>
-
-      <button
-        type="button"
-        className="hero-nav-arrow arrow-next"
-        onClick={nextSlide}
-        aria-label="Next Slide"
-      >
-        &#10095;
-      </button>
-
       {/* Carousel Slide Indicators */}
       <div className="hero-dots-container" role="tablist" aria-label="Hero Slides">
         {slides.map((slide, idx) => (

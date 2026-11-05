@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import pageService from '../../services/pageService';
-import { getMediaUrl } from '../../utils/media';
 import { useToast } from '../../context/ToastContext';
 import { updatePageMeta } from '../../utils/metadata';
-import MediaPickerModal from '../../components/admin/media/MediaPickerModal';
 import Loading from '../../components/ui/Loading';
 
 export default function AdminAboutPageManager() {
@@ -12,15 +10,11 @@ export default function AdminAboutPageManager() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [pageId, setPageId] = useState(null);
-  const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     title: 'About Wonderer South India',
     slug: 'about-us',
-    subtitle: 'Pioneering luxury travel, bespoke safari expeditions, and authentic cultural journeys.',
     content: '',
-    hero_media_id: '',
-    hero_media_url: '',
     status: 'published',
     meta_title: 'About Wonderer South India — Bespoke Travel & Luxury Journeys',
     meta_description: 'Learn about Wonderer South India, our passion for hospitality, cultural expeditions, and wildlife safaris.',
@@ -28,8 +22,8 @@ export default function AdminAboutPageManager() {
 
   useEffect(() => {
     updatePageMeta({
-      title: 'Admin - About Page Visual Management',
-      description: 'Visually edit the public About Us page content, hero banner, and story narrative',
+      title: 'Admin - About Page Management',
+      description: 'Manage the public About Us page content, company story narrative, and SEO metadata',
     });
 
     async function loadAboutPage() {
@@ -41,14 +35,10 @@ export default function AdminAboutPageManager() {
 
         if (data && data.id) {
           setPageId(data.id);
-          const heroUrl = data.hero_media?.url || (data.hero_media?.file_path ? getMediaUrl(data.hero_media.file_path) : '');
           setFormData({
             title: data.title || 'About Wonderer South India',
             slug: data.slug || 'about-us',
-            subtitle: data.subtitle || 'Pioneering luxury travel, bespoke safari expeditions, and authentic cultural journeys.',
             content: data.content || '',
-            hero_media_id: data.hero_media_id || (data.hero_media?.id ?? ''),
-            hero_media_url: heroUrl,
             status: data.status || 'published',
             meta_title: data.meta_title || '',
             meta_description: data.meta_description || '',
@@ -64,16 +54,6 @@ export default function AdminAboutPageManager() {
     loadAboutPage();
   }, [toast]);
 
-  const handleMediaSelect = (asset) => {
-    setFormData((prev) => ({
-      ...prev,
-      hero_media_id: asset.id,
-      hero_media_url: getMediaUrl(asset.file_path || asset.url),
-    }));
-    setIsMediaPickerOpen(false);
-    toast.success('Hero banner media selected');
-  };
-
   const handleSave = async (statusOverride = null) => {
     try {
       setSaving(true);
@@ -82,9 +62,9 @@ export default function AdminAboutPageManager() {
       const payload = {
         title: formData.title.trim(),
         slug: formData.slug.trim(),
-        subtitle: formData.subtitle.trim(),
+        subtitle: null,
         content: formData.content.trim(),
-        hero_media_id: formData.hero_media_id ? Number(formData.hero_media_id) : null,
+        hero_media_id: null,
         status: targetStatus,
         meta_title: formData.meta_title.trim() || null,
         meta_description: formData.meta_description.trim() || null,
@@ -122,9 +102,9 @@ export default function AdminAboutPageManager() {
             <span className="breadcrumb-separator">/</span>
             <span className="breadcrumb-current">About Page Management</span>
           </div>
-          <h1 className="admin-page-title">About Page Visual Editor</h1>
+          <h1 className="admin-page-title">About Page Editor</h1>
           <p className="admin-page-subtitle">
-            Manage the brand heritage narrative, luxury philosophy, hero imagery, and SEO metadata seen on the public /about page.
+            Manage the company heritage narrative, story details, and SEO metadata seen on the public /about page.
           </p>
         </div>
 
@@ -156,68 +136,15 @@ export default function AdminAboutPageManager() {
         </div>
       </div>
 
-      {/* Visual Live Representation Preview */}
-      <div className="visual-page-preview-container">
-        <div className="visual-preview-top-banner">
-          <span className="preview-label">PUBLIC ABOUT PAGE SIMULATION</span>
-          <span className={`status-badge-luxury ${formData.status === 'published' ? 'status-active' : 'status-inactive'}`}>
-            {formData.status === 'published' ? '● Published' : '○ Draft'}
-          </span>
-        </div>
-
-        {/* Hero Preview Box */}
-        <div
-          className="visual-about-hero-preview"
-          style={{
-            backgroundImage: `linear-gradient(rgba(11, 19, 41, 0.55), rgba(11, 19, 41, 0.85)), url(${formData.hero_media_url || '/images/hero-default.jpg'})`,
-          }}
-        >
-          <span className="preview-eyebrow">OUR HERITAGE & PHILOSOPHY</span>
-          <h2 className="preview-about-title">{formData.title}</h2>
-          <p className="preview-about-subtitle">{formData.subtitle}</p>
-        </div>
-      </div>
-
       {/* Structured Content Form */}
       <div className="admin-about-editor-grid">
-        {/* Left Column: Hero & Narrative */}
+        {/* Left Column: Narrative Story & Content */}
         <div className="admin-card-luxury">
-          <h2 className="admin-card-title">1. Hero Banner Configuration</h2>
-          <p className="admin-card-subtitle">Set the header text and luxury background backdrop.</p>
+          <h2 className="admin-card-title">1. Page Information & Narrative Story</h2>
+          <p className="admin-card-subtitle">Manage company heritage, brand philosophy, and about story text.</p>
 
           <div className="form-group">
-            <label className="form-label">Hero Background Image</label>
-            <div className="media-selector-row">
-              <div className="media-thumbnail-preview">
-                {formData.hero_media_url ? (
-                  <img src={formData.hero_media_url} alt="Hero Banner Preview" />
-                ) : (
-                  <div className="no-media-placeholder">Default Luxury Scenery</div>
-                )}
-              </div>
-              <div className="media-selector-actions">
-                <button
-                  type="button"
-                  className="btn btn-secondary-luxury"
-                  onClick={() => setIsMediaPickerOpen(true)}
-                >
-                  🖼 Choose Hero Image from Media Library
-                </button>
-                {formData.hero_media_id && (
-                  <button
-                    type="button"
-                    className="btn btn-text-danger"
-                    onClick={() => setFormData((prev) => ({ ...prev, hero_media_id: '', hero_media_url: '' }))}
-                  >
-                    Reset to Default
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="about-title" className="form-label">Page Main Heading</label>
+            <label htmlFor="about-title" className="form-label">Page Heading / Brand Name</label>
             <input
               id="about-title"
               type="text"
@@ -229,22 +156,11 @@ export default function AdminAboutPageManager() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="about-subtitle" className="form-label">Page Hero Subtitle</label>
-            <input
-              id="about-subtitle"
-              type="text"
-              className="form-input"
-              value={formData.subtitle}
-              onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-            />
-          </div>
-
-          <div className="form-group">
             <label htmlFor="about-content" className="form-label">Company Story & Narrative Content</label>
             <textarea
               id="about-content"
               className="form-textarea"
-              rows="8"
+              rows="12"
               placeholder="Describe the company heritage, foundation, bespoke safari services, chauffeur guides, and travel philosophy..."
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
@@ -321,15 +237,6 @@ export default function AdminAboutPageManager() {
           </div>
         </div>
       </div>
-
-      {/* Media Picker Modal */}
-      <MediaPickerModal
-        isOpen={isMediaPickerOpen}
-        onClose={() => setIsMediaPickerOpen(false)}
-        onSelect={handleMediaSelect}
-        selectedMediaId={formData.hero_media_id}
-        title="Select About Page Hero Image"
-      />
     </div>
   );
 }

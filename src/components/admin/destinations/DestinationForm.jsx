@@ -23,8 +23,6 @@ export default function DestinationForm({
   const [displayOrder, setDisplayOrder] = useState(initialData?.display_order ?? 0);
 
   // Content Fields
-  const [heroTitle, setHeroTitle] = useState(initialData?.hero_title || '');
-  const [heroSubtitle, setHeroSubtitle] = useState(initialData?.hero_subtitle || '');
   const [shortDescription, setShortDescription] = useState(initialData?.short_description || '');
   const [introHeading, setIntroHeading] = useState(initialData?.intro_heading || '');
   const [introLabel, setIntroLabel] = useState(initialData?.intro_label || '');
@@ -142,8 +140,8 @@ export default function DestinationForm({
       status,
       is_featured: isFeatured ? 1 : 0,
       display_order: parseInt(displayOrder, 10) || 0,
-      hero_title: heroTitle.trim() || null,
-      hero_subtitle: heroSubtitle.trim() || null,
+      hero_title: null,
+      hero_subtitle: null,
       short_description: shortDescription.trim() || null,
       intro_heading: introHeading.trim() || null,
       intro_label: introLabel.trim() || null,
@@ -200,7 +198,7 @@ export default function DestinationForm({
           className={`dest-tab-btn ${activeTab === 'content' ? 'active' : ''}`}
           onClick={() => setActiveTab('content')}
         >
-          2. Hero & Content
+          2. Content & Descriptions
         </button>
         <button
           type="button"
@@ -360,40 +358,10 @@ export default function DestinationForm({
         </div>
       )}
 
-      {/* TAB 2: Hero & Content */}
+      {/* TAB 2: Content & Descriptions */}
       {activeTab === 'content' && (
         <div className="dest-form-section-card">
-          <h3 className="dest-section-title">Headlines & Narrative Content</h3>
-
-          <div className="form-grid-2col">
-            <div className="form-group">
-              <label htmlFor="dest-hero-title" className="form-label">
-                Hero Title
-              </label>
-              <input
-                type="text"
-                id="dest-hero-title"
-                className="form-input"
-                value={heroTitle}
-                onChange={(e) => setHeroTitle(e.target.value)}
-                placeholder="e.g. Majestic Kenya: The Heart of the African Safari"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="dest-hero-subtitle" className="form-label">
-                Hero Subtitle
-              </label>
-              <input
-                type="text"
-                id="dest-hero-subtitle"
-                className="form-input"
-                value={heroSubtitle}
-                onChange={(e) => setHeroSubtitle(e.target.value)}
-                placeholder="e.g. Unrivaled wildlife spectacles and timeless savannahs"
-              />
-            </div>
-          </div>
+          <h3 className="dest-section-title">Narrative Content & Story</h3>
 
           <div className="form-group">
             <label htmlFor="dest-short-desc" className="form-label">
@@ -464,17 +432,17 @@ export default function DestinationForm({
           </p>
 
           <div className="dest-media-pickers-grid">
-            {/* 1. Featured Hero Image */}
+            {/* 1. Featured Image */}
             <div className="dest-media-picker-card">
-              <span className="media-picker-card-title">1. Featured Hero Image</span>
-              <span className="media-picker-card-desc">Main backdrop on destination catalog cards and page hero</span>
+              <span className="media-picker-card-title">1. Featured Image</span>
+              <span className="media-picker-card-desc">Main image on destination catalog cards and detail overview</span>
 
               <div className="dest-media-preview-box">
                 {featuredImage ? (
                   <div className="picked-media-view">
                     <img
                       src={getMediaUrl(featuredImage)}
-                      alt={featuredImage.alt_text || 'Featured Hero'}
+                      alt={featuredImage.alt_text || 'Featured'}
                       className="picked-media-img"
                     />
                     <div className="picked-media-info">
@@ -484,7 +452,7 @@ export default function DestinationForm({
                   </div>
                 ) : (
                   <div className="empty-media-box">
-                    <span>🖼️ No Hero Image Selected</span>
+                    <span>🖼️ No Image Selected</span>
                   </div>
                 )}
               </div>
@@ -495,7 +463,7 @@ export default function DestinationForm({
                   className="btn btn-outline btn-sm"
                   onClick={() => setPickerTarget('featured')}
                 >
-                  {featuredImage ? 'Change Hero Image' : 'Select Hero Image'}
+                  {featuredImage ? 'Change Featured Image' : 'Select Featured Image'}
                 </button>
                 {featuredImage && (
                   <button
@@ -835,7 +803,7 @@ export default function DestinationForm({
           }
           title={
             pickerTarget === 'featured'
-              ? 'Select Featured Hero Image'
+              ? 'Select Featured Image'
               : pickerTarget === 'intro'
               ? 'Select Intro Section Media'
               : 'Select OpenGraph Social Image'

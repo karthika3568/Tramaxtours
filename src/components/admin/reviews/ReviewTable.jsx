@@ -81,10 +81,10 @@ export default function ReviewTable({
                           src={getMediaUrl(clientPhoto)}
                           alt={review.customer_name}
                           className="review-customer-avatar-mini"
-                          style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #1226de', flexShrink: 0 }}
+                          style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #01aa90', flexShrink: 0 }}
                           onError={(e) => {
                             e.target.onerror = null;
-                            e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(review.customer_name || 'Guest')}&background=1226de&color=fff&size=72`;
+                            e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(review.customer_name || 'Guest')}&background=01aa90&color=fff&size=72`;
                           }}
                         />
                       ) : (
@@ -296,10 +296,10 @@ export default function ReviewTable({
                     src={getMediaUrl(clientPhoto)}
                     alt={review.customer_name}
                     className="review-customer-avatar-mini"
-                    style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #1226de', flexShrink: 0 }}
+                    style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #01aa90', flexShrink: 0 }}
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(review.customer_name || 'Guest')}&background=1226de&color=fff&size=72`;
+                      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(review.customer_name || 'Guest')}&background=01aa90&color=fff&size=72`;
                     }}
                   />
                 ) : (

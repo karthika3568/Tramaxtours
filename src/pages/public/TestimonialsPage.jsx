@@ -84,10 +84,10 @@ export default function TestimonialsPage() {
             style={{
               fontSize: '11px',
               fontWeight: '800',
-              color: '#1226de',
+              color: '#01aa90',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
-              background: 'rgba(18, 38, 222, 0.08)',
+              background: 'rgba(1, 170, 144, 0.08)',
               padding: '4px 14px',
               borderRadius: '9999px',
               display: 'inline-block',

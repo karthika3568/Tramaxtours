@@ -33,3 +33,4 @@ vendor/
 backend/uploads/*
 !backend/uploads/.gitkeep
 scratch/
+tests/screenshots/

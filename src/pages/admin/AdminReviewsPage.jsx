@@ -780,7 +780,7 @@ export default function AdminReviewsPage() {
                     height: '40px',
                     borderRadius: '50%',
                     objectFit: 'cover',
-                    border: '2px solid #1226de',
+                    border: '2px solid #01aa90',
                     flexShrink: 0,
                   }}
                 />
@@ -950,7 +950,7 @@ export default function AdminReviewsPage() {
                     height: '40px',
                     borderRadius: '50%',
                     objectFit: 'cover',
-                    border: '2px solid #1226de',
+                    border: '2px solid #01aa90',
                     flexShrink: 0,
                   }}
                 />

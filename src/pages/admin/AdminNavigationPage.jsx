@@ -163,7 +163,7 @@ export default function AdminNavigationPage() {
       {/* Live Interactive Navbar Preview */}
       <div className="visual-navbar-preview-card" style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', marginBottom: '28px' }}>
         <div className="preview-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 20px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-          <span className="preview-card-tag" style={{ fontWeight: 800, fontSize: '12px', letterSpacing: '0.05em', color: '#1226de' }}>LIVE NAVBAR VISUAL PREVIEW</span>
+          <span className="preview-card-tag" style={{ fontWeight: 800, fontSize: '12px', letterSpacing: '0.05em', color: '#01aa90' }}>LIVE NAVBAR VISUAL PREVIEW</span>
           <span className="preview-badge-status" style={{ fontSize: '12px', color: '#64748b' }}>● Live Site Navbar Simulation</span>
         </div>
 
@@ -173,7 +173,7 @@ export default function AdminNavigationPage() {
             {settings.logo_url ? (
               <img src={settings.logo_url} alt="Logo" className="mock-logo-img" style={{ maxHeight: '40px' }} />
             ) : (
-              <div className="mock-logo-symbol" style={{ fontWeight: 900, color: '#1226de', fontSize: '20px' }}>
+              <div className="mock-logo-symbol" style={{ fontWeight: 900, color: '#01aa90', fontSize: '20px' }}>
                 {settings.site_name}
               </div>
             )}
@@ -186,7 +186,7 @@ export default function AdminNavigationPage() {
                   key={item.id}
                   className="mock-nav-cta-pill"
                   style={{
-                    background: 'linear-gradient(135deg, #1226de 0%, #0a178c 100%)',
+                    background: 'linear-gradient(135deg, #01aa90 0%, #01806c 100%)',
                     color: '#ffffff',
                     padding: '8px 18px',
                     borderRadius: '9999px',

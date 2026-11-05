@@ -22,7 +22,7 @@ export default function TestimonialsSection() {
           if (reviewItems.length > 0) {
             const mapped = reviewItems.map((r) => {
               const rawImg = r.image || r.image_url || (r.media && r.media.length > 0 ? r.media[0] : null);
-              const avatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(r.customer_name || 'Guest')}&background=1226de&color=fff&size=128`;
+              const avatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(r.customer_name || 'Guest')}&background=01aa90&color=fff&size=128`;
               const mediaUrl = rawImg ? getMediaUrl(rawImg, avatarFallback) : avatarFallback;
               return {
                 id: r.id,
@@ -157,15 +157,15 @@ export default function TestimonialsSection() {
                         loading="lazy"
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.customer_name || 'Guest')}&background=1226de&color=fff&size=96`;
+                          e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(item.customer_name || 'Guest')}&background=01aa90&color=fff&size=96`;
                         }}
                         style={{
                           width: '48px',
                           height: '48px',
                           borderRadius: '50%',
                           objectFit: 'cover',
-                          border: '2px solid #1226de',
-                          boxShadow: '0 2px 8px rgba(18, 38, 222, 0.25)',
+                          border: '2px solid #01aa90',
+                          boxShadow: '0 2px 8px rgba(1, 170, 144, 0.25)',
                           flexShrink: 0,
                         }}
                       />

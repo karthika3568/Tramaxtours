@@ -96,6 +96,10 @@ class Request
      * @param mixed $default
      * @return mixed
      */
+    public static function getJsonBody(): array {
+        return self::getBody();
+    }
+
     public static function getHeader(string $headerName, mixed $default = null): mixed
     {
         $normalized = 'HTTP_' . strtoupper(str_replace('-', '_', $headerName));

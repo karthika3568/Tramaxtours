@@ -1,10 +1,92 @@
+import { useState, useEffect, useRef } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import tourService from '../../services/tourService';
+
+const DEFAULT_TOUR_CATEGORIES = [
+  { id: 1, name: 'City Sightseeing Tours', slug: 'city-sightseeing-tours', icon: '🏙️' },
+  { id: 2, name: 'Cultural & Heritage Tours', slug: 'cultural-heritage-tours', icon: '🏛️' },
+  { id: 7, name: 'Family Tours', slug: 'family-tours', icon: '👨‍👩‍👧‍👦' },
+  { id: 3, name: 'Guided Tours', slug: 'guided-tours', icon: '🧭' },
+  { id: 4, name: 'Historical Tours', slug: 'historical-tours', icon: '📜' },
+  { id: 5, name: 'One Day Tours', slug: 'one-day-tours', icon: '☀️' },
+  { id: 9, name: 'Pilgrimage / Temple Tours', slug: 'pilgrimage-temple-tours', icon: '🛕' },
+  { id: 6, name: 'Private Tours', slug: 'private-tours', icon: '🚘' },
+];
 
 export default function Navbar({ onLinkClick, className = '', isMobile = false }) {
   const { t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const [categories, setCategories] = useState(DEFAULT_TOUR_CATEGORIES);
+  const [isToursDropdownOpen, setIsToursDropdownOpen] = useState(false);
+  const toursDropdownRef = useRef(null);
+  const closeTimeoutRef = useRef(null);
+
+  // Fetch dynamic categories from API
+  useEffect(() => {
+    let isMounted = true;
+    async function loadCategories() {
+      try {
+        const res = await tourService.getCategories();
+        const items = Array.isArray(res) ? res : (res?.data || []);
+        if (isMounted && items.length > 0) {
+          const nonMed = items.filter(
+            (c) => !c.slug?.includes('medical') && !c.name?.toLowerCase().includes('medical')
+          );
+          if (nonMed.length > 0) {
+            setCategories(nonMed);
+          }
+        }
+      } catch {
+        // Fallback to defaults
+      }
+    }
+    loadCategories();
+    return () => {
+      isMounted = false;
+      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+    };
+  }, []);
+
+  // Handle outside click to close dropdown
+  useEffect(() => {
+    if (!isToursDropdownOpen) return;
+    const handleOutsideClick = (e) => {
+      if (toursDropdownRef.current && !toursDropdownRef.current.contains(e.target)) {
+        setIsToursDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [isToursDropdownOpen]);
+
+  const handleMouseEnter = () => {
+    if (isMobile) return;
+    if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+    setIsToursDropdownOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    if (isMobile) return;
+    closeTimeoutRef.current = setTimeout(() => {
+      setIsToursDropdownOpen(false);
+    }, 180);
+  };
+
+  const handleSelectCategory = (slugOrName, isMedical = false) => {
+    setIsToursDropdownOpen(false);
+    if (onLinkClick) onLinkClick();
+
+    if (!slugOrName) {
+      navigate('/tours');
+    } else if (isMedical) {
+      navigate('/tours?category=medical-tourism');
+    } else {
+      navigate(`/tours?category=${encodeURIComponent(slugOrName)}`);
+    }
+  };
 
   const handleTestimonialsClick = (e) => {
     if (onLinkClick) onLinkClick();
@@ -23,7 +105,7 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
   const navItems = [
     { label: t('nav_home', 'Home'), path: '/', end: true },
     { label: t('nav_destinations', 'Destinations'), path: '/destinations' },
-    { label: t('nav_tours', 'Tours'), path: '/tours' },
+    { label: t('nav_tours', 'Tours'), path: '/tours', isTours: true },
     { label: t('nav_testimonials', 'Testimonials'), path: '/#testimonials', isTestimonials: true },
     { label: t('nav_about', 'About'), path: '/about' },
     { label: t('nav_contact', 'Contact'), path: '/contact' },
@@ -35,44 +117,425 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
       className={`primary-navbar ${isMobile ? 'navbar-mobile' : 'navbar-desktop'} ${className}`.trim()}
       aria-label={isMobile ? 'Mobile Navigation' : 'Main Desktop Navigation'}
     >
-      <ul className="primary-nav-list" style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '8px' : '4px', margin: 0, padding: 0, listStyle: 'none' }}>
-        {navItems.map((item) => (
-          <li key={item.path} className="primary-nav-item">
-            {item.isTestimonials ? (
-              <a
-                href="/#testimonials"
-                onClick={handleTestimonialsClick}
-                className="primary-nav-link"
-                style={{ cursor: 'pointer' }}
+      <ul
+        className="primary-nav-list"
+        style={{
+          display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
+          alignItems: isMobile ? 'stretch' : 'center',
+          gap: isMobile ? '8px' : '4px',
+          margin: 0,
+          padding: 0,
+          listStyle: 'none',
+        }}
+      >
+        {navItems.map((item) => {
+          if (item.isTestimonials) {
+            return (
+              <li
+                key={item.path}
+                className="primary-nav-item"
+                style={{ flexShrink: 0, display: isMobile ? 'block' : 'inline-flex', alignItems: 'center' }}
               >
-                {item.label}
-              </a>
-            ) : item.isCta ? (
-              <NavLink
-                to={item.path}
-                onClick={onLinkClick}
-                className={({ isActive }) =>
-                  `nav-cta-pill ${isActive ? 'nav-cta-active' : ''}`
-                }
-                style={{
-                  background: 'linear-gradient(135deg, #1226de 0%, #0a178c 100%)',
-                  color: '#ffffff',
-                  padding: isMobile ? '14px 20px' : '9px 22px',
-                  borderRadius: '9999px',
-                  fontWeight: 800,
-                  fontSize: isMobile ? '18px' : '16px',
-                  textDecoration: 'none',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  boxShadow: '0 4px 16px rgba(18, 38, 222, 0.35)',
-                  transition: 'all 0.25s ease',
-                  marginLeft: isMobile ? '0' : '8px',
-                }}
+                <a
+                  href="/#testimonials"
+                  onClick={handleTestimonialsClick}
+                  className="primary-nav-link"
+                  style={{ cursor: 'pointer' }}
+                >
+                  {item.label}
+                </a>
+              </li>
+            );
+          }
+
+          if (item.isCta) {
+            return (
+              <li
+                key={item.path}
+                className="primary-nav-item"
+                style={{ flexShrink: 0, display: isMobile ? 'block' : 'inline-flex', alignItems: 'center' }}
               >
-                <span>✨ {item.label}</span>
-              </NavLink>
-            ) : (
+                <NavLink
+                  to={item.path}
+                  onClick={onLinkClick}
+                  className={({ isActive }) =>
+                    `nav-cta-pill ${isActive ? 'nav-cta-active' : ''}`
+                  }
+                  style={{
+                    background: 'linear-gradient(135deg, #01aa90 0%, #01806c 100%)',
+                    color: '#ffffff',
+                    padding: isMobile ? '12px 20px' : '8px 18px',
+                    borderRadius: '9999px',
+                    fontWeight: 700,
+                    fontSize: isMobile ? '16px' : '14.5px',
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                    lineHeight: '1.2',
+                    boxShadow: '0 4px 16px rgba(1, 170, 144, 0.35)',
+                    transition: 'all 0.25s ease',
+                    marginLeft: isMobile ? '0' : '6px',
+                  }}
+                >
+                  <span style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                    ✨ {item.label}
+                  </span>
+                </NavLink>
+              </li>
+            );
+          }
+
+          if (item.isTours) {
+            const isToursActive = location.pathname.startsWith('/tours');
+
+            if (isMobile) {
+              return (
+                <li key={item.path} className="primary-nav-item" style={{ width: '100%' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', width: '100%', position: 'relative' }}>
+                    <NavLink
+                      to="/tours"
+                      onClick={() => {
+                        if (onLinkClick) onLinkClick();
+                      }}
+                      className={() =>
+                        `primary-nav-link ${isToursActive ? 'nav-link-active' : ''}`
+                      }
+                      style={{ flex: 1, paddingRight: '48px' }}
+                    >
+                      {item.label}
+                    </NavLink>
+                    <button
+                      type="button"
+                      aria-label="Toggle Tours Submenu"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsToursDropdownOpen((prev) => !prev);
+                      }}
+                      style={{
+                        position: 'absolute',
+                        right: '10px',
+                        background: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '10px',
+                        color: isToursActive ? '#ffffff' : '#64748b',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transform: isToursDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s ease',
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* Mobile Tours Submenu */}
+                  {isToursDropdownOpen && (
+                    <div
+                      style={{
+                        padding: '8px 0 8px 14px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                        borderLeft: '2px solid #01aa90',
+                        marginLeft: '16px',
+                        marginTop: '6px',
+                        marginBottom: '6px',
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => handleSelectCategory('')}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '10px 12px',
+                          border: 'none',
+                          background: 'transparent',
+                          color: '#1e293b',
+                          fontSize: '15px',
+                          fontWeight: 700,
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <span>🌟</span>
+                        <span>All Tours</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleSelectCategory('medical-tourism', true)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '10px 12px',
+                          border: '1px solid #ccfbf1',
+                          background: '#f0fdfa',
+                          borderRadius: '8px',
+                          color: '#0f766e',
+                          fontSize: '15px',
+                          fontWeight: 800,
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <span>🩺</span>
+                        <span>Medical Tour</span>
+                        <span style={{ fontSize: '10px', background: '#01aa90', color: '#ffffff', padding: '1px 6px', borderRadius: '4px', marginLeft: 'auto' }}>
+                          Special
+                        </span>
+                      </button>
+
+                      {categories.map((cat) => {
+                        const catName = cat.name || cat.slug;
+                        const icon = cat.icon || '📍';
+                        return (
+                          <button
+                            key={cat.id || cat.slug}
+                            type="button"
+                            onClick={() => handleSelectCategory(catName)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                              padding: '8px 12px',
+                              border: 'none',
+                              background: 'transparent',
+                              color: '#475569',
+                              fontSize: '14.5px',
+                              fontWeight: 600,
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <span>{icon}</span>
+                            <span>{catName}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </li>
+              );
+            }
+
+            // Desktop View with Dropdown Popover
+            return (
+              <li
+                key={item.path}
+                className="primary-nav-item nav-item-tours-dropdown"
+                ref={toursDropdownRef}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', flexShrink: 0 }}
+              >
+                <div style={{ display: 'inline-flex', alignItems: 'center', position: 'relative' }}>
+                  <NavLink
+                    to="/tours"
+                    onClick={() => {
+                      if (!isMobile && onLinkClick) onLinkClick();
+                    }}
+                    className={() => `primary-nav-link ${isToursActive ? 'nav-link-active' : ''}`}
+                    style={{ paddingRight: '26px' }}
+                  >
+                    {item.label}
+                  </NavLink>
+                  <button
+                    type="button"
+                    aria-label="Toggle Tours Dropdown"
+                    aria-expanded={isToursDropdownOpen}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsToursDropdownOpen((prev) => !prev);
+                    }}
+                    style={{
+                      position: 'absolute',
+                      right: '8px',
+                      background: 'transparent',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '3px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: isToursActive ? '#ffffff' : '#64748b',
+                      transform: isToursDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                      transition: 'transform 0.2s ease, color 0.2s ease',
+                    }}
+                  >
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Tours Dropdown Menu (Desktop) */}
+                {isToursDropdownOpen && (
+                  <div
+                    className="nav-tours-dropdown-menu"
+                    style={{
+                      position: 'absolute',
+                      top: 'calc(100% + 8px)',
+                      left: '0',
+                      minWidth: '290px',
+                      backgroundColor: '#ffffff',
+                      borderRadius: '16px',
+                      boxShadow: '0 20px 40px -10px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(226, 232, 240, 0.9)',
+                      padding: '10px',
+                      zIndex: 1100,
+                      animation: 'navPopoverFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                    }}
+                  >
+                    {/* All Tours Option */}
+                    <button
+                      type="button"
+                      onClick={() => handleSelectCategory('')}
+                      className="nav-dropdown-item-btn"
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        padding: '10px 12px',
+                        border: 'none',
+                        background: 'transparent',
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: 700,
+                        color: '#0f172a',
+                        textAlign: 'left',
+                        transition: 'background 0.15s ease, color 0.15s ease',
+                      }}
+                    >
+                      <span style={{ fontSize: '17px' }}>🌟</span>
+                      <div style={{ flex: 1 }}>
+                        <div>All Tours</div>
+                        <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                          Browse all available tour packages
+                        </div>
+                      </div>
+                    </button>
+
+                    {/* Main Featured: Medical Tour */}
+                    <button
+                      type="button"
+                      onClick={() => handleSelectCategory('medical-tourism', true)}
+                      className="nav-dropdown-item-btn nav-dropdown-item-medical"
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        padding: '10px 12px',
+                        marginTop: '4px',
+                        border: '1px solid #ccfbf1',
+                        background: 'linear-gradient(135deg, rgba(1, 170, 144, 0.08) 0%, rgba(204, 251, 241, 0.3) 100%)',
+                        borderRadius: '12px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: 800,
+                        color: '#0f766e',
+                        textAlign: 'left',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      <span style={{ fontSize: '18px' }}>🩺</span>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span>Medical Tour</span>
+                          <span
+                            style={{
+                              fontSize: '10px',
+                              fontWeight: 800,
+                              background: '#01aa90',
+                              color: '#ffffff',
+                              padding: '1px 6px',
+                              borderRadius: '6px',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.04em',
+                            }}
+                          >
+                            Special
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#0f766e', opacity: 0.85, fontWeight: 500 }}>
+                          Health checks, MRI scans &amp; biomarkers
+                        </div>
+                      </div>
+                    </button>
+
+                    <div style={{ height: '1px', backgroundColor: '#e2e8f0', margin: '8px 4px' }} />
+
+                    <div
+                      style={{
+                        padding: '4px 10px',
+                        fontSize: '11px',
+                        fontWeight: 800,
+                        color: '#94a3b8',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
+                      Tour Types
+                    </div>
+
+                    {/* Dynamic Tour Categories List */}
+                    <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
+                      {categories.map((cat) => {
+                        const catName = cat.name || cat.slug;
+                        const icon = cat.icon || '📍';
+                        return (
+                          <button
+                            key={cat.id || cat.slug}
+                            type="button"
+                            onClick={() => handleSelectCategory(catName)}
+                            className="nav-dropdown-item-btn"
+                            style={{
+                              width: '100%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '10px',
+                              padding: '8px 12px',
+                              border: 'none',
+                              background: 'transparent',
+                              borderRadius: '8px',
+                              cursor: 'pointer',
+                              fontSize: '13.5px',
+                              fontWeight: 600,
+                              color: '#334155',
+                              textAlign: 'left',
+                              transition: 'background 0.15s ease, color 0.15s ease',
+                            }}
+                          >
+                            <span style={{ fontSize: '15px' }}>{icon}</span>
+                            <span style={{ flex: 1 }}>{catName}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </li>
+            );
+          }
+
+          return (
+            <li
+              key={item.path}
+              className="primary-nav-item"
+              style={{ flexShrink: 0, display: isMobile ? 'block' : 'inline-flex', alignItems: 'center' }}
+            >
               <NavLink
                 to={item.path}
                 end={item.end}
@@ -83,11 +546,10 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
               >
                 {item.label}
               </NavLink>
-            )}
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );
 }
-

@@ -13,13 +13,21 @@ export default function ScrollToTop() {
   useEffect(() => {
     // If navigating to an anchor hash, smooth scroll to that element
     if (hash) {
-      const el = document.querySelector(hash);
-      if (el) {
-        setTimeout(() => {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 80);
+      try {
+        const id = decodeURIComponent(hash.replace(/^#/, ''));
+        // Ignore hash route paths (e.g. #/finance) or empty IDs
+        if (id && !id.startsWith('/')) {
+          const el = document.getElementById(id) || document.querySelector(hash);
+          if (el) {
+            setTimeout(() => {
+              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 80);
+            return;
+          }
+        }
+      } catch {
+        // Fallback silently if hash contains invalid selector characters
       }
-      return;
     }
 
     // Otherwise, immediately scroll to top of the page on route change

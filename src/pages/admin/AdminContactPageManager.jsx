@@ -16,8 +16,6 @@ export default function AdminContactPageManager() {
     contact_address: 'Chennai, Tamil Nadu, India',
     contact_business_hours: 'Monday - Sunday: 08:00 AM - 09:00 PM IST',
     contact_person: 'P. Kishore',
-    contact_hero_title: 'Contact Us & Plan Your Journey',
-    contact_hero_subtitle: 'Get in touch with Wonderer South India specialists for tailor-made itineraries, tour inquiries, and private chauffeur guides.',
   });
 
   useEffect(() => {
@@ -42,8 +40,6 @@ export default function AdminContactPageManager() {
           contact_address: flat.contact_address || prev.contact_address,
           contact_business_hours: flat.contact_business_hours || prev.contact_business_hours,
           contact_person: flat.contact_person || prev.contact_person,
-          contact_hero_title: flat.contact_hero_title || prev.contact_hero_title,
-          contact_hero_subtitle: flat.contact_hero_subtitle || prev.contact_hero_subtitle,
         }));
       } catch (err) {
         toast.error(err.message || 'Failed to load contact settings');

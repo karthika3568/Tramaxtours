@@ -205,14 +205,14 @@ export default function UserProfilePage() {
                 width: '72px',
                 height: '72px',
                 borderRadius: '50%',
-                background: 'linear-gradient(135deg, #1226de 0%, #0a178c 100%)',
+                background: 'linear-gradient(135deg, #01aa90 0%, #01806c 100%)',
                 color: '#ffffff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: '28px',
                 fontWeight: '800',
-                boxShadow: '0 4px 12px rgba(18, 38, 222, 0.3)',
+                boxShadow: '0 4px 12px rgba(1, 170, 144, 0.3)',
               }}
             >
               {user.name ? user.name.charAt(0).toUpperCase() : '👤'}
@@ -224,13 +224,13 @@ export default function UserProfilePage() {
                 </h1>
                 <span
                   style={{
-                    background: 'rgba(18, 38, 222, 0.08)',
-                    color: '#1226de',
+                    background: 'rgba(1, 170, 144, 0.08)',
+                    color: '#01aa90',
                     fontSize: '12px',
                     fontWeight: '700',
                     padding: '3px 10px',
                     borderRadius: '9999px',
-                    border: '1px solid rgba(18, 38, 222, 0.2)',
+                    border: '1px solid rgba(1, 170, 144, 0.2)',
                   }}
                 >
                   Verified Traveler
@@ -282,7 +282,7 @@ export default function UserProfilePage() {
                   onClick={() => setFilterStatus(st)}
                   style={{
                     border: 'none',
-                    background: filterStatus === st ? '#1226de' : 'transparent',
+                    background: filterStatus === st ? '#01aa90' : 'transparent',
                     color: filterStatus === st ? '#ffffff' : '#475569',
                     fontSize: '12.5px',
                     fontWeight: '700',
@@ -336,7 +336,7 @@ export default function UserProfilePage() {
                 const currency = b.currency === 'EUR' ? '€' : b.currency === 'INR' ? '₹' : (b.currency || '₹');
 
                 let statusBadgeStyle = { background: '#fef3c7', color: '#d97706', border: '1px solid #fde68a' };
-                if (status === 'confirmed') statusBadgeStyle = { background: 'rgba(18, 38, 222, 0.08)', color: '#1226de', border: '1px solid rgba(18, 38, 222, 0.2)' };
+                if (status === 'confirmed') statusBadgeStyle = { background: 'rgba(1, 170, 144, 0.08)', color: '#01aa90', border: '1px solid rgba(1, 170, 144, 0.2)' };
                 if (status === 'completed') statusBadgeStyle = { background: '#e0e7ff', color: '#4338ca', border: '1px solid #c7d2fe' };
                 if (status === 'cancelled') statusBadgeStyle = { background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5' };
 
@@ -383,7 +383,7 @@ export default function UserProfilePage() {
                     {/* Booking Details */}
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-                        <span style={{ fontSize: '13px', fontWeight: '800', color: '#1226de' }}>
+                        <span style={{ fontSize: '13px', fontWeight: '800', color: '#01aa90' }}>
                           {orderRef}
                         </span>
                         <span
@@ -485,7 +485,7 @@ export default function UserProfilePage() {
         >
           <div className="receipt-print-container" style={{ padding: '20px', color: '#0B1329' }}>
             {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #1226de', paddingBottom: '16px', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #01aa90', paddingBottom: '16px', marginBottom: '20px' }}>
               <div>
                 <img src="/logo.png" alt="Wonderer South India" style={{ height: '48px', marginBottom: '6px', objectFit: 'contain' }} />
                 <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
@@ -493,7 +493,7 @@ export default function UserProfilePage() {
                 </p>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <h3 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#1226de' }}>
+                <h3 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#01aa90' }}>
                   OFFICIAL BOOKING RECEIPT
                 </h3>
                 <p style={{ margin: '4px 0 0', fontSize: '13px', fontWeight: '700' }}>
@@ -506,13 +506,13 @@ export default function UserProfilePage() {
             {/* Guest & Itinerary Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px', background: '#f8fafc', padding: '16px', borderRadius: '12px' }}>
               <div>
-                <strong style={{ fontSize: '13px', color: '#1226de' }}>TRAVELER DETAILS:</strong>
+                <strong style={{ fontSize: '13px', color: '#01aa90' }}>TRAVELER DETAILS:</strong>
                 <p style={{ margin: '4px 0 0', fontSize: '14px', fontWeight: '700' }}>{user.name}</p>
                 <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>Email: {user.email}</p>
                 <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>Phone: {user.phone || selectedReceiptBooking.phone || contactPhone}</p>
               </div>
               <div>
-                <strong style={{ fontSize: '13px', color: '#1226de' }}>TOUR RESERVATION:</strong>
+                <strong style={{ fontSize: '13px', color: '#01aa90' }}>TOUR RESERVATION:</strong>
                 <p style={{ margin: '4px 0 0', fontSize: '14px', fontWeight: '700' }}>{selectedReceiptBooking.tour?.title || 'South India Tour'}</p>
                 <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>Date: {selectedReceiptBooking.booking_date || selectedReceiptBooking.travel_date}</p>
                 <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>Status: {selectedReceiptBooking.status?.toUpperCase()}</p>

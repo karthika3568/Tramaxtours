@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { getMediaUrl } from '../../../utils/media';
 
 const SYSTEM_PAGE_SLUGS = ['about-us', 'terms-conditions', 'refund-policy', 'privacy-policy'];
 
@@ -26,9 +25,6 @@ export default function PageTable({
         <table className="admin-data-table" aria-label="CMS Pages">
           <thead>
             <tr>
-              <th scope="col" style={{ width: '70px' }}>
-                Hero
-              </th>
               <th scope="col">Page Title & Slug</th>
               <th scope="col" style={{ width: '120px' }}>
                 Status
@@ -44,7 +40,6 @@ export default function PageTable({
           </thead>
           <tbody>
             {pages.map((page) => {
-              const heroThumb = getMediaUrl(page.hero_media);
               const isSystemPage = SYSTEM_PAGE_SLUGS.includes(page.slug);
               const isPublished = page.status === 'published';
               const isLoading = actionLoadingId === page.id;
@@ -52,24 +47,6 @@ export default function PageTable({
 
               return (
                 <tr key={page.id} className="admin-table-row">
-                  {/* Hero Thumbnail */}
-                  <td className="dest-table-thumb-cell">
-                    <div className="table-row-thumb">
-                      {heroThumb ? (
-                        <img
-                          src={heroThumb}
-                          alt={page.title}
-                          loading="lazy"
-                          className="table-thumb-img"
-                        />
-                      ) : (
-                        <div className="table-thumb-fallback">
-                          <span aria-hidden="true">📄</span>
-                        </div>
-                      )}
-                    </div>
-                  </td>
-
                   {/* Title & Slug */}
                   <td className="dest-table-name-cell">
                     <div className="dest-table-name-wrapper">
@@ -215,7 +192,6 @@ export default function PageTable({
       {/* Mobile Card List View */}
       <div className="admin-mobile-card-list">
         {pages.map((page) => {
-          const heroThumb = getMediaUrl(page.hero_media);
           const isSystemPage = SYSTEM_PAGE_SLUGS.includes(page.slug);
           const isPublished = page.status === 'published';
           const isLoading = actionLoadingId === page.id;
@@ -225,11 +201,7 @@ export default function PageTable({
             <div key={page.id} className="admin-mobile-card">
               <div className="admin-mobile-card-header">
                 <div className="admin-mobile-card-thumb">
-                  {heroThumb ? (
-                    <img src={heroThumb} alt={page.title} loading="lazy" />
-                  ) : (
-                    <span>📄</span>
-                  )}
+                  <span>📄</span>
                 </div>
 
                 <div className="admin-mobile-card-title-group">

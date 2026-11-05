@@ -17,6 +17,7 @@ use App\Controllers\RoleController;
 use App\Controllers\SiteSettingController;
 use App\Controllers\SocialLinkController;
 use App\Controllers\TourController;
+use App\Controllers\MedicalTripController;
 use App\Controllers\UserController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\PermissionMiddleware;
@@ -142,6 +143,46 @@ $router->group('/api/v1', function (Router $router) {
 
     // Tour Categories Directory (Public / Authenticated)
     $router->get('/tour-categories', [TourController::class, 'categories']);
+
+    // Public Medical Trips Routes
+    $router->group('/medical-trips', function (Router $router) {
+        $router->get('', [MedicalTripController::class, 'index']);
+        $router->get('/{idOrSlug}', [MedicalTripController::class, 'show']);
+        $router->post('/{id}/book', [MedicalTripController::class, 'book']);
+        $router->post('/book', [MedicalTripController::class, 'book']);
+    });
+
+    // Admin Medical Trips Routes
+    $router->group('/admin/medical-trips', function (Router $router) {
+        $router->get('', [MedicalTripController::class, 'adminIndex'], [new PermissionMiddleware('tours.view')]);
+        $router->post('', [MedicalTripController::class, 'store'], [new PermissionMiddleware('tours.create')]);
+        $router->get('/{id}', [MedicalTripController::class, 'adminShow'], [new PermissionMiddleware('tours.view')]);
+        $router->put('/{id}', [MedicalTripController::class, 'update'], [new PermissionMiddleware('tours.edit')]);
+        $router->patch('/{id}', [MedicalTripController::class, 'update'], [new PermissionMiddleware('tours.edit')]);
+        $router->delete('/{id}', [MedicalTripController::class, 'destroy'], [new PermissionMiddleware('tours.delete')]);
+        $router->post('/{id}/publish', [MedicalTripController::class, 'togglePublish'], [new PermissionMiddleware('tours.publish')]);
+        $router->post('/{id}/activate', [MedicalTripController::class, 'toggleActive'], [new PermissionMiddleware('tours.edit')]);
+
+        // Assessments sub-routes
+        $router->post('/{id}/assessments', [MedicalTripController::class, 'addAssessment'], [new PermissionMiddleware('tours.edit')]);
+        $router->put('/assessments/{asmtId}', [MedicalTripController::class, 'updateAssessment'], [new PermissionMiddleware('tours.edit')]);
+        $router->delete('/assessments/{asmtId}', [MedicalTripController::class, 'deleteAssessment'], [new PermissionMiddleware('tours.edit')]);
+        $router->post('/{id}/assessments/reorder', [MedicalTripController::class, 'reorderAssessments'], [new PermissionMiddleware('tours.edit')]);
+
+        // Tests sub-routes
+        $router->post('/assessments/{asmtId}/tests', [MedicalTripController::class, 'addTest'], [new PermissionMiddleware('tours.edit')]);
+        $router->put('/tests/{testId}', [MedicalTripController::class, 'updateTest'], [new PermissionMiddleware('tours.edit')]);
+        $router->delete('/tests/{testId}', [MedicalTripController::class, 'deleteTest'], [new PermissionMiddleware('tours.edit')]);
+
+        // Diseases sub-routes
+        $router->post('/{id}/diseases', [MedicalTripController::class, 'addDisease'], [new PermissionMiddleware('tours.edit')]);
+        $router->put('/diseases/{diseaseId}', [MedicalTripController::class, 'updateDisease'], [new PermissionMiddleware('tours.edit')]);
+        $router->delete('/diseases/{diseaseId}', [MedicalTripController::class, 'deleteDisease'], [new PermissionMiddleware('tours.edit')]);
+
+        // Bookings management sub-routes
+        $router->get('/bookings/all', [MedicalTripController::class, 'bookings'], [new PermissionMiddleware('bookings.view')]);
+        $router->post('/bookings/{id}/status', [MedicalTripController::class, 'updateBookingStatus'], [new PermissionMiddleware('bookings.edit_status')]);
+    });
 
 
 

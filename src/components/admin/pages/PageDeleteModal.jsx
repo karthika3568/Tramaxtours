@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import Modal from '../../ui/Modal';
-import { getMediaUrl } from '../../../utils/media';
 
 const SYSTEM_PAGE_SLUGS = ['about-us', 'terms-conditions', 'refund-policy', 'privacy-policy'];
 
@@ -16,7 +15,6 @@ export default function PageDeleteModal({
   if (!page) return null;
 
   const isSystemPage = SYSTEM_PAGE_SLUGS.includes(page.slug);
-  const heroThumb = getMediaUrl(page.hero_media);
 
   const handleConfirm = () => {
     onConfirmDelete(page.id, forceDelete);
@@ -41,11 +39,7 @@ export default function PageDeleteModal({
 
         <div className="dest-delete-target-card">
           <div className="dest-delete-mini-thumb">
-            {heroThumb ? (
-              <img src={heroThumb} alt={page.title} />
-            ) : (
-              <span>📄</span>
-            )}
+            <span>📄</span>
           </div>
           <div className="dest-delete-target-info">
             <strong className="dest-target-name">{page.title}</strong>

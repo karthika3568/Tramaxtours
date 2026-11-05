@@ -292,233 +292,166 @@ export default function AdminInquiriesPage() {
     }
   };
 
+  const getInitials = (name) => {
+    if (!name) return 'U';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      let p1 = parts[0];
+      let p2 = parts[1];
+      if (['dr.', 'dr', 'mr.', 'mr', 'mrs.', 'mrs', 'ms.', 'ms'].includes(p1.toLowerCase()) && parts.length > 2) {
+        p1 = parts[1];
+        p2 = parts[2];
+      }
+      return (p1[0] + p2[0]).toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  };
+
+  const getInterestIcon = (title = '', destination = '') => {
+    const combined = (String(title || '') + ' ' + String(destination || '')).toLowerCase();
+    if (combined.includes('temple') || combined.includes('heritage') || combined.includes('tamil') || combined.includes('madurai') || combined.includes('kanyakumari')) {
+      return '🛕';
+    }
+    if (combined.includes('backwater') || combined.includes('kerala') || combined.includes('munnar') || combined.includes('beach') || combined.includes('alleppey') || combined.includes('cochin')) {
+      return '🌴';
+    }
+    if (combined.includes('safari') || combined.includes('wildlife') || combined.includes('forest') || combined.includes('periyar')) {
+      return '🐘';
+    }
+    return '🗺️';
+  };
+
+  const getStatusClass = (st) => {
+    switch (st) {
+      case 'new': return 'pill-new';
+      case 'quoted':
+      case 'quotation_sent': return 'pill-quoted';
+      case 'confirmed': return 'pill-confirmed';
+      case 'contacted': return 'pill-contacted';
+      case 'planning': return 'pill-planning';
+      case 'closed': return 'pill-closed';
+      case 'cancelled': return 'pill-cancelled';
+      default: return 'pill-new';
+    }
+  };
+
+  const getStatusLabel = (st) => {
+    switch (st) {
+      case 'new': return 'New';
+      case 'quotation_sent': return 'Quoted';
+      case 'confirmed': return 'Confirmed';
+      case 'contacted': return 'Contacted';
+      case 'planning': return 'Planning';
+      case 'closed': return 'Closed';
+      case 'cancelled': return 'Cancelled';
+      default: return st ? st.charAt(0).toUpperCase() + st.slice(1).replace('_', ' ') : 'New';
+    }
+  };
+
   return (
-    <div className="admin-inquiries-page space-y-6 pb-16">
-      {/* 1. Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">📩</span>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Customer Inquiries &amp; Leads</h1>
+    <div className="admin-inquiries-page pb-16">
+      {/* 1. Modern Page Header matching mockup */}
+      <div className="admin-page-hero-header">
+        <div className="admin-page-hero-info">
+          <div className="admin-page-hero-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+            </svg>
           </div>
-          <p className="text-sm text-slate-500 mt-1">
-            Real-time inquiries received from website contact forms, tour pages, and custom itinerary requests.
-          </p>
+          <div>
+            <h1 className="admin-page-hero-title">Trip Requests</h1>
+            <p className="admin-page-hero-subtitle">Manage and track all trip booking requests</p>
+          </div>
         </div>
 
         <button
           type="button"
           onClick={() => setReloadTrigger((p) => p + 1)}
-          className="btn btn-outline btn-sm self-start md:self-auto flex items-center gap-1.5"
+          className="admin-page-btn"
           title="Refresh Inquiries"
+          style={{ height: '38px', padding: '0 14px', borderRadius: '10px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
         >
-          <span>🔄</span> Refresh Leads
+          <span>🔄</span> Refresh
         </button>
       </div>
 
-      {/* 2. Metric KPI Cards (Exact 7 Requirements: Total, New, Contacted, Planning, Quotation Sent, Confirmed, Closed) */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-        <div
-          className={`p-3.5 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
-            statusFilter === 'all' ? 'ring-2 ring-teal-500 border-teal-500' : 'border-slate-200 hover:border-slate-300'
-          }`}
-          onClick={() => {
-            setStatusFilter('all');
+      {/* 2. Single Horizontal Filter Card matching mockup */}
+      <div className="admin-modern-filter-card">
+        <select
+          className="admin-modern-select"
+          value={statusFilter}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
             setPage(1);
           }}
+          aria-label="Filter by status"
         >
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Total</span>
-          <strong className="text-xl font-black text-slate-900 mt-0.5 block">
-            {loadingStats ? '...' : stats.total}
-          </strong>
-        </div>
+          <option value="all">All Statuses</option>
+          <option value="new">New</option>
+          <option value="contacted">Contacted</option>
+          <option value="planning">Planning</option>
+          <option value="quotation_sent">Quoted</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="closed">Closed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
 
-        <div
-          className={`p-3.5 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
-            statusFilter === 'new' ? 'ring-2 ring-amber-500 border-amber-500' : 'border-slate-200 hover:border-slate-300'
-          }`}
-          onClick={() => {
-            setStatusFilter('new');
+        <select
+          className="admin-modern-select"
+          value={destFilter}
+          onChange={(e) => {
+            setDestFilter(e.target.value);
             setPage(1);
           }}
+          aria-label="Filter by destination"
         >
-          <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wider block">● New</span>
-          <strong className="text-xl font-black text-amber-600 mt-0.5 block">
-            {loadingStats ? '...' : stats.new}
-          </strong>
-        </div>
+          <option value="all">All Destinations</option>
+          {destinationsList.map((d) => (
+            <option key={d.id} value={d.id}>
+              {d.name}
+            </option>
+          ))}
+        </select>
 
-        <div
-          className={`p-3.5 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
-            statusFilter === 'contacted' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-200 hover:border-slate-300'
-          }`}
-          onClick={() => {
-            setStatusFilter('contacted');
-            setPage(1);
-          }}
-        >
-          <span className="text-[11px] font-bold text-blue-700 uppercase tracking-wider block">💬 Contacted</span>
-          <strong className="text-xl font-black text-blue-600 mt-0.5 block">
-            {loadingStats ? '...' : stats.contacted}
-          </strong>
-        </div>
-
-        <div
-          className={`p-3.5 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
-            statusFilter === 'planning' ? 'ring-2 ring-purple-500 border-purple-500' : 'border-slate-200 hover:border-slate-300'
-          }`}
-          onClick={() => {
-            setStatusFilter('planning');
-            setPage(1);
-          }}
-        >
-          <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider block">🗺️ Planning</span>
-          <strong className="text-xl font-black text-purple-600 mt-0.5 block">
-            {loadingStats ? '...' : (stats.planning || 0)}
-          </strong>
-        </div>
-
-        <div
-          className={`p-3.5 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
-            statusFilter === 'quotation_sent' ? 'ring-2 ring-indigo-500 border-indigo-500' : 'border-slate-200 hover:border-slate-300'
-          }`}
-          onClick={() => {
-            setStatusFilter('quotation_sent');
-            setPage(1);
-          }}
-        >
-          <span className="text-[11px] font-bold text-indigo-700 uppercase tracking-wider block">📜 Quoted</span>
-          <strong className="text-xl font-black text-indigo-600 mt-0.5 block">
-            {loadingStats ? '...' : (stats.quotation_sent || 0)}
-          </strong>
-        </div>
-
-        <div
-          className={`p-3.5 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
-            statusFilter === 'confirmed' ? 'ring-2 ring-emerald-500 border-emerald-500' : 'border-slate-200 hover:border-slate-300'
-          }`}
-          onClick={() => {
-            setStatusFilter('confirmed');
-            setPage(1);
-          }}
-        >
-          <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider block">✅ Confirmed</span>
-          <strong className="text-xl font-black text-emerald-600 mt-0.5 block">
-            {loadingStats ? '...' : (stats.confirmed || 0)}
-          </strong>
-        </div>
-
-        <div
-          className={`p-3.5 rounded-xl border bg-white shadow-sm cursor-pointer transition-all ${
-            statusFilter === 'closed' ? 'ring-2 ring-slate-500 border-slate-500' : 'border-slate-200 hover:border-slate-300'
-          }`}
-          onClick={() => {
-            setStatusFilter('closed');
-            setPage(1);
-          }}
-        >
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Closed</span>
-          <strong className="text-xl font-black text-slate-700 mt-0.5 block">
-            {loadingStats ? '...' : stats.closed}
-          </strong>
-        </div>
-      </div>
-
-      {/* 3. Search & Filter Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center gap-3">
-        <div className="relative flex-1 w-full">
-          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+        <div className="admin-modern-search-box">
+          <span className="search-icon" aria-hidden="true">🔍</span>
           <input
             type="text"
-            className="form-input w-full pl-9 pr-4 py-2 text-sm rounded-lg border-slate-300"
-            placeholder="Search by customer name, email, phone number, or message text..."
+            className="admin-modern-search-input"
+            placeholder="Search by customer name, email, phone number..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            aria-label="Search trip requests"
           />
           {search && (
             <button
               type="button"
               onClick={() => setSearch('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600"
+              className="search-clear-btn"
+              aria-label="Clear search"
             >
               ✕
             </button>
           )}
         </div>
-
-        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-          <input
-            type="date"
-            className="form-input text-xs py-2 px-2.5 rounded-lg border-slate-300 w-full sm:w-auto"
-            title="Filter by arrival date from"
-            value={dateFrom}
-            onChange={(e) => {
-              setDateFrom(e.target.value);
-              setPage(1);
-            }}
-          />
-          <input
-            type="date"
-            className="form-input text-xs py-2 px-2.5 rounded-lg border-slate-300 w-full sm:w-auto"
-            title="Filter by arrival date to"
-            value={dateTo}
-            onChange={(e) => {
-              setDateTo(e.target.value);
-              setPage(1);
-            }}
-          />
-
-          <select
-            className="form-select text-xs py-2 px-3 rounded-lg border-slate-300 w-full sm:w-36"
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setPage(1);
-            }}
-          >
-            <option value="all">All Statuses</option>
-            <option value="new">● New</option>
-            <option value="contacted">💬 Contacted</option>
-            <option value="planning">🗺️ Planning</option>
-            <option value="quotation_sent">📜 Quotation Sent</option>
-            <option value="confirmed">✅ Confirmed</option>
-            <option value="closed">Closed</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-
-          <select
-            className="form-select text-xs py-2 px-3 rounded-lg border-slate-300 w-full sm:w-40"
-            value={destFilter}
-            onChange={(e) => {
-              setDestFilter(e.target.value);
-              setPage(1);
-            }}
-          >
-            <option value="all">All Destinations</option>
-            {destinationsList.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.name}
-              </option>
-            ))}
-          </select>
-        </div>
       </div>
 
-      {/* 4. Inquiries Table & List */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      {/* 3. Modern Inquiries Table Card matching mockup */}
+      <div className="admin-modern-table-card">
         {loadingInquiries ? (
-          <div className="p-16">
+          <div style={{ padding: '64px 20px', textAlign: 'center' }}>
             <Loading message="Loading customer inquiries..." />
           </div>
         ) : error ? (
-          <div className="p-8">
+          <div style={{ padding: '32px 20px' }}>
             <ErrorState title="Error Loading Inquiries" message={error} onRetry={() => setReloadTrigger((p) => p + 1)} />
           </div>
         ) : inquiries.length === 0 ? (
-          <div className="p-16 text-center">
-            <span className="text-4xl block mb-2">📭</span>
-            <h3 className="text-lg font-bold text-slate-800">No Trip Requests Found</h3>
-            <p className="text-sm text-slate-500 mt-1 max-w-md mx-auto">
+          <div style={{ padding: '64px 20px', textAlign: 'center' }}>
+            <span style={{ fontSize: '36px', display: 'block', marginBottom: '8px' }}>📭</span>
+            <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#1e293b' }}>No Trip Requests Found</h3>
+            <p style={{ fontSize: '13.5px', color: '#64748b', marginTop: '4px' }}>
               {debouncedSearch || statusFilter !== 'all' || destFilter !== 'all' || dateFrom || dateTo
                 ? 'No trip requests match your filter criteria. Try resetting the filters.'
                 : 'No customer trip requests have been submitted yet.'}
@@ -526,117 +459,107 @@ export default function AdminInquiriesPage() {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+            <div className="table-responsive">
+              <table className="admin-modern-table" aria-label="Trip Requests List">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200 text-[12px] font-bold text-slate-600 uppercase tracking-wider">
-                    <th className="py-3.5 px-4">Ref #</th>
-                    <th className="py-3.5 px-4">Customer Details</th>
-                    <th className="py-3.5 px-4">Interest / Tour</th>
-                    <th className="py-3.5 px-4">Travel Date &amp; Guests</th>
-                    <th className="py-3.5 px-4">Status</th>
-                    <th className="py-3.5 px-4">Received</th>
-                    <th className="py-3.5 px-4 text-right">Actions</th>
+                  <tr>
+                    <th style={{ width: '150px' }}>Ref #</th>
+                    <th>Customer Details</th>
+                    <th>Interest / Tour</th>
+                    <th>Travel Date &amp; Guests</th>
+                    <th style={{ width: '130px' }}>Status</th>
+                    <th style={{ width: '120px' }}>Received</th>
+                    <th style={{ width: '100px', textAlign: 'right' }}>Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-sm">
+                <tbody>
                   {inquiries.map((inq) => {
-                    const statusClass = getStatusBadgeClass(inq.status);
-                    const whatsappMessage = getAdminInquiryWhatsAppTemplate(inq);
-                    const whatsappUrl = formatWhatsAppUrl(inq.phone, whatsappMessage);
+                    const fullName = inq.first_name
+                      ? `${inq.first_name} ${inq.middle_name ? inq.middle_name + ' ' : ''}${inq.last_name || ''}`.trim()
+                      : (inq.name || 'Traveler');
+                    const initials = getInitials(fullName);
+                    const icon = getInterestIcon(inq.tour_title, inq.destination_name);
+                    const statusClass = getStatusClass(inq.status);
+                    const statusLabel = getStatusLabel(inq.status);
+                    const receivedDate = inq.created_at ? new Date(inq.created_at).toLocaleDateString() : '—';
+                    const travelDate = inq.travel_date || inq.arrival_date || 'Flexible Date';
+                    const travelers = inq.travelers || inq.number_of_travelers || 1;
+                    const displayRef = inq.reference_id || `TRP-2026-${String(inq.id).padStart(6, '0')}`;
+                    const isMedical = Boolean(inq.is_medical_trip || String(displayRef).startsWith('MED-') || inq.tour_title?.toLowerCase().includes('health check') || inq.tour_title?.toLowerCase().includes('apex'));
 
                     return (
-                      <tr key={inq.id} className="hover:bg-slate-50/75 transition-colors">
-                        <td className="py-3.5 px-4 font-mono font-bold text-slate-700 text-xs">
-                          {inq.reference_id || `#${inq.id}`}
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <div className="font-bold text-slate-900">
-                            {inq.first_name ? (
-                              `${inq.first_name} ${inq.middle_name ? inq.middle_name + ' ' : ''}${inq.last_name || ''}`.trim()
-                            ) : (
-                              inq.name || 'Anonymous'
-                            )}
-                          </div>
-                          <div className="text-xs text-slate-500">{inq.email}</div>
-                          <div className="text-xs font-mono text-teal-700 mt-0.5">
-                            {inq.dial_code ? `${inq.dial_code} ` : ''}{inq.phone || inq.whatsapp_number || '—'}
-                          </div>
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <div className="font-medium text-slate-900">
-                            {inq.tour_title || inq.destination_name || <em className="text-slate-400">Custom Trip</em>}
-                          </div>
-                          {inq.destination_name && inq.tour_title && (
-                            <span className="text-xs text-slate-500 block">📍 {inq.destination_name}</span>
+                      <tr key={inq.id}>
+                        <td style={{ fontFamily: 'monospace', fontWeight: 600, color: '#475569', fontSize: '12.5px' }}>
+                          {isMedical ? (
+                            <span style={{ backgroundColor: '#ccfbf1', color: '#0f766e', padding: '3px 7px', borderRadius: '6px', fontWeight: 700 }}>
+                              {displayRef}
+                            </span>
+                          ) : (
+                            displayRef
                           )}
                         </td>
-                        <td className="py-3.5 px-4 text-xs">
-                          <div className="font-medium text-slate-800">
-                            📅 {inq.travel_date || inq.arrival_date || 'Flexible Date'}
+                        <td>
+                          <div className="admin-customer-cell">
+                            <div className="admin-avatar-circle" style={isMedical ? { backgroundColor: '#01aa90' } : undefined} title={fullName}>
+                              {initials}
+                            </div>
+                            <div className="admin-customer-info">
+                              <span className="admin-customer-name">{fullName}</span>
+                              <span className="admin-customer-sub">{inq.email || 'No email'}</span>
+                              <span className="admin-customer-sub" style={{ color: '#005b52', fontWeight: 500 }}>
+                                {inq.dial_code ? `${inq.dial_code} ` : ''}{inq.phone || inq.whatsapp_number || '—'}
+                              </span>
+                            </div>
                           </div>
-                          <div className="text-slate-500 mt-0.5">👥 {inq.travelers || 1} Guests</div>
                         </td>
-                        <td className="py-3.5 px-4">
-                          <span
-                            className={`inline-block px-2.5 py-1 text-xs font-bold rounded-full border capitalize ${statusClass}`}
-                          >
-                            {inq.status?.replace('_', ' ') || 'new'}
+                        <td>
+                          <div className="admin-interest-cell">
+                            <span className="admin-interest-icon">{isMedical ? '🩺' : icon}</span>
+                            <div>
+                              <span className="admin-interest-title">
+                                {inq.tour_title || inq.destination_name || 'Custom Trip'}
+                              </span>
+                              {isMedical && (
+                                <div style={{ marginTop: '2px' }}>
+                                  <span style={{ fontSize: '10.5px', background: '#ecfdf5', color: '#059669', border: '1px solid #a7f3d0', padding: '1px 6px', borderRadius: '4px', fontWeight: 700 }}>
+                                    🩺 Medical Trip
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="admin-date-cell">
+                            <span className="admin-date-row">📅 {travelDate}</span>
+                            <span className="admin-guests-row">👤 {travelers} Guests</span>
+                          </div>
+                        </td>
+                        <td>
+                          <span className={`admin-status-pill ${statusClass}`}>
+                            {statusLabel}
                           </span>
                         </td>
-                        <td className="py-3.5 px-4 text-xs text-slate-500 whitespace-nowrap">
-                          {inq.created_at ? new Date(inq.created_at).toLocaleDateString() : '—'}
+                        <td style={{ color: '#64748b', fontSize: '12.5px', whiteSpace: 'nowrap' }}>
+                          {receivedDate}
                         </td>
-                        <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                          <div className="inline-flex items-center gap-1.5">
+                        <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                          <div className="admin-table-actions">
                             <button
                               type="button"
                               onClick={() => handleOpenDetail(inq)}
-                              className="btn btn-outline btn-xs px-2.5 py-1 text-xs"
-                              title="View Trip Request Details"
+                              className="admin-action-btn-circle"
+                              title="View Details"
                             >
-                              👁️ View
+                              👁️
                             </button>
-
-                            {/* WhatsApp Direct Action */}
-                            {inq.phone && (
-                              <a
-                                href={whatsappUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="px-2.5 py-1 text-xs font-bold rounded bg-emerald-600 text-white hover:bg-emerald-700 transition-colors inline-flex items-center gap-1"
-                                title="Open WhatsApp Chat with Customer"
-                              >
-                                <span>💬</span> WhatsApp
-                              </a>
-                            )}
-
-                            {/* PDF Voucher Action */}
-                            <button
-                              type="button"
-                              onClick={() => printTripVoucher(inq, { site_name: siteName, contact_phone: sitePhone, contact_whatsapp: siteWhatsApp })}
-                              className="px-2.5 py-1 text-xs font-bold rounded bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100 transition-colors inline-flex items-center gap-1"
-                              title="Download / Print PDF Trip Voucher"
-                            >
-                              <span>📄</span> PDF
-                            </button>
-
                             <button
                               type="button"
                               onClick={() => handleOpenStatusModal(inq)}
-                              className="btn btn-outline btn-xs px-2.5 py-1 text-xs"
-                              title="Change Status"
+                              className="admin-action-btn-circle"
+                              title="Status & Options"
                             >
-                              ✏️ Status
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => handleOpenDeleteModal(inq)}
-                              className="text-red-500 hover:text-red-700 p-1 rounded text-xs"
-                              title="Delete Trip Request"
-                            >
-                              ✕
+                              ⋮
                             </button>
                           </div>
                         </td>
@@ -647,45 +570,63 @@ export default function AdminInquiriesPage() {
               </table>
             </div>
 
-            {/* Pagination Controls */}
-            {pagination.pages > 1 && (
-              <div className="p-4 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
-                <span>
-                  Showing page {pagination.page} of {pagination.pages} ({pagination.total} total leads)
-                </span>
-                <div className="flex items-center gap-1">
+            {/* Pagination Controls matching mockup */}
+            <div className="admin-table-footer">
+              <span>
+                Showing {pagination.total > 0 ? (pagination.page - 1) * pagination.limit + 1 : 0} to{' '}
+                {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} entries
+              </span>
+              <div className="admin-pagination">
+                <button
+                  type="button"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className="admin-page-btn"
+                  title="Previous page"
+                >
+                  ‹
+                </button>
+                {Array.from({ length: pagination.pages || 1 }, (_, i) => i + 1).map((pNum) => (
                   <button
+                    key={pNum}
                     type="button"
-                    disabled={page <= 1}
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    className="btn btn-outline btn-xs disabled:opacity-30"
+                    onClick={() => setPage(pNum)}
+                    className={`admin-page-btn ${page === pNum ? 'active' : ''}`}
                   >
-                    &larr; Prev
+                    {pNum}
                   </button>
-                  <button
-                    type="button"
-                    disabled={page >= pagination.pages}
-                    onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
-                    className="btn btn-outline btn-xs disabled:opacity-30"
-                  >
-                    Next &rarr;
-                  </button>
-                </div>
+                ))}
+                <button
+                  type="button"
+                  disabled={page >= (pagination.pages || 1)}
+                  onClick={() => setPage((p) => Math.min(pagination.pages || 1, p + 1))}
+                  className="admin-page-btn"
+                  title="Next page"
+                >
+                  ›
+                </button>
               </div>
-            )}
+            </div>
           </>
         )}
       </div>
-
+      
       {/* 5. Detail Modal with Grouped Sections & Not provided Fallback */}
       {isDetailOpen && selectedInquiry && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 p-6 md:p-8 space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div>
-                <span className="text-xs font-bold text-teal-700 uppercase tracking-wider block">
-                  Trip Ref {selectedInquiry.reference_id || `#${selectedInquiry.id}`} • {selectedInquiry.created_at ? new Date(selectedInquiry.created_at).toLocaleString() : 'Recent'}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-teal-700 uppercase tracking-wider block">
+                    Trip Ref {selectedInquiry.reference_id || `#${selectedInquiry.id}`} • {selectedInquiry.created_at ? new Date(selectedInquiry.created_at).toLocaleString() : 'Recent'}
+                  </span>
+                  {(selectedInquiry.is_medical_trip || String(selectedInquiry.reference_id || '').startsWith('MED-')) && (
+                    <span className="px-2 py-0.5 text-[11px] font-bold rounded-md bg-teal-100 text-teal-800">
+                      🩺 Medical Trip
+                    </span>
+                  )}
+                </div>
                 <h3 className="text-xl font-black text-slate-900 mt-0.5">
                   {selectedInquiry.first_name ? (
                     `${selectedInquiry.first_name} ${selectedInquiry.middle_name ? selectedInquiry.middle_name + ' ' : ''}${selectedInquiry.last_name || ''}`.trim()

@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/vendor/autoload.php';
+\App\Utils\Env::load(__DIR__ . '/.env');
 
 use App\Utils\Database;
 

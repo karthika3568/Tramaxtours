@@ -143,7 +143,7 @@ export default function AdminFooterManagerPage() {
       {/* Visual Interactive Footer Preview Mockup (Matches live website Footer.jsx) */}
       <div className="visual-page-preview-container" style={{ background: '#0f172a', borderRadius: '16px', border: '1px solid #1e293b', overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.25)', marginBottom: '32px' }}>
         <div className="visual-preview-top-banner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 24px', background: '#1e293b', borderBottom: '1px solid #334155' }}>
-          <span className="preview-label" style={{ color: '#1226de', fontWeight: 800, fontSize: '12px', letterSpacing: '0.05em' }}>LIVE FOOTER VISUAL SIMULATION</span>
+          <span className="preview-label" style={{ color: '#01aa90', fontWeight: 800, fontSize: '12px', letterSpacing: '0.05em' }}>LIVE FOOTER VISUAL SIMULATION</span>
           <span className="status-badge-luxury status-active" style={{ fontSize: '12px', color: '#10b981' }}>● Active on All Public Pages</span>
         </div>
 
@@ -155,7 +155,7 @@ export default function AdminFooterManagerPage() {
                 style={{
                   display: 'inline-block',
                   background: 'rgba(1, 170, 144, 0.15)',
-                  color: '#1226de',
+                  color: '#01aa90',
                   border: '1px solid rgba(1, 170, 144, 0.3)',
                   padding: '4px 14px',
                   borderRadius: '9999px',
@@ -217,7 +217,7 @@ export default function AdminFooterManagerPage() {
             {/* Social Links Section */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#64748b', fontSize: '13px' }}>
               <span>Follow Us:</span>
-              <span style={{ color: '#1226de' }}>Instagram • Facebook • YouTube • TripAdvisor</span>
+              <span style={{ color: '#01aa90' }}>Instagram • Facebook • YouTube • TripAdvisor</span>
             </div>
           </div>
 

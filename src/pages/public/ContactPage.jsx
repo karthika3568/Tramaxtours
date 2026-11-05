@@ -119,26 +119,12 @@ export default function ContactPage() {
 
   return (
     <div className="contact-page-root" style={{ background: '#f8fafc', color: '#0B1329', minHeight: '82vh' }}>
-      {/* Page Header (No Giant Banner) */}
-      <section className="catalog-header-section" style={{ padding: '36px 0 24px', background: '#ffffff', borderBottom: '1px solid #e2e8f0' }}>
-        <div className="container">
-          <Breadcrumbs items={[{ label: 'Contact Us' }]} />
-          <div className="catalog-header-content" style={{ marginTop: '14px' }}>
-            <span className="section-badge" style={{ fontSize: '12px', fontWeight: 800, color: '#1226de', textTransform: 'uppercase', letterSpacing: '0.08em', background: 'rgba(18, 38, 222, 0.08)', padding: '4px 12px', borderRadius: '9999px', display: 'inline-block', marginBottom: '8px' }}>
-              Direct Support &amp; Inquiries
-            </span>
-            <h1 className="catalog-page-title" style={{ fontSize: '32px', fontWeight: 800, color: '#0f172a', margin: '6px 0 8px' }}>
-              Contact Us
-            </h1>
-            <p className="catalog-page-subtitle" style={{ fontSize: '15px', color: '#64748b', maxWidth: '700px', lineHeight: 1.6, margin: 0 }}>
-              Have questions or need assistance? Fill out the quick form below or reach out to our team directly via WhatsApp or Phone.
-            </p>
-          </div>
-        </div>
-      </section>
+      <div className="container" style={{ padding: '28px 20px 0' }}>
+        <Breadcrumbs items={[{ label: 'Contact Us' }]} />
+      </div>
 
       {/* Main Content Workspace */}
-      <div className="container" style={{ padding: '48px 20px 80px' }}>
+      <div className="container" style={{ padding: '32px 20px 80px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '40px', alignItems: 'start' }}>
           
           {/* Left Column: Contact Information */}
@@ -147,10 +133,10 @@ export default function ContactPage() {
               style={{
                 fontSize: '12px',
                 fontWeight: '800',
-                color: '#1226de',
+                color: '#01aa90',
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
-                background: 'rgba(18, 38, 222, 0.08)',
+                background: 'rgba(1, 170, 144, 0.08)',
                 padding: '4px 12px',
                 borderRadius: '9999px',
                 display: 'inline-block',
@@ -268,10 +254,10 @@ export default function ContactPage() {
                   style={{
                     fontSize: '12px',
                     fontWeight: 800,
-                    color: '#1226de',
+                    color: '#01aa90',
                     textTransform: 'uppercase',
                     letterSpacing: '0.08em',
-                    background: 'rgba(18, 38, 222, 0.08)',
+                    background: 'rgba(1, 170, 144, 0.08)',
                     padding: '4px 12px',
                     borderRadius: '9999px',
                     display: 'inline-block',

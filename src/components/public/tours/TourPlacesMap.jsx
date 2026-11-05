@@ -53,7 +53,7 @@ export default function TourPlacesMap({ places = [], tourTitle = '' }) {
       // Custom styled pin with sequence number
       const markerHtml = `
         <div style="
-          background: #1226de;
+          background: #01aa90;
           color: #ffffff;
           width: 32px;
           height: 32px;
@@ -64,7 +64,7 @@ export default function TourPlacesMap({ places = [], tourTitle = '' }) {
           font-weight: 800;
           font-size: 13px;
           border: 2.5px solid #ffffff;
-          box-shadow: 0 4px 12px rgba(18, 38, 222, 0.45);
+          box-shadow: 0 4px 12px rgba(1, 170, 144, 0.45);
           cursor: pointer;
           transition: transform 0.2s ease;
         ">
@@ -82,7 +82,7 @@ export default function TourPlacesMap({ places = [], tourTitle = '' }) {
 
       const popupContent = `
         <div style="font-family: inherit; min-width: 180px; max-width: 260px; padding: 2px;">
-          <span style="font-size: 11px; font-weight: 800; color: #1226de; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 2px;">
+          <span style="font-size: 11px; font-weight: 800; color: #01aa90; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 2px;">
             Stop #${idx + 1}
           </span>
           <strong style="color: #0f172a; font-size: 14px; display: block; margin-bottom: 4px; line-height: 1.3;">
@@ -187,7 +187,7 @@ export default function TourPlacesMap({ places = [], tourTitle = '' }) {
               onMouseEnter={(e) => {
                 if (hasCoords) {
                   e.currentTarget.style.background = '#e0e7ff';
-                  e.currentTarget.style.borderColor = '#1226de';
+                  e.currentTarget.style.borderColor = '#01aa90';
                 }
               }}
               onMouseLeave={(e) => {
@@ -206,7 +206,7 @@ export default function TourPlacesMap({ places = [], tourTitle = '' }) {
                   width: '20px',
                   height: '20px',
                   borderRadius: '50%',
-                  background: '#1226de',
+                  background: '#01aa90',
                   color: '#ffffff',
                   fontSize: '11px',
                   fontWeight: 800,

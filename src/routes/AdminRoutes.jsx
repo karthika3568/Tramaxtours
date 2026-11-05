@@ -23,6 +23,8 @@ export const AdminDestinationFormPage = lazy(() => import('../pages/admin/AdminD
 
 export const AdminToursPage = lazy(() => import('../pages/admin/AdminToursPage'));
 export const AdminTourFormPage = lazy(() => import('../pages/admin/AdminTourFormPage'));
+export const AdminMedicalTripsPage = lazy(() => import('../pages/admin/AdminMedicalTripsPage'));
+export const AdminMedicalTripFormPage = lazy(() => import('../pages/admin/AdminMedicalTripFormPage'));
 
 export const AdminPagesPage = lazy(() => import('../pages/admin/AdminPagesPage'));
 export const AdminPageFormPage = lazy(() => import('../pages/admin/AdminPageFormPage'));

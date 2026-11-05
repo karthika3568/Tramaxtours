@@ -3,6 +3,8 @@ import { useSearchParams } from 'react-router-dom';
 import tourService from '../../services/tourService';
 import destinationService from '../../services/destinationService';
 import TourCard from '../../components/public/tours/TourCard';
+import MedicalTripCard from '../../components/public/tours/MedicalTripCard';
+import medicalTripService from '../../services/medicalTripService';
 import Pagination from '../../components/public/common/Pagination';
 import Loading from '../../components/ui/Loading';
 import EmptyState from '../../components/ui/EmptyState';
@@ -18,6 +20,7 @@ const DEFAULT_CATEGORIES = [
   { id: 5, name: 'One Day Tours', slug: 'one-day-tours' },
   { id: 9, name: 'Pilgrimage / Temple Tours', slug: 'pilgrimage-temple-tours' },
   { id: 6, name: 'Private Tours', slug: 'private-tours' },
+  { id: 10, name: 'Medical Tourism & Health Checks', slug: 'medical-tourism' },
 ];
 
 const DEFAULT_FAQS = [
@@ -57,6 +60,7 @@ export default function ToursPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [tours, setTours] = useState([]);
+  const [medicalTrips, setMedicalTrips] = useState([]);
   const [destinations, setDestinations] = useState([]);
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
   const [pagination, setPagination] = useState({ page: 1, total_pages: 1, total: 0 });
@@ -86,6 +90,25 @@ export default function ToursPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [reloadTrigger, setReloadTrigger] = useState(0);
+
+  // Synchronize state when URL searchParams change (from Navbar dropdown, back/forward navigation, etc.)
+  useEffect(() => {
+    const dest = searchParams.get('destination') || '';
+    const date = searchParams.get('date') || '';
+    const dur = searchParams.get('duration');
+    const cat = searchParams.get('category');
+    const rating = searchParams.get('rating') || 'all';
+    const sort = searchParams.get('sort_by') || 'default';
+    const page = parseInt(searchParams.get('page') || '1', 10);
+
+    setDestinationFilter(dest);
+    setSelectedDate(date);
+    setSelectedDurations(dur ? dur.split(',') : []);
+    setSelectedCategories(cat ? cat.split(',') : []);
+    setSelectedRating(rating);
+    setSortBy(sort);
+    setCurrentPage(page);
+  }, [searchParams]);
 
   useEffect(() => {
     updatePageMeta({
@@ -173,6 +196,14 @@ export default function ToursPage() {
         }
 
         const response = await tourService.getTours(params);
+        try {
+          const medRes = await medicalTripService.getMedicalTrips({ is_published: 1, is_active: 1 });
+          if (isMounted) {
+            setMedicalTrips(medRes.items || []);
+          }
+        } catch {
+          // Ignore
+        }
         if (isMounted) {
           const items = response.items || (Array.isArray(response) ? response : []);
           setTours(items);
@@ -229,28 +260,79 @@ export default function ToursPage() {
 
       // 2. Tour Types / Categories Filter
       if (selectedCategories.length > 0) {
-        const tourCats = Array.isArray(tour.categories) ? tour.categories : [];
-        const tourCatNames = tourCats.map((c) => (typeof c === 'string' ? c : c.name || c.slug || ''));
-        const tourType = tour.tour_type || '';
-        const tourTitle = tour.title || '';
-        const tourOverview = tour.overview || tour.short_description || '';
+        // If only medical is selected, standard tours will not match unless tagged medical
+        const onlyMedical = selectedCategories.every(
+          (c) => c.toLowerCase().includes('medical') || c.toLowerCase().includes('health')
+        );
+        if (onlyMedical) {
+          const tourCats = Array.isArray(tour.categories) ? tour.categories : [];
+          const tourCatNames = tourCats.map((c) => (typeof c === 'string' ? c : c.name || c.slug || ''));
+          const tourType = tour.tour_type || '';
+          const tourTitle = tour.title || '';
+          const hasMedical =
+            tourCatNames.some((c) => c.toLowerCase().includes('medical')) ||
+            tourType.toLowerCase().includes('medical') ||
+            tourTitle.toLowerCase().includes('medical');
+          if (!hasMedical) return false;
+        } else {
+          const tourCats = Array.isArray(tour.categories) ? tour.categories : [];
+          const tourCatNames = tourCats.map((c) => (typeof c === 'string' ? c : c.name || c.slug || ''));
+          const tourType = tour.tour_type || '';
+          const tourTitle = tour.title || '';
+          const tourOverview = tour.overview || tour.short_description || '';
 
-        const matchCat = selectedCategories.some((sel) => {
-          const sLower = sel.toLowerCase().trim();
-          return (
-            tourCatNames.some((cName) => {
-              const cLower = cName.toLowerCase().trim();
-              return cLower.includes(sLower) || sLower.includes(cLower);
-            }) ||
-            tourType.toLowerCase().includes(sLower) ||
-            (sLower.includes('one day') && (tour.duration_days === 1 || tourTitle.toLowerCase().includes('day tour') || tour.duration_text?.toLowerCase().includes('day'))) ||
-            (sLower.includes('sightseeing') && (tourTitle.toLowerCase().includes('sightseeing') || tourOverview.toLowerCase().includes('sightseeing') || tourType.toLowerCase().includes('sightseeing'))) ||
-            (sLower.includes('cultural') && (tourTitle.toLowerCase().includes('heritage') || tourOverview.toLowerCase().includes('heritage') || tourOverview.toLowerCase().includes('cultural'))) ||
-            (sLower.includes('private') && (tourType.toLowerCase().includes('private') || tourTitle.toLowerCase().includes('private') || tourOverview.toLowerCase().includes('private')))
-          );
-        });
+          const matchCat = selectedCategories.some((sel) => {
+            const sLower = sel.toLowerCase().trim();
+            const sNorm = sLower.replace(/-/g, ' ');
+            return (
+              tourCatNames.some((cName) => {
+                const cLower = cName.toLowerCase().trim();
+                const cNorm = cLower.replace(/-/g, ' ');
+                return (
+                  cLower.includes(sLower) ||
+                  sLower.includes(cLower) ||
+                  cNorm.includes(sNorm) ||
+                  sNorm.includes(cNorm)
+                );
+              }) ||
+              tourType.toLowerCase().includes(sLower) ||
+              tourType.toLowerCase().includes(sNorm) ||
+              (sLower.includes('one day') &&
+                (tour.duration_days === 1 ||
+                  tourTitle.toLowerCase().includes('day tour') ||
+                  tour.duration_text?.toLowerCase().includes('day'))) ||
+              (sLower.includes('sightseeing') &&
+                (tourTitle.toLowerCase().includes('sightseeing') ||
+                  tourOverview.toLowerCase().includes('sightseeing') ||
+                  tourType.toLowerCase().includes('sightseeing'))) ||
+              (sLower.includes('cultural') &&
+                (tourTitle.toLowerCase().includes('heritage') ||
+                  tourOverview.toLowerCase().includes('heritage') ||
+                  tourOverview.toLowerCase().includes('cultural'))) ||
+              (sLower.includes('historical') &&
+                (tourTitle.toLowerCase().includes('history') ||
+                  tourTitle.toLowerCase().includes('historical') ||
+                  tourOverview.toLowerCase().includes('historic'))) ||
+              (sLower.includes('pilgrimage') &&
+                (tourTitle.toLowerCase().includes('temple') ||
+                  tourTitle.toLowerCase().includes('pilgrimage') ||
+                  tourOverview.toLowerCase().includes('temple'))) ||
+              (sLower.includes('family') &&
+                (tourTitle.toLowerCase().includes('family') ||
+                  tourOverview.toLowerCase().includes('family'))) ||
+              (sLower.includes('guided') &&
+                (tourType.toLowerCase().includes('guided') ||
+                  tourTitle.toLowerCase().includes('guided') ||
+                  tourOverview.toLowerCase().includes('guided'))) ||
+              (sLower.includes('private') &&
+                (tourType.toLowerCase().includes('private') ||
+                  tourTitle.toLowerCase().includes('private') ||
+                  tourOverview.toLowerCase().includes('private')))
+            );
+          });
 
-        if (!matchCat) return false;
+          if (!matchCat) return false;
+        }
       }
 
       // 3. Rating Filter
@@ -266,6 +348,24 @@ export default function ToursPage() {
     });
   }, [tours, selectedDurations, selectedCategories, selectedRating]);
 
+  // Determine visibility of medical trips vs regular tours
+  const isMedicalOnlySelected =
+    selectedCategories.length > 0 &&
+    selectedCategories.every(
+      (c) => c.toLowerCase().includes('medical') || c.toLowerCase().includes('health')
+    );
+
+  const isMedicalIncluded = selectedCategories.some(
+    (c) => c.toLowerCase().includes('medical') || c.toLowerCase().includes('health')
+  );
+
+  const isSpecificNonMedicalCategorySelected =
+    selectedCategories.length > 0 && !isMedicalIncluded;
+
+  const visibleMedicalTrips = isSpecificNonMedicalCategorySelected ? [] : medicalTrips;
+  const visibleTours = isMedicalOnlySelected ? [] : filteredTours;
+  const totalResultsCount = visibleMedicalTrips.length + visibleTours.length;
+
   const handleToggleDuration = (val) => {
     setSelectedDurations((prev) =>
       prev.includes(val) ? prev.filter((d) => d !== val) : [...prev, val]
@@ -273,9 +373,22 @@ export default function ToursPage() {
   };
 
   const handleToggleCategory = (catName) => {
-    setSelectedCategories((prev) =>
-      prev.includes(catName) ? prev.filter((c) => c !== catName) : [...prev, catName]
-    );
+    const next = selectedCategories.includes(catName)
+      ? selectedCategories.filter((c) => c !== catName)
+      : [...selectedCategories, catName];
+
+    setSelectedCategories(next);
+    setCurrentPage(1);
+    setSearchParams((prev) => {
+      const nextParams = new URLSearchParams(prev);
+      if (next.length > 0) {
+        nextParams.set('category', next.join(','));
+      } else {
+        nextParams.delete('category');
+      }
+      nextParams.set('page', '1');
+      return nextParams;
+    });
   };
 
   const handleClearFilters = () => {
@@ -513,22 +626,39 @@ export default function ToursPage() {
           <div className="sidebar-filter-block">
             <h3 className="sidebar-section-title">Tour Types</h3>
             <div className="filter-checkbox-group">
-              {categories.map((cat) => {
-                const catName = cat.name || cat.slug;
-                const isChecked = selectedCategories.includes(catName);
+              {/* Medical Tour Checkbox */}
+              <label className="filter-checkbox-item">
+                <input
+                  type="checkbox"
+                  checked={selectedCategories.some((c) => c.toLowerCase().includes('medical'))}
+                  onChange={() => handleToggleCategory('medical-tourism')}
+                />
+                <span className="checkbox-custom" />
+                <span className="checkbox-label-text" style={{ fontWeight: 600 }}>
+                  🩺 Medical Tourism &amp; Health Checks
+                </span>
+              </label>
 
-                return (
-                  <label key={cat.id || cat.slug} className="filter-checkbox-item">
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={() => handleToggleCategory(catName)}
-                    />
-                    <span className="checkbox-custom" />
-                    <span className="checkbox-label-text">{catName}</span>
-                  </label>
-                );
-              })}
+              {categories
+                .filter((c) => !c.slug?.includes('medical') && !c.name?.toLowerCase().includes('medical'))
+                .map((cat) => {
+                  const catName = cat.name || cat.slug;
+                  const isChecked =
+                    selectedCategories.includes(catName) ||
+                    selectedCategories.includes(cat.slug);
+
+                  return (
+                    <label key={cat.id || cat.slug} className="filter-checkbox-item">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => handleToggleCategory(catName)}
+                      />
+                      <span className="checkbox-custom" />
+                      <span className="checkbox-label-text">{catName}</span>
+                    </label>
+                  );
+                })}
             </div>
           </div>
 
@@ -616,30 +746,89 @@ export default function ToursPage() {
 
         {/* Right Main Tours Section */}
         <main className="tours-main-catalog">
-          {/* Top Bar: Showing all X results & Sort Dropdown */}
-          <div className="tours-top-bar">
+          {/* Top Bar: Showing all X results & Tour Type / Sort Dropdowns */}
+          <div className="tours-top-bar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
             <div className="tours-count-label">
-              Showing all {filteredTours.length} results
+              Showing all {totalResultsCount} results
             </div>
 
-            <div className="tours-sort-group">
-              <label htmlFor="tours-sort-select" className="tours-sort-label">Sort By</label>
-              <select
-                id="tours-sort-select"
-                className="tours-sort-select"
-                value={sortBy}
-                onChange={(e) => {
-                  setSortBy(e.target.value);
-                  setCurrentPage(1);
-                }}
-              >
-                <option value="default">Default sorting</option>
-                <option value="popularity">Sort by popularity</option>
-                <option value="rating">Sort by average rating</option>
-                <option value="latest">Sort by latest</option>
-                <option value="price_asc">Sort by price: low to high</option>
-                <option value="price_desc">Sort by price: high to low</option>
-              </select>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+              {/* Tour Type Dropdown Selector */}
+              <div className="tours-sort-group">
+                <label htmlFor="tours-type-select" className="tours-sort-label">Tour Type</label>
+                <select
+                  id="tours-type-select"
+                  className="tours-sort-select"
+                  value={
+                    selectedCategories.length === 0
+                      ? 'all'
+                      : isMedicalOnlySelected
+                      ? 'medical-tourism'
+                      : selectedCategories[0]
+                  }
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCurrentPage(1);
+                    if (val === 'all') {
+                      setSelectedCategories([]);
+                      setSearchParams((prev) => {
+                        const next = new URLSearchParams(prev);
+                        next.delete('category');
+                        next.set('page', '1');
+                        return next;
+                      });
+                    } else {
+                      setSelectedCategories([val]);
+                      setSearchParams((prev) => {
+                        const next = new URLSearchParams(prev);
+                        next.set('category', val);
+                        next.set('page', '1');
+                        return next;
+                      });
+                    }
+                  }}
+                >
+                  <option value="all">All Tour Types</option>
+                  <option value="medical-tourism">🩺 Medical Tourism &amp; Health Checks</option>
+                  {categories
+                    .filter((c) => !c.slug?.includes('medical') && !c.name?.toLowerCase().includes('medical'))
+                    .map((cat) => {
+                      const val = cat.name || cat.slug;
+                      return (
+                        <option key={cat.id || cat.slug} value={val}>
+                          {val}
+                        </option>
+                      );
+                    })}
+                </select>
+              </div>
+
+              {/* Sort By Dropdown */}
+              <div className="tours-sort-group">
+                <label htmlFor="tours-sort-select" className="tours-sort-label">Sort By</label>
+                <select
+                  id="tours-sort-select"
+                  className="tours-sort-select"
+                  value={sortBy}
+                  onChange={(e) => {
+                    setSortBy(e.target.value);
+                    setCurrentPage(1);
+                    setSearchParams((prev) => {
+                      const next = new URLSearchParams(prev);
+                      next.set('sort_by', e.target.value);
+                      next.set('page', '1');
+                      return next;
+                    });
+                  }}
+                >
+                  <option value="default">Default sorting</option>
+                  <option value="popularity">Sort by popularity</option>
+                  <option value="rating">Sort by average rating</option>
+                  <option value="latest">Sort by latest</option>
+                  <option value="price_asc">Sort by price: low to high</option>
+                  <option value="price_desc">Sort by price: high to low</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -654,7 +843,7 @@ export default function ToursPage() {
               message={error}
               onRetry={() => setReloadTrigger((prev) => prev + 1)}
             />
-          ) : filteredTours.length === 0 ? (
+          ) : totalResultsCount === 0 ? (
             <EmptyState
               title="No Tours Match Your Criteria"
               message={
@@ -667,17 +856,40 @@ export default function ToursPage() {
             />
           ) : (
             <>
-              <div className="tours-two-column-grid">
-                {filteredTours.map((tour) => (
-                  <TourCard key={tour.id} tour={tour} />
-                ))}
-              </div>
+              {visibleMedicalTrips.length > 0 && (
+                <div style={{ marginBottom: '32px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                    <div>
+                      <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#0f172a', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span>🩺</span>
+                        <span>Medical Tourism &amp; Health Checks</span>
+                      </h2>
+                      <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>
+                        Executive clinical assessments, advanced MRI &amp; biomarkers screening packages.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="tours-two-column-grid">
+                    {visibleMedicalTrips.map((mTrip) => (
+                      <MedicalTripCard key={`med-${mTrip.id}`} trip={mTrip} />
+                    ))}
+                  </div>
+                </div>
+              )}
 
-              {pagination.total_pages > 1 && (
+              {visibleTours.length > 0 && (
+                <div className="tours-two-column-grid">
+                  {visibleTours.map((tour) => (
+                    <TourCard key={tour.id} tour={tour} />
+                  ))}
+                </div>
+              )}
+
+              {pagination.total_pages > 1 && visibleTours.length > 0 && (
                 <Pagination
                   currentPage={pagination.page || currentPage}
                   totalPages={pagination.total_pages || 1}
-                  totalItems={pagination.total || filteredTours.length}
+                  totalItems={pagination.total || visibleTours.length}
                   onPageChange={(page) => {
                     setCurrentPage(page);
                     window.scrollTo({ top: 150, behavior: 'smooth' });

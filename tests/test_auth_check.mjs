@@ -10,6 +10,7 @@ async function testAuth() {
 
   const page = await browser.newPage();
   const failedRequests = [];
+  page.on('console', (msg) => console.log('BROWSER LOG:', msg.text()));
   page.on('response', (res) => {
     if (res.status() >= 400) {
       failedRequests.push({ url: res.url(), status: res.status() });
@@ -23,11 +24,15 @@ async function testAuth() {
 
   console.log('\n2. Logging in with admin credentials...');
   await page.goto('http://localhost:5173/login', { waitUntil: 'networkidle' });
-  await page.fill('input[type="email"]', 'admin@wanderersouthindia.com');
-  await page.fill('input[type="password"]', 'Admin@12345');
+  await page.screenshot({ path: 'tests/screenshots/login_color_check.png' });
+  await page.fill('input[type="email"]', 'admin@example.com');
+  await page.fill('input[type="password"]', 'Admin@123');
   await page.click('button[type="submit"]');
-  await page.waitForTimeout(1500);
-
+  try {
+    await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 4000 });
+  } catch (e) {
+    console.log('Timed out waiting for redirect:', e.message);
+  }
   console.log('Current URL after login (Should be /admin):', page.url());
   console.log('Failed requests during login (Should be 0):', failedRequests.filter(r => !r.url.includes('favicon')));
 
