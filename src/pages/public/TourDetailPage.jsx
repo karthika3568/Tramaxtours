@@ -379,6 +379,16 @@ export default function TourDetailPage() {
               </span>
             </div>
           </div>
+
+          {(tour.opening_times || tour.travel_days) && (
+            <div className="attribute-item">
+              <span className="attr-icon">🕒</span>
+              <div className="attr-content">
+                <span className="attr-label">Opening Times:</span>
+                <span className="attr-val">{tour.opening_times || tour.travel_days}</span>
+              </div>
+            </div>
+          )}
         </section>
 
         {/* =================================================================
@@ -443,40 +453,76 @@ export default function TourDetailPage() {
               <h2 className="detail-block-heading">Package Price</h2>
               {tour.pricing_tiers && tour.pricing_tiers.length > 0 ? (
                 <div className="pricing-tiers-styled-block">
-                  <div className="tier-group">
-                    <h3 className="tier-group-title">For 2–3 Persons</h3>
-                    <ul className="tier-bullet-list">
-                      <li>• Transportation only: <strong>50 Euros</strong></li>
-                      <li>• Transportation with tour guide: <strong>75 Euros</strong></li>
-                    </ul>
-                  </div>
-                  <div className="tier-group">
-                    <h3 className="tier-group-title">For 4–5 Persons</h3>
-                    <ul className="tier-bullet-list">
-                      <li>• Transportation only: <strong>70 Euros</strong></li>
-                      <li>• Transportation with tour guide: <strong>100 Euros</strong></li>
-                    </ul>
-                  </div>
+                  {tour.pricing_tiers.map((tier, idx) => {
+                    const tierCurrency = tier.currency === 'INR' ? '₹' : tier.currency === 'EUR' ? '€' : (tier.currency || currencySymbol);
+                    return (
+                      <div key={tier.id || idx} className="tier-group">
+                        <h3 className="tier-group-title">
+                          {tier.service_option || (tier.min_persons ? `For ${tier.min_persons}${tier.max_persons ? `–${tier.max_persons}` : '+'} Persons` : 'Package Option')}
+                        </h3>
+                        <ul className="tier-bullet-list">
+                          <li>
+                            • Price: <strong>{tierCurrency} {Number(tier.price).toLocaleString()}</strong>
+                            {tier.min_persons && tier.max_persons && (
+                              <span style={{ color: '#64748b', fontSize: '13.5px', marginLeft: '8px' }}>
+                                ({tier.min_persons}–{tier.max_persons} persons)
+                              </span>
+                            )}
+                          </li>
+                        </ul>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="pricing-tiers-styled-block">
                   <div className="tier-group">
-                    <h3 className="tier-group-title">For 2–3 Persons</h3>
+                    <h3 className="tier-group-title">Standard Package Rate</h3>
                     <ul className="tier-bullet-list">
-                      <li>• Transportation only: <strong>50 Euros</strong></li>
-                      <li>• Transportation with tour guide: <strong>75 Euros</strong></li>
-                    </ul>
-                  </div>
-                  <div className="tier-group">
-                    <h3 className="tier-group-title">For 4–5 Persons</h3>
-                    <ul className="tier-bullet-list">
-                      <li>• Transportation only: <strong>70 Euros</strong></li>
-                      <li>• Transportation with tour guide: <strong>100 Euros</strong></li>
+                      <li>• Starting from: <strong>{currencySymbol} {basePriceNum}</strong> per person</li>
                     </ul>
                   </div>
                 </div>
               )}
             </section>
+
+            {/* Direct Organizer Contact Card */}
+            {(tour.organizer_email || tour.organizer_phone || tour.opening_times) && (
+              <section className="detail-section-card tour-organizer-direct-card" style={{ background: '#f8fafc', borderColor: '#e2e8f0' }}>
+                <h2 className="detail-block-heading" style={{ fontSize: '19px', color: '#0f172a', marginBottom: '12px' }}>
+                  📞 Tour Organizer &amp; Inquiries
+                </h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px', fontSize: '14.5px' }}>
+                  {tour.opening_times && (
+                    <div>
+                      <span style={{ color: '#64748b', display: 'block', fontSize: '12.5px', fontWeight: 600, textTransform: 'uppercase' }}>Opening Times</span>
+                      <strong style={{ color: '#1e293b' }}>{tour.opening_times}</strong>
+                    </div>
+                  )}
+                  {tour.organizer_email && (
+                    <div>
+                      <span style={{ color: '#64748b', display: 'block', fontSize: '12.5px', fontWeight: 600, textTransform: 'uppercase' }}>Official E-Mail</span>
+                      <a href={`mailto:${tour.organizer_email}`} style={{ color: '#01aa90', textDecoration: 'none', fontWeight: 600 }}>
+                        {tour.organizer_email}
+                      </a>
+                    </div>
+                  )}
+                  {tour.organizer_phone && (
+                    <div>
+                      <span style={{ color: '#64748b', display: 'block', fontSize: '12.5px', fontWeight: 600, textTransform: 'uppercase' }}>Phone &amp; WhatsApp</span>
+                      <a
+                        href={`https://wa.me/${(tour.organizer_whatsapp || tour.organizer_phone).replace(/[^0-9]/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: '#01aa90', textDecoration: 'none', fontWeight: 700 }}
+                      >
+                        {tour.organizer_phone}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </section>
+            )}
 
             {/* Price Includes */}
             <section className="detail-section-card">

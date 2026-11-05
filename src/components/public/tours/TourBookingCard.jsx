@@ -14,7 +14,8 @@ export default function TourBookingCard({ tour }) {
   const location = useLocation();
   const { user, isAuthenticated } = useAuth();
   const { getSetting } = useSiteSettings();
-  const businessWhatsApp = getSetting('contact_whatsapp', '+91 8072566010');
+  const tourWhatsApp = tour?.organizer_whatsapp || tour?.organizer_phone || (tour?.metadata && (tour.metadata.organizer_whatsapp || tour.metadata.organizer_phone));
+  const businessWhatsApp = tourWhatsApp || getSetting('contact_whatsapp', '+91 9840291110');
 
   const deadlineDays = tour?.booking_deadline_days ?? 1;
 
@@ -352,6 +353,44 @@ export default function TourBookingCard({ tour }) {
             💬 Inquire on WhatsApp
           </a>
         </div>
+
+        {/* Tour Specific Organizer Info */}
+        {(tour?.organizer_email || tour?.organizer_phone || tour?.metadata?.organizer_email || tour?.metadata?.organizer_phone) && (
+          <div className="booking-organizer-direct" style={{
+            marginTop: '14px',
+            marginBottom: '14px',
+            padding: '12px 14px',
+            background: '#f8fafc',
+            borderRadius: '10px',
+            border: '1px solid #e2e8f0',
+            fontSize: '13px'
+          }}>
+            <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span>📞</span> Organizer Direct Contact
+            </div>
+            {(tour?.organizer_email || tour?.metadata?.organizer_email) && (
+              <div style={{ color: '#475569', marginBottom: '4px' }}>
+                <strong>Email:</strong>{' '}
+                <a href={`mailto:${tour?.organizer_email || tour?.metadata?.organizer_email}`} style={{ color: '#01aa90', textDecoration: 'none' }}>
+                  {tour?.organizer_email || tour?.metadata?.organizer_email}
+                </a>
+              </div>
+            )}
+            {(tour?.organizer_phone || tour?.metadata?.organizer_phone) && (
+              <div style={{ color: '#475569' }}>
+                <strong>Phone &amp; WhatsApp:</strong>{' '}
+                <a
+                  href={`https://wa.me/${(tour?.organizer_whatsapp || tour?.organizer_phone || tour?.metadata?.organizer_whatsapp || tour?.metadata?.organizer_phone).replace(/[^0-9]/g, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: '#01aa90', textDecoration: 'none', fontWeight: 600 }}
+                >
+                  {tour?.organizer_phone || tour?.metadata?.organizer_phone}
+                </a>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Trust Badges */}
         <div className="booking-trust-badges">

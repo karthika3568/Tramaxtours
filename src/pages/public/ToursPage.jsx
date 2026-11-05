@@ -21,6 +21,8 @@ const DEFAULT_CATEGORIES = [
   { id: 9, name: 'Pilgrimage / Temple Tours', slug: 'pilgrimage-temple-tours' },
   { id: 6, name: 'Private Tours', slug: 'private-tours' },
   { id: 10, name: 'Medical Tourism & Health Checks', slug: 'medical-tourism' },
+  { id: 8, name: 'Surfing Tour', slug: 'surfing-tour' },
+  { id: 7, name: 'Palmleaf Horoscope Tour', slug: 'palmleaf-horoscope' },
 ];
 
 const DEFAULT_FAQS = [
