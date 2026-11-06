@@ -23,7 +23,7 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
   const toast = useToast();
 
   const isEdit = mode === 'edit' || Boolean(id);
-  const [activeTab, setActiveTab] = useState('basic'); // 'basic' | 'assessments' | 'diseases' | 'guidelines'
+  const [activeTab, setActiveTab] = useState('basic'); // 'basic' | 'assessments' | 'guidelines'
 
   const [loading, setLoading] = useState(isEdit);
   const [error, setError] = useState(null);
@@ -57,9 +57,8 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
     is_published: 1,
   });
 
-  // Assessments and Diseases list
+  // Clinical Assessments list
   const [assessments, setAssessments] = useState([]);
-  const [diseases, setDiseases] = useState([]);
 
   // Modals for sub-entities
   const [isAssessmentModalOpen, setIsAssessmentModalOpen] = useState(false);
@@ -84,17 +83,6 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
     description: '',
     evaluation_details: '',
     report_information: '',
-  });
-
-  const [isDiseaseModalOpen, setIsDiseaseModalOpen] = useState(false);
-  const [editingDisease, setEditingDisease] = useState(null);
-  const [diseaseForm, setDiseaseForm] = useState({
-    condition_name: '',
-    category: '',
-    description: '',
-    icon: 'Heart',
-    display_order: 1,
-    is_active: 1,
   });
 
   // Highlight / Benefit input helpers
@@ -150,7 +138,6 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
             is_published: Number(data.is_published) ?? 1,
           });
           setAssessments(data.assessments || []);
-          setDiseases(data.diseases || []);
         }
       } catch (err) {
         if (mounted) setError(err?.message || 'Failed to load package details.');
@@ -180,7 +167,7 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
         toast.success('Medical package updated successfully!', 'Saved');
       } else {
         const created = await medicalTripService.createMedicalTrip(formData);
-        toast.success('Medical package created successfully! You can now add assessments and diseases.', 'Created');
+        toast.success('Medical package created successfully! You can now add assessments and travel guidelines.', 'Created');
         navigate(`/admin/medical-trips/${created.id}/edit`, { replace: true });
       }
     } catch (err) {
@@ -325,71 +312,6 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
     }
   };
 
-  /* --------------------------------------------------------------------------
-   * Diseases Screened Management Handlers
-   * -------------------------------------------------------------------------- */
-  const handleOpenAddDisease = () => {
-    setEditingDisease(null);
-    setDiseaseForm({
-      condition_name: '',
-      category: 'General Health',
-      description: '',
-      icon: 'Heart',
-      display_order: diseases.length + 1,
-      is_active: 1,
-    });
-    setIsDiseaseModalOpen(true);
-  };
-
-  const handleOpenEditDisease = (dis) => {
-    setEditingDisease(dis);
-    setDiseaseForm({
-      condition_name: dis.condition_name || '',
-      category: dis.category || '',
-      description: dis.description || '',
-      icon: dis.icon || 'Heart',
-      display_order: dis.display_order || 1,
-      is_active: Number(dis.is_active) ?? 1,
-    });
-    setIsDiseaseModalOpen(true);
-  };
-
-  const handleSaveDisease = async (e) => {
-    e.preventDefault();
-    if (!diseaseForm.condition_name.trim()) {
-      toast.error('Condition Name is required.');
-      return;
-    }
-
-    try {
-      if (editingDisease) {
-        await medicalTripService.updateDisease(editingDisease.id, diseaseForm);
-        toast.success('Condition updated.');
-      } else {
-        await medicalTripService.addDisease(id, diseaseForm);
-        toast.success('New condition added to screened list!');
-      }
-
-      const updated = await medicalTripService.getAdminMedicalTripById(id);
-      setDiseases(updated.diseases || []);
-      setIsDiseaseModalOpen(false);
-    } catch (err) {
-      toast.error(err?.message || 'Failed to save condition.');
-    }
-  };
-
-  const handleDeleteDisease = async (diseaseId) => {
-    if (!window.confirm('Remove this condition from screened list?')) return;
-    try {
-      await medicalTripService.deleteDisease(diseaseId);
-      toast.success('Condition removed.');
-      const updated = await medicalTripService.getAdminMedicalTripById(id);
-      setDiseases(updated.diseases || []);
-    } catch (err) {
-      toast.error(err?.message || 'Failed to remove condition.');
-    }
-  };
-
   if (loading) {
     return (
       <div style={{ padding: '80px 20px', textAlign: 'center' }}>
@@ -424,7 +346,7 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
               {isEdit ? `Edit: ${formData.title}` : 'Create New Medical Package'}
             </h1>
             <p className="admin-page-hero-subtitle">
-              Configure clinical assessments, tests, reports, and screened diseases dynamically.
+              Configure clinical assessments, tests, and diagnostic reports dynamically.
             </p>
           </div>
         </div>
@@ -488,21 +410,6 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
           style={{ height: '36px', padding: '0 16px', borderRadius: '8px', border: 'none' }}
         >
           🔬 Medical Assessments ({assessments.length})
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            if (!isEdit) {
-              toast.info('Please save the package first before managing diseases.');
-              return;
-            }
-            setActiveTab('diseases');
-          }}
-          className={`admin-page-btn ${activeTab === 'diseases' ? 'active' : ''}`}
-          style={{ height: '36px', padding: '0 16px', borderRadius: '8px', border: 'none' }}
-        >
-          🩺 Diseases Screened ({diseases.length})
         </button>
 
         <button
@@ -1010,93 +917,7 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
         </div>
       )}
 
-      {/* 5. TAB 3: Diseases Screened */}
-      {activeTab === 'diseases' && (
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <div>
-              <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#0f172a', margin: 0 }}>
-                Diseases &amp; Conditions Screened ({diseases.length})
-              </h3>
-              <p style={{ fontSize: '13px', color: '#64748b', margin: '3px 0 0 0' }}>
-                Specify clinical conditions evaluated by this medical package.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={handleOpenAddDisease}
-              className="btn btn-primary"
-              style={{ padding: '8px 16px', borderRadius: '8px', fontWeight: '700', fontSize: '13px' }}
-            >
-              ➕ Add Disease / Condition
-            </button>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
-            {diseases.map((dis, dIdx) => (
-              <div key={dis.id} className="admin-modern-table-card" style={{ padding: '16px', marginBottom: 0 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div
-                      style={{
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '10px',
-                        background: '#ecfdf5',
-                        color: '#01aa90',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '18px',
-                        flexShrink: 0,
-                      }}
-                    >
-                      🩺
-                    </div>
-                    <div>
-                      <strong style={{ fontSize: '14px', color: '#0f172a', display: 'block' }}>
-                        {dis.condition_name}
-                      </strong>
-                      {dis.category && (
-                        <span style={{ fontSize: '11.5px', color: '#01aa90', fontWeight: '700' }}>
-                          ({dis.category})
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '6px' }}>
-                    <button
-                      type="button"
-                      onClick={() => handleOpenEditDisease(dis)}
-                      className="admin-action-btn-circle"
-                      style={{ width: '28px', height: '28px', fontSize: '11px' }}
-                    >
-                      ✏️
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteDisease(dis.id)}
-                      className="admin-action-btn-circle"
-                      style={{ width: '28px', height: '28px', fontSize: '11px', color: '#dc2626' }}
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                </div>
-
-                {dis.description && (
-                  <p style={{ fontSize: '12px', color: '#64748b', marginTop: '10px', lineHeight: 1.4 }}>
-                    {dis.description}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* 6. TAB 4: Highlights, Guidelines & Policies */}
+      {/* 5. TAB 3: Highlights, Guidelines & Policies */}
       {activeTab === 'guidelines' && (
         <form onSubmit={handleSubmitMain} className="admin-modern-table-card" style={{ padding: '24px' }}>
           <h3 style={{ fontSize: '16px', fontWeight: '800', color: '#0f172a', marginBottom: '18px', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px' }}>
@@ -1453,86 +1274,6 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
                   className="btn btn-primary btn-sm"
                 >
                   Save Test
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Disease Modal */}
-      {isDiseaseModalOpen && (
-        <div className="admin-modal-backdrop">
-          <div className="admin-modal-container" style={{ maxWidth: '500px', padding: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '17px', fontWeight: '800', color: '#0f172a', margin: 0 }}>
-                {editingDisease ? 'Edit Screened Condition' : 'Add Condition / Disease'}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setIsDiseaseModalOpen(false)}
-                style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#64748b' }}
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveDisease} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>
-                  Condition Name *
-                </label>
-                <input
-                  type="text"
-                  className="form-input"
-                  style={{ width: '100%', height: '38px', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '0 12px' }}
-                  value={diseaseForm.condition_name}
-                  onChange={(e) => setDiseaseForm({ ...diseaseForm, condition_name: e.target.value })}
-                  placeholder="e.g. Cardiovascular Conditions"
-                  required
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>
-                  Category (Subtext)
-                </label>
-                <input
-                  type="text"
-                  className="form-input"
-                  style={{ width: '100%', height: '38px', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '0 12px' }}
-                  value={diseaseForm.category}
-                  onChange={(e) => setDiseaseForm({ ...diseaseForm, category: e.target.value })}
-                  placeholder="e.g. Heart Health, Diabetes, etc."
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>
-                  Description
-                </label>
-                <textarea
-                  rows={2}
-                  className="form-input"
-                  style={{ width: '100%', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '8px 12px' }}
-                  value={diseaseForm.description}
-                  onChange={(e) => setDiseaseForm({ ...diseaseForm, description: e.target.value })}
-                />
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '10px' }}>
-                <button
-                  type="button"
-                  onClick={() => setIsDiseaseModalOpen(false)}
-                  className="btn btn-outline btn-sm"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary btn-sm"
-                >
-                  Save Condition
                 </button>
               </div>
             </form>

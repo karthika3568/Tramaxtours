@@ -169,7 +169,6 @@ export default function MedicalTripDetailPage() {
   }
 
   const assessments = Array.isArray(trip.assessments) ? trip.assessments : [];
-  const diseases = Array.isArray(trip.diseases) ? trip.diseases : [];
   const currencySymbol = trip.currency === 'INR' ? '₹' : trip.currency === 'USD' ? '$' : (trip.currency || '₹');
 
   // Tomorrow's date for minimum preferred date
@@ -298,7 +297,7 @@ export default function MedicalTripDetailPage() {
       <main className="container" style={{ padding: '48px 20px 80px 20px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 380px', gap: '36px', alignItems: 'start' }}>
           
-          {/* LEFT COLUMN: Assessments, Tests & Reports, Diseases Screened */}
+          {/* LEFT COLUMN: Assessments, Tests & Reports */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
             
             {/* SECTION 1: Medical Assessments Grid */}
@@ -588,94 +587,7 @@ export default function MedicalTripDetailPage() {
               </div>
             </section>
 
-            {/* SECTION 3: Diseases Screened */}
-            <section aria-labelledby="diseases-heading">
-              <div style={{ marginBottom: '20px' }}>
-                <h2 id="diseases-heading" style={{ fontSize: '26px', fontWeight: '800', color: '#0f172a', margin: '0 0 6px 0' }}>
-                  Diseases Screened
-                </h2>
-                <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>
-                  The {trip.title} covers a wide range of health conditions for early detection and better health management.
-                </p>
-              </div>
-
-              {/* 6 Icons Cards Grid */}
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-                  gap: '14px',
-                }}
-              >
-                {diseases.map((cond, idx) => (
-                  <div
-                    key={cond.id || idx}
-                    style={{
-                      backgroundColor: '#ffffff',
-                      borderRadius: '14px',
-                      border: '1px solid #e2e8f0',
-                      padding: '20px 14px',
-                      textAlign: 'center',
-                      boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: '8px',
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: '46px',
-                        height: '46px',
-                        borderRadius: '50%',
-                        backgroundColor: '#e6f7f5',
-                        color: '#01aa90',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '22px',
-                      }}
-                    >
-                      {cond.icon || '🩺'}
-                    </div>
-
-                    <div style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a', lineHeight: '1.3' }}>
-                      {cond.condition_name}
-                    </div>
-
-                    {cond.category && (
-                      <div style={{ fontSize: '11px', color: '#64748b', lineHeight: '1.3' }}>
-                        ({cond.category})
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Medical Disclaimer Banner */}
-              <div
-                style={{
-                  marginTop: '20px',
-                  backgroundColor: '#fffbeb',
-                  border: '1px solid #fef3c7',
-                  borderRadius: '12px',
-                  padding: '14px 18px',
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '12px',
-                  fontSize: '12px',
-                  color: '#92400e',
-                  lineHeight: '1.6',
-                }}
-              >
-                <span style={{ fontSize: '18px', lineHeight: '1' }}>ℹ️</span>
-                <div>
-                  <strong>Medical Disclaimer:</strong> Preventive health screenings evaluate biological biomarkers and physiological metrics to detect early risk indicators. These tests do not guarantee diagnosis or rule out conditions definitively. Always discuss comprehensive reports with your consulting physician.
-                </div>
-              </div>
-            </section>
-
-            {/* SECTION 4: Package Highlights, Benefits & Preparation Guidelines */}
+            {/* SECTION 3: Package Highlights, Benefits & Preparation Guidelines */}
             {(trip.highlights || trip.benefits || trip.preparation_guidelines) && (
               <section
                 style={{

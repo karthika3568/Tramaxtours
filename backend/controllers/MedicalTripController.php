@@ -354,35 +354,22 @@ class MedicalTripController extends BaseController
     }
 
     /* --------------------------------------------------------------------------
-     * Diseases Screened Endpoints
+     * Diseases Screened Endpoints (Deprecated / Removed)
      * -------------------------------------------------------------------------- */
 
     public function addDisease(string $id): void
     {
-        $tripId = (int) $id;
-        $body = Request::getBody();
-        if (empty($body['condition_name']) && empty($body['name'])) {
-            $this->error('Condition name is required.', 422);
-            return;
-        }
-        $diseaseId = MedicalTrip::addDisease($tripId, $body);
-        $diseases = MedicalTrip::getDiseases($tripId);
-        $this->success($diseases, 'Disease/Condition added successfully', 201);
+        $this->success([], 'Diseases screened feature is discontinued', 200);
     }
 
     public function updateDisease(string $diseaseId): void
     {
-        $id = (int) $diseaseId;
-        $body = Request::getBody();
-        MedicalTrip::updateDisease($id, $body);
-        $this->success(['id' => $id], 'Disease/Condition updated successfully');
+        $this->success([], 'Diseases screened feature is discontinued');
     }
 
     public function deleteDisease(string $diseaseId): void
     {
-        $id = (int) $diseaseId;
-        MedicalTrip::deleteDisease($id);
-        $this->success(['id' => $id], 'Disease/Condition deleted successfully');
+        $this->success([], 'Diseases screened feature is discontinued');
     }
 
     /* --------------------------------------------------------------------------

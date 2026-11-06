@@ -13,7 +13,7 @@ export default function AdminMedicalTripsPage() {
   useEffect(() => {
     updatePageMeta({
       title: 'Admin — Medical Trips & Packages | Wanderer South India',
-      description: 'Manage executive medical tourism packages, assessments, diagnostics, and diseases screened.',
+      description: 'Manage executive medical tourism packages, clinical assessments, diagnostics, and travel guidelines.',
     });
   }, []);
 
@@ -151,7 +151,7 @@ export default function AdminMedicalTripsPage() {
           <div>
             <h1 className="admin-page-hero-title">Medical Trips</h1>
             <p className="admin-page-hero-subtitle">
-              Manage clinical health screening packages, diagnostics, assessments, and screened diseases.
+              Manage clinical health screening packages, diagnostics, assessments, and travel guidelines.
             </p>
           </div>
         </div>
@@ -264,7 +264,6 @@ export default function AdminMedicalTripsPage() {
                     <th style={{ width: '120px' }}>Duration</th>
                     <th style={{ width: '150px' }}>Price</th>
                     <th style={{ width: '140px' }}>Assessments</th>
-                    <th style={{ width: '140px' }}>Diseases</th>
                     <th style={{ width: '120px' }}>Status</th>
                     <th style={{ width: '110px' }}>Created</th>
                     <th style={{ width: '130px', textAlign: 'right' }}>Actions</th>
@@ -348,24 +347,6 @@ export default function AdminMedicalTripsPage() {
                             }}
                           >
                             🔬 {trip.assessments_count || 0} Assessments
-                          </span>
-                        </td>
-
-                        <td>
-                          <span
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '5px',
-                              background: '#f0f9ff',
-                              color: '#0284c7',
-                              padding: '3px 8px',
-                              borderRadius: '6px',
-                              fontSize: '12px',
-                              fontWeight: '700',
-                            }}
-                          >
-                            🩺 {trip.diseases_count || 0} Conditions
                           </span>
                         </td>
 

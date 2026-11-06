@@ -96,8 +96,7 @@ class MedicalTrip extends BaseModel
 
         $sql = "
             SELECT mt.*,
-                   (SELECT COUNT(*) FROM `medical_assessments` WHERE `medical_trip_id` = mt.id) as assessments_count,
-                   (SELECT COUNT(*) FROM `medical_trip_diseases` WHERE `medical_trip_id` = mt.id) as diseases_count
+                   (SELECT COUNT(*) FROM `medical_assessments` WHERE `medical_trip_id` = mt.id) as assessments_count
             FROM `medical_trips` mt
             {$whereClause}
             {$orderClause}
@@ -129,8 +128,7 @@ class MedicalTrip extends BaseModel
     {
         $sql = '
             SELECT mt.*,
-                   (SELECT COUNT(*) FROM `medical_assessments` WHERE `medical_trip_id` = mt.id) as assessments_count,
-                   (SELECT COUNT(*) FROM `medical_trip_diseases` WHERE `medical_trip_id` = mt.id) as diseases_count
+                   (SELECT COUNT(*) FROM `medical_assessments` WHERE `medical_trip_id` = mt.id) as assessments_count
             FROM `medical_trips` mt
             WHERE mt.`id` = :id
             LIMIT 1
@@ -142,7 +140,7 @@ class MedicalTrip extends BaseModel
 
         if ($includeDetails) {
             $item['assessments'] = self::getAssessments($id);
-            $item['diseases'] = self::getDiseases($id);
+            $item['diseases'] = [];
         }
 
         return $item;
@@ -155,8 +153,7 @@ class MedicalTrip extends BaseModel
     {
         $sql = '
             SELECT mt.*,
-                   (SELECT COUNT(*) FROM `medical_assessments` WHERE `medical_trip_id` = mt.id) as assessments_count,
-                   (SELECT COUNT(*) FROM `medical_trip_diseases` WHERE `medical_trip_id` = mt.id) as diseases_count
+                   (SELECT COUNT(*) FROM `medical_assessments` WHERE `medical_trip_id` = mt.id) as assessments_count
             FROM `medical_trips` mt
             WHERE mt.`slug` = :slug
         ';
@@ -170,7 +167,7 @@ class MedicalTrip extends BaseModel
 
         $item = self::decodeJsonFields($item);
         $item['assessments'] = self::getAssessments((int) $item['id'], $onlyPublished);
-        $item['diseases'] = self::getDiseases((int) $item['id'], $onlyPublished);
+        $item['diseases'] = [];
 
         return $item;
     }
@@ -480,78 +477,27 @@ class MedicalTrip extends BaseModel
     }
 
     /* --------------------------------------------------------------------------
-     * Diseases Screened Management
+     * Diseases Screened Management (Deprecated / Removed)
      * -------------------------------------------------------------------------- */
 
     public static function getDiseases(int $tripId, bool $onlyActive = false): array
     {
-        $sql = 'SELECT * FROM `medical_trip_diseases` WHERE `medical_trip_id` = :trip_id';
-        if ($onlyActive) {
-            $sql .= ' AND `is_active` = 1';
-        }
-        $sql .= ' ORDER BY `display_order` ASC, `id` ASC';
-        return self::fetchAll($sql, [':trip_id' => $tripId]);
+        return [];
     }
 
     public static function addDisease(int $tripId, array $data): int
     {
-        $maxOrder = (int) self::fetchColumn('SELECT MAX(`display_order`) FROM `medical_trip_diseases` WHERE `medical_trip_id` = :id', [':id' => $tripId]);
-        $order = isset($data['display_order']) ? (int) $data['display_order'] : ($maxOrder + 1);
-
-        $sql = '
-            INSERT INTO `medical_trip_diseases` (
-                `medical_trip_id`, `condition_name`, `category`, `description`, `icon`, `display_order`, `is_active`
-            ) VALUES (
-                :trip_id, :name, :cat, :desc, :icon, :order, :is_active
-            )
-        ';
-
-        self::query($sql, [
-            ':trip_id' => $tripId,
-            ':name' => trim($data['condition_name'] ?? $data['name'] ?? 'Condition'),
-            ':cat' => $data['category'] ?? null,
-            ':desc' => $data['description'] ?? null,
-            ':icon' => $data['icon'] ?? 'Heart',
-            ':order' => $order,
-            ':is_active' => isset($data['is_active']) ? (int) $data['is_active'] : 1,
-        ]);
-
-        return (int) self::db()->lastInsertId();
+        return 0;
     }
 
     public static function updateDisease(int $diseaseId, array $data): bool
     {
-        $fields = [];
-        $params = [':id' => $diseaseId];
-
-        $map = [
-            'condition_name' => 'condition_name',
-            'name' => 'condition_name',
-            'category' => 'category',
-            'description' => 'description',
-            'icon' => 'icon',
-            'display_order' => 'display_order',
-            'is_active' => 'is_active',
-        ];
-
-        foreach ($map as $key => $col) {
-            if (array_key_exists($key, $data) && !in_array("`{$col}` = :{$col}", $fields)) {
-                $fields[] = "`{$col}` = :{$col}";
-                $params[":{$col}"] = $data[$key];
-            }
-        }
-
-        if (empty($fields)) return false;
-
-        $sql = 'UPDATE `medical_trip_diseases` SET ' . implode(', ', $fields) . ' WHERE `id` = :id';
-        self::query($sql, $params);
         return true;
     }
 
     public static function deleteDisease(int $diseaseId): bool
     {
-        $stmt = self::query('DELETE FROM `medical_trip_diseases` WHERE `id` = :id', [':id' => $diseaseId]);
-        return $stmt->rowCount() > 0;
+        return true;
     }
 
     /* --------------------------------------------------------------------------

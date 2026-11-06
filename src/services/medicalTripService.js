@@ -23,7 +23,7 @@ export const medicalTripService = {
   },
 
   /**
-   * Public: Get single medical trip by slug or ID with full assessments & screened diseases
+   * Public: Get single medical trip by slug or ID with full assessments & tests
    */
   getMedicalTripBySlug: async (slug) => {
     const res = await client.get(`/medical-trips/${slug}`);
