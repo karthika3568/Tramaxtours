@@ -263,16 +263,15 @@ class BookingController extends BaseController
                 ]);
             }
 
-            // Generate the PDF receipt and dispatch customer ticket + admin copy.
-            // Best-effort — a mail/PDF failure must never roll back or fail the saved booking.
+            // Dispatch Customer Acknowledgement (strictly NO PDF ticket at this stage)
+            // and internal Admin Notification alert. Ticket PDF is generated upon Admin Approval.
+            // Best-effort — a mail failure must never roll back or fail the saved booking.
             try {
-                $pdfPath = PdfService::generateBookingReceipt($createdBooking);
-                $receiptUrl = $this->buildReceiptUrl($bookingId, $createdBooking['order_number']);
-                [$custSent, $custError] = MailService::sendCustomerTicket($createdBooking, $pdfPath, $receiptUrl);
-                [$adminSent, $adminError] = MailService::sendAdminNotification($createdBooking, $pdfPath);
-                Booking::recordEmailDispatchResult($bookingId, $custSent, $custError, $adminSent, $adminError);
+                [$ackSent, $ackError] = MailService::sendCustomerAcknowledgement($createdBooking);
+                [$adminSent, $adminError] = MailService::sendAdminNotification($createdBooking);
+                Booking::recordEmailDispatchResult($bookingId, $ackSent, $ackError, $adminSent, $adminError);
             } catch (Throwable $e) {
-                error_log('[Wanderer Booking] Automatic email dispatch failed for booking ' . $bookingId . ': ' . $e->getMessage());
+                error_log('[Wanderer Booking] Acknowledgement email dispatch failed for booking ' . $bookingId . ': ' . $e->getMessage());
                 Booking::recordEmailDispatchResult($bookingId, false, $e->getMessage(), false, $e->getMessage());
             }
 
@@ -361,6 +360,16 @@ class BookingController extends BaseController
             );
         }
 
+        if ($status === 'confirmed') {
+            $this->approve($id);
+            return;
+        }
+
+        if ($status === 'rejected') {
+            $this->reject($id);
+            return;
+        }
+
         $userId = Request::getUserId();
         $success = Booking::updateStatus($id, $status, $userId, $notes);
 
@@ -381,7 +390,185 @@ class BookingController extends BaseController
     }
 
     /**
-     * Confirm a booking.
+     * Approve booking and issue official confirmed ticket.
+     * POST /api/v1/bookings/{id}/approve
+     *
+     * @param string $id
+     * @return void
+     */
+    public function approve(string $id): void
+    {
+        $id = (int) $id;
+        $booking = Booking::findById($id);
+
+        if (!$booking) {
+            $this->error('Booking not found.', 404, null, 'BOOKING_NOT_FOUND');
+        }
+
+        $userId = Request::getUserId();
+        $body = Request::getBody();
+        $notes = $body['notes'] ?? 'Booking approved by administrator';
+
+        try {
+            $result = Booking::approveBooking($id, $userId, $notes);
+            $updatedBooking = $result['booking'];
+
+            if ($userId) {
+                AuditService::log($userId, 'booking_approve', 'booking', $id, null, [
+                    'order_number' => $updatedBooking['order_number'],
+                    'notes' => $notes,
+                ]);
+            }
+
+            // Generate official ticket PDF & dispatch customer ticket + admin copy
+            try {
+                $pdfPath = PdfService::generateBookingReceipt($updatedBooking);
+                $receiptUrl = $this->buildReceiptUrl($id, $updatedBooking['order_number']);
+
+                [$custSent, $custError] = MailService::sendCustomerTicket($updatedBooking, $pdfPath, $receiptUrl);
+                [$adminSent, $adminError] = MailService::sendAdminConfirmedCopy($updatedBooking, $pdfPath);
+
+                Booking::recordEmailDispatchResult($id, $custSent, $custError, $adminSent, $adminError);
+            } catch (Throwable $e) {
+                error_log('[Wanderer Booking] Approval email/PDF dispatch failed for booking ' . $id . ': ' . $e->getMessage());
+                Booking::recordEmailDispatchResult($id, false, $e->getMessage(), false, $e->getMessage());
+            }
+
+            $refreshed = Booking::findById($id);
+            $this->success($refreshed, 'Booking approved and confirmed ticket issued successfully');
+        } catch (Throwable $e) {
+            $this->error('Failed to approve booking: ' . $e->getMessage(), 500, null, 'APPROVAL_FAILED');
+        }
+    }
+
+    /**
+     * Reject booking.
+     * POST /api/v1/bookings/{id}/reject
+     *
+     * @param string $id
+     * @return void
+     */
+    public function reject(string $id): void
+    {
+        $id = (int) $id;
+        $booking = Booking::findById($id);
+
+        if (!$booking) {
+            $this->error('Booking not found.', 404, null, 'BOOKING_NOT_FOUND');
+        }
+
+        $userId = Request::getUserId();
+        $body = Request::getBody();
+        $notes = $body['notes'] ?? 'Booking rejected by administrator';
+
+        try {
+            $result = Booking::rejectBooking($id, $userId, $notes);
+            $updatedBooking = $result['booking'];
+
+            if ($userId) {
+                AuditService::log($userId, 'booking_reject', 'booking', $id, null, [
+                    'order_number' => $updatedBooking['order_number'],
+                    'notes' => $notes,
+                ]);
+            }
+
+            $this->success($updatedBooking, 'Booking has been rejected');
+        } catch (Throwable $e) {
+            $this->error('Failed to reject booking: ' . $e->getMessage(), 500, null, 'REJECT_FAILED');
+        }
+    }
+
+    /**
+     * Record a manual payment transaction (Cash, UPI, Bank Transfer, Direct Payment, Pay on Arrival).
+     * POST /api/v1/bookings/{id}/payments
+     *
+     * @param string $id
+     * @return void
+     */
+    public function recordPayment(string $id): void
+    {
+        $id = (int) $id;
+        $booking = Booking::findById($id);
+
+        if (!$booking) {
+            $this->error('Booking not found.', 404, null, 'BOOKING_NOT_FOUND');
+        }
+
+        $body = Request::getBody();
+        $amount = (float) ($body['amount'] ?? 0.0);
+
+        if ($amount <= 0.0) {
+            $this->error('Payment amount must be greater than zero.', 422, [
+                'amount' => 'Valid payment amount is required.'
+            ], 'VALIDATION_ERROR');
+        }
+
+        $userId = Request::getUserId();
+
+        try {
+            $paySummary = Booking::recordPayment($id, $body, $userId);
+
+            if ($userId) {
+                AuditService::log($userId, 'booking_payment_record', 'booking', $id, null, [
+                    'amount' => $amount,
+                    'payment_method' => $body['payment_method'] ?? 'cash',
+                    'transaction_reference' => $paySummary['transaction_reference'] ?? null,
+                ]);
+            }
+
+            $updatedBooking = Booking::findById($id);
+            $this->success($updatedBooking, 'Payment recorded successfully', 201);
+        } catch (Throwable $e) {
+            $this->error('Failed to record payment: ' . $e->getMessage(), 500, null, 'PAYMENT_RECORD_FAILED');
+        }
+    }
+
+    /**
+     * Record a customer communication attempt (Phone, WhatsApp, Email, Other).
+     * POST /api/v1/bookings/{id}/contact-logs
+     *
+     * @param string $id
+     * @return void
+     */
+    public function addContactLog(string $id): void
+    {
+        $id = (int) $id;
+        $booking = Booking::findById($id);
+
+        if (!$booking) {
+            $this->error('Booking not found.', 404, null, 'BOOKING_NOT_FOUND');
+        }
+
+        $body = Request::getBody();
+        $notes = trim((string) ($body['notes'] ?? ''));
+
+        if ($notes === '') {
+            $this->error('Contact notes cannot be empty.', 422, [
+                'notes' => 'Notes describing the customer contact are required.'
+            ], 'VALIDATION_ERROR');
+        }
+
+        $userId = Request::getUserId();
+
+        try {
+            $log = Booking::addContactLog($id, $body, $userId);
+
+            if ($userId) {
+                AuditService::log($userId, 'booking_contact_log', 'booking', $id, null, [
+                    'contact_type' => $body['contact_type'] ?? 'phone',
+                    'notes' => $notes,
+                ]);
+            }
+
+            $updatedBooking = Booking::findById($id);
+            $this->success($updatedBooking, 'Contact log recorded successfully', 201);
+        } catch (Throwable $e) {
+            $this->error('Failed to add contact log: ' . $e->getMessage(), 500, null, 'CONTACT_LOG_FAILED');
+        }
+    }
+
+    /**
+     * Confirm a booking (Routes through approve).
      * POST /api/v1/bookings/{id}/confirm
      *
      * @param string $id
@@ -389,7 +576,7 @@ class BookingController extends BaseController
      */
     public function confirm(string $id): void
     {
-        $this->applyDirectStatus((int) $id, 'confirmed', 'Booking confirmed by administrator');
+        $this->approve($id);
     }
 
     /**
@@ -607,11 +794,16 @@ class BookingController extends BaseController
         }
 
         try {
-            $pdfPath = PdfService::generateBookingReceipt($booking);
-            $receiptUrl = $this->buildReceiptUrl($bookingId, $booking['order_number']);
+            if ($booking['booking_status'] === 'confirmed') {
+                $pdfPath = PdfService::generateBookingReceipt($booking);
+                $receiptUrl = $this->buildReceiptUrl($bookingId, $booking['order_number']);
 
-            [$custSent, $custError] = MailService::sendCustomerTicket($booking, $pdfPath, $receiptUrl);
-            [$adminSent, $adminError] = MailService::sendAdminNotification($booking, $pdfPath);
+                [$custSent, $custError] = MailService::sendCustomerTicket($booking, $pdfPath, $receiptUrl);
+                [$adminSent, $adminError] = MailService::sendAdminConfirmedCopy($booking, $pdfPath);
+            } else {
+                [$custSent, $custError] = MailService::sendCustomerAcknowledgement($booking);
+                [$adminSent, $adminError] = MailService::sendAdminNotification($booking);
+            }
 
             Booking::recordEmailDispatchResult($bookingId, $custSent, $custError, $adminSent, $adminError);
         } catch (Throwable $e) {

@@ -9,7 +9,13 @@ export default function BookingDetailModal({
   onOpenStatusModal,
   onPrintBooking,
   onSaveAdminNotes,
+  onApproveBooking,
+  onRejectBooking,
+  onRecordPayment,
+  onAddContactLog,
+  onResendConfirmation,
   isSavingNotes = false,
+  isProcessing = false,
 }) {
   const { hasPermission } = useAuth();
   const canEditStatus = hasPermission('bookings.edit_status');
@@ -17,7 +23,33 @@ export default function BookingDetailModal({
   const [adminNotes, setAdminNotes] = useState(booking?.admin_notes || '');
   const [isEditingNotes, setIsEditingNotes] = useState(false);
 
+  // Manual payment recording form state
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [payAmount, setPayAmount] = useState('');
+  const [payMethod, setPayMethod] = useState('cash');
+  const [payDate, setPayDate] = useState(new Date().toISOString().split('T')[0]);
+  const [payRef, setPayRef] = useState('');
+  const [payNotes, setPayNotes] = useState('');
+  const [isSubmittingPay, setIsSubmittingPay] = useState(false);
+
+  // Contact logging form state
+  const [showContactForm, setShowContactForm] = useState(false);
+  const [contactType, setContactType] = useState('phone');
+  const [contactNotes, setContactNotes] = useState('');
+  const [isSubmittingContact, setIsSubmittingContact] = useState(false);
+
   if (!isOpen || !booking) return null;
+
+  const currency = booking.currency === 'EUR' ? '€' : (booking.currency || 'INR');
+  const totalPrice = Number(booking.total_price || 0);
+  const advanceAmount = Number(booking.advance_amount || 0);
+  const balanceAmount = Number(booking.balance_amount !== undefined ? booking.balance_amount : Math.max(0, totalPrice - advanceAmount));
+
+  const customerPhone = booking.customer?.phone || booking.phone || '';
+  const cleanPhone = customerPhone.replace(/[^0-9]/g, '');
+  const whatsAppUrl = cleanPhone
+    ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hello ${booking.customer?.name || ''}, greetings from Wanderer South India regarding your tour reservation #${booking.order_number}.`)}`
+    : null;
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
@@ -55,17 +87,60 @@ export default function BookingDetailModal({
     }
   };
 
+  const handlePaymentSubmit = async (e) => {
+    e.preventDefault();
+    if (!onRecordPayment) return;
+    const amountVal = parseFloat(payAmount);
+    if (isNaN(amountVal) || amountVal <= 0) return;
+
+    try {
+      setIsSubmittingPay(true);
+      await onRecordPayment(booking.id, {
+        amount: amountVal,
+        payment_method: payMethod,
+        payment_date: payDate,
+        transaction_reference: payRef.trim() || undefined,
+        notes: payNotes.trim() || undefined,
+      });
+      setShowPaymentForm(false);
+      setPayAmount('');
+      setPayRef('');
+      setPayNotes('');
+    } finally {
+      setIsSubmittingPay(false);
+    }
+  };
+
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    if (!onAddContactLog || !contactNotes.trim()) return;
+
+    try {
+      setIsSubmittingContact(true);
+      await onAddContactLog(booking.id, {
+        contact_type: contactType,
+        notes: contactNotes.trim(),
+        contacted_at: new Date().toISOString().replace('T', ' ').substring(0, 19),
+      });
+      setShowContactForm(false);
+      setContactNotes('');
+    } finally {
+      setIsSubmittingContact(false);
+    }
+  };
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div
         className="modal-container modal-large booking-detail-modal"
         onClick={(e) => e.stopPropagation()}
+        style={{ maxWidth: '960px' }}
       >
         {/* Modal Header */}
         <div className="modal-header">
           <div className="booking-modal-title-group">
             <h2 className="modal-title">
-              Booking Details & Order #{booking.order_number}
+              Booking Details &amp; Order #{booking.order_number}
             </h2>
             <div className="booking-title-badges">
               <span className={`booking-status-badge ${getStatusBadgeClass(booking.booking_status)}`}>
@@ -74,6 +149,15 @@ export default function BookingDetailModal({
               <span className={`payment-status-pill ${getPaymentBadgeClass(booking.payment_status)}`}>
                 Payment: {booking.payment_status?.toUpperCase()}
               </span>
+              {balanceAmount > 0 ? (
+                <span className="badge badge-warning" style={{ fontSize: '11px' }}>
+                  Balance Due: {currency} {balanceAmount.toFixed(2)}
+                </span>
+              ) : (
+                <span className="badge badge-success" style={{ fontSize: '11px' }}>
+                  Fully Settled ✓
+                </span>
+              )}
             </div>
           </div>
           <button
@@ -86,11 +170,127 @@ export default function BookingDetailModal({
           </button>
         </div>
 
+        {/* Action Bar: Customer Contact & Direct Approval */}
+        <div style={{ background: '#f8fafc', padding: '12px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {customerPhone && (
+              <>
+                <a
+                  href={`tel:${customerPhone}`}
+                  className="btn btn-outline btn-xs"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                >
+                  📞 Call: {customerPhone}
+                </a>
+                {whatsAppUrl && (
+                  <a
+                    href={whatsAppUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn btn-outline btn-xs"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', borderColor: '#22c55e', color: '#15803d' }}
+                  >
+                    💬 WhatsApp Customer
+                  </a>
+                )}
+              </>
+            )}
+            <button
+              type="button"
+              className="btn btn-outline btn-xs"
+              onClick={() => setShowContactForm(!showContactForm)}
+            >
+              📝 {showContactForm ? 'Hide Contact Form' : 'Log Call / WhatsApp Note'}
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {canEditStatus && booking.booking_status !== 'confirmed' && (
+              <button
+                type="button"
+                className="btn btn-primary btn-xs"
+                disabled={isProcessing}
+                onClick={() => onApproveBooking && onApproveBooking(booking.id)}
+                style={{ background: '#01aa90', borderColor: '#01aa90' }}
+              >
+                ✓ Approve Booking &amp; Issue Ticket
+              </button>
+            )}
+            {canEditStatus && booking.booking_status !== 'rejected' && booking.booking_status !== 'cancelled' && (
+              <button
+                type="button"
+                className="btn btn-danger btn-xs"
+                disabled={isProcessing}
+                onClick={() => onRejectBooking && onRejectBooking(booking.id)}
+              >
+                ✕ Reject Booking
+              </button>
+            )}
+            {booking.booking_status === 'confirmed' && onResendConfirmation && (
+              <button
+                type="button"
+                className="btn btn-outline btn-xs"
+                disabled={isProcessing}
+                onClick={() => onResendConfirmation(booking.id)}
+              >
+                ✉ Resend Ticket Email
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Modal Body */}
         <div className="modal-body booking-modal-content">
+          {/* Collapsible Contact Log Entry Form */}
+          {showContactForm && (
+            <div className="detail-card" style={{ background: '#f0fdfa', border: '1px solid #99f6e4', marginBottom: '18px' }}>
+              <h4 style={{ margin: '0 0 10px', fontSize: '14px', color: '#01806c' }}>
+                📞 Record Customer Contact Log
+              </h4>
+              <form onSubmit={handleContactSubmit}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr auto', gap: '10px', alignItems: 'start' }}>
+                  <div>
+                    <label className="form-label" style={{ fontSize: '12px' }}>Channel</label>
+                    <select
+                      className="form-control form-select form-control-sm"
+                      value={contactType}
+                      onChange={(e) => setContactType(e.target.value)}
+                    >
+                      <option value="phone">Phone Call</option>
+                      <option value="whatsapp">WhatsApp</option>
+                      <option value="email">Email</option>
+                      <option value="other">Other / Direct</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="form-label" style={{ fontSize: '12px' }}>Discussion Notes / Follow-up Details</label>
+                    <input
+                      type="text"
+                      className="form-control form-control-sm"
+                      placeholder="e.g. Spoke on phone, agreed to pay 50% advance via UPI on Friday..."
+                      value={contactNotes}
+                      onChange={(e) => setContactNotes(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div style={{ paddingTop: '22px' }}>
+                    <button
+                      type="submit"
+                      className="btn btn-primary btn-sm"
+                      disabled={isSubmittingContact || !contactNotes.trim()}
+                    >
+                      {isSubmittingContact ? 'Saving...' : 'Save Log'}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          )}
+
           <div className="booking-detail-grid">
-            {/* Left Column: Customer & Billing Details */}
+            {/* Left Column: Customer & Trip Details */}
             <div className="booking-detail-section">
+              {/* Customer Information */}
               <div className="detail-card">
                 <h3 className="detail-card-heading">👤 Customer Information</h3>
                 <div className="detail-fields-list">
@@ -120,12 +320,16 @@ export default function BookingDetailModal({
                       )}
                     </span>
                   </div>
+                  <div className="detail-field-row">
+                    <span className="field-label">Country:</span>
+                    <span className="field-value">{booking.customer?.country || booking.country || 'India'}</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Extended Traveler & Itinerary Information */}
+              {/* Trip Specifications */}
               <div className="detail-card">
-                <h3 className="detail-card-heading">🧳 Trip & Travel Specifications</h3>
+                <h3 className="detail-card-heading">🧳 Trip &amp; Travel Specifications</h3>
                 <div className="detail-fields-list">
                   <div className="detail-field-row">
                     <span className="field-label">Destination:</span>
@@ -138,135 +342,82 @@ export default function BookingDetailModal({
                     <span className="field-value">{booking.pickup_location || 'Not provided'}</span>
                   </div>
                   <div className="detail-field-row">
-                    <span className="field-label">Travel / Arrival Date:</span>
-                    <span className="field-value">{booking.arrival_date || booking.booking_date || 'Not provided'}</span>
+                    <span className="field-label">Travel Date:</span>
+                    <span className="field-value">
+                      <strong>{booking.arrival_date || booking.booking_date || 'Not provided'}</strong>
+                    </span>
                   </div>
-                  {booking.departure_date && (
-                    <div className="detail-field-row">
-                      <span className="field-label">Departure Date:</span>
-                      <span className="field-value">{booking.departure_date}</span>
-                    </div>
-                  )}
-                  {booking.duration_days && (
-                    <div className="detail-field-row">
-                      <span className="field-label">Duration:</span>
-                      <span className="field-value font-semibold">{booking.duration_days}</span>
-                    </div>
-                  )}
                   <div className="detail-field-row">
-                    <span className="field-label">Guests Breakdown:</span>
+                    <span className="field-label">Duration:</span>
+                    <span className="field-value">{booking.duration_days || booking.tour?.duration_days || '1 Day'}</span>
+                  </div>
+                  <div className="detail-field-row">
+                    <span className="field-label">Guests Count:</span>
                     <span className="field-value font-bold text-accent">
-                      {booking.adults_count ?? booking.tickets_count ?? 1} Adult(s)
-                      {booking.children_count ? `, ${booking.children_count} Child(ren)` : ''}
-                      {booking.infants_count ? `, ${booking.infants_count} Infant(s)` : ''}
+                      {booking.tickets_count} Pax ({booking.adults_count ?? 1} Adults{booking.children_count ? `, ${booking.children_count} Children` : ''})
                     </span>
                   </div>
                   {booking.vehicle_preference && (
                     <div className="detail-field-row">
-                      <span className="field-label">Vehicle Preference:</span>
+                      <span className="field-label">Vehicle:</span>
                       <span className="field-value">{booking.vehicle_preference}</span>
                     </div>
                   )}
                   {booking.hotel_category && (
                     <div className="detail-field-row">
-                      <span className="field-label">Hotel Category:</span>
-                      <span className="field-value">{booking.hotel_category} {booking.room_type ? `(${booking.room_type})` : ''}</span>
+                      <span className="field-label">Hotel:</span>
+                      <span className="field-value">{booking.hotel_category}</span>
                     </div>
                   )}
-                  {booking.rooms_count && (
+                  {booking.special_requests && (
                     <div className="detail-field-row">
-                      <span className="field-label">Number of Rooms:</span>
-                      <span className="field-value">{booking.rooms_count}</span>
-                    </div>
-                  )}
-                  {booking.preferred_language && (
-                    <div className="detail-field-row">
-                      <span className="field-label">Guide Language:</span>
-                      <span className="field-value">{booking.preferred_language}</span>
-                    </div>
-                  )}
-                  <div className="detail-field-row">
-                    <span className="field-label">Airport Transfers:</span>
-                    <span className="field-value">
-                      Pickup: {booking.airport_pickup ? 'Yes' : 'No'} • Drop: {booking.airport_drop ? 'Yes' : 'No'}
-                    </span>
-                  </div>
-                  {(booking.arrival_flight_train_number || booking.arrival_time) && (
-                    <div className="detail-field-row">
-                      <span className="field-label">Arrival Transit:</span>
-                      <span className="field-value">
-                        {booking.arrival_flight_train_number || ''} {booking.arrival_time ? `@ ${booking.arrival_time}` : ''}
-                      </span>
-                    </div>
-                  )}
-                  {(booking.departure_flight_train_number || booking.departure_time) && (
-                    <div className="detail-field-row">
-                      <span className="field-label">Departure Transit:</span>
-                      <span className="field-value">
-                        {booking.departure_flight_train_number || ''} {booking.departure_time ? `@ ${booking.departure_time}` : ''}
-                      </span>
-                    </div>
-                  )}
-                  {booking.approximate_budget && (
-                    <div className="detail-field-row">
-                      <span className="field-label">Budget:</span>
-                      <span className="field-value">{booking.budget_currency || 'INR'} {booking.approximate_budget}</span>
-                    </div>
-                  )}
-                  {booking.passport_file_url && (
-                    <div className="detail-field-row">
-                      <span className="field-label">Passport File:</span>
-                      <span className="field-value">{booking.passport_file_url}</span>
-                    </div>
-                  )}
-                  {booking.flight_ticket_url && (
-                    <div className="detail-field-row">
-                      <span className="field-label">Ticket File:</span>
-                      <span className="field-value">{booking.flight_ticket_url}</span>
+                      <span className="field-label">Special Requests:</span>
+                      <span className="field-value">{booking.special_requests}</span>
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Billing Address Card */}
+              {/* Customer Contact History */}
               <div className="detail-card">
-                <h3 className="detail-card-heading">📍 Billing Address</h3>
-                {booking.billing_address ? (
-                  <div className="detail-fields-list">
-                    <div className="detail-field-row">
-                      <span className="field-label">Address:</span>
-                      <span className="field-value">
-                        {booking.billing_address.address_line1}
-                        {booking.billing_address.address_line2 && `, ${booking.billing_address.address_line2}`}
-                      </span>
-                    </div>
-                    <div className="detail-field-row">
-                      <span className="field-label">City / State:</span>
-                      <span className="field-value">
-                        {booking.billing_address.city || '—'}, {booking.billing_address.state || '—'}
-                      </span>
-                    </div>
-                    <div className="detail-field-row">
-                      <span className="field-label">Postal Code:</span>
-                      <span className="field-value">{booking.billing_address.postal_code || '—'}</span>
-                    </div>
-                    <div className="detail-field-row">
-                      <span className="field-label">Country:</span>
-                      <span className="field-value">{booking.billing_address.country || '—'}</span>
-                    </div>
+                <div className="detail-card-header-flex">
+                  <h3 className="detail-card-heading">📞 Customer Contact History</h3>
+                  <button
+                    type="button"
+                    className="btn btn-outline btn-xs"
+                    onClick={() => setShowContactForm(!showContactForm)}
+                  >
+                    + Add Log
+                  </button>
+                </div>
+                {booking.contact_logs && booking.contact_logs.length > 0 ? (
+                  <div className="status-timeline" style={{ marginTop: '10px' }}>
+                    {booking.contact_logs.map((log) => (
+                      <div key={log.id} className="timeline-item" style={{ paddingBottom: '10px' }}>
+                        <div className="timeline-marker" style={{ background: '#0284c7' }}></div>
+                        <div className="timeline-content">
+                          <div className="timeline-header">
+                            <span className="timeline-transition font-semibold" style={{ textTransform: 'capitalize' }}>
+                              {log.contact_type === 'whatsapp' ? '💬 WhatsApp' : log.contact_type === 'phone' ? '📞 Phone Call' : log.contact_type}
+                            </span>
+                            <span className="timeline-date">
+                              {log.contacted_at ? new Date(log.contacted_at).toLocaleString() : ''}
+                            </span>
+                          </div>
+                          <p className="timeline-note" style={{ margin: '4px 0 2px' }}>"{log.notes}"</p>
+                          <span className="timeline-author" style={{ fontSize: '11px', color: '#64748b' }}>
+                            Logged by: {log.recorded_by_name || 'Staff'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 ) : (
-                  <p className="text-muted-sm">No separate billing address recorded.</p>
+                  <p className="text-muted-sm" style={{ marginTop: '8px' }}>
+                    No communication attempts recorded yet. Click "+ Add Log" after speaking with the customer.
+                  </p>
                 )}
               </div>
-
-              {/* Customer Special Requests / Notes */}
-              {booking.customer_notes && (
-                <div className="detail-card">
-                  <h3 className="detail-card-heading">💬 Customer Special Requests</h3>
-                  <p className="booking-customer-notes-txt">{booking.customer_notes}</p>
-                </div>
-              )}
 
               {/* Internal Admin Notes */}
               <div className="detail-card admin-notes-card">
@@ -320,7 +471,7 @@ export default function BookingDetailModal({
               </div>
             </div>
 
-            {/* Right Column: Tour, Pricing, Payment & Timeline */}
+            {/* Right Column: Tour, Payments & History */}
             <div className="booking-detail-section">
               {/* Tour Package Summary */}
               <div className="detail-card tour-detail-card">
@@ -338,7 +489,7 @@ export default function BookingDetailModal({
                     <p className="tour-summary-sub">
                       <span>Type: {booking.tour?.tour_type || 'Custom Tour'}</span>
                       {booking.tour?.duration_days && <span> • Duration: {booking.tour.duration_days} Days</span>}
-                      {booking.tour?.destination_name && <span> • Location: {booking.tour.destination_name}</span>}
+                      {booking.tour?.destination_name && <span> • Region: {booking.tour.destination_name}</span>}
                     </p>
                     {booking.tour?.slug && (
                       <a
@@ -352,44 +503,53 @@ export default function BookingDetailModal({
                     )}
                   </div>
                 </div>
+              </div>
 
-                <div className="detail-fields-list mt-3">
+              {/* Financial & Payment Breakdown Card */}
+              <div className="detail-card" style={{ border: '1.5px solid #01aa90' }}>
+                <div className="detail-card-header-flex">
+                  <h3 className="detail-card-heading" style={{ color: '#01aa90' }}>💳 Payment Tracking &amp; Balance</h3>
+                  {canEditStatus && (
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-xs"
+                      onClick={() => {
+                        setShowPaymentForm(!showPaymentForm);
+                        if (!payAmount && balanceAmount > 0) {
+                          setPayAmount(balanceAmount.toString());
+                        }
+                      }}
+                    >
+                      + Record Payment
+                    </button>
+                  )}
+                </div>
+
+                <div className="detail-fields-list price-breakdown-list" style={{ marginTop: '12px' }}>
                   <div className="detail-field-row">
-                    <span className="field-label">Scheduled Travel Date:</span>
-                    <span className="field-value">
-                      <strong>
-                        {booking.booking_date
-                          ? new Date(booking.booking_date).toLocaleDateString(undefined, {
-                              weekday: 'short',
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                            })
-                          : 'Flexible / On Demand'}
-                      </strong>
+                    <span className="field-label">Total Booking Amount:</span>
+                    <span className="field-value font-bold" style={{ fontSize: '15px' }}>
+                      {currency} {totalPrice.toFixed(2)}
                     </span>
                   </div>
                   <div className="detail-field-row">
-                    <span className="field-label">Reserved Guests:</span>
-                    <span className="field-value font-semibold">{booking.tickets_count} Pax / Traveler(s)</span>
+                    <span className="field-label">Agreed Payment Mode:</span>
+                    <span className="field-value font-bold text-accent" style={{ textTransform: 'capitalize' }}>
+                      {booking.payment_method?.replace(/_/g, ' ') || 'Pay on Arrival'}
+                    </span>
                   </div>
-                  {booking.pricing_tier && (
-                    <div className="detail-field-row">
-                      <span className="field-label">Pricing Tier:</span>
-                      <span className="field-value">{booking.pricing_tier.name || booking.pricing_tier}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Price Breakdown */}
-              <div className="detail-card">
-                <h3 className="detail-card-heading">💳 Financial & Payment Breakdown</h3>
-                <div className="detail-fields-list price-breakdown-list">
-                  <div className="detail-field-row">
-                    <span className="field-label">Payment Method:</span>
-                    <span className="field-value font-bold text-accent">
-                      Pay on Arrival
+                  <div className="detail-field-row" style={{ color: '#16a34a' }}>
+                    <span className="field-label">Advance / Amount Paid:</span>
+                    <span className="field-value font-bold" style={{ fontSize: '14px' }}>
+                      {currency} {advanceAmount.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="detail-field-row" style={{ background: balanceAmount > 0 ? '#fff1f2' : '#f0fdf4', padding: '8px 10px', borderRadius: '6px' }}>
+                    <span className="field-label font-bold" style={{ color: balanceAmount > 0 ? '#b91c1c' : '#15803d' }}>
+                      Remaining Balance Due:
+                    </span>
+                    <span className="field-value font-bold" style={{ fontSize: '16px', color: balanceAmount > 0 ? '#b91c1c' : '#15803d' }}>
+                      {currency} {balanceAmount.toFixed(2)}
                     </span>
                   </div>
                   <div className="detail-field-row">
@@ -398,40 +558,126 @@ export default function BookingDetailModal({
                       {booking.payment_status || 'pending'}
                     </span>
                   </div>
-                  <div className="detail-field-row">
-                    <span className="field-label">Unit Price per Pax:</span>
-                    <span className="field-value">
-                      {booking.currency === 'EUR' ? '€' : booking.currency} {Number(booking.unit_price || 0).toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="detail-field-row">
-                    <span className="field-label">Subtotal ({booking.tickets_count} Pax):</span>
-                    <span className="field-value">
-                      {booking.currency === 'EUR' ? '€' : booking.currency} {Number(booking.subtotal || 0).toFixed(2)}
-                    </span>
-                  </div>
-                  {Number(booking.discount_amount) > 0 && (
-                    <div className="detail-field-row text-success">
-                      <span className="field-label">Discount:</span>
-                      <span className="field-value">
-                        -{booking.currency === 'EUR' ? '€' : booking.currency} {Number(booking.discount_amount).toFixed(2)}
-                      </span>
+                </div>
+
+                {/* Collapsible Manual Payment Form */}
+                {showPaymentForm && (
+                  <form onSubmit={handlePaymentSubmit} style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '14px', marginTop: '14px' }}>
+                    <h4 style={{ margin: '0 0 10px', fontSize: '13px', color: '#0B1329' }}>
+                      💵 Record Manual Customer Payment
+                    </h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      <div>
+                        <label className="form-label" style={{ fontSize: '11.5px' }}>Amount ({currency}) *</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          className="form-control form-control-sm"
+                          value={payAmount}
+                          onChange={(e) => setPayAmount(e.target.value)}
+                          placeholder="e.g. 5000"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="form-label" style={{ fontSize: '11.5px' }}>Payment Method *</label>
+                        <select
+                          className="form-control form-select form-control-sm"
+                          value={payMethod}
+                          onChange={(e) => setPayMethod(e.target.value)}
+                        >
+                          <option value="cash">Cash</option>
+                          <option value="upi">UPI (GPay / PhonePe / Paytm)</option>
+                          <option value="bank_transfer">Bank Transfer / NEFT / IMPS</option>
+                          <option value="direct">Direct Payment</option>
+                          <option value="pay_on_arrival">Pay on Arrival</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="form-label" style={{ fontSize: '11.5px' }}>Payment Date</label>
+                        <input
+                          type="date"
+                          className="form-control form-control-sm"
+                          value={payDate}
+                          onChange={(e) => setPayDate(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <label className="form-label" style={{ fontSize: '11.5px' }}>Transaction Reference / UTR</label>
+                        <input
+                          type="text"
+                          className="form-control form-control-sm"
+                          placeholder="e.g. UPI-12345678 or Cash Receipt"
+                          value={payRef}
+                          onChange={(e) => setPayRef(e.target.value)}
+                        />
+                      </div>
+                      <div style={{ gridColumn: 'span 2' }}>
+                        <label className="form-label" style={{ fontSize: '11.5px' }}>Notes</label>
+                        <input
+                          type="text"
+                          className="form-control form-control-sm"
+                          placeholder="e.g. Received 50% advance for Surfing package..."
+                          value={payNotes}
+                          onChange={(e) => setPayNotes(e.target.value)}
+                        />
+                      </div>
                     </div>
-                  )}
-                  {Number(booking.tax_amount) > 0 && (
-                    <div className="detail-field-row">
-                      <span className="field-label">Taxes & Fees:</span>
-                      <span className="field-value">
-                        +{booking.currency === 'EUR' ? '€' : booking.currency} {Number(booking.tax_amount).toFixed(2)}
-                      </span>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '12px' }}>
+                      <button
+                        type="button"
+                        className="btn btn-outline btn-xs"
+                        onClick={() => setShowPaymentForm(false)}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="btn btn-primary btn-xs"
+                        disabled={isSubmittingPay}
+                      >
+                        {isSubmittingPay ? 'Recording...' : 'Confirm & Record Payment'}
+                      </button>
                     </div>
+                  </form>
+                )}
+
+                {/* Recorded Payment History List */}
+                <div style={{ marginTop: '16px' }}>
+                  <h4 style={{ margin: '0 0 8px', fontSize: '12.5px', color: '#64748b', textTransform: 'uppercase' }}>
+                    Payment Installments &amp; Transactions
+                  </h4>
+                  {booking.payments && booking.payments.length > 0 ? (
+                    <table style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr style={{ background: '#f1f5f9', borderBottom: '1px solid #cbd5e1' }}>
+                          <th style={{ padding: '6px', textAlign: 'left' }}>Date</th>
+                          <th style={{ padding: '6px', textAlign: 'left' }}>Method</th>
+                          <th style={{ padding: '6px', textAlign: 'left' }}>Reference</th>
+                          <th style={{ padding: '6px', textAlign: 'right' }}>Amount</th>
+                          <th style={{ padding: '6px', textAlign: 'center' }}>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {booking.payments.map((p) => (
+                          <tr key={p.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                            <td style={{ padding: '6px' }}>{p.payment_date || (p.created_at ? p.created_at.substring(0, 10) : '—')}</td>
+                            <td style={{ padding: '6px', textTransform: 'capitalize' }}>{p.payment_method?.replace(/_/g, ' ')}</td>
+                            <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '11px' }}>{p.transaction_reference}</td>
+                            <td style={{ padding: '6px', textAlign: 'right', fontWeight: 'bold' }}>{currency} {Number(p.amount).toFixed(2)}</td>
+                            <td style={{ padding: '6px', textAlign: 'center' }}>
+                              <span className={`badge badge-sm ${p.status === 'completed' || p.status === 'paid' ? 'badge-success' : 'badge-warning'}`}>
+                                {p.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="text-muted-sm">No payment transactions recorded yet.</p>
                   )}
-                  <div className="detail-field-row total-row">
-                    <span className="field-label-total">Total Booking Value:</span>
-                    <span className="field-value-total">
-                      {booking.currency === 'EUR' ? '€' : booking.currency} {Number(booking.total_price || 0).toFixed(2)}
-                    </span>
-                  </div>
                 </div>
               </div>
 
@@ -463,14 +709,14 @@ export default function BookingDetailModal({
                   </div>
                 ) : (
                   <p className="text-muted-sm">
-                    Created on {booking.created_at ? new Date(booking.created_at).toLocaleString() : 'N/A'}. No additional status updates recorded yet.
+                    Created on {booking.created_at ? new Date(booking.created_at).toLocaleString() : 'N/A'}.
                   </p>
                 )}
               </div>
 
               {/* Email & Notification Status */}
               <div className="detail-card">
-                <h3 className="detail-card-heading">✉️ Email & Notification Status</h3>
+                <h3 className="detail-card-heading">✉️ Email &amp; Notification Status</h3>
                 <div className="detail-fields-list">
                   <div className="detail-field-row">
                     <span className="field-label">Customer Email:</span>
@@ -502,12 +748,6 @@ export default function BookingDetailModal({
                     <span className="field-label">Customer Send Count:</span>
                     <span className="field-value">{booking.email_send_count || 0} of 3 maximum</span>
                   </div>
-                  {booking.last_email_error && (
-                    <div className="detail-field-row text-danger">
-                      <span className="field-label">Last Error:</span>
-                      <span className="field-value" style={{ fontSize: '12px' }}>{booking.last_email_error}</span>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -522,23 +762,23 @@ export default function BookingDetailModal({
               className="btn btn-outline"
               onClick={() => onPrintBooking(booking)}
             >
-              🖨️ Print Order / Voucher
+              🖨️ Print Voucher
             </button>
           </div>
           <div className="modal-footer-right">
             {canEditStatus && (
               <button
                 type="button"
-                className="btn btn-primary"
+                className="btn btn-outline"
                 onClick={() => {
                   onClose();
                   onOpenStatusModal(booking);
                 }}
               >
-                Change Booking Status
+                Change Lifecycle Status
               </button>
             )}
-            <button type="button" className="btn btn-outline" onClick={onClose}>
+            <button type="button" className="btn btn-primary" onClick={onClose}>
               Close
             </button>
           </div>

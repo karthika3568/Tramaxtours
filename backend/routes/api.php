@@ -435,6 +435,19 @@ $router->group('/api/v1', function (Router $router) {
         // Get Single Booking Detail by ID or Order Number (Permission: bookings.view)
         $router->get('/{id}', [BookingController::class, 'show'], [new PermissionMiddleware('bookings.view')]);
 
+        // Secure PDF receipt download
+        $router->get('/{id}/receipt', [BookingController::class, 'receipt']);
+
+        // Manual Payment Recording (Permission: bookings.edit_status)
+        $router->post('/{id}/payments', [BookingController::class, 'recordPayment'], [new PermissionMiddleware('bookings.edit_status')]);
+
+        // Customer Contact Logging (Permission: bookings.edit_status)
+        $router->post('/{id}/contact-logs', [BookingController::class, 'addContactLog'], [new PermissionMiddleware('bookings.edit_status')]);
+
+        // Admin Approval & Rejection (Permission: bookings.edit_status)
+        $router->post('/{id}/approve', [BookingController::class, 'approve'], [new PermissionMiddleware('bookings.edit_status')]);
+        $router->post('/{id}/reject', [BookingController::class, 'reject'], [new PermissionMiddleware('bookings.edit_status')]);
+
         // Resend the booking confirmation email (owner, staff with bookings.view, or signed email token)
         $router->post('/{id}/resend-confirmation', [BookingController::class, 'resendConfirmation']);
         $router->post('/{id}/send-confirmation', [BookingController::class, 'resendConfirmation']);

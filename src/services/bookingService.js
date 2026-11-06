@@ -81,7 +81,51 @@ export const bookingService = {
   },
 
   /**
-   * Confirm booking.
+   * Approve booking and issue official confirmed ticket.
+   * @param {number} id
+   * @param {string} [notes]
+   * @returns {Promise<Object>}
+   */
+  approveBooking: async (id, notes = '') => {
+    const res = await client.post(`/bookings/${id}/approve`, { notes });
+    return res.data;
+  },
+
+  /**
+   * Reject booking.
+   * @param {number} id
+   * @param {string} [notes]
+   * @returns {Promise<Object>}
+   */
+  rejectBooking: async (id, notes = '') => {
+    const res = await client.post(`/bookings/${id}/reject`, { notes });
+    return res.data;
+  },
+
+  /**
+   * Record a manual payment (Cash, UPI, Bank Transfer, Direct Payment, Pay on Arrival).
+   * @param {number} id
+   * @param {Object} data - { amount, payment_method, payment_date, transaction_reference, notes }
+   * @returns {Promise<Object>}
+   */
+  recordPayment: async (id, data) => {
+    const res = await client.post(`/bookings/${id}/payments`, data);
+    return res.data;
+  },
+
+  /**
+   * Record a customer contact attempt (Phone call, WhatsApp, Email, Other).
+   * @param {number} id
+   * @param {Object} data - { contact_type, notes, contacted_at }
+   * @returns {Promise<Object>}
+   */
+  addContactLog: async (id, data) => {
+    const res = await client.post(`/bookings/${id}/contact-logs`, data);
+    return res.data;
+  },
+
+  /**
+   * Confirm booking (delegates to approve).
    * @param {number} id
    * @param {string} [notes]
    * @returns {Promise<Object>}

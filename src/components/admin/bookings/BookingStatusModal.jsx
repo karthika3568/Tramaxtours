@@ -9,10 +9,18 @@ const STATUS_OPTIONS = [
 ];
 
 const PAYMENT_STATUS_OPTIONS = [
-  { value: 'pending', label: 'Pending (Due on Arrival)' },
-  { value: 'paid', label: 'Paid (Settled)' },
+  { value: 'pending', label: 'Pending (Balance / Payment Due)' },
+  { value: 'paid', label: 'Paid (Fully Settled)' },
   { value: 'failed', label: 'Failed' },
   { value: 'refunded', label: 'Refunded' },
+];
+
+const PAYMENT_METHOD_OPTIONS = [
+  { value: 'cash', label: 'Cash' },
+  { value: 'upi', label: 'UPI (GPay / PhonePe / Paytm)' },
+  { value: 'bank_transfer', label: 'Bank Transfer / NEFT / IMPS' },
+  { value: 'direct', label: 'Direct Payment' },
+  { value: 'pay_on_arrival', label: 'Pay on Arrival' },
 ];
 
 export default function BookingStatusModal({
@@ -24,6 +32,7 @@ export default function BookingStatusModal({
 }) {
   const [newStatus, setNewStatus] = useState(booking?.booking_status || 'pending');
   const [paymentStatus, setPaymentStatus] = useState(booking?.payment_status || 'pending');
+  const [paymentMethod, setPaymentMethod] = useState(booking?.payment_method || 'pay_on_arrival');
   const [notes, setNotes] = useState('');
 
   if (!isOpen || !booking) return null;
@@ -34,6 +43,7 @@ export default function BookingStatusModal({
       bookingId: booking.id,
       booking_status: newStatus,
       payment_status: paymentStatus,
+      payment_method: paymentMethod,
       notes: notes.trim(),
     });
   };
@@ -118,7 +128,7 @@ export default function BookingStatusModal({
             {/* Payment Status Select */}
             <div className="form-group mt-3">
               <label htmlFor="payment_status_select" className="form-label font-semibold">
-                Payment Status (Pay on Arrival)
+                Payment Status
               </label>
               <select
                 id="payment_status_select"
@@ -127,6 +137,25 @@ export default function BookingStatusModal({
                 onChange={(e) => setPaymentStatus(e.target.value)}
               >
                 {PAYMENT_STATUS_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Payment Method Select */}
+            <div className="form-group mt-3">
+              <label htmlFor="payment_method_select" className="form-label font-semibold">
+                Payment Method / Mode
+              </label>
+              <select
+                id="payment_method_select"
+                className="form-control form-select"
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              >
+                {PAYMENT_METHOD_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
                     {opt.label}
                   </option>

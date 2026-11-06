@@ -92,6 +92,9 @@ class Booking extends BaseModel
         $plainToken = bin2hex(random_bytes(32));
         $tokenHash = hash('sha256', $plainToken);
 
+        $advanceAmount = isset($bookingData['advance_amount']) ? (float) $bookingData['advance_amount'] : 0.0;
+        $balanceAmount = isset($bookingData['balance_amount']) ? (float) $bookingData['balance_amount'] : max(0.0, $totalPrice - $advanceAmount);
+
         Database::beginTransaction();
 
         try {
@@ -118,6 +121,8 @@ class Booking extends BaseModel
                 'tax_amount' => $taxAmount,
                 'discount_amount' => $discountAmount,
                 'total_price' => $totalPrice,
+                'advance_amount' => $advanceAmount,
+                'balance_amount' => $balanceAmount,
                 'currency' => $currency,
                 'booking_status' => $bookingStatus,
                 'payment_method' => $paymentMethod,
@@ -152,6 +157,7 @@ class Booking extends BaseModel
         ['order_number' => $orderNumber, 'access_token_hash' => $accessTokenHash, 'tour_id' => $tourId, 'booking_date' => $bookingDate,
          'tickets_count' => $ticketsCount, 'unit_price' => $unitPrice, 'subtotal' => $subtotal,
          'tax_amount' => $taxAmount, 'discount_amount' => $discountAmount, 'total_price' => $totalPrice,
+         'advance_amount' => $advanceAmount, 'balance_amount' => $balanceAmount,
          'currency' => $currency, 'booking_status' => $bookingStatus, 'payment_method' => $paymentMethod,
          'payment_status' => $paymentStatus] = $computed;
 
@@ -174,7 +180,7 @@ class Booking extends BaseModel
             `approximate_budget`, `budget_currency`, `passport_file_url`, `flight_ticket_url`,
             `preferred_contact_methods`, `special_requests`,
             `booking_date`, `tickets_count`, `unit_price`, `subtotal`, `tax_amount`, `discount_amount`,
-            `total_price`, `currency`, `booking_status`, `payment_method`, `payment_status`,
+            `total_price`, `advance_amount`, `balance_amount`, `currency`, `booking_status`, `payment_method`, `payment_status`,
             `customer_notes`, `admin_notes`, `created_at`, `updated_at`
         ) VALUES (
             :order_number, :access_token_hash, :user_id, :tour_id, :pricing_tier_id,
@@ -187,7 +193,7 @@ class Booking extends BaseModel
             :approximate_budget, :budget_currency, :passport_file_url, :flight_ticket_url,
             :preferred_contact_methods, :special_requests,
             :booking_date, :tickets_count, :unit_price, :subtotal, :tax_amount, :discount_amount,
-            :total_price, :currency, :booking_status, :payment_method, :payment_status,
+            :total_price, :advance_amount, :balance_amount, :currency, :booking_status, :payment_method, :payment_status,
             :customer_notes, :admin_notes, NOW(), NOW()
         )';
 
@@ -236,6 +242,8 @@ class Booking extends BaseModel
             ':tax_amount' => $taxAmount,
             ':discount_amount' => $discountAmount,
             ':total_price' => $totalPrice,
+            ':advance_amount' => $advanceAmount,
+            ':balance_amount' => $balanceAmount,
             ':currency' => $currency,
             ':booking_status' => $bookingStatus,
             ':payment_method' => $paymentMethod,
@@ -330,7 +338,8 @@ class Booking extends BaseModel
 
         $allowedColumns = [
             'booking_date', 'tickets_count', 'unit_price', 'subtotal',
-            'tax_amount', 'discount_amount', 'total_price', 'currency',
+            'tax_amount', 'discount_amount', 'total_price', 'advance_amount', 'balance_amount',
+            'approved_at', 'approved_by', 'currency',
             'booking_status', 'payment_method', 'payment_status',
             'customer_notes', 'admin_notes'
         ];
@@ -338,9 +347,9 @@ class Booking extends BaseModel
         foreach ($allowedColumns as $col) {
             if (array_key_exists($col, $data)) {
                 $fields[] = "`{$col}` = :{$col}";
-                if (in_array($col, ['tickets_count'], true)) {
-                    $params[":{$col}"] = (int) $data[$col];
-                } elseif (in_array($col, ['unit_price', 'subtotal', 'tax_amount', 'discount_amount', 'total_price'], true)) {
+                if (in_array($col, ['tickets_count', 'approved_by'], true)) {
+                    $params[":{$col}"] = $data[$col] !== null ? (int) $data[$col] : null;
+                } elseif (in_array($col, ['unit_price', 'subtotal', 'tax_amount', 'discount_amount', 'total_price', 'advance_amount', 'balance_amount'], true)) {
                     $params[":{$col}"] = (float) $data[$col];
                 } else {
                     $params[":{$col}"] = $data[$col] !== null ? (string) $data[$col] : null;
@@ -415,6 +424,301 @@ class Booking extends BaseModel
         }
 
         return false;
+    }
+
+    /**
+     * Record a manual payment transaction (Cash, UPI, Bank Transfer, Direct Payment, Pay on Arrival).
+     * Atomic transaction: inserts payment record, recalculates advance and balance, updates booking payment status.
+     *
+     * @param int $bookingId
+     * @param array $data
+     * @param int|null $recordedBy
+     * @return array
+     */
+    public static function recordPayment(int $bookingId, array $data, ?int $recordedBy = null): array
+    {
+        $booking = self::findById($bookingId);
+        if (!$booking) {
+            throw new \InvalidArgumentException('Booking not found.');
+        }
+
+        $amount = (float) ($data['amount'] ?? 0.0);
+        if ($amount <= 0.0) {
+            throw new \InvalidArgumentException('Payment amount must be greater than zero.');
+        }
+
+        $method = strtolower(trim((string) ($data['payment_method'] ?? 'cash')));
+        $validMethods = ['cash', 'upi', 'bank_transfer', 'direct', 'pay_on_arrival'];
+        if (!in_array($method, $validMethods, true)) {
+            $method = 'direct';
+        }
+
+        $paymentDate = !empty($data['payment_date']) ? trim($data['payment_date']) : date('Y-m-d');
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $paymentDate)) {
+            $paymentDate = date('Y-m-d');
+        }
+
+        $methodTag = strtoupper(substr(str_replace('_', '', $method), 0, 3));
+        $txRef = !empty($data['transaction_reference'])
+            ? trim($data['transaction_reference'])
+            : ('TX-' . $methodTag . '-' . date('YmdHis') . '-' . strtoupper(bin2hex(random_bytes(2))));
+
+        $notes = !empty($data['notes']) ? trim($data['notes']) : null;
+        $currency = !empty($data['currency']) ? trim($data['currency']) : ($booking['currency'] ?? 'INR');
+        $status = !empty($data['status']) ? trim($data['status']) : 'completed';
+
+        Database::beginTransaction();
+        try {
+            // 1. Insert into payments
+            $paySql = 'INSERT INTO `payments` (
+                `booking_id`, `transaction_reference`, `payment_method`, `amount`, `payment_date`,
+                `currency`, `status`, `notes`, `recorded_by`, `paid_at`, `created_at`, `updated_at`
+            ) VALUES (
+                :booking_id, :tx_ref, :method, :amount, :payment_date,
+                :currency, :status, :notes, :recorded_by, NOW(), NOW(), NOW()
+            )';
+            self::execute($paySql, [
+                ':booking_id' => $bookingId,
+                ':tx_ref' => $txRef,
+                ':method' => $method,
+                ':amount' => $amount,
+                ':payment_date' => $paymentDate,
+                ':currency' => $currency,
+                ':status' => $status,
+                ':notes' => $notes,
+                ':recorded_by' => $recordedBy,
+            ]);
+
+            // 2. Recalculate completed payments for this booking
+            $sumSql = 'SELECT COALESCE(SUM(`amount`), 0) FROM `payments` WHERE `booking_id` = :id AND `status` = "completed"';
+            $totalPaid = (float) self::fetchColumn($sumSql, [':id' => $bookingId]);
+
+            $totalPrice = (float) $booking['total_price'];
+            $balance = max(0.0, $totalPrice - $totalPaid);
+            $paymentStatus = ($balance <= 0.001) ? 'paid' : 'pending';
+
+            // 3. Update bookings record
+            $updateSql = 'UPDATE `bookings` SET 
+                `advance_amount` = :advance,
+                `balance_amount` = :balance,
+                `payment_status` = :payment_status,
+                `payment_method` = :payment_method,
+                `updated_at` = NOW()
+                WHERE `id` = :id';
+            self::execute($updateSql, [
+                ':advance' => $totalPaid,
+                ':balance' => $balance,
+                ':payment_status' => $paymentStatus,
+                ':payment_method' => $method,
+                ':id' => $bookingId,
+            ]);
+
+            // 4. Log in status history if payment is settled
+            if ($paymentStatus === 'paid' && $booking['payment_status'] !== 'paid') {
+                $histSql = 'INSERT INTO `booking_status_history` (
+                    `booking_id`, `previous_status`, `new_status`, `changed_by`, `notes`, `created_at`
+                ) VALUES (
+                    :booking_id, :prev_status, :curr_status, :changed_by, :notes, NOW()
+                )';
+                self::execute($histSql, [
+                    ':booking_id' => $bookingId,
+                    ':prev_status' => $booking['booking_status'],
+                    ':curr_status' => $booking['booking_status'],
+                    ':changed_by' => $recordedBy,
+                    ':notes' => "Full payment of {$currency} {$totalPrice} received and settled via {$method} (Ref: {$txRef})",
+                ]);
+            }
+
+            Database::commit();
+
+            return [
+                'total_price' => $totalPrice,
+                'advance_amount' => $totalPaid,
+                'balance_amount' => $balance,
+                'payment_status' => $paymentStatus,
+                'payment_method' => $method,
+                'transaction_reference' => $txRef,
+            ];
+        } catch (\Throwable $e) {
+            Database::rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Log customer communication (Phone call, WhatsApp, Email, or meeting).
+     *
+     * @param int $bookingId
+     * @param array $data
+     * @param int|null $recordedBy
+     * @return array
+     */
+    public static function addContactLog(int $bookingId, array $data, ?int $recordedBy = null): array
+    {
+        $contactType = strtolower(trim((string) ($data['contact_type'] ?? 'phone')));
+        $validTypes = ['phone', 'whatsapp', 'email', 'other'];
+        if (!in_array($contactType, $validTypes, true)) {
+            $contactType = 'phone';
+        }
+
+        $notes = trim((string) ($data['notes'] ?? ''));
+        if ($notes === '') {
+            throw new \InvalidArgumentException('Contact notes cannot be empty.');
+        }
+
+        $contactedAt = !empty($data['contacted_at']) ? trim($data['contacted_at']) : date('Y-m-d H:i:s');
+
+        $sql = 'INSERT INTO `booking_contact_logs` (
+            `booking_id`, `contact_type`, `notes`, `contacted_at`, `recorded_by`, `created_at`
+        ) VALUES (
+            :booking_id, :contact_type, :notes, :contacted_at, :recorded_by, NOW()
+        )';
+
+        self::execute($sql, [
+            ':booking_id' => $bookingId,
+            ':contact_type' => $contactType,
+            ':notes' => $notes,
+            ':contacted_at' => $contactedAt,
+            ':recorded_by' => $recordedBy,
+        ]);
+
+        $logId = (int) self::lastInsertId();
+
+        return [
+            'id' => $logId,
+            'booking_id' => $bookingId,
+            'contact_type' => $contactType,
+            'notes' => $notes,
+            'contacted_at' => $contactedAt,
+            'recorded_by' => $recordedBy,
+        ];
+    }
+
+    /**
+     * Retrieve all contact logs for a booking.
+     *
+     * @param int $bookingId
+     * @return array
+     */
+    public static function getContactLogs(int $bookingId): array
+    {
+        $sql = 'SELECT bcl.*, u.`name` AS recorded_by_name, u.`email` AS recorded_by_email
+                FROM `booking_contact_logs` bcl
+                LEFT JOIN `users` u ON bcl.`recorded_by` = u.`id`
+                WHERE bcl.`booking_id` = :id
+                ORDER BY bcl.`contacted_at` DESC, bcl.`id` DESC';
+        return self::fetchAll($sql, [':id' => $bookingId]);
+    }
+
+    /**
+     * Approve a booking. Atomic status transition to 'confirmed', sets approved_at and approved_by.
+     *
+     * @param int $id
+     * @param int|null $adminId
+     * @param string|null $notes
+     * @return array ['booking' => array, 'already_approved' => bool]
+     */
+    public static function approveBooking(int $id, ?int $adminId = null, ?string $notes = null): array
+    {
+        $booking = self::findById($id);
+        if (!$booking) {
+            throw new \RuntimeException('Booking not found.', 404);
+        }
+
+        $prevStatus = $booking['booking_status'];
+        $alreadyApproved = ($prevStatus === 'confirmed' && !empty($booking['approved_at']));
+
+        Database::beginTransaction();
+        try {
+            $sql = 'UPDATE `bookings` SET 
+                `booking_status` = "confirmed",
+                `approved_at` = COALESCE(`approved_at`, NOW()),
+                `approved_by` = COALESCE(`approved_by`, :admin_id),
+                `updated_at` = NOW()
+                WHERE `id` = :id AND `deleted_at` IS NULL';
+            self::execute($sql, [
+                ':id' => $id,
+                ':admin_id' => $adminId,
+            ]);
+
+            if (!$alreadyApproved) {
+                $histSql = 'INSERT INTO `booking_status_history` (
+                    `booking_id`, `previous_status`, `new_status`, `changed_by`, `notes`, `created_at`
+                ) VALUES (
+                    :booking_id, :prev_status, "confirmed", :changed_by, :notes, NOW()
+                )';
+                self::execute($histSql, [
+                    ':booking_id' => $id,
+                    ':prev_status' => $prevStatus,
+                    ':changed_by' => $adminId,
+                    ':notes' => $notes ?: 'Booking approved by administrator',
+                ]);
+            }
+
+            Database::commit();
+
+            return [
+                'booking' => self::findById($id),
+                'already_approved' => $alreadyApproved,
+            ];
+        } catch (\Throwable $e) {
+            Database::rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Reject a booking. Atomic status transition to 'rejected', releases any date reservations.
+     *
+     * @param int $id
+     * @param int|null $adminId
+     * @param string|null $notes
+     * @return array
+     */
+    public static function rejectBooking(int $id, ?int $adminId = null, ?string $notes = null): array
+    {
+        $booking = self::findById($id);
+        if (!$booking) {
+            throw new \RuntimeException('Booking not found.', 404);
+        }
+
+        $prevStatus = $booking['booking_status'];
+
+        Database::beginTransaction();
+        try {
+            $sql = 'UPDATE `bookings` SET 
+                `booking_status` = "rejected",
+                `updated_at` = NOW()
+                WHERE `id` = :id AND `deleted_at` IS NULL';
+            self::execute($sql, [':id' => $id]);
+
+            $histSql = 'INSERT INTO `booking_status_history` (
+                `booking_id`, `previous_status`, `new_status`, `changed_by`, `notes`, `created_at`
+            ) VALUES (
+                :booking_id, :prev_status, "rejected", :changed_by, :notes, NOW()
+            )';
+            self::execute($histSql, [
+                ':booking_id' => $id,
+                ':prev_status' => $prevStatus,
+                ':changed_by' => $adminId,
+                ':notes' => $notes ?: 'Booking rejected by administrator',
+            ]);
+
+            // Release any date-specific seat reservation
+            $tourId = (int) $booking['tour_id'];
+            if (TourAvailability::tourUsesDateAvailability($tourId)) {
+                TourAvailability::releaseSeats($tourId, $booking['booking_date'], (int) $booking['tickets_count']);
+            }
+
+            Database::commit();
+
+            return [
+                'booking' => self::findById($id),
+            ];
+        } catch (\Throwable $e) {
+            Database::rollBack();
+            throw $e;
+        }
     }
 
     /**
@@ -676,6 +980,9 @@ class Booking extends BaseModel
     public static function formatBookingListItem(array $row): array
     {
         $customerName = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''));
+        $totalPrice = (float) ($row['total_price'] ?? 0.0);
+        $advanceAmount = (float) ($row['advance_amount'] ?? 0.0);
+        $balanceAmount = isset($row['balance_amount']) ? (float) $row['balance_amount'] : max(0.0, $totalPrice - $advanceAmount);
 
         return [
             'id' => (int) $row['id'],
@@ -702,7 +1009,10 @@ class Booking extends BaseModel
             'booking_date' => $row['booking_date'],
             'tickets_count' => (int) $row['tickets_count'],
             'unit_price' => (float) $row['unit_price'],
-            'total_price' => (float) $row['total_price'],
+            'total_price' => $totalPrice,
+            'advance_amount' => $advanceAmount,
+            'balance_amount' => $balanceAmount,
+            'approved_at' => $row['approved_at'] ?? null,
             'currency' => $row['currency'],
             'booking_status' => $row['booking_status'],
             'payment_method' => $row['payment_method'],
@@ -749,10 +1059,20 @@ class Booking extends BaseModel
         }, $historyRows);
 
         // Payments
-        $paySql = 'SELECT * FROM `payments` WHERE `booking_id` = :id ORDER BY `created_at` DESC';
+        $paySql = 'SELECT p.*, u.`name` AS recorded_by_name, u.`email` AS recorded_by_email
+                   FROM `payments` p
+                   LEFT JOIN `users` u ON p.`recorded_by` = u.`id`
+                   WHERE p.`booking_id` = :id 
+                   ORDER BY p.`created_at` DESC';
         $payments = self::fetchAll($paySql, [':id' => $bookingId]);
 
+        // Contact History Logs
+        $contactLogs = self::getContactLogs($bookingId);
+
         $customerName = trim(($customer['first_name'] ?? '') . ' ' . ($customer['last_name'] ?? ''));
+        $totalPrice = (float) ($row['total_price'] ?? 0.0);
+        $advanceAmount = (float) ($row['advance_amount'] ?? 0.0);
+        $balanceAmount = isset($row['balance_amount']) ? (float) $row['balance_amount'] : max(0.0, $totalPrice - $advanceAmount);
 
         return [
             'id' => $bookingId,
@@ -779,7 +1099,11 @@ class Booking extends BaseModel
             'subtotal' => (float) $row['subtotal'],
             'tax_amount' => (float) $row['tax_amount'],
             'discount_amount' => (float) $row['discount_amount'],
-            'total_price' => (float) $row['total_price'],
+            'total_price' => $totalPrice,
+            'advance_amount' => $advanceAmount,
+            'balance_amount' => $balanceAmount,
+            'approved_at' => $row['approved_at'] ?? null,
+            'approved_by' => $row['approved_by'] ? (int) $row['approved_by'] : null,
             'currency' => $row['currency'],
             'booking_status' => $row['booking_status'],
             'payment_method' => $row['payment_method'],
@@ -845,10 +1169,26 @@ class Booking extends BaseModel
                     'amount' => (float) $p['amount'],
                     'currency' => $p['currency'],
                     'status' => $p['status'],
+                    'payment_date' => $p['payment_date'],
+                    'notes' => $p['notes'],
+                    'recorded_by' => $p['recorded_by'] ? (int) $p['recorded_by'] : null,
+                    'recorded_by_name' => $p['recorded_by_name'] ?? null,
                     'paid_at' => $p['paid_at'],
                     'created_at' => $p['created_at'],
                 ];
             }, $payments),
+            'contact_logs' => array_map(function ($l) {
+                return [
+                    'id' => (int) $l['id'],
+                    'booking_id' => (int) $l['booking_id'],
+                    'contact_type' => $l['contact_type'],
+                    'notes' => $l['notes'],
+                    'contacted_at' => $l['contacted_at'],
+                    'recorded_by' => $l['recorded_by'] ? (int) $l['recorded_by'] : null,
+                    'recorded_by_name' => $l['recorded_by_name'] ?? 'Staff',
+                    'created_at' => $l['created_at'],
+                ];
+            }, $contactLogs),
             'customer_email_status' => $row['customer_email_status'] ?? 'pending',
             'customer_email_sent_at' => $row['customer_email_sent_at'] ?? null,
             'admin_email_status' => $row['admin_email_status'] ?? 'pending',

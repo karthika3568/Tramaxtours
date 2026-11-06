@@ -463,14 +463,21 @@ export default function TourBookingCard({ tour }) {
             <div className="admin-modal-body">
               {bookingSuccess ? (
                 <div className="booking-success-box text-center" style={{ padding: '24px 12px' }}>
-                  <div className="success-icon-big" style={{ fontSize: '52px', marginBottom: '12px' }}>🎉</div>
+                  <div className="success-icon-big" style={{ fontSize: '52px', marginBottom: '12px' }}>📋</div>
                   <h4 className="success-title" style={{ fontSize: '22px', fontWeight: '800', color: '#01aa90', margin: '0 0 8px' }}>
-                    Reservation Placed Successfully!
+                    Booking Request Received!
                   </h4>
-                  <p className="success-desc" style={{ fontSize: '15px', color: '#475569', marginBottom: '20px' }}>
+                  <p className="success-desc" style={{ fontSize: '15px', color: '#475569', marginBottom: '16px' }}>
                     Thank you, <strong>{bookingSuccess?.customer?.name || bookingSuccess?.first_name || (user?.name || 'Valued Traveler')}</strong>! Your reservation reference is{' '}
                     <strong style={{ color: '#0B1329', fontSize: '16px' }}>#{bookingSuccess?.order_number || bookingSuccess?.id}</strong>.
                   </p>
+
+                  <div style={{ background: '#fefce8', border: '1px solid #fef08a', borderLeft: '4px solid #eab308', borderRadius: '8px', padding: '12px 16px', textAlign: 'left', marginBottom: '20px', fontSize: '13px', color: '#713f12' }}>
+                    <strong>⏳ Next Step: Manual Payment &amp; Confirmation</strong>
+                    <p style={{ margin: '4px 0 0', lineHeight: 1.5 }}>
+                      Our tour coordinator will contact you shortly on <strong>{bookingSuccess?.customer?.phone || bookingSuccess?.phone || user?.phone}</strong> to confirm your details and arrange your manual payment (Cash, UPI, Bank Transfer, or Direct Payment). Your official confirmed PDF ticket will be emailed once approved.
+                    </p>
+                  </div>
 
                   <div
                     className="success-summary-box"
@@ -486,72 +493,37 @@ export default function TourBookingCard({ tour }) {
                     }}
                   >
                     <p style={{ margin: '0 0 8px' }}><strong>Tour Package:</strong> {tour.title}</p>
-                    <p style={{ margin: '0 0 8px' }}><strong>Travel Date:</strong> {bookingSuccess?.arrival_date || bookingSuccess?.booking_date || selectedDate} ({selectedTimeSlot})</p>
+                    <p style={{ margin: '0 0 8px' }}><strong>Scheduled Date:</strong> {bookingSuccess?.arrival_date || bookingSuccess?.booking_date || selectedDate} ({selectedTimeSlot})</p>
                     <p style={{ margin: '0 0 8px' }}><strong>Guests / Travelers:</strong> {bookingSuccess?.tickets_count || (adults + children)} ({bookingSuccess?.adults_count || adults} Adults, {bookingSuccess?.children_count || children} Children)</p>
-                    <p style={{ margin: '0 0 8px' }}><strong>Total Amount:</strong> {currencySymbol}{(bookingSuccess?.total_price || totalPrice).toLocaleString()} (Pay on Arrival)</p>
+                    <p style={{ margin: '0 0 8px' }}><strong>Estimated Amount:</strong> {currencySymbol}{(bookingSuccess?.total_price || totalPrice).toLocaleString()}</p>
+                    <p style={{ margin: '0 0 8px' }}><strong>Booking Status:</strong> <span className="badge badge-warning" style={{ fontSize: '11px' }}>PENDING CONFIRMATION</span></p>
                     <p style={{ margin: '0 0 8px' }}><strong>Pickup Location:</strong> {bookingSuccess?.pickup_location || 'Hotel / Airport in South India'}</p>
                     <p style={{ margin: 0 }}><strong>Contact:</strong> {bookingSuccess?.customer?.email || user?.email} • {bookingSuccess?.customer?.phone || user?.phone}</p>
                   </div>
 
-                  {/* Receipt Action Buttons */}
+                  {/* Action Buttons */}
                   <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '20px' }}>
                     <button
                       type="button"
                       className="btn btn-outline btn-md"
                       onClick={handlePrintSummary}
-                      title="Print or Save as PDF via browser"
+                      title="Print or Save Summary via browser"
                     >
-                      🖨️ Print Summary
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-outline btn-md"
-                      onClick={handleDownloadReceipt}
-                      disabled={isDownloadingPdf}
-                      title="Download official PDF voucher"
-                    >
-                      {isDownloadingPdf ? '⏳ Generating PDF...' : '📄 Download PDF Voucher'}
+                      🖨️ Print Request Summary
                     </button>
                     <button
                       type="button"
                       className="btn btn-primary btn-md"
                       onClick={handleShareWhatsAppReceipt}
                       style={{ background: '#16a34a', borderColor: '#16a34a' }}
-                      title="Open WhatsApp chat with booking details"
+                      title="Message us on WhatsApp"
                     >
-                      💬 WhatsApp Confirmation
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-outline btn-md"
-                      onClick={handleResendEmail}
-                      disabled={isResendingEmail || cooldownRemaining > 0}
-                      title="Email official confirmation with receipt PDF"
-                      style={{
-                        borderColor: emailSentStatus === 'sent' ? '#16a34a' : '#01aa90',
-                        color: emailSentStatus === 'sent' ? '#16a34a' : '#01aa90',
-                      }}
-                    >
-                      {isResendingEmail
-                        ? '⏳ Sending Ticket...'
-                        : cooldownRemaining > 0
-                        ? `⏳ Wait ${cooldownRemaining}s`
-                        : emailSentStatus === 'sent'
-                        ? '✓ Send Ticket to Email'
-                        : '✉️ Send Ticket to Email'}
+                      💬 Chat on WhatsApp
                     </button>
                   </div>
 
                   <p style={{ fontSize: '12.5px', color: '#64748b', marginBottom: '14px' }}>
-                    {emailSentStatus === 'sent' ? (
-                      <span style={{ color: '#16a34a', fontWeight: 600 }}>
-                        ✓ Ticket sent to <strong>{bookingSuccess?.customer?.email || bookingSuccess?.email || user?.email}</strong>.
-                      </span>
-                    ) : (
-                      <>
-                        Confirmation ticket & voucher dispatched to <strong>{bookingSuccess?.customer?.email || bookingSuccess?.email || user?.email}</strong>.
-                      </>
-                    )}
+                    An acknowledgement email has been dispatched to <strong>{bookingSuccess?.customer?.email || bookingSuccess?.email || user?.email}</strong>.
                   </p>
 
                   {isAuthenticated && (

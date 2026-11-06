@@ -243,24 +243,29 @@ export default function AdminBookingsPage() {
   };
 
   // Submit Status Update
-  const handleSubmitStatus = async ({ bookingId, booking_status, payment_status, notes }) => {
+  const handleSubmitStatus = async ({ bookingId, booking_status, payment_status, payment_method, notes }) => {
     try {
       setIsSubmittingStatus(true);
 
-      // updateBookingStatus(id, status, notes) takes `status` as a plain
-      // string — it was previously passed a whole {booking_status,
-      // payment_status, notes} object, which the backend's status endpoint
-      // rejects with 422 every time (it validates `status` against the
-      // allowed-values enum, and an object never matches). That endpoint
-      // also records booking_status_history and releases date-based seat
-      // holds on cancellation, so booking_status must go through it — not
-      // the generic PUT — to keep that behaviour.
-      await bookingService.updateBookingStatus(bookingId, booking_status, notes);
+      // If status is confirmed, trigger the official approval & ticket generation workflow
+      if (booking_status === 'confirmed') {
+        await bookingService.approveBooking(bookingId, notes);
+      } else if (booking_status === 'rejected') {
+        await bookingService.rejectBooking(bookingId, notes);
+      } else {
+        await bookingService.updateBookingStatus(bookingId, booking_status, notes);
+      }
 
-      // The status endpoint doesn't accept payment_status at all; persist it
-      // separately via the generic update when it actually changed.
+      // Update payment status and/or payment method if changed
+      const payUpdates = {};
       if (payment_status && payment_status !== selectedBooking?.payment_status) {
-        await bookingService.updateBooking(bookingId, { payment_status });
+        payUpdates.payment_status = payment_status;
+      }
+      if (payment_method && payment_method !== selectedBooking?.payment_method) {
+        payUpdates.payment_method = payment_method;
+      }
+      if (Object.keys(payUpdates).length > 0) {
+        await bookingService.updateBooking(bookingId, payUpdates);
       }
 
       toast.success(`Booking #${selectedBooking?.order_number} status updated to ${booking_status}.`);
@@ -268,6 +273,82 @@ export default function AdminBookingsPage() {
       setReloadTrigger((prev) => prev + 1);
     } catch (err) {
       toast.error(err.message || 'Failed to update booking status.');
+    } finally {
+      setIsSubmittingStatus(false);
+    }
+  };
+
+  // Direct Approval
+  const handleApproveBooking = async (bookingId) => {
+    try {
+      setIsSubmittingStatus(true);
+      const updated = await bookingService.approveBooking(bookingId);
+      toast.success(`Booking #${updated?.order_number || selectedBooking?.order_number} approved and official ticket issued!`);
+      const full = await bookingService.getBooking(bookingId);
+      setSelectedBooking(full);
+      setReloadTrigger((prev) => prev + 1);
+    } catch (err) {
+      toast.error(err.message || 'Failed to approve booking.');
+    } finally {
+      setIsSubmittingStatus(false);
+    }
+  };
+
+  // Direct Rejection
+  const handleRejectBooking = async (bookingId) => {
+    try {
+      setIsSubmittingStatus(true);
+      const updated = await bookingService.rejectBooking(bookingId);
+      toast.success(`Booking #${updated?.order_number || selectedBooking?.order_number} has been rejected.`);
+      const full = await bookingService.getBooking(bookingId);
+      setSelectedBooking(full);
+      setReloadTrigger((prev) => prev + 1);
+    } catch (err) {
+      toast.error(err.message || 'Failed to reject booking.');
+    } finally {
+      setIsSubmittingStatus(false);
+    }
+  };
+
+  // Record Manual Payment
+  const handleRecordPayment = async (bookingId, paymentData) => {
+    try {
+      await bookingService.recordPayment(bookingId, paymentData);
+      toast.success(`Payment of ${paymentData.amount} recorded successfully.`);
+      const full = await bookingService.getBooking(bookingId);
+      setSelectedBooking(full);
+      setReloadTrigger((prev) => prev + 1);
+    } catch (err) {
+      toast.error(err.message || 'Failed to record payment.');
+      throw err;
+    }
+  };
+
+  // Log Customer Communication
+  const handleAddContactLog = async (bookingId, logData) => {
+    try {
+      await bookingService.addContactLog(bookingId, logData);
+      toast.success('Customer contact log saved.');
+      const full = await bookingService.getBooking(bookingId);
+      setSelectedBooking(full);
+      setReloadTrigger((prev) => prev + 1);
+    } catch (err) {
+      toast.error(err.message || 'Failed to save contact log.');
+      throw err;
+    }
+  };
+
+  // Resend Confirmed Ticket Email
+  const handleResendConfirmation = async (bookingId) => {
+    try {
+      setIsSubmittingStatus(true);
+      await bookingService.resendConfirmation(bookingId);
+      toast.success('Confirmed ticket email resent to customer!');
+      const full = await bookingService.getBooking(bookingId);
+      setSelectedBooking(full);
+      setReloadTrigger((prev) => prev + 1);
+    } catch (err) {
+      toast.error(err.message || 'Failed to resend confirmation email.');
     } finally {
       setIsSubmittingStatus(false);
     }
@@ -380,7 +461,13 @@ export default function AdminBookingsPage() {
         onOpenStatusModal={handleOpenStatusModal}
         onPrintBooking={handlePrintBooking}
         onSaveAdminNotes={handleSaveAdminNotes}
+        onApproveBooking={handleApproveBooking}
+        onRejectBooking={handleRejectBooking}
+        onRecordPayment={handleRecordPayment}
+        onAddContactLog={handleAddContactLog}
+        onResendConfirmation={handleResendConfirmation}
         isSavingNotes={isSavingNotes}
+        isProcessing={isSubmittingStatus}
       />
 
       <BookingStatusModal
