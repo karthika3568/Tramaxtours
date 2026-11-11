@@ -39,7 +39,9 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                 !c.slug?.includes('medical') &&
                 !c.name?.toLowerCase().includes('medical') &&
                 !c.slug?.includes('palm') &&
-                !c.name?.toLowerCase().includes('palm')
+                !c.name?.toLowerCase().includes('palm') &&
+                !c.slug?.includes('surf') &&
+                !c.name?.toLowerCase().includes('surf')
             )
             .sort((a, b) => {
               const aSight = (a.name?.toLowerCase().includes('sightseeing') || a.slug?.includes('sightseeing')) ? 1 : 0;
@@ -100,16 +102,31 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
   };
 
   const handleTestimonialsClick = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
     if (onLinkClick) onLinkClick();
-    if (location.pathname === '/') {
-      e.preventDefault();
+
+    const doScrollToTestimonials = () => {
       const el = document.getElementById('testimonials');
       if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const navHeight = 85;
+        const top = el.getBoundingClientRect().top + window.pageYOffset - navHeight;
+        window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+        return true;
       }
+      return false;
+    };
+
+    if (location.pathname === '/') {
+      doScrollToTestimonials();
     } else {
-      e.preventDefault();
-      navigate('/#testimonials');
+      navigate('/?scroll=testimonials#testimonials');
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
+        if (doScrollToTestimonials() || attempts > 30) {
+          clearInterval(interval);
+        }
+      }, 100);
     }
   };
 
@@ -284,7 +301,6 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
 
                       {categories.map((cat) => {
                         const catName = cat.name || cat.slug;
-                        const icon = cat.icon || 'compass';
                         return (
                           <button
                             key={cat.id || cat.slug}
@@ -304,13 +320,38 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                               cursor: 'pointer',
                             }}
                           >
-                            <span>{icon}</span>
                             <span>{catName}</span>
                           </button>
                         );
                       })}
 
                       <div style={{ height: '1px', backgroundColor: '#e2e8f0', margin: '6px 4px' }} />
+
+                      {/* Surfing Tour at bottom */}
+                      <button
+                        type="button"
+                        onClick={() => handleSelectCategory('surfing-tour')}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '10px 12px',
+                          border: '1px solid #bae6fd',
+                          background: '#f0f9ff',
+                          borderRadius: '8px',
+                          color: '#0369a1',
+                          fontSize: '14.5px',
+                          fontWeight: 800,
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <CompassIcon size={15} color="#0284c7" />
+                        <span>Surfing Tour</span>
+                        <span style={{ fontSize: '10px', background: '#0284c7', color: '#ffffff', padding: '1px 6px', borderRadius: '4px', marginLeft: 'auto' }}>
+                          Waves
+                        </span>
+                      </button>
 
                       {/* Medical Tour at bottom */}
                       <button
@@ -486,7 +527,6 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                     <div style={{ maxHeight: '240px', overflowY: 'auto' }}>
                       {categories.map((cat) => {
                         const catName = cat.name || cat.slug;
-                        const icon = cat.icon || 'compass';
                         return (
                           <button
                             key={cat.id || cat.slug}
@@ -510,7 +550,6 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                               transition: 'background 0.15s ease, color 0.15s ease',
                             }}
                           >
-                            <span style={{ fontSize: '15px' }}>{icon}</span>
                             <span style={{ flex: 1 }}>{catName}</span>
                           </button>
                         );
@@ -531,6 +570,54 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                     >
                       Special Experiences
                     </div>
+
+                    {/* Surfing Tour Option (At Bottom) */}
+                    <button
+                      type="button"
+                      onClick={() => handleSelectCategory('surfing-tour')}
+                      className="nav-dropdown-item-btn"
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        padding: '9px 12px',
+                        marginTop: '2px',
+                        border: '1px solid #bae6fd',
+                        background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.08) 0%, rgba(186, 230, 253, 0.3) 100%)',
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        fontSize: '13.5px',
+                        fontWeight: 800,
+                        color: '#0369a1',
+                        textAlign: 'left',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      <CompassIcon size={17} color="#0284c7" />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span>Surfing Tour</span>
+                          <span
+                            style={{
+                              fontSize: '9.5px',
+                              fontWeight: 800,
+                              background: '#0284c7',
+                              color: '#ffffff',
+                              padding: '1px 5px',
+                              borderRadius: '5px',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.04em',
+                            }}
+                          >
+                            Waves
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#0369a1', opacity: 0.85, fontWeight: 500 }}>
+                          Ocean wave lessons at Covelong Point
+                        </div>
+                      </div>
+                    </button>
 
                     {/* Medical Tour Option (At Bottom) */}
                     <button

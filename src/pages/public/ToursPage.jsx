@@ -1,4 +1,4 @@
-import { CalendarIcon, MapPinIcon, StarIcon, StethoscopeIcon, XIcon } from '../../components/common/Icons';
+import { CalendarIcon, CompassIcon, MapPinIcon, StarIcon, StethoscopeIcon, XIcon } from '../../components/common/Icons';
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import tourService from '../../services/tourService';
@@ -6,6 +6,7 @@ import destinationService from '../../services/destinationService';
 import TourCard from '../../components/public/tours/TourCard';
 import MedicalTripCard from '../../components/public/tours/MedicalTripCard';
 import PalmLeafCard from '../../components/public/tours/PalmLeafCard';
+import SurfingCard from '../../components/public/tours/SurfingCard';
 import medicalTripService from '../../services/medicalTripService';
 import Pagination from '../../components/public/common/Pagination';
 import Loading from '../../components/ui/Loading';
@@ -353,7 +354,7 @@ export default function ToursPage() {
     });
   }, [tours, selectedDurations, selectedCategories, selectedRating]);
 
-  // Determine visibility of medical trips, palm leaf, and regular tours
+  // Determine visibility of medical trips, palm leaf, surfing, and regular tours
   const isMedicalOnlySelected =
     selectedCategories.length > 0 &&
     selectedCategories.every(
@@ -374,18 +375,32 @@ export default function ToursPage() {
     (c) => c.toLowerCase().includes('palm') || c.toLowerCase().includes('horoscope') || c.toLowerCase().includes('nadi')
   );
 
-  const isSpecificNonSpecialCategorySelected =
-    selectedCategories.length > 0 && !isMedicalIncluded && !isPalmLeafIncluded;
+  const isSurfingOnlySelected =
+    selectedCategories.length > 0 &&
+    selectedCategories.every(
+      (c) => c.toLowerCase().includes('surf')
+    );
 
-  const visibleMedicalTrips = isSpecificNonSpecialCategorySelected || isPalmLeafOnlySelected ? [] : medicalTrips;
-  const showPalmLeaf = !isSpecificNonSpecialCategorySelected && !isMedicalOnlySelected;
-  const visibleTours = (isMedicalOnlySelected || isPalmLeafOnlySelected)
+  const isSurfingIncluded = selectedCategories.some(
+    (c) => c.toLowerCase().includes('surf')
+  );
+
+  const isSpecificNonSpecialCategorySelected =
+    selectedCategories.length > 0 && !isMedicalIncluded && !isPalmLeafIncluded && !isSurfingIncluded;
+
+  const visibleMedicalTrips = isSpecificNonSpecialCategorySelected || isPalmLeafOnlySelected || isSurfingOnlySelected ? [] : medicalTrips;
+  const showPalmLeaf = !isSpecificNonSpecialCategorySelected && !isMedicalOnlySelected && !isSurfingOnlySelected;
+  const showSurfing = !isSpecificNonSpecialCategorySelected && !isMedicalOnlySelected && !isPalmLeafOnlySelected;
+
+  const visibleTours = (isMedicalOnlySelected || isPalmLeafOnlySelected || isSurfingOnlySelected)
     ? []
     : filteredTours.filter(
         (t) =>
           !t.slug?.toLowerCase().includes('palmleaf') &&
           !t.slug?.toLowerCase().includes('palm-leaf') &&
-          !t.tour_type?.toLowerCase().includes('palmleaf')
+          !t.tour_type?.toLowerCase().includes('palmleaf') &&
+          !t.slug?.toLowerCase().includes('surfing') &&
+          !t.tour_type?.toLowerCase().includes('surfing')
       );
 
   // Sort tours so Sightseeing tours appear first, then other tours
@@ -412,7 +427,11 @@ export default function ToursPage() {
     return list;
   }, [visibleTours, sortBy]);
 
-  const totalResultsCount = sortedVisibleTours.length + visibleMedicalTrips.length + (showPalmLeaf ? 1 : 0);
+  const totalResultsCount =
+    sortedVisibleTours.length +
+    visibleMedicalTrips.length +
+    (showPalmLeaf ? 1 : 0) +
+    (showSurfing ? 1 : 0);
 
   const handleToggleDuration = (val) => {
     setSelectedDurations((prev) =>
@@ -680,7 +699,9 @@ export default function ToursPage() {
                     !c.slug?.includes('medical') &&
                     !c.name?.toLowerCase().includes('medical') &&
                     !c.slug?.includes('palm') &&
-                    !c.name?.toLowerCase().includes('palm')
+                    !c.name?.toLowerCase().includes('palm') &&
+                    !c.slug?.includes('surf') &&
+                    !c.name?.toLowerCase().includes('surf')
                 )
                 .sort((a, b) => {
                   const aSight = (a.name?.toLowerCase().includes('sightseeing') || a.slug?.includes('sightseeing')) ? 1 : 0;
@@ -707,6 +728,20 @@ export default function ToursPage() {
                 })}
 
               <div style={{ height: '1px', backgroundColor: '#e2e8f0', margin: '4px 0' }} />
+
+              {/* Special: Surfing Tour Checkbox */}
+              <label className="filter-checkbox-item">
+                <input
+                  type="checkbox"
+                  checked={selectedCategories.some((c) => c.toLowerCase().includes('surf'))}
+                  onChange={() => handleToggleCategory('surfing-tour')}
+                />
+                <span className="checkbox-custom" />
+                <span className="checkbox-label-text" style={{ fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#0369a1' }}>
+                  <CompassIcon size={14} color="#0284c7" />
+                  <span>Surfing Tours</span>
+                </span>
+              </label>
 
               {/* Special: Medical Tour Checkbox */}
               <label className="filter-checkbox-item">
@@ -894,7 +929,9 @@ export default function ToursPage() {
                         !c.slug?.includes('medical') &&
                         !c.name?.toLowerCase().includes('medical') &&
                         !c.slug?.includes('palm') &&
-                        !c.name?.toLowerCase().includes('palm')
+                        !c.name?.toLowerCase().includes('palm') &&
+                        !c.slug?.includes('surf') &&
+                        !c.name?.toLowerCase().includes('surf')
                     )
                     .sort((a, b) => {
                       const aSight = (a.name?.toLowerCase().includes('sightseeing') || a.slug?.includes('sightseeing')) ? 1 : 0;
@@ -909,6 +946,7 @@ export default function ToursPage() {
                         </option>
                       );
                     })}
+                  <option value="surfing-tour">Surfing Tours (Covelong Point)</option>
                   <option value="medical-tourism">Medical Tourism &amp; Health Checks</option>
                   <option value="palm-leaf-horoscope">Palm Leaf Horoscope (Nadi Astrology)</option>
                 </select>
@@ -994,8 +1032,8 @@ export default function ToursPage() {
                 />
               )}
 
-              {/* 2. Specialized Experiences: Medical Tourism & Palm Leaf separately at bottom */}
-              {(visibleMedicalTrips.length > 0 || showPalmLeaf) && (
+              {/* 2. Specialized Experiences: Surfing, Medical Tourism & Palm Leaf separately at bottom */}
+              {(visibleMedicalTrips.length > 0 || showPalmLeaf || showSurfing) && (
                 <div
                   style={{
                     marginTop: sortedVisibleTours.length > 0 ? '48px' : '0',
@@ -1010,14 +1048,15 @@ export default function ToursPage() {
                       <span>Special Experiences &amp; Wellness Programs</span>
                     </div>
                     <h2 style={{ fontSize: '22px', fontWeight: '800', color: '#0f172a', margin: '4px 0 6px 0' }}>
-                      Medical Tourism &amp; Palm Leaf Horoscope
+                      Surfing Adventures, Medical Tourism &amp; Palm Leaf Horoscope
                     </h2>
                     <p style={{ fontSize: '13.5px', color: '#64748b', margin: 0 }}>
-                      Comprehensive clinical health checkups, MRI diagnostics, and authentic 3,000-year-old Maharishi Palm Leaf (Nadi) destiny readings.
+                      Authentic ocean wave surfing lessons at Covelong Point, comprehensive clinical health diagnostics, and 3,000-year-old Maharishi Palm Leaf destiny readings.
                     </p>
                   </div>
 
                   <div className="tours-two-column-grid">
+                    {showSurfing && <SurfingCard />}
                     {visibleMedicalTrips.map((mTrip) => (
                       <MedicalTripCard key={`med-${mTrip.id}`} trip={mTrip} />
                     ))}

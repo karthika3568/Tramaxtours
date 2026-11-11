@@ -35,12 +35,20 @@ export default function HomePage() {
     const params = new URLSearchParams(location.search);
     const shouldScroll = location.hash === '#testimonials' || params.get('scroll') === 'testimonials';
     if (shouldScroll) {
-      setTimeout(() => {
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
         const el = document.getElementById('testimonials');
         if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          const navHeight = 85;
+          const top = el.getBoundingClientRect().top + window.pageYOffset - navHeight;
+          window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+          clearInterval(interval);
+        } else if (attempts > 30) {
+          clearInterval(interval);
         }
-      }, 150);
+      }, 100);
+      return () => clearInterval(interval);
     }
   }, [location.hash, location.search]);
 

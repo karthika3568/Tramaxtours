@@ -11,7 +11,12 @@ export default function ScrollToTop() {
   const { pathname, search, hash } = useLocation();
 
   useEffect(() => {
-    // If navigating to an anchor hash, smooth scroll to that element
+    // If navigating to testimonials hash or query, leave scrolling to the HomePage handler
+    if (hash === '#testimonials' || (search && search.includes('testimonials'))) {
+      return;
+    }
+
+    // If navigating to any other anchor hash, smooth scroll to that element
     if (hash) {
       try {
         const id = decodeURIComponent(hash.replace(/^#/, ''));
@@ -20,7 +25,9 @@ export default function ScrollToTop() {
           const el = document.getElementById(id) || document.querySelector(hash);
           if (el) {
             setTimeout(() => {
-              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              const navHeight = 85;
+              const top = el.getBoundingClientRect().top + window.pageYOffset - navHeight;
+              window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
             }, 80);
             return;
           }
@@ -36,7 +43,7 @@ export default function ScrollToTop() {
       left: 0,
       behavior: 'instant',
     });
-  }, [pathname, hash]);
+  }, [pathname, hash, search]);
 
   return null;
 }
