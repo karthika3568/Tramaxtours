@@ -203,6 +203,13 @@ class TourController extends BaseController
                 'status' => $status,
             ];
 
+            $subKeys = ['gallery', 'highlights', 'itineraries', 'pricing_tiers', 'places', 'includes', 'excludes', 'why_choose', 'faqs', 'metadata'];
+            foreach ($subKeys as $k) {
+                if (isset($body[$k])) {
+                    $tourData[$k] = $body[$k];
+                }
+            }
+
             $tourId = Tour::create($tourData, $categoryIds);
             $tour = Tour::findById($tourId);
 

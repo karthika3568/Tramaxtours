@@ -15,6 +15,7 @@ export const ALLOWED_TOUR_TYPES = [
   'Historical Tours',
   'Pilgrimage / Temple Tours',
   'Surfing Tours',
+  'Palmleaf Horoscope Tours',
 ];
 
 export const tourService = {

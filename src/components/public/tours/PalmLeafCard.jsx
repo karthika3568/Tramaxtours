@@ -17,7 +17,8 @@ export default function PalmLeafCard() {
       }}
     >
       {/* Top Image Container */}
-      <div
+      <Link
+        to="/tours/palmleaf-horoscope-find-your-destiny"
         className="activity-card-media"
         style={{ position: 'relative', height: '210px', display: 'block', overflow: 'hidden' }}
       >
@@ -69,7 +70,7 @@ export default function PalmLeafCard() {
             3,000 Yrs Wisdom
           </span>
         </div>
-      </div>
+      </Link>
 
       {/* Card Body */}
       <div className="activity-card-body" style={{ padding: '20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
@@ -87,7 +88,12 @@ export default function PalmLeafCard() {
 
         {/* Title */}
         <h3 className="activity-tour-title" style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 8px 0', lineHeight: '1.3' }}>
-          Palm Leaf Horoscope (Find Your Destiny)
+          <Link
+            to="/tours/palmleaf-horoscope-find-your-destiny"
+            style={{ color: 'inherit', textDecoration: 'none' }}
+          >
+            Palm Leaf Horoscope (Find Your Destiny)
+          </Link>
         </h3>
 
         {/* Description */}
@@ -153,7 +159,7 @@ export default function PalmLeafCard() {
             </a>
 
             <Link
-              to="/plan-your-trip?service=palmleaf-horoscope"
+              to="/tours/palmleaf-horoscope-find-your-destiny"
               className="btn btn-primary"
               style={{
                 padding: '8px 16px',
@@ -169,7 +175,7 @@ export default function PalmLeafCard() {
                 gap: '4px',
               }}
             >
-              <span>Book Reading</span>
+              <span>Explore &amp; Book</span>
               <span>&rarr;</span>
             </Link>
           </div>
@@ -178,3 +184,4 @@ export default function PalmLeafCard() {
     </article>
   );
 }
+

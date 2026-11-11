@@ -19,7 +19,7 @@ export default function TourTable({
 
   // Format currency symbol
   const formatPrice = (price, currency) => {
-    const symbol = currency === 'EUR' ? '€' : currency === 'USD' ? '$' : currency === 'KES' ? 'KES ' : (currency || '€');
+    const symbol = currency === 'EUR' ? '€' : currency === 'INR' ? '₹' : currency === 'USD' ? '$' : currency === 'KES' ? 'KES ' : (currency || '€');
     const num = parseFloat(price || 0);
     return `${symbol}${num.toLocaleString()}`;
   };

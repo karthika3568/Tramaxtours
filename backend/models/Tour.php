@@ -84,7 +84,7 @@ class Tour extends BaseModel
             `min_persons`, `max_persons`, `available_seats`, `total_seats`,
             `booking_deadline_days`, `travel_days`, `map_title`, `latitude`, `longitude`,
             `map_zoom`, `seo_title`, `seo_description`, `canonical_url`,
-            `og_image_id`, `is_featured`, `display_order`, `status`,
+            `og_image_id`, `is_featured`, `display_order`, `status`, `metadata`,
             `created_at`, `updated_at`
         ) VALUES (
             :destination_id, :title, :slug, :short_description, :overview,
@@ -93,7 +93,7 @@ class Tour extends BaseModel
             :min_persons, :max_persons, :available_seats, :total_seats,
             :booking_deadline_days, :travel_days, :map_title, :latitude, :longitude,
             :map_zoom, :seo_title, :seo_description, :canonical_url,
-            :og_image_id, :is_featured, :display_order, :status,
+            :og_image_id, :is_featured, :display_order, :status, :metadata,
             NOW(), NOW()
         )';
 
@@ -128,6 +128,7 @@ class Tour extends BaseModel
             ':is_featured' => !empty($data['is_featured']) ? 1 : 0,
             ':display_order' => isset($data['display_order']) ? (int) $data['display_order'] : 0,
             ':status' => in_array($data['status'] ?? '', self::ALLOWED_STATUSES, true) ? $data['status'] : 'draft',
+            ':metadata' => !empty($data['metadata']) ? (is_array($data['metadata']) ? json_encode($data['metadata']) : (string) $data['metadata']) : null,
         ]);
 
         $tourId = (int) self::lastInsertId();
@@ -530,7 +531,7 @@ class Tour extends BaseModel
             'min_persons', 'max_persons', 'available_seats', 'total_seats',
             'booking_deadline_days', 'travel_days', 'map_title', 'latitude', 'longitude',
             'map_zoom', 'seo_title', 'seo_description', 'canonical_url',
-            'og_image_id', 'is_featured', 'display_order', 'status'
+            'og_image_id', 'is_featured', 'display_order', 'status', 'metadata'
         ];
 
         foreach ($allowedColumns as $col) {
@@ -543,6 +544,8 @@ class Tour extends BaseModel
                     $params[":{$col}"] = $data[$col] !== null && $data[$col] !== '' ? (float) $data[$col] : null;
                 } elseif ($col === 'is_featured') {
                     $params[":{$col}"] = !empty($data[$col]) ? 1 : 0;
+                } elseif ($col === 'metadata') {
+                    $params[":{$col}"] = !empty($data[$col]) ? (is_array($data[$col]) ? json_encode($data[$col]) : (string) $data[$col]) : null;
                 } else {
                     $params[":{$col}"] = $data[$col] !== null ? (string) $data[$col] : null;
                 }

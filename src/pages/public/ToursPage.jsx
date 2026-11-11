@@ -379,7 +379,14 @@ export default function ToursPage() {
 
   const visibleMedicalTrips = isSpecificNonSpecialCategorySelected || isPalmLeafOnlySelected ? [] : medicalTrips;
   const showPalmLeaf = !isSpecificNonSpecialCategorySelected && !isMedicalOnlySelected;
-  const visibleTours = (isMedicalOnlySelected || isPalmLeafOnlySelected) ? [] : filteredTours;
+  const visibleTours = (isMedicalOnlySelected || isPalmLeafOnlySelected)
+    ? []
+    : filteredTours.filter(
+        (t) =>
+          !t.slug?.toLowerCase().includes('palmleaf') &&
+          !t.slug?.toLowerCase().includes('palm-leaf') &&
+          !t.tour_type?.toLowerCase().includes('palmleaf')
+      );
 
   // Sort tours so Sightseeing tours appear first, then other tours
   const sortedVisibleTours = useMemo(() => {
