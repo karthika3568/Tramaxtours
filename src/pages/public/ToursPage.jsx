@@ -1,4 +1,4 @@
-import { CalendarIcon, CompassIcon, MapPinIcon, StarIcon, StethoscopeIcon, XIcon } from '../../components/common/Icons';
+import { CalendarIcon, CompassIcon, MapPinIcon, SparklesIcon, StarIcon, StethoscopeIcon, XIcon } from '../../components/common/Icons';
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import tourService from '../../services/tourService';

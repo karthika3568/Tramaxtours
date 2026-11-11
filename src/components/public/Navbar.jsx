@@ -1,4 +1,4 @@
-import Icon, { SparklesIcon, StethoscopeIcon, BookOpenIcon } from '../common/Icons';
+import Icon, { CompassIcon, SparklesIcon, StethoscopeIcon, BookOpenIcon } from '../common/Icons';
 import { useState, useEffect, useRef } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
