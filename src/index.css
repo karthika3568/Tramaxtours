@@ -19763,13 +19763,19 @@ button {
   display: grid;
   grid-template-columns: 65% 1fr;
   gap: 16px;
-  height: 480px;
+  height: 460px;
+  max-height: 460px;
+  overflow: hidden;
+  border-radius: 16px;
 }
 
 .gallery-main-photo-box {
   border-radius: 14px;
   overflow: hidden;
   height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  position: relative;
 }
 
 .gallery-main-img {
@@ -19789,12 +19795,17 @@ button {
   flex-direction: column;
   gap: 16px;
   height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .gallery-side-photo-box {
   flex: 1;
   border-radius: 14px;
   overflow: hidden;
+  min-height: 0;
+  position: relative;
 }
 
 .gallery-side-img {
@@ -19813,6 +19824,8 @@ button {
   .gallery-asymmetric-grid {
     grid-template-columns: 1fr;
     height: auto;
+    max-height: none;
+    overflow: visible;
   }
   .gallery-main-photo-box {
     height: 280px;
@@ -19825,19 +19838,24 @@ button {
 }
 
 /* ==========================================================================
-   KEY ATTRIBUTES STRIP
+   KEY ATTRIBUTES STRIP (Duration, Languages, Tour Types)
    ========================================================================== */
 
 .tour-attributes-strip {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 28px;
-  padding: 16px 20px;
-  background: #f9fafb;
-  border: 1px solid #f0f2f5;
-  border-radius: 12px;
-  margin-bottom: 32px;
+  gap: 24px;
+  padding: 18px 24px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(11, 19, 41, 0.05);
+  margin-top: 24px;
+  margin-bottom: 36px;
+  position: relative;
+  z-index: 10;
+  clear: both;
 }
 
 .attribute-item {
@@ -19847,24 +19865,32 @@ button {
 }
 
 .attr-icon {
-  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: rgba(1, 170, 144, 0.08);
+  flex-shrink: 0;
 }
 
 .attr-content {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 14.5px;
+  font-size: 14px;
+  flex-wrap: wrap;
 }
 
 .attr-label {
-  font-weight: 700;
-  color: #111827;
+  font-weight: 800;
+  color: #0f172a;
 }
 
 .attr-val {
-  color: #4b5563;
-  font-weight: 500;
+  color: #334155;
+  font-weight: 600;
 }
 
 /* ==========================================================================
