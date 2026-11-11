@@ -336,4 +336,14 @@ export function printTripVoucher(data, siteSettings = {}) {
   printWindow.document.open();
   printWindow.document.write(html);
   printWindow.document.close();
+
+  // Automatically trigger print dialog once document is ready
+  setTimeout(() => {
+    try {
+      printWindow.focus();
+      printWindow.print();
+    } catch {
+      // User cancelled or window closed
+    }
+  }, 250);
 }

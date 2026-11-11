@@ -640,23 +640,29 @@ export default function AdminInquiriesPage() {
         )}
       </div>
       
-      {/* 5. Detail Modal with Grouped Sections & Not provided Fallback */}
+            {/* 5. Detail Modal with Grouped Sections & Not provided Fallback */}
       {isDetailOpen && selectedInquiry && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 p-6 md:p-8 space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div className="modal-backdrop" onClick={handleCloseDetail} role="presentation">
+          <div
+            className="inq-modal-container"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
+            {/* Modal Header */}
+            <div className="inq-modal-header">
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-teal-700 uppercase tracking-wider block">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '11px', fontWeight: 800, color: '#01806c', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                     Trip Ref {selectedInquiry.reference_id || `#${selectedInquiry.id}`} • {selectedInquiry.created_at ? new Date(selectedInquiry.created_at).toLocaleString() : 'Recent'}
                   </span>
                   {(selectedInquiry.is_medical_trip || String(selectedInquiry.reference_id || '').startsWith('MED-')) && (
-                    <span className="px-2 py-0.5 text-[11px] font-bold rounded-md bg-teal-100 text-teal-800">
+                    <span style={{ padding: '2px 8px', fontSize: '11px', fontWeight: 700, borderRadius: '6px', background: '#ccfbf1', color: '#0f766e' }}>
                       🩺 Medical Trip
                     </span>
                   )}
                 </div>
-                <h3 className="text-xl font-black text-slate-900 mt-0.5">
+                <h3 style={{ fontSize: '20px', fontWeight: 900, color: '#0f172a', margin: '4px 0 0 0' }}>
                   {selectedInquiry.first_name ? (
                     `${selectedInquiry.first_name} ${selectedInquiry.middle_name ? selectedInquiry.middle_name + ' ' : ''}${selectedInquiry.last_name || ''}`.trim()
                   ) : (
@@ -664,255 +670,269 @@ export default function AdminInquiriesPage() {
                   )}
                 </h3>
               </div>
-              <div className="flex items-center gap-2">
-                <span className={`px-2.5 py-1 text-xs font-bold rounded-full border capitalize ${getStatusBadgeClass(selectedInquiry.status)}`}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span className={`admin-status-pill ${getStatusBadgeClass(selectedInquiry.status)}`}>
                   {selectedInquiry.status?.replace('_', ' ') || 'new'}
                 </span>
                 <button
                   type="button"
                   onClick={handleCloseDetail}
-                  className="text-slate-400 hover:text-slate-600 text-xl font-bold p-1 leading-none"
+                  className="modal-close-btn"
+                  aria-label="Close dialog"
                 >
-                  ✕
+                  &times;
                 </button>
               </div>
             </div>
 
-            {/* 1. Contact & Origin */}
-            <div>
-              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">1. Contact &amp; Guest Info</h4>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-slate-50 rounded-2xl text-xs border border-slate-200/70">
-                <div>
-                  <span className="text-slate-400 block font-medium">WhatsApp / Phone</span>
-                  <span className="font-bold text-slate-900 font-mono text-sm">
-                    {selectedInquiry.dial_code ? `${selectedInquiry.dial_code} ` : ''}
-                    {selectedInquiry.phone || selectedInquiry.whatsapp_number || 'Not provided'}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block font-medium">Email Address</span>
-                  <a href={`mailto:${selectedInquiry.email}`} className="text-teal-700 font-bold hover:underline truncate block">
-                    {selectedInquiry.email || 'Not provided'}
-                  </a>
-                </div>
-                <div>
-                  <span className="text-slate-400 block font-medium">Country / Nationality</span>
-                  <span className="font-bold text-slate-900">{selectedInquiry.country || 'Not provided'}</span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block font-medium">Name Breakdown</span>
-                  <span className="font-medium text-slate-700">
-                    {selectedInquiry.first_name ? (
-                      `First: ${selectedInquiry.first_name}${selectedInquiry.middle_name ? `, Middle: ${selectedInquiry.middle_name}` : ''}, Last: ${selectedInquiry.last_name}`
-                    ) : (
-                      selectedInquiry.name || 'Not provided'
-                    )}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* 2. Trip & Schedule */}
-            <div>
-              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">2. Trip Schedule &amp; Party Size</h4>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-teal-50/50 rounded-2xl text-xs border border-teal-100">
-                <div>
-                  <span className="text-teal-600 block font-medium">Destination(s)</span>
-                  <span className="font-black text-slate-900 text-sm">{selectedInquiry.destination_name || selectedInquiry.tour_title || 'Not provided'}</span>
-                </div>
-                <div>
-                  <span className="text-teal-600 block font-medium">Pickup Point</span>
-                  <span className="font-bold text-slate-900">{selectedInquiry.pickup_location || 'Not provided'}</span>
-                </div>
-                <div>
-                  <span className="text-teal-600 block font-medium">Dates &amp; Duration</span>
-                  <span className="font-bold text-slate-900">
-                    {selectedInquiry.arrival_date || selectedInquiry.travel_date || 'Flexible'}
-                    {selectedInquiry.duration_days ? ` (${selectedInquiry.duration_days})` : ''}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-teal-600 block font-medium">Travelers</span>
-                  <span className="font-bold text-slate-900">
-                    {selectedInquiry.adults_count || selectedInquiry.travelers || 1} Adults
-                    {selectedInquiry.children_count ? `, ${selectedInquiry.children_count} Kids` : ''}
-                    {selectedInquiry.infants_count ? `, ${selectedInquiry.infants_count} Infants` : ''}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* 3. Transport & Flight/Train Details */}
-            <div>
-              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">3. Transportation &amp; Flight/Train Schedules</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
-                  <div className="font-bold text-slate-800 flex items-center gap-1.5">
-                    <span>🚗</span> Vehicle: <span className="text-teal-700">{selectedInquiry.vehicle_preference || 'Not provided'}</span>
-                  </div>
-                  <div className="text-slate-500">
-                    Airport Pickup: <strong className="text-slate-800">{selectedInquiry.airport_pickup ? '✅ Yes' : '❌ No'}</strong> • Airport Drop: <strong className="text-slate-800">{selectedInquiry.airport_drop ? '✅ Yes' : '❌ No'}</strong>
-                  </div>
-                </div>
-
-                <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
-                  <div className="font-bold text-slate-800 flex items-center gap-1.5">
-                    <span>✈️</span> Flight / Train:
-                  </div>
-                  <div className="text-slate-600">
-                    <strong>Arr:</strong> {selectedInquiry.arrival_flight_train_number || 'Not provided'} {selectedInquiry.arrival_time ? `(${selectedInquiry.arrival_time})` : ''}
-                  </div>
-                  <div className="text-slate-600">
-                    <strong>Dep:</strong> {selectedInquiry.departure_flight_train_number || 'Not provided'} {selectedInquiry.departure_time ? `(${selectedInquiry.departure_time})` : ''}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 4. Accommodation & Budget */}
-            <div>
-              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">4. Hotel Tier, Budget &amp; Guide</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
-                  <span className="text-slate-400 block font-medium">🏨 Stay Tier</span>
-                  <div className="font-bold text-slate-900">{selectedInquiry.hotel_category || 'Not provided'}</div>
-                  <div className="text-slate-500">{selectedInquiry.rooms_count ? `${selectedInquiry.rooms_count} (${selectedInquiry.room_type || 'Double'}) Room` : 'Not provided'}</div>
-                </div>
-
-                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
-                  <span className="text-slate-400 block font-medium">🗣️ Tour Guide &amp; Language</span>
-                  <div className="font-bold text-slate-900">
-                    Guide: {selectedInquiry.tour_guide_required ? '✅ Required' : 'No'}
-                  </div>
-                  <div className="text-slate-500">Lang: {selectedInquiry.preferred_language || 'English'}</div>
-                </div>
-
-                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
-                  <span className="text-slate-400 block font-medium">💳 Customer Budget</span>
-                  <div className="font-bold text-emerald-700 font-mono">
-                    {selectedInquiry.approximate_budget ? `${selectedInquiry.budget_currency || 'INR'} ${selectedInquiry.approximate_budget}` : 'Not provided'}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 5. Tour Preferences */}
-            <div>
-              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">5. Tour Experience Interests</h4>
-              {selectedInquiry.tour_types && selectedInquiry.tour_types.length > 0 ? (
-                <div className="flex flex-wrap gap-1.5">
-                  {selectedInquiry.tour_types.map((type, idx) => (
-                    <span key={idx} className="px-3 py-1 bg-amber-50 text-amber-900 border border-amber-200 rounded-lg text-xs font-bold">
-                      ⭐ {type}
+            {/* Modal Body */}
+            <div className="inq-modal-body">
+              {/* 1. Contact & Origin */}
+              <div>
+                <h4 className="inq-section-title">1. Contact &amp; Guest Info</h4>
+                <div className="inq-grid-4">
+                  <div className="inq-info-card">
+                    <span className="inq-info-label">WhatsApp / Phone</span>
+                    <span className="inq-info-value" style={{ fontFamily: 'monospace' }}>
+                      {selectedInquiry.dial_code ? `${selectedInquiry.dial_code} ` : ''}
+                      {selectedInquiry.phone || selectedInquiry.whatsapp_number || 'Not provided'}
                     </span>
-                  ))}
-                </div>
-              ) : (
-                <span className="text-xs text-slate-400">Not provided</span>
-              )}
-            </div>
-
-            {/* 6. Upload Attachments (Protected Download) */}
-            <div>
-              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">6. Attached Documents</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
-                  <div>
-                    <strong className="text-slate-900 block">🛂 Passport Copy:</strong>
-                    <span className="text-slate-500">{selectedInquiry.passport_file_url ? 'Attached (Private Storage)' : 'Not provided'}</span>
                   </div>
-                  {selectedInquiry.passport_file_url && (
-                    <button
-                      type="button"
-                      disabled={downloadingDoc === 'passport'}
-                      onClick={() => handleDownloadDoc(selectedInquiry.id, 'passport')}
-                      className="btn btn-outline btn-xs"
-                    >
-                      {downloadingDoc === 'passport' ? 'Downloading...' : '📥 Download'}
-                    </button>
-                  )}
-                </div>
-
-                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
-                  <div>
-                    <strong className="text-slate-900 block">✈️ Flight Ticket:</strong>
-                    <span className="text-slate-500">{selectedInquiry.flight_ticket_url ? 'Attached (Private Storage)' : 'Not provided'}</span>
+                  <div className="inq-info-card">
+                    <span className="inq-info-label">Email Address</span>
+                    <a href={`mailto:${selectedInquiry.email}`} className="inq-info-value" style={{ color: '#01806c', textDecoration: 'none' }}>
+                      {selectedInquiry.email || 'Not provided'}
+                    </a>
                   </div>
-                  {selectedInquiry.flight_ticket_url && (
-                    <button
-                      type="button"
-                      disabled={downloadingDoc === 'ticket'}
-                      onClick={() => handleDownloadDoc(selectedInquiry.id, 'ticket')}
-                      className="btn btn-outline btn-xs"
-                    >
-                      {downloadingDoc === 'ticket' ? 'Downloading...' : '📥 Download'}
-                    </button>
-                  )}
+                  <div className="inq-info-card">
+                    <span className="inq-info-label">Country / Nationality</span>
+                    <span className="inq-info-value">{selectedInquiry.country || 'Not provided'}</span>
+                  </div>
+                  <div className="inq-info-card">
+                    <span className="inq-info-label">Name Breakdown</span>
+                    <span className="inq-info-value" style={{ fontSize: '12.5px', fontWeight: 600, color: '#475569' }}>
+                      {selectedInquiry.first_name ? (
+                        `First: ${selectedInquiry.first_name}${selectedInquiry.middle_name ? `, Middle: ${selectedInquiry.middle_name}` : ''}, Last: ${selectedInquiry.last_name}`
+                      ) : (
+                        selectedInquiry.name || 'Not provided'
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. Trip & Schedule */}
+              <div>
+                <h4 className="inq-section-title">2. Trip Schedule &amp; Party Size</h4>
+                <div className="inq-grid-4">
+                  <div className="inq-info-card inq-info-card-teal">
+                    <span className="inq-info-label" style={{ color: '#0f766e' }}>Destination(s)</span>
+                    <span className="inq-info-value">{selectedInquiry.destination_name || selectedInquiry.tour_title || 'Not provided'}</span>
+                  </div>
+                  <div className="inq-info-card inq-info-card-teal">
+                    <span className="inq-info-label" style={{ color: '#0f766e' }}>Pickup Point</span>
+                    <span className="inq-info-value">{selectedInquiry.pickup_location || 'Not provided'}</span>
+                  </div>
+                  <div className="inq-info-card inq-info-card-teal">
+                    <span className="inq-info-label" style={{ color: '#0f766e' }}>Dates &amp; Duration</span>
+                    <span className="inq-info-value">
+                      {selectedInquiry.arrival_date || selectedInquiry.travel_date || 'Flexible'}
+                      {selectedInquiry.duration_days ? ` (${selectedInquiry.duration_days})` : ''}
+                    </span>
+                  </div>
+                  <div className="inq-info-card inq-info-card-teal">
+                    <span className="inq-info-label" style={{ color: '#0f766e' }}>Travelers</span>
+                    <span className="inq-info-value">
+                      {selectedInquiry.adults_count || selectedInquiry.travelers || 1} Adults
+                      {selectedInquiry.children_count ? `, ${selectedInquiry.children_count} Kids` : ''}
+                      {selectedInquiry.infants_count ? `, ${selectedInquiry.infants_count} Infants` : ''}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. Transport & Flight/Train Details */}
+              <div>
+                <h4 className="inq-section-title">3. Transportation &amp; Flight/Train Schedules</h4>
+                <div className="inq-grid-2">
+                  <div className="inq-info-card">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, color: '#1e293b' }}>
+                      <span>🚗</span> Vehicle: <span style={{ color: '#01806c' }}>{selectedInquiry.vehicle_preference || 'Not provided'}</span>
+                    </div>
+                    <div style={{ color: '#64748b', fontSize: '12px', marginTop: '4px' }}>
+                      Airport Pickup: <strong style={{ color: '#0f172a' }}>{selectedInquiry.airport_pickup ? '✅ Yes' : '❌ No'}</strong> • Airport Drop: <strong style={{ color: '#0f172a' }}>{selectedInquiry.airport_drop ? '✅ Yes' : '❌ No'}</strong>
+                    </div>
+                  </div>
+
+                  <div className="inq-info-card">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, color: '#1e293b' }}>
+                      <span>✈️</span> Flight / Train:
+                    </div>
+                    <div style={{ color: '#475569', fontSize: '12px', marginTop: '4px' }}>
+                      <strong>Arr:</strong> {selectedInquiry.arrival_flight_train_number || 'Not provided'} {selectedInquiry.arrival_time ? `(${selectedInquiry.arrival_time})` : ''}
+                    </div>
+                    <div style={{ color: '#475569', fontSize: '12px' }}>
+                      <strong>Dep:</strong> {selectedInquiry.departure_flight_train_number || 'Not provided'} {selectedInquiry.departure_time ? `(${selectedInquiry.departure_time})` : ''}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 4. Accommodation & Budget */}
+              <div>
+                <h4 className="inq-section-title">4. Hotel Tier, Budget &amp; Guide</h4>
+                <div className="inq-grid-3">
+                  <div className="inq-info-card">
+                    <span className="inq-info-label">🏨 Stay Tier</span>
+                    <span className="inq-info-value">{selectedInquiry.hotel_category || 'Not provided'}</span>
+                    <span style={{ fontSize: '12px', color: '#64748b' }}>
+                      {selectedInquiry.rooms_count ? `${selectedInquiry.rooms_count} (${selectedInquiry.room_type || 'Double'}) Room` : 'Not provided'}
+                    </span>
+                  </div>
+
+                  <div className="inq-info-card">
+                    <span className="inq-info-label">🗣️ Tour Guide &amp; Language</span>
+                    <span className="inq-info-value">
+                      Guide: {selectedInquiry.tour_guide_required ? '✅ Required' : 'No'}
+                    </span>
+                    <span style={{ fontSize: '12px', color: '#64748b' }}>
+                      Lang: {selectedInquiry.preferred_language || 'English'}
+                    </span>
+                  </div>
+
+                  <div className="inq-info-card">
+                    <span className="inq-info-label">💳 Customer Budget</span>
+                    <span className="inq-info-value" style={{ color: '#059669', fontFamily: 'monospace' }}>
+                      {selectedInquiry.approximate_budget ? `${selectedInquiry.budget_currency || 'INR'} ${selectedInquiry.approximate_budget}` : 'Not provided'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 5. Tour Preferences */}
+              <div>
+                <h4 className="inq-section-title">5. Tour Experience Interests</h4>
+                {selectedInquiry.tour_types && selectedInquiry.tour_types.length > 0 ? (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {selectedInquiry.tour_types.map((type, idx) => (
+                      <span key={idx} style={{ padding: '4px 12px', background: '#fffbeb', color: '#92400e', border: '1px solid #fde68a', borderRadius: '8px', fontSize: '12px', fontWeight: 700 }}>
+                        ⭐ {type}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span style={{ fontSize: '12.5px', color: '#94a3b8' }}>Not provided</span>
+                )}
+              </div>
+
+              {/* 6. Upload Attachments (Protected Download) */}
+              <div>
+                <h4 className="inq-section-title">6. Attached Documents</h4>
+                <div className="inq-grid-2">
+                  <div className="inq-info-card" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                      <strong style={{ color: '#0f172a', display: 'block', fontSize: '13px' }}>🛂 Passport Copy:</strong>
+                      <span style={{ fontSize: '12px', color: '#64748b' }}>
+                        {selectedInquiry.passport_file_url ? 'Attached (Private Storage)' : 'Not provided'}
+                      </span>
+                    </div>
+                    {selectedInquiry.passport_file_url && (
+                      <button
+                        type="button"
+                        disabled={downloadingDoc === 'passport'}
+                        onClick={() => handleDownloadDoc(selectedInquiry.id, 'passport')}
+                        className="btn btn-outline btn-xs"
+                      >
+                        {downloadingDoc === 'passport' ? 'Downloading...' : '📥 Download'}
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="inq-info-card" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                      <strong style={{ color: '#0f172a', display: 'block', fontSize: '13px' }}>✈️ Flight Ticket:</strong>
+                      <span style={{ fontSize: '12px', color: '#64748b' }}>
+                        {selectedInquiry.flight_ticket_url ? 'Attached (Private Storage)' : 'Not provided'}
+                      </span>
+                    </div>
+                    {selectedInquiry.flight_ticket_url && (
+                      <button
+                        type="button"
+                        disabled={downloadingDoc === 'ticket'}
+                        onClick={() => handleDownloadDoc(selectedInquiry.id, 'ticket')}
+                        className="btn btn-outline btn-xs"
+                      >
+                        {downloadingDoc === 'ticket' ? 'Downloading...' : '📥 Download'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* 7. Special Requests Message */}
+              <div>
+                <h4 className="inq-section-title">7. Customer Message &amp; Notes</h4>
+                <div className="inq-prose-box">
+                  {selectedInquiry.message || 'Not provided'}
+                </div>
+              </div>
+
+              {/* 8. Quotation & Timeline */}
+              <div className="inq-quote-card">
+                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 800, color: '#166534', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    💰 Quotation Package Amount:
+                  </span>
+                  <span className="inq-quote-amount">
+                    {selectedInquiry.quotation_amount
+                      ? `₹${Number(selectedInquiry.quotation_amount).toLocaleString('en-IN')}`
+                      : 'Quote Pending'}
+                  </span>
+                </div>
+                <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: '10px', border: '1px solid #bbf7d0', fontSize: '12.5px', color: '#334155' }}>
+                  <strong style={{ color: '#0f172a', display: 'block', marginBottom: '4px' }}>Internal Coordinator Notes:</strong>
+                  {selectedInquiry.admin_notes || 'Not provided'}
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b', display: 'flex', flexWrap: 'wrap', gap: '16px', paddingTop: '4px' }}>
+                  <span>⏱️ Created: {selectedInquiry.created_at ? new Date(selectedInquiry.created_at).toLocaleString() : '—'}</span>
+                  <span>🔄 Updated: {selectedInquiry.updated_at ? new Date(selectedInquiry.updated_at).toLocaleString() : '—'}</span>
                 </div>
               </div>
             </div>
 
-            {/* 7. Special Requests Message */}
-            <div>
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
-                7. Customer Message &amp; Notes
-              </label>
-              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-slate-800 text-sm leading-relaxed whitespace-pre-wrap">
-                {selectedInquiry.message || 'Not provided'}
-              </div>
-            </div>
-
-            {/* 8. Quotation & Timeline */}
-            <div className="p-4 bg-emerald-50/60 rounded-2xl border border-emerald-200/80 space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <span className="text-xs font-bold text-emerald-900 uppercase tracking-wider">
-                  💰 Quotation Package Amount:
-                </span>
-                <span className="text-lg font-black text-emerald-700 font-mono">
-                  {selectedInquiry.quotation_amount
-                    ? `₹${Number(selectedInquiry.quotation_amount).toLocaleString('en-IN')}`
-                    : 'Quote Pending'}
-                </span>
-              </div>
-              <div className="text-xs text-slate-700 bg-white p-3 rounded-xl border border-emerald-100">
-                <strong className="text-slate-900 block mb-0.5">Internal Coordinator Notes:</strong>
-                {selectedInquiry.admin_notes || 'Not provided'}
-              </div>
-              <div className="text-[11px] text-slate-500 flex flex-wrap gap-4 pt-1">
-                <span>⏱️ Created: {selectedInquiry.created_at ? new Date(selectedInquiry.created_at).toLocaleString() : '—'}</span>
-                <span>🔄 Updated: {selectedInquiry.updated_at ? new Date(selectedInquiry.updated_at).toLocaleString() : '—'}</span>
-              </div>
-            </div>
-
-            {/* Actions Toolbar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100">
-              {selectedInquiry.phone && (
+            {/* Modal Footer */}
+            <div className="inq-modal-footer">
+              {selectedInquiry.phone ? (
                 <a
                   href={formatWhatsAppUrl(selectedInquiry.phone, getAdminInquiryWhatsAppTemplate(selectedInquiry))}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-5 py-2.5 text-xs font-bold rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 shadow-md transition-all inline-flex items-center gap-2"
+                  className="btn btn-primary btn-sm"
+                  style={{ background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                 >
                   <span>💬</span> Send WhatsApp Quotation
                 </a>
-              )}
+              ) : <div />}
 
-              <div className="flex flex-wrap items-center gap-2 ml-auto">
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
                 <button
                   type="button"
                   onClick={() => printTripVoucher(selectedInquiry, { site_name: siteName, contact_phone: sitePhone, contact_whatsapp: siteWhatsApp })}
-                  className="px-4 py-2 text-xs font-bold rounded-xl bg-teal-700 text-white hover:bg-teal-800 shadow-md transition-all inline-flex items-center gap-1.5"
+                  className="btn btn-outline btn-sm"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                 >
-                  <span>📄</span> Download / Print PDF Voucher
+                  <PrintIcon size={14} /> Print PDF Voucher
                 </button>
 
                 <button
                   type="button"
                   onClick={() => handleOpenStatusModal(selectedInquiry)}
-                  className="btn btn-outline btn-sm"
+                  className="btn btn-primary btn-sm"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                 >
-                  ✏️ Edit Status &amp; Price
+                  <EditIcon size={14} /> Edit Status &amp; Price
                 </button>
+
                 <button
                   type="button"
                   onClick={handleCloseDetail}
@@ -928,17 +948,33 @@ export default function AdminInquiriesPage() {
 
       {/* 6. Status Update Modal (Exact 7 Statuses) */}
       {isStatusOpen && selectedInquiry && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 p-6 space-y-4">
-            <h3 className="text-lg font-black text-slate-900">
-              Update Trip Request {selectedInquiry.reference_id || `#${selectedInquiry.id}`} — {selectedInquiry.name}
-            </h3>
+        <div className="modal-backdrop" onClick={() => setIsStatusOpen(false)} role="presentation" style={{ zIndex: 1100 }}>
+          <div
+            className="modal-container"
+            style={{ maxWidth: '500px' }}
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="modal-header">
+              <h3 className="modal-title">
+                Update Trip Request {selectedInquiry.reference_id || `#${selectedInquiry.id}`}
+              </h3>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setIsStatusOpen(false)}
+                aria-label="Close dialog"
+              >
+                &times;
+              </button>
+            </div>
 
-            <div className="space-y-3 text-xs">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Status</label>
+            <div className="modal-body">
+              <div className="inq-form-group">
+                <label className="inq-form-label">Status</label>
                 <select
-                  className="form-select w-full text-sm rounded-xl"
+                  className="inq-form-select"
                   value={statusDraft}
                   onChange={(e) => setStatusDraft(e.target.value)}
                 >
@@ -952,24 +988,22 @@ export default function AdminInquiriesPage() {
                 </select>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Quotation Amount (INR ₹)
-                </label>
+              <div className="inq-form-group">
+                <label className="inq-form-label">Quotation Amount (INR ₹)</label>
                 <input
                   type="number"
-                  className="form-input w-full text-sm rounded-xl font-mono"
+                  className="inq-form-input"
                   placeholder="e.g. 35000"
                   value={quotationDraft}
                   onChange={(e) => setQuotationDraft(e.target.value)}
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Internal Coordinator Notes</label>
+              <div className="inq-form-group">
+                <label className="inq-form-label">Internal Coordinator Notes</label>
                 <textarea
-                  rows={3}
-                  className="form-textarea w-full text-xs rounded-xl"
+                  rows={4}
+                  className="inq-form-textarea"
                   placeholder="e.g. Quoted 5D/4N Innova Crysta + 3-star Munnar hotel. Follow-up on WhatsApp tomorrow."
                   value={adminNotesDraft}
                   onChange={(e) => setAdminNotesDraft(e.target.value)}
@@ -977,10 +1011,10 @@ export default function AdminInquiriesPage() {
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+            <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
               <button
                 type="button"
-                className="btn btn-outline btn-xs"
+                className="btn btn-outline btn-sm"
                 onClick={() => setIsStatusOpen(false)}
                 disabled={isSubmitting}
               >
@@ -988,7 +1022,7 @@ export default function AdminInquiriesPage() {
               </button>
               <button
                 type="button"
-                className="btn btn-primary btn-xs"
+                className="btn btn-primary btn-sm"
                 onClick={handleSaveStatus}
                 disabled={isSubmitting}
               >
@@ -1001,16 +1035,36 @@ export default function AdminInquiriesPage() {
 
       {/* 7. Delete Confirmation Modal */}
       {isDeleteOpen && selectedInquiry && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-2xl max-w-sm w-full shadow-2xl border border-slate-200 p-6 space-y-4">
-            <h3 className="text-lg font-black text-slate-900">Delete Trip Request #{selectedInquiry.id}?</h3>
-            <p className="text-xs text-slate-600">
-              Are you sure you want to permanently delete the trip request from <strong>{selectedInquiry.name}</strong>?
-            </p>
-            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+        <div className="modal-backdrop" onClick={() => setIsDeleteOpen(false)} role="presentation" style={{ zIndex: 1100 }}>
+          <div
+            className="modal-container"
+            style={{ maxWidth: '440px' }}
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="modal-header">
+              <h3 className="modal-title" style={{ color: '#ef4444' }}>
+                Delete Trip Request #{selectedInquiry.id}?
+              </h3>
               <button
                 type="button"
-                className="btn btn-outline btn-xs"
+                className="modal-close-btn"
+                onClick={() => setIsDeleteOpen(false)}
+                aria-label="Close dialog"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="modal-body">
+              <p style={{ fontSize: '13.5px', color: '#475569', lineHeight: 1.5, margin: 0 }}>
+                Are you sure you want to permanently delete the trip request from <strong>{selectedInquiry.name}</strong>? This action cannot be undone.
+              </p>
+            </div>
+            <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
                 onClick={() => setIsDeleteOpen(false)}
                 disabled={isSubmitting}
               >
@@ -1018,7 +1072,7 @@ export default function AdminInquiriesPage() {
               </button>
               <button
                 type="button"
-                className="btn btn-danger btn-xs bg-red-600 text-white hover:bg-red-700"
+                className="btn btn-danger btn-sm"
                 onClick={handleDeleteInquiry}
                 disabled={isSubmitting}
               >
