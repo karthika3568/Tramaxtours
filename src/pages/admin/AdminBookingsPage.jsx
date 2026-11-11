@@ -1,3 +1,4 @@
+import { RefreshIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { useToast } from '../../context/ToastContext';
 import bookingService from '../../services/bookingService';
@@ -405,7 +406,7 @@ export default function AdminBookingsPage() {
             onClick={() => setReloadTrigger((prev) => prev + 1)}
             title="Reload data"
           >
-            🔄 Refresh
+            Refresh
           </button>
         </div>
       </div>

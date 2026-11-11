@@ -59,3 +59,4 @@ SET `balance_amount` = `total_price`
 WHERE `balance_amount` = 0.00 AND `payment_status` != 'paid';
 
 SET FOREIGN_KEY_CHECKS = 1;
+

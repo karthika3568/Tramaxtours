@@ -1,3 +1,4 @@
+import { CalendarIcon, XIcon } from '../../../components/common/Icons';
 import { useState } from 'react';
 import MediaPickerModal from '../media/MediaPickerModal';
 import { getMediaUrl } from '../../../utils/media';
@@ -122,7 +123,7 @@ export default function DestinationSectionsManager({ sections = [], onChange }) 
 
       {sections.length === 0 ? (
         <div className="module-empty-box p-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-300">
-          <span className="empty-icon text-3xl">📅</span>
+          <span className="empty-icon"><CalendarIcon size={28} /></span>
           <p className="empty-text text-slate-600 mt-2 font-medium">No Seasonal Activities defined for this destination.</p>
           <p className="text-xs text-slate-400 mt-1">Add activities like &quot;Best Time to Visit&quot;, &quot;Comfortable Private Sightseeing&quot;, etc.</p>
           <button
@@ -226,9 +227,7 @@ export default function DestinationSectionsManager({ sections = [], onChange }) 
                       className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded text-xs transition-colors"
                       onClick={() => handleRemove(idx)}
                       title="Delete activity"
-                    >
-                      ✕
-                    </button>
+                    ><XIcon size={14} /></button>
                   </div>
                 </div>
 

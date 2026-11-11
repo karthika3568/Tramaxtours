@@ -1,3 +1,4 @@
+import { CheckIcon, EditIcon, FileTextIcon, LayersIcon, PlusIcon, SaveIcon, SparklesIcon, StethoscopeIcon, TrashIcon, XIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import medicalTripService from '../../services/medicalTripService';
@@ -7,14 +8,15 @@ import Loading from '../../components/ui/Loading';
 import ErrorState from '../../components/ui/ErrorState';
 import { getMediaUrl } from '../../utils/media';
 
+
 const MEDICAL_PRESET_IMAGES = [
-  { label: '🩺 Package Banner (Blood Pro, DEXA, MRI)', url: '/uploads/media/medical_package_banner.jpg' },
-  { label: '🧲 Full Body MRI Scan', url: '/uploads/media/medical_full_body_mri.jpg' },
-  { label: '🧬 Blood Pro (120+ Biomarkers)', url: '/uploads/media/medical_blood_pro.jpg' },
-  { label: '🏃 VO₂ Max Test', url: '/uploads/media/medical_vo2_max.jpg' },
-  { label: '🦴 DEXA Scan', url: '/uploads/media/medical_dexa_scan.jpg' },
-  { label: '💪 Strength Pro Assessment', url: '/uploads/media/medical_strength_pro.jpg' },
-  { label: '🫁 Resting Metabolic Rate (RMR)', url: '/uploads/media/medical_rmr_metabolic.jpg' },
+  { label: 'Package Banner (Blood Pro, DEXA, MRI)', url: '/uploads/media/medical_package_banner.jpg' },
+  { label: 'Full Body MRI Scan', url: '/uploads/media/medical_full_body_mri.jpg' },
+  { label: 'Blood Pro (120+ Biomarkers)', url: '/uploads/media/medical_blood_pro.jpg' },
+  { label: 'VO₂ Max Test', url: '/uploads/media/medical_vo2_max.jpg' },
+  { label: 'DEXA Scan', url: '/uploads/media/medical_dexa_scan.jpg' },
+  { label: 'Strength Pro Assessment', url: '/uploads/media/medical_strength_pro.jpg' },
+  { label: 'Resting Metabolic Rate (RMR)', url: '/uploads/media/medical_rmr_metabolic.jpg' },
 ];
 
 export default function AdminMedicalTripFormPage({ mode = 'create' }) {
@@ -360,7 +362,7 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
               className="admin-page-btn"
               style={{ height: '40px', padding: '0 14px', borderRadius: '10px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
             >
-              👁️ View Live Page
+              View Live Page
             </a>
           )}
           <button
@@ -370,7 +372,7 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
             className="btn btn-primary"
             style={{ height: '40px', padding: '0 20px', borderRadius: '10px', fontWeight: '700' }}
           >
-            {isSubmitting ? 'Saving...' : isEdit ? '💾 Save Changes' : '✨ Create Package'}
+            {isSubmitting ? 'Saving...' : isEdit ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><SaveIcon size={14} /> Save Changes</span> : <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><SparklesIcon size={14} /> Create Package</span>}
           </button>
         </div>
       </div>
@@ -394,7 +396,7 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
           className={`admin-page-btn ${activeTab === 'basic' ? 'active' : ''}`}
           style={{ height: '36px', padding: '0 16px', borderRadius: '8px', border: 'none' }}
         >
-          📋 Basic Info &amp; Banner
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><FileTextIcon size={14} /> Basic Info &amp; Banner</span>
         </button>
 
         <button
@@ -409,7 +411,7 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
           className={`admin-page-btn ${activeTab === 'assessments' ? 'active' : ''}`}
           style={{ height: '36px', padding: '0 16px', borderRadius: '8px', border: 'none' }}
         >
-          🔬 Medical Assessments ({assessments.length})
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><StethoscopeIcon size={14} /> Medical Assessments ({assessments.length})</span>
         </button>
 
         <button
@@ -418,7 +420,7 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
           className={`admin-page-btn ${activeTab === 'guidelines' ? 'active' : ''}`}
           style={{ height: '36px', padding: '0 16px', borderRadius: '8px', border: 'none' }}
         >
-          📜 Highlights &amp; Policies
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><LayersIcon size={14} /> Highlights &amp; Policies</span>
         </button>
       </div>
 
@@ -709,7 +711,7 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
             <button type="submit" disabled={isSubmitting} className="btn btn-primary" style={{ padding: '10px 24px', borderRadius: '8px', fontWeight: '700' }}>
-              {isSubmitting ? 'Saving...' : '💾 Save Core Details'}
+              {isSubmitting ? 'Saving...' : <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><SaveIcon size={14} /> Save Core Details</span>}
             </button>
           </div>
         </form>
@@ -733,13 +735,13 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
               className="btn btn-primary"
               style={{ padding: '8px 16px', borderRadius: '8px', fontWeight: '700', fontSize: '13px' }}
             >
-              ➕ Add Assessment
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><PlusIcon size={13} /> Add Assessment</span>
             </button>
           </div>
 
           {assessments.length === 0 ? (
             <div className="admin-modern-table-card" style={{ padding: '48px 20px', textAlign: 'center' }}>
-              <span style={{ fontSize: '32px' }}>🔬</span>
+              <StethoscopeIcon size={32} color='#01aa90' style={{ display: 'block', margin: '0 auto 8px auto' }} />
               <h4 style={{ fontSize: '16px', fontWeight: '700', color: '#0f172a', marginTop: '6px' }}>
                 No Assessments Added Yet
               </h4>
@@ -777,7 +779,7 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
                             onError={(e) => { e.currentTarget.style.display = 'none'; }}
                           />
                         ) : (
-                          '🔬'
+                          <StethoscopeIcon size={22} color='#01aa90' />
                         )}
                       </div>
                       <div>
@@ -805,25 +807,21 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
                         className="btn btn-outline btn-xs"
                         style={{ padding: '6px 12px', fontSize: '12px', borderRadius: '6px' }}
                       >
-                        ➕ Add Test
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><PlusIcon size={12} /> Add Test</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => handleOpenEditAssessment(asmt)}
                         className="admin-action-btn-circle"
                         title="Edit Assessment"
-                      >
-                        ✏️
-                      </button>
+                      ><EditIcon size={12} /></button>
                       <button
                         type="button"
                         onClick={() => handleDeleteAssessment(asmt.id)}
                         className="admin-action-btn-circle"
                         title="Delete Assessment"
                         style={{ color: '#dc2626' }}
-                      >
-                        🗑️
-                      </button>
+                      ><TrashIcon size={12} /></button>
                     </div>
                   </div>
 
@@ -892,18 +890,14 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
                                 className="admin-action-btn-circle"
                                 style={{ width: '28px', height: '28px', fontSize: '11px' }}
                                 title="Edit Test"
-                              >
-                                ✏️
-                              </button>
+                              ><EditIcon size={12} /></button>
                               <button
                                 type="button"
                                 onClick={() => handleDeleteTest(test.id)}
                                 className="admin-action-btn-circle"
                                 style={{ width: '28px', height: '28px', fontSize: '11px', color: '#dc2626' }}
                                 title="Delete Test"
-                              >
-                                🗑️
-                              </button>
+                              ><TrashIcon size={12} /></button>
                             </div>
                           </div>
                         ))}
@@ -976,7 +970,7 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
                     gap: '6px',
                   }}
                 >
-                  ✓ {h}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><CheckIcon size={12} color='#01aa90' /> {h}</span>
                   <button
                     type="button"
                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}
@@ -986,7 +980,7 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
                       setFormData({ ...formData, highlights: next });
                     }}
                   >
-                    ✕
+                    <XIcon size={12} />
                   </button>
                 </span>
               ))}
@@ -1041,7 +1035,7 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
             <button type="submit" disabled={isSubmitting} className="btn btn-primary" style={{ padding: '10px 24px', borderRadius: '8px', fontWeight: '700' }}>
-              {isSubmitting ? 'Saving...' : '💾 Save Guidelines & Policies'}
+              {isSubmitting ? 'Saving...' : <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><SaveIcon size={14} /> Save Guidelines & Policies</span>}
             </button>
           </div>
         </form>
@@ -1058,9 +1052,9 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
               <button
                 type="button"
                 onClick={() => setIsAssessmentModalOpen(false)}
-                style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#64748b' }}
+                style={{ background: 'none', border: 'none', padding: '4px', cursor: 'pointer', color: '#64748b', display: 'inline-flex', alignItems: 'center' }}
               >
-                ✕
+                <XIcon size={18} />
               </button>
             </div>
 
@@ -1199,9 +1193,9 @@ export default function AdminMedicalTripFormPage({ mode = 'create' }) {
               <button
                 type="button"
                 onClick={() => setIsTestModalOpen(false)}
-                style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#64748b' }}
+                style={{ background: 'none', border: 'none', padding: '4px', cursor: 'pointer', color: '#64748b', display: 'inline-flex', alignItems: 'center' }}
               >
-                ✕
+                <XIcon size={18} />
               </button>
             </div>
 

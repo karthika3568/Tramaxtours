@@ -1,5 +1,7 @@
+import { EditIcon, ExternalLinkIcon, EyeIcon, MapPinIcon, StarIcon, TrashIcon } from '../../common/Icons';
 import { Link } from 'react-router-dom';
 import { getMediaUrl } from '../../../utils/media';
+
 
 export default function DestinationTable({
   destinations = [],
@@ -48,8 +50,8 @@ export default function DestinationTable({
                         loading="lazy"
                       />
                     ) : (
-                      <div className="dest-row-thumb-placeholder" aria-label="No image">
-                        🗺️
+                      <div className="dest-row-thumb-placeholder" aria-label="No image" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <MapPinIcon size={20} color="#94a3b8" />
                       </div>
                     )}
                   </div>
@@ -61,8 +63,8 @@ export default function DestinationTable({
                     <div className="dest-row-title-bar">
                       <strong className="dest-row-name">{dest.name}</strong>
                       {dest.is_featured && (
-                        <span className="dest-badge-featured" title="Featured on Homepage">
-                          ⭐ Featured
+                        <span className="dest-badge-featured" title="Featured on Homepage" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          <StarIcon size={11} filled color="#eab308" /> Featured
                         </span>
                       )}
                     </div>
@@ -104,8 +106,9 @@ export default function DestinationTable({
                       className="btn-action-icon view-action"
                       title="View public destination page"
                       aria-label={`View public page for ${dest.name}`}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}
                     >
-                      ↗ View
+                      <ExternalLinkIcon size={13} /> View
                     </a>
 
                     {/* Edit */}
@@ -115,8 +118,9 @@ export default function DestinationTable({
                         className="btn-action-icon edit-action"
                         title="Edit destination details"
                         aria-label={`Edit ${dest.name}`}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}
                       >
-                        ✏️ Edit
+                        <EditIcon size={13} /> Edit
                       </Link>
                     )}
 
@@ -130,7 +134,7 @@ export default function DestinationTable({
                         title={isPublished ? 'Revert to draft status' : 'Publish destination'}
                         aria-label={isPublished ? `Unpublish ${dest.name}` : `Publish ${dest.name}`}
                       >
-                        {isProcessing ? '⏳...' : isPublished ? 'Draft' : 'Publish'}
+                        {isProcessing ? '...' : isPublished ? 'Draft' : 'Publish'}
                       </button>
                     )}
 
@@ -143,8 +147,9 @@ export default function DestinationTable({
                         onClick={() => onDeleteClick(dest)}
                         title="Delete destination"
                         aria-label={`Delete ${dest.name}`}
+                        style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
                       >
-                        🗑️
+                        <TrashIcon size={14} />
                       </button>
                     )}
                   </div>
@@ -169,14 +174,16 @@ export default function DestinationTable({
                   {thumbUrl ? (
                     <img src={thumbUrl} alt={dest.name} loading="lazy" />
                   ) : (
-                    <span>🗺️</span>
+                    <MapPinIcon size={20} color="#94a3b8" />
                   )}
                 </div>
                 <div className="mobile-card-meta">
                   <div className="mobile-card-title-row">
                     <h3 className="mobile-card-title">{dest.name}</h3>
                     {dest.is_featured && (
-                      <span className="dest-badge-featured">⭐ Featured</span>
+                      <span className="dest-badge-featured" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                        <StarIcon size={11} filled color="#eab308" /> Featured
+                      </span>
                     )}
                   </div>
                   <code className="dest-slug-code">/{dest.slug}</code>
@@ -198,16 +205,18 @@ export default function DestinationTable({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-outline btn-xs"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}
                 >
-                  ↗ View Public
+                  <ExternalLinkIcon size={12} /> View Public
                 </a>
 
                 {canEdit && (
                   <Link
                     to={`/admin/destinations/${dest.id}/edit`}
                     className="btn btn-outline btn-xs"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}
                   >
-                    ✏️ Edit
+                    <EditIcon size={12} /> Edit
                   </Link>
                 )}
 
@@ -228,8 +237,9 @@ export default function DestinationTable({
                     className="btn btn-outline btn-xs btn-delete-danger"
                     disabled={isProcessing}
                     onClick={() => onDeleteClick(dest)}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}
                   >
-                    🗑️ Delete
+                    <TrashIcon size={12} /> Delete
                   </button>
                 )}
               </div>

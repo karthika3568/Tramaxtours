@@ -77,7 +77,8 @@ class Page extends BaseModel
         $fields[] = '`updated_at` = NOW()';
         $sql = 'UPDATE `pages` SET ' . implode(', ', $fields) . ' WHERE `id` = :id';
 
-        return self::execute($sql, $params) > 0;
+        self::execute($sql, $params);
+        return true;
     }
 
     /**

@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 
+let activeModalsCount = 0;
+
 export default function Modal({
   isOpen,
   onClose,
@@ -20,12 +22,15 @@ export default function Modal({
       }
     };
 
-    const previousOverflow = document.body.style.overflow;
+    activeModalsCount++;
     document.body.style.overflow = 'hidden';
     document.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      document.body.style.overflow = previousOverflow;
+      activeModalsCount = Math.max(0, activeModalsCount - 1);
+      if (activeModalsCount === 0) {
+        document.body.style.overflow = '';
+      }
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, onClose]);

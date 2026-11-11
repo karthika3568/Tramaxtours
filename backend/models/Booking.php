@@ -887,7 +887,7 @@ class Booking extends BaseModel
         // Total count
         $countSql = "SELECT COUNT(*)
                      FROM `bookings` b
-                     JOIN `tours` t ON b.`tour_id` = t.`id`
+                     LEFT JOIN `tours` t ON b.`tour_id` = t.`id`
                      LEFT JOIN `booking_customer_details` bcd ON b.`id` = bcd.`booking_id`
                      WHERE {$whereSql}";
         $total = (int) self::fetchColumn($countSql, $params);
@@ -912,7 +912,7 @@ class Booking extends BaseModel
                            bcd.`first_name`, bcd.`last_name`, bcd.`email` AS customer_email, bcd.`phone` AS customer_phone,
                            bba.`city` AS billing_city, bba.`country` AS billing_country
                     FROM `bookings` b
-                    JOIN `tours` t ON b.`tour_id` = t.`id`
+                    LEFT JOIN `tours` t ON b.`tour_id` = t.`id`
                     LEFT JOIN `media` fi ON t.`featured_image_id` = fi.`id`
                     LEFT JOIN `booking_customer_details` bcd ON b.`id` = bcd.`booking_id`
                     LEFT JOIN `booking_billing_addresses` bba ON b.`id` = bba.`booking_id`
@@ -1142,16 +1142,16 @@ class Booking extends BaseModel
             'flight_ticket_url' => $row['flight_ticket_url'] ?? null,
             'preferred_contact_methods' => !empty($row['preferred_contact_methods']) ? (json_decode($row['preferred_contact_methods'], true) ?: $row['preferred_contact_methods']) : [],
             'special_requests' => $row['special_requests'] ?? null,
-            'customer' => $customer ? [
-                'name' => $customerName ?: trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? '')),
+            'customer' => [
+                'name' => $customerName ?: (trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? '')) ?: 'Guest Traveler'),
                 'first_name' => $customer['first_name'] ?? ($row['first_name'] ?? null),
                 'middle_name' => $customer['middle_name'] ?? ($row['middle_name'] ?? null),
                 'last_name' => $customer['last_name'] ?? ($row['last_name'] ?? null),
                 'dial_code' => $customer['dial_code'] ?? ($row['dial_code'] ?? '+91'),
                 'country' => $customer['country'] ?? ($row['country'] ?? 'India'),
-                'email' => $customer['email'] ?? null,
-                'phone' => $customer['phone'] ?? null,
-            ] : null,
+                'email' => $customer['email'] ?? ($row['customer_email'] ?? ($row['email'] ?? null)),
+                'phone' => $customer['phone'] ?? ($row['customer_phone'] ?? ($row['phone'] ?? null)),
+            ],
             'billing_address' => $billing ? [
                 'address_line1' => $billing['address_line1'],
                 'address_line2' => $billing['address_line2'],
@@ -1159,7 +1159,14 @@ class Booking extends BaseModel
                 'state' => $billing['state'],
                 'postal_code' => $billing['postal_code'],
                 'country' => $billing['country'],
-            ] : null,
+            ] : [
+                'address_line1' => null,
+                'address_line2' => null,
+                'city' => $row['billing_city'] ?? null,
+                'state' => null,
+                'postal_code' => null,
+                'country' => $row['billing_country'] ?? null,
+            ],
             'status_history' => $statusHistory,
             'payments' => array_map(function ($p) {
                 return [

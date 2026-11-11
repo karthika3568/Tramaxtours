@@ -1,16 +1,18 @@
+import { EditIcon, GlobeIcon, LinkIcon, TrashIcon, XIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { socialLinksService } from '../../services/socialLinksService';
 import { useToast } from '../../context/ToastContext';
+
 import { updatePageMeta } from '../../utils/metadata';
 import Loading from '../../components/ui/Loading';
 
 const PLATFORM_PRESETS = [
-  { platform: 'whatsapp', name: 'WhatsApp', icon: '💬', defaultUrl: 'https://wa.me/918072566010' },
-  { platform: 'facebook', name: 'Facebook', icon: '📘', defaultUrl: 'https://facebook.com/wanderersouthindia' },
-  { platform: 'instagram', name: 'Instagram', icon: '📸', defaultUrl: 'https://instagram.com/wanderersouthindia' },
-  { platform: 'youtube', name: 'YouTube', icon: '📺', defaultUrl: 'https://youtube.com/@wanderersouthindia' },
-  { platform: 'twitter', name: 'X (Twitter)', icon: '🐦', defaultUrl: 'https://twitter.com/wanderersouthindia' },
-  { platform: 'tripadvisor', name: 'TripAdvisor', icon: '🦉', defaultUrl: 'https://tripadvisor.com' },
+  { platform: 'whatsapp', name: 'WhatsApp', icon: 'chat', defaultUrl: 'https://wa.me/918072566010' },
+  { platform: 'facebook', name: 'Facebook', icon: 'globe', defaultUrl: 'https://facebook.com/wanderersouthindia' },
+  { platform: 'instagram', name: 'Instagram', icon: 'camera', defaultUrl: 'https://instagram.com/wanderersouthindia' },
+  { platform: 'youtube', name: 'YouTube', icon: 'play', defaultUrl: 'https://youtube.com/@wanderersouthindia' },
+  { platform: 'twitter', name: 'X (Twitter)', icon: 'send', defaultUrl: 'https://twitter.com/wanderersouthindia' },
+  { platform: 'tripadvisor', name: 'TripAdvisor', icon: 'globe', defaultUrl: 'https://tripadvisor.com' },
 ];
 
 export default function AdminSocialLinksPage() {
@@ -174,7 +176,7 @@ export default function AdminSocialLinksPage() {
       <div className="admin-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
         {links.map((link) => {
           const preset = PLATFORM_PRESETS.find((p) => p.platform.toLowerCase() === (link.platform || '').toLowerCase()) || {
-            icon: '🔗',
+            icon: 'link',
             name: link.platform,
           };
           const isActive = link.status === 'active';
@@ -217,7 +219,7 @@ export default function AdminSocialLinksPage() {
                     className="btn btn-outline btn-xs"
                     onClick={() => handleOpenEditModal(link)}
                   >
-                    ✏️ Edit
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><EditIcon size={13} /> Edit</span>
                   </button>
                   <button
                     type="button"
@@ -225,7 +227,7 @@ export default function AdminSocialLinksPage() {
                     onClick={() => handleDelete(link)}
                     style={{ color: '#dc2626' }}
                   >
-                    🗑️
+                    <TrashIcon size={13} />
                   </button>
                 </div>
               </div>
@@ -242,9 +244,7 @@ export default function AdminSocialLinksPage() {
               <h3 className="admin-modal-title">
                 {editingLink ? 'Edit Social Channel' : 'Add Social Channel'}
               </h3>
-              <button type="button" className="admin-modal-close" onClick={() => setIsModalOpen(false)}>
-                ✕
-              </button>
+              <button type="button" className="admin-modal-close" onClick={() => setIsModalOpen(false)} aria-label="Close modal"><XIcon size={18} /></button>
             </div>
 
             <form onSubmit={handleSaveModal}>

@@ -1,3 +1,6 @@
+import { SearchIcon, XIcon } from '../../../components/common/Icons';
+
+
 export default function ReviewFilters({
   search,
   onSearchChange,
@@ -30,9 +33,7 @@ export default function ReviewFilters({
       {/* Search Input */}
       <div className="dest-search-group">
         <div className="dest-search-wrapper">
-          <span className="search-icon" aria-hidden="true">
-            🔍
-          </span>
+          <span className="search-icon" aria-hidden="true"><SearchIcon size={13} /></span>
           <input
             type="text"
             className="dest-search-input"
@@ -47,9 +48,7 @@ export default function ReviewFilters({
               className="search-clear-btn"
               onClick={() => onSearchChange('')}
               aria-label="Clear search query"
-            >
-              ✕
-            </button>
+            ><XIcon size={14} /></button>
           )}
         </div>
       </div>
@@ -106,11 +105,11 @@ export default function ReviewFilters({
             onChange={(e) => onRatingChange(e.target.value)}
           >
             <option value="all">All Ratings</option>
-            <option value="5">⭐⭐⭐⭐⭐ (5 Stars)</option>
-            <option value="4">⭐⭐⭐⭐ (4 Stars)</option>
-            <option value="3">⭐⭐⭐ (3 Stars)</option>
-            <option value="2">⭐⭐ (2 Stars)</option>
-            <option value="1">⭐ (1 Star)</option>
+            <option value="5">5 Stars (Excellent)</option>
+            <option value="4">4 Stars (Very Good)</option>
+            <option value="3">3 Stars (Average)</option>
+            <option value="2">2 Stars (Poor)</option>
+            <option value="1">1 Star (Terrible)</option>
           </select>
         </div>
 

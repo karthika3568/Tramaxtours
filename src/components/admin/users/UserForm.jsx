@@ -1,3 +1,4 @@
+import { PlusIcon, SaveIcon, ShieldCheckIcon, UserIcon } from '../../../components/common/Icons';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -206,7 +207,7 @@ export default function UserForm({
               onClick={() => setShowPassword(prev => !prev)}
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
-              {showPassword ? '👁️' : '👁️‍🗨️'}
+              {showPassword ? 'Hide' : 'Show'}
             </button>
           </div>
           {errors.password && <span className="field-error-msg">{errors.password}</span>}
@@ -235,7 +236,7 @@ export default function UserForm({
                 onClick={() => setShowConfirmPassword(prev => !prev)}
                 aria-label={showConfirmPassword ? 'Hide confirmation password' : 'Show confirmation password'}
               >
-                {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+                {showConfirmPassword ? 'Hide' : 'Show'}
               </button>
             </div>
             {errors.confirm_password && (
@@ -276,9 +277,9 @@ export default function UserForm({
           {selectedRole && (
             <div className="role-preview-box">
               <div className="role-preview-header">
-                <span className="role-preview-name">🛡️ {selectedRole.name}</span>
+                <span className="role-preview-name" style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}><ShieldCheckIcon size={14} color="#01aa90" /> {selectedRole.name}</span>
                 <span className="role-preview-count">
-                  {selectedRole.slug === 'super_admin' ? '👑 All Privileges (*)' : `${selectedRole.permissions?.length || 0} permissions`}
+                  {selectedRole.slug === 'super_admin' ? 'All Privileges (*)' : `${selectedRole.permissions?.length || 0} permissions`}
                 </span>
               </div>
               {selectedRole.description && (
@@ -347,7 +348,7 @@ export default function UserForm({
         >
           {isSubmitting
             ? mode === 'create' ? 'Creating Staff Member...' : 'Saving Changes...'
-            : mode === 'create' ? '➕ Create Staff Member' : '💾 Save Changes'}
+            : mode === 'create' ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}><PlusIcon size={13} /> Create Staff Member</span> : <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}><SaveIcon size={13} /> Save Changes</span>}
         </button>
       </div>
     </form>

@@ -1,3 +1,4 @@
+import { CheckCircleIcon, ClockIcon, FileTextIcon, RefreshIcon } from '../../components/common/Icons';
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -239,7 +240,7 @@ export default function AdminPagesPage() {
             disabled={loading}
             title="Refresh list from server"
           >
-            🔄 Refresh
+            Refresh
           </button>
 
           {canManage && (
@@ -253,7 +254,7 @@ export default function AdminPagesPage() {
       {/* Summary Stats Cards */}
       <div className="dest-stats-grid">
         <div className="dest-stat-card">
-          <div className="dest-stat-icon">📄</div>
+          <div className="dest-stat-icon"><FileTextIcon size={24} /></div>
           <div className="dest-stat-info">
             <span className="dest-stat-label">Total CMS Pages</span>
             <strong className="dest-stat-value">{totalCount}</strong>
@@ -261,7 +262,7 @@ export default function AdminPagesPage() {
         </div>
 
         <div className="dest-stat-card">
-          <div className="dest-stat-icon stat-icon-published">🟢</div>
+          <div className="dest-stat-icon stat-icon-published"><CheckCircleIcon size={24} color="#16a34a" /></div>
           <div className="dest-stat-info">
             <span className="dest-stat-label">Published</span>
             <strong className="dest-stat-value">{publishedCount}</strong>
@@ -269,7 +270,7 @@ export default function AdminPagesPage() {
         </div>
 
         <div className="dest-stat-card">
-          <div className="dest-stat-icon stat-icon-draft">🟡</div>
+          <div className="dest-stat-icon stat-icon-draft"><ClockIcon size={24} color="#d97706" /></div>
           <div className="dest-stat-info">
             <span className="dest-stat-label">Drafts</span>
             <strong className="dest-stat-value">{draftCount}</strong>

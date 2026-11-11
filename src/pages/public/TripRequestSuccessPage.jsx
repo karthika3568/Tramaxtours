@@ -1,3 +1,4 @@
+import { AlertTriangleIcon, CheckCircleIcon, CheckIcon, InfoIcon, SearchIcon, SparklesIcon, WhatsAppIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import inquiryService from '../../services/inquiryService';
@@ -5,6 +6,7 @@ import { useSiteSettings } from '../../context/SiteSettingsContext';
 import { formatWhatsAppUrl } from '../../utils/whatsapp';
 import { updatePageMeta } from '../../utils/metadata';
 import Loading from '../../components/ui/Loading';
+
 
 export default function TripRequestSuccessPage() {
   const { referenceId } = useParams();
@@ -73,7 +75,9 @@ export default function TripRequestSuccessPage() {
     return (
       <div className="container" style={{ padding: '80px 20px', textAlign: 'center', minHeight: '60vh' }}>
         <div className="glass-card-panel" style={{ maxWidth: '560px', margin: '0 auto', padding: '40px', borderRadius: '24px', background: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 12px 36px rgba(0,0,0,0.06)' }}>
-          <span style={{ fontSize: '48px', display: 'block', marginBottom: '16px' }}>🔍</span>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+            <SearchIcon size={48} color="#64748b" />
+          </div>
           <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginBottom: '12px' }}>
             Trip Request Not Found
           </h2>
@@ -81,8 +85,9 @@ export default function TripRequestSuccessPage() {
             {error || `We could not locate any active trip request with reference ID "${referenceId}".`}
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', flexWrap: 'wrap' }}>
-            <Link to="/request-my-trip" className="btn btn-primary">
-              ✨ Plan a New Trip
+            <Link to="/request-my-trip" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              <SparklesIcon size={16} />
+              <span>Plan a New Trip</span>
             </Link>
             <Link to="/" className="btn btn-secondary">
               Back to Home
@@ -119,8 +124,8 @@ export default function TripRequestSuccessPage() {
             marginBottom: '28px',
           }}
         >
-          <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '30px', margin: '0 auto 16px' }}>
-            ✓
+          <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+            <CheckIcon size={34} color="#ffffff" strokeWidth={3} />
           </div>
           <h1 style={{ fontSize: '28px', fontWeight: 800, margin: '0 0 8px', color: '#ffffff' }}>
             Trip Request Successfully Received!
@@ -173,11 +178,11 @@ export default function TripRequestSuccessPage() {
                 transition: 'transform 0.15s ease',
               }}
             >
-              <span style={{ fontSize: '22px' }}>💬</span>
+              <WhatsAppIcon size={22} color="#ffffff" />
               <span>Open WhatsApp with Reference #{tripSummary.reference_id || referenceId}</span>
             </a>
             <p style={{ fontSize: '12px', color: '#64748b', textAlign: 'center', marginTop: '8px', margin: '8px 0 0' }}>
-              💡 <em>Note: This is a direct click-to-chat link with our verified WhatsApp travel desk ({contactWhatsApp}), NOT an automated delivery bot.</em>
+              <em>Note: This is a direct click-to-chat link with our verified WhatsApp travel desk ({contactWhatsApp}), NOT an automated delivery bot.</em>
             </p>
           </div>
 
@@ -187,7 +192,8 @@ export default function TripRequestSuccessPage() {
             let badgeBg = '#f8fafc';
             let badgeColor = '#334155';
             let borderColor = '#e2e8f0';
-            let icon = 'ℹ️';
+            let StatusIcon = InfoIcon;
+            let iconColor = '#64748b';
             let title = 'Email Notification: Not Enabled';
             let message = 'Automated email is not enabled. Your request is saved; use the WhatsApp button to reach us.';
 
@@ -195,21 +201,23 @@ export default function TripRequestSuccessPage() {
               badgeBg = '#ecfdf5';
               badgeColor = '#065f46';
               borderColor = '#a7f3d0';
-              icon = '✅';
+              StatusIcon = CheckCircleIcon;
+              iconColor = '#059669';
               title = 'Email Confirmation Sent';
               message = `Confirmation email sent to ${tripSummary.masked_email || 'your registered email'}.`;
             } else if (rawStatus === 'failed') {
               badgeBg = '#fef2f2';
               badgeColor = '#991b1b';
               borderColor = '#fecaca';
-              icon = '⚠️';
+              StatusIcon = AlertTriangleIcon;
+              iconColor = '#dc2626';
               title = 'Email Delivery Unavailable';
               message = 'We could not send the confirmation email. Your request is saved; our team will contact you via WhatsApp or email.';
             }
 
             return (
               <div style={{ background: badgeBg, color: badgeColor, padding: '14px 18px', borderRadius: '12px', border: `1px solid ${borderColor}`, display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                <span style={{ fontSize: '20px', lineHeight: 1 }}>{icon}</span>
+                <span style={{ lineHeight: 1, marginTop: '2px' }}><StatusIcon size={20} color={iconColor} /></span>
                 <div>
                   <strong style={{ fontSize: '13.5px', display: 'block', marginBottom: '2px' }}>
                     {title}

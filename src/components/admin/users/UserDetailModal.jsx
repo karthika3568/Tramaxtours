@@ -1,3 +1,4 @@
+import { FileTextIcon, PhoneIcon, TagIcon, UsersIcon, XIcon } from '../../../components/common/Icons';
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -66,9 +67,7 @@ export default function UserDetailModal({ user, onClose }) {
             className="admin-modal-close"
             onClick={onClose}
             aria-label="Close dialog"
-          >
-            ✕
-          </button>
+          ><XIcon size={14} /></button>
         </div>
 
         {/* Modal Body */}
@@ -97,7 +96,7 @@ export default function UserDetailModal({ user, onClose }) {
                 {user.name}
               </h3>
               <p className="user-profile-email" style={{ margin: '4px 0', color: '#64748b' }}>
-                ✉️ {user.email} {user.phone && ` • 📞 ${user.phone}`}
+                {user.email} {user.phone && ` • ` + user.phone}
               </p>
               <div style={{ display: 'flex', gap: '8px', marginTop: '6px', alignItems: 'center' }}>
                 <span className={`user-status-badge user-status-${user.status || 'active'}`}>
@@ -118,7 +117,7 @@ export default function UserDetailModal({ user, onClose }) {
                 Total Bookings
               </span>
               <div style={{ fontSize: '24px', fontWeight: 800, color: '#01806c', marginTop: '4px' }}>
-                🎟️ {bookingsCount}
+                {bookingsCount}
               </div>
             </div>
 
@@ -127,7 +126,7 @@ export default function UserDetailModal({ user, onClose }) {
                 Total Travelers Booked
               </span>
               <div style={{ fontSize: '24px', fontWeight: 800, color: '#1d4ed8', marginTop: '4px' }}>
-                👥 {totalTravelers}
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><UsersIcon size={12} /> {totalTravelers}</span>
               </div>
             </div>
           </div>
@@ -135,7 +134,7 @@ export default function UserDetailModal({ user, onClose }) {
           {/* Booked Tours Table / Section */}
           <div className="user-detail-section">
             <h4 className="detail-section-title" style={{ fontSize: '16px', fontWeight: 800, color: '#1e293b', marginBottom: '12px' }}>
-              📋 Tour Bookings & History ({bookedTours.length})
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}><FileTextIcon size={14} /> Tour Bookings & History ({bookedTours.length})</span>
             </h4>
 
             {bookedTours.length > 0 ? (
@@ -174,7 +173,7 @@ export default function UserDetailModal({ user, onClose }) {
                             {formatDate(b.booking_date)}
                           </td>
                           <td style={{ padding: '10px 12px', fontWeight: 600 }}>
-                            👥 {b.tickets_count || 1} {b.tickets_count === 1 ? 'Guest' : 'Guests'}
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><UsersIcon size={11} /> {b.tickets_count || 1}</span> {b.tickets_count === 1 ? 'Guest' : 'Guests'}
                           </td>
                           <td style={{ padding: '10px 12px', fontWeight: 700, color: '#0f172a' }}>
                             {b.currency || 'USD'} {Number(b.total_price || 0).toFixed(2)}
@@ -202,7 +201,7 @@ export default function UserDetailModal({ user, onClose }) {
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '30px 20px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #cbd5e1' }}>
-                <span style={{ fontSize: '28px', display: 'block', marginBottom: '8px' }}>🎟️</span>
+                <span style={{ display: "block", marginBottom: "8px" }}><TagIcon size={28} color="#94a3b8" /></span>
                 <strong style={{ color: '#475569', display: 'block' }}>No tour bookings placed yet</strong>
                 <p style={{ color: '#94a3b8', fontSize: '13px', margin: '4px 0 0 0' }}>
                   When this customer books any day tours or sightseeing excursions, their reservations will appear here.

@@ -77,7 +77,65 @@ class SiteSetting extends BaseModel
         $fields[] = '`updated_at` = NOW()';
         $sql = 'UPDATE `site_settings` SET ' . implode(', ', $fields) . ' WHERE `id` = :id';
 
-        return self::execute($sql, $params) > 0;
+        self::execute($sql, $params);
+        return true;
+    }
+
+    /**
+     * Bulk update or insert key-value site settings.
+     *
+     * @param array $settings
+     * @param int|null $userId
+     * @return array
+     */
+    public static function updateBulk(array $settings, ?int $userId = null): array
+    {
+        $updated = [];
+
+        foreach ($settings as $key => $value) {
+            $key = trim((string) $key);
+            if ($key === '') {
+                continue;
+            }
+
+            // Determine appropriate group based on key prefix
+            $group = 'general';
+            if (str_starts_with($key, 'footer_')) {
+                $group = 'footer';
+            } elseif (str_starts_with($key, 'contact_') || str_starts_with($key, 'top_bar_')) {
+                $group = 'contact';
+            } elseif (str_starts_with($key, 'seo_')) {
+                $group = 'seo';
+            } elseif (str_starts_with($key, 'payment_')) {
+                $group = 'payment';
+            } elseif (str_starts_with($key, 'homepage_')) {
+                $group = 'homepage';
+            }
+
+            $valStr = $value !== null ? (string) $value : null;
+
+            // Check if setting already exists (even if soft-deleted)
+            $existing = self::fetchOne('SELECT `id`, `setting_value`, `setting_group` FROM `site_settings` WHERE `setting_key` = :key LIMIT 1', [':key' => $key]);
+
+            if ($existing) {
+                $sql = 'UPDATE `site_settings` SET `setting_value` = :val, `deleted_at` = NULL, `updated_at` = NOW() WHERE `id` = :id';
+                self::execute($sql, [
+                    ':val' => $valStr,
+                    ':id' => (int) $existing['id'],
+                ]);
+            } else {
+                $sql = 'INSERT INTO `site_settings` (`setting_key`, `setting_value`, `setting_group`, `created_at`, `updated_at`) VALUES (:key, :val, :grp, NOW(), NOW())';
+                self::execute($sql, [
+                    ':key' => $key,
+                    ':val' => $valStr,
+                    ':grp' => $group,
+                ]);
+            }
+
+            $updated[$key] = $valStr;
+        }
+
+        return $updated;
     }
 
     /**

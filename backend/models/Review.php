@@ -10,6 +10,17 @@ class Review extends BaseModel
     public const ALLOWED_STATUSES = ['pending', 'approved', 'rejected'];
 
     /**
+     * Get default active tour ID for standalone testimonials.
+     *
+     * @return int|null
+     */
+    public static function getDefaultTourId(): ?int
+    {
+        $tour = self::fetchOne('SELECT `id` FROM `tours` WHERE `deleted_at` IS NULL ORDER BY `id` ASC LIMIT 1');
+        return $tour ? (int) $tour['id'] : null;
+    }
+
+    /**
      * Create a new review record.
      *
      * @param array $data

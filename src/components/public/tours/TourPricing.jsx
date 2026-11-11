@@ -1,3 +1,5 @@
+import { CheckIcon, XIcon } from '../../common/Icons';
+
 export default function TourPricing({
   pricingTiers = [],
   includes = [],
@@ -55,12 +57,12 @@ export default function TourPricing({
           {includes.length > 0 && (
             <div className="inclusions-box">
               <h4 className="inclusions-title">
-                <span className="check-icon" aria-hidden="true">✓</span> What is Included
+                <span className="check-icon" aria-hidden="true"><CheckIcon size={15} color="#01aa90" /></span> What is Included
               </h4>
               <ul className="inclusions-list">
                 {includes.map((item, idx) => (
                   <li key={item.id || idx} className="inclusion-item">
-                    <span className="bullet-check" aria-hidden="true">✓</span>
+                    <span className="bullet-check" aria-hidden="true"><CheckIcon size={12} color="#01aa90" /></span>
                     <span>{item.item_text}</span>
                   </li>
                 ))}
@@ -71,12 +73,12 @@ export default function TourPricing({
           {excludes.length > 0 && (
             <div className="exclusions-box">
               <h4 className="exclusions-title">
-                <span className="cross-icon" aria-hidden="true">✕</span> What is Not Included
+                <span className="cross-icon" aria-hidden="true"><XIcon size={15} color="#ef4444" /></span> What is Not Included
               </h4>
               <ul className="exclusions-list">
                 {excludes.map((item, idx) => (
                   <li key={item.id || idx} className="exclusion-item">
-                    <span className="bullet-cross" aria-hidden="true">✕</span>
+                    <span className="bullet-cross" aria-hidden="true"><XIcon size={12} color="#ef4444" /></span>
                     <span>{item.item_text}</span>
                   </li>
                 ))}

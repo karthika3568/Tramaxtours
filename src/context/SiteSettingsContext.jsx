@@ -62,64 +62,63 @@ export function SiteSettingsProvider({ children }) {
   const [socialLinks, setSocialLinks] = useState(DEFAULT_SOCIAL_LINKS);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load public data on mount
-  useEffect(() => {
-    let isMounted = true;
+  const loadPublicData = useCallback(async () => {
+    try {
+      const [settingsRes, footerRes, socialRes] = await Promise.allSettled([
+        siteSettingsService.getGroupedSettings(),
+        footerLinksService.getFooterLinks({ status: 'active', limit: 100 }),
+        socialLinksService.getSocialLinks({ status: 'active', limit: 50 }),
+      ]);
 
-    async function loadPublicData() {
-      try {
-        const [settingsRes, footerRes, socialRes] = await Promise.allSettled([
-          siteSettingsService.getGroupedSettings(),
-          footerLinksService.getFooterLinks({ status: 'active', limit: 100 }),
-          socialLinksService.getSocialLinks({ status: 'active', limit: 50 }),
-        ]);
+      // Process Settings
+      if (settingsRes.status === 'fulfilled' && settingsRes.value) {
+        const fetchedGrouped = settingsRes.value;
+        setGroupedSettings((prev) => ({
+          ...prev,
+          ...fetchedGrouped,
+        }));
 
-        if (!isMounted) return;
-
-        // Process Settings
-        if (settingsRes.status === 'fulfilled' && settingsRes.value) {
-          const fetchedGrouped = settingsRes.value;
-          setGroupedSettings((prev) => ({
-            ...prev,
-            ...fetchedGrouped,
-          }));
-
-          // Build flat dictionary for quick key lookups
-          const flatMap = {};
-          Object.values(fetchedGrouped).forEach((groupObj) => {
-            if (groupObj && typeof groupObj === 'object') {
-              Object.entries(groupObj).forEach(([k, v]) => {
-                flatMap[k] = v;
-              });
-            }
-          });
-          setFlatSettings(flatMap);
-        }
-
-        // Process Footer Links
-        if (footerRes.status === 'fulfilled' && Array.isArray(footerRes.value)) {
-          setFooterLinks(footerRes.value);
-        }
-
-        // Process Social Links
-        if (socialRes.status === 'fulfilled' && Array.isArray(socialRes.value)) {
-          setSocialLinks(socialRes.value);
-        }
-      } catch {
-        // Fallback defaults are already initialized
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
+        // Build flat dictionary for quick key lookups
+        const flatMap = {};
+        Object.values(fetchedGrouped).forEach((groupObj) => {
+          if (groupObj && typeof groupObj === 'object') {
+            Object.entries(groupObj).forEach(([k, v]) => {
+              flatMap[k] = v;
+            });
+          }
+        });
+        setFlatSettings(flatMap);
       }
-    }
 
+      // Process Footer Links
+      if (footerRes.status === 'fulfilled' && Array.isArray(footerRes.value)) {
+        setFooterLinks(footerRes.value);
+      }
+
+      // Process Social Links
+      if (socialRes.status === 'fulfilled' && Array.isArray(socialRes.value)) {
+        setSocialLinks(socialRes.value);
+      }
+    } catch {
+      // Fallback defaults are already initialized
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Load public data on mount and listen to dynamic update events
+  useEffect(() => {
     loadPublicData();
 
-    return () => {
-      isMounted = false;
+    const handleSettingsUpdate = () => {
+      loadPublicData();
     };
-  }, []);
+
+    window.addEventListener('site-settings-updated', handleSettingsUpdate);
+    return () => {
+      window.removeEventListener('site-settings-updated', handleSettingsUpdate);
+    };
+  }, [loadPublicData]);
 
   /**
    * Helper to retrieve a setting value with fallback
@@ -178,8 +177,9 @@ export function SiteSettingsProvider({ children }) {
       footerColumns,
       socialLinks: activeSocialLinks,
       isLoading,
+      refreshSettings: loadPublicData,
     }),
-    [groupedSettings, getSetting, footerLinks, footerColumns, activeSocialLinks, isLoading]
+    [groupedSettings, getSetting, footerLinks, footerColumns, activeSocialLinks, isLoading, loadPublicData]
   );
 
   return (

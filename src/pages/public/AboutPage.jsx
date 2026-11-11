@@ -1,3 +1,4 @@
+import { CheckIcon, CompassIcon, LayersIcon, MapPinIcon, MountainIcon, ShieldCheckIcon, SparklesIcon } from '../../components/common/Icons';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Breadcrumbs from '../../components/public/common/Breadcrumbs';
@@ -5,6 +6,7 @@ import BenefitsSection from '../../components/public/home/BenefitsSection';
 import pageService from '../../services/pageService';
 import { updatePageMeta } from '../../utils/metadata';
 import { getMediaUrl } from '../../utils/media';
+
 
 const DEFAULT_ABOUT = {
   title: 'About Wanderer South India',
@@ -168,19 +170,27 @@ export default function AboutPage() {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ color: '#01aa90', fontSize: '20px' }}>✓</span>
+              <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(1, 170, 144, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CheckIcon size={14} color="#01aa90" strokeWidth={3} />
+              </div>
               <span style={{ fontSize: '14px', fontWeight: '600' }}>Planning your trip is simple and fun</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ color: '#01aa90', fontSize: '20px' }}>✓</span>
+              <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(1, 170, 144, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CheckIcon size={14} color="#01aa90" strokeWidth={3} />
+              </div>
               <span style={{ fontSize: '14px', fontWeight: '600' }}>Local expert tour guides & Chauffeurs</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ color: '#01aa90', fontSize: '20px' }}>✓</span>
+              <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(1, 170, 144, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CheckIcon size={14} color="#01aa90" strokeWidth={3} />
+              </div>
               <span style={{ fontSize: '14px', fontWeight: '600' }}>Sensational value & Pay on Arrival option</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ color: '#01aa90', fontSize: '20px' }}>✓</span>
+              <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(1, 170, 144, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CheckIcon size={14} color="#01aa90" strokeWidth={3} />
+              </div>
               <span style={{ fontSize: '14px', fontWeight: '600' }}>Private tours operated solely for your group</span>
             </div>
           </div>
@@ -216,7 +226,9 @@ export default function AboutPage() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '24px' }}>
           <div style={{ background: '#ffffff', borderRadius: '16px', padding: '28px', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(11, 19, 41, 0.04)' }}>
-            <span style={{ fontSize: '32px', display: 'block', marginBottom: '12px' }}>🏔️</span>
+            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(1, 170, 144, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+              <MountainIcon size={26} color="#01aa90" />
+            </div>
             <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#0B1329', marginBottom: '8px' }}>Hill Station Expeditions</h3>
             <p style={{ fontSize: '13.5px', color: '#64748b', lineHeight: 1.6, margin: 0 }}>
               Munnar, Ooty, Kodaikanal, and Wayanad misty heights with tea estates and panoramic viewpoints.
@@ -224,7 +236,9 @@ export default function AboutPage() {
           </div>
 
           <div style={{ background: '#ffffff', borderRadius: '16px', padding: '28px', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(11, 19, 41, 0.04)' }}>
-            <span style={{ fontSize: '32px', display: 'block', marginBottom: '12px' }}>🏛️</span>
+            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(1, 170, 144, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+              <CompassIcon size={26} color="#01aa90" />
+            </div>
             <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#0B1329', marginBottom: '8px' }}>Sacred Temple Circuits</h3>
             <p style={{ fontSize: '13.5px', color: '#64748b', lineHeight: 1.6, margin: 0 }}>
               Mahabalipuram shore carvings, Madurai Meenakshi, Rameshwaram, and Tanjore Chola architectural wonders.
@@ -232,7 +246,9 @@ export default function AboutPage() {
           </div>
 
           <div style={{ background: '#ffffff', borderRadius: '16px', padding: '28px', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(11, 19, 41, 0.04)' }}>
-            <span style={{ fontSize: '32px', display: 'block', marginBottom: '12px' }}>🛶</span>
+            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(1, 170, 144, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+              <MapPinIcon size={26} color="#01aa90" />
+            </div>
             <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#0B1329', marginBottom: '8px' }}>Backwaters & Beaches</h3>
             <p style={{ fontSize: '13.5px', color: '#64748b', lineHeight: 1.6, margin: 0 }}>
               Alleppey houseboat cruises, Pondicherry French quarters, and serene palm-lined Goa coastlines.
@@ -240,7 +256,9 @@ export default function AboutPage() {
           </div>
 
           <div style={{ background: '#ffffff', borderRadius: '16px', padding: '28px', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(11, 19, 41, 0.04)' }}>
-            <span style={{ fontSize: '32px', display: 'block', marginBottom: '12px' }}>✨</span>
+            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(1, 170, 144, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+              <SparklesIcon size={26} color="#01aa90" />
+            </div>
             <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#0B1329', marginBottom: '8px' }}>Custom Itineraries</h3>
             <p style={{ fontSize: '13.5px', color: '#64748b', lineHeight: 1.6, margin: 0 }}>
               100% tailor-made schedules designed around your flight timings, family preferences, and budget.
@@ -262,8 +280,10 @@ export default function AboutPage() {
               boxShadow: '0 4px 20px rgba(11, 19, 41, 0.05)',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-              <span style={{ fontSize: '32px' }}>🎨</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
+              <div style={{ width: '46px', height: '46px', borderRadius: '12px', background: 'rgba(1, 170, 144, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <LayersIcon size={24} color="#01aa90" />
+              </div>
               <h3 style={{ fontSize: '22px', fontWeight: '800', color: '#0B1329', margin: 0 }}>Art & Cultural Heritage</h3>
             </div>
             <p style={{ fontSize: '14px', color: '#475569', lineHeight: 1.7, marginBottom: '14px' }}>
@@ -284,8 +304,10 @@ export default function AboutPage() {
               boxShadow: '0 4px 20px rgba(11, 19, 41, 0.05)',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-              <span style={{ fontSize: '32px' }}>🐅</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
+              <div style={{ width: '46px', height: '46px', borderRadius: '12px', background: 'rgba(1, 170, 144, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <ShieldCheckIcon size={24} color="#01aa90" />
+              </div>
               <h3 style={{ fontSize: '22px', fontWeight: '800', color: '#0B1329', margin: 0 }}>Wildlife & Nature Sanctuaries</h3>
             </div>
             <p style={{ fontSize: '14px', color: '#475569', lineHeight: 1.7, marginBottom: '14px' }}>

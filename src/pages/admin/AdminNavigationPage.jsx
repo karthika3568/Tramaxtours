@@ -1,8 +1,10 @@
+import { MenuIcon, ShieldCheckIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import siteSettingsService from '../../services/siteSettingsService';
 import { useToast } from '../../context/ToastContext';
 import { updatePageMeta } from '../../utils/metadata';
+
 import MediaPickerModal from '../../components/admin/media/MediaPickerModal';
 import Loading from '../../components/ui/Loading';
 
@@ -87,6 +89,7 @@ export default function AdminNavigationPage() {
       };
 
       await siteSettingsService.updateBulkSettings(updates);
+      window.dispatchEvent(new CustomEvent('site-settings-updated'));
       toast.success('Public navigation settings updated successfully');
     } catch (err) {
       toast.error(err.message || 'Failed to update navigation settings');
@@ -155,7 +158,7 @@ export default function AdminNavigationPage() {
             onClick={handleSaveAll}
             disabled={saving}
           >
-            {saving ? 'Saving...' : '💾 Save Navigation'}
+            {saving ? 'Saving...' : 'Save Navigation'}
           </button>
         </div>
       </div>
@@ -195,7 +198,7 @@ export default function AdminNavigationPage() {
                     boxShadow: '0 4px 14px rgba(1, 170, 144, 0.25)',
                   }}
                 >
-                  ✨ {item.label}
+                  {item.label}
                 </span>
               ) : (
                 <span key={item.id} className="mock-nav-link" style={{ fontSize: '14px', fontWeight: 600, color: '#334155' }}>
@@ -236,7 +239,7 @@ export default function AdminNavigationPage() {
                   className="btn btn-secondary-luxury"
                   onClick={() => setIsMediaPickerOpen(true)}
                 >
-                  🖼 Select Logo from Media Library
+                  Select Logo from Media Library
                 </button>
                 {settings.logo_url && (
                   <button
@@ -337,7 +340,7 @@ export default function AdminNavigationPage() {
                 className={`visual-menu-item-row ${!item.is_active ? 'is-disabled' : ''}`}
               >
                 <div className="menu-item-left">
-                  <span className="menu-drag-icon">☰</span>
+                  <span className="menu-drag-icon"><MenuIcon size={15} /></span>
                   <div className="menu-item-info">
                     <strong className="menu-item-label">{item.label}</strong>
                     <span className="menu-item-path">{item.path}</span>
@@ -383,7 +386,7 @@ export default function AdminNavigationPage() {
           </div>
 
           <div className="nav-safety-notice">
-            <span className="safety-icon">🛡️</span>
+            <span className="safety-icon"><ShieldCheckIcon size={16} /></span>
             <span className="safety-text">
               Core public routes (Home, Tours, Destinations, About, Contact) and the Staff Portal are protected to prevent accidental broken customer pathways.
             </span>

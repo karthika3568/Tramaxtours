@@ -1,3 +1,4 @@
+import { CheckIcon, FileTextIcon, XIcon } from '../../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import Modal from '../../ui/Modal';
 import mediaService from '../../../services/mediaService';
@@ -148,9 +149,7 @@ export default function MediaPickerModal({
                     setPage(1);
                   }}
                   aria-label="Clear search"
-                >
-                  ✕
-                </button>
+                ><XIcon size={14} /></button>
               )}
             </div>
 
@@ -220,12 +219,10 @@ export default function MediaPickerModal({
                             loading="lazy"
                           />
                         ) : (
-                          <div className="picker-doc-icon">📄</div>
+                          <div className="picker-doc-icon"><FileTextIcon size={24} /></div>
                         )}
                         {isSelected && (
-                          <div className="picker-check-badge" aria-label="Selected">
-                            ✓
-                          </div>
+                          <div className="picker-check-badge" aria-label="Selected"><CheckIcon size={12} /></div>
                         )}
                       </div>
                       <div className="picker-card-info">

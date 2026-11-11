@@ -1,3 +1,4 @@
+import { CarIcon, PhoneIcon, SparklesIcon, UsersIcon, WhatsAppIcon } from '../../components/common/Icons';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PageHero from '../../components/public/common/PageHero';
@@ -5,6 +6,7 @@ import { updatePageMeta } from '../../utils/metadata';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import CustomTripPlannerForm from '../../components/public/planner/CustomTripPlannerForm';
 import { formatWhatsAppUrl } from '../../utils/whatsapp';
+
 
 export default function PlanTripPage() {
   const [searchParams] = useSearchParams();
@@ -69,7 +71,9 @@ export default function PlanTripPage() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '32px' }}>
               <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-                <span style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#e0f2fe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>🚗</span>
+                <span style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#e0f2fe', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <CarIcon size={20} color="#0284c7" />
+                </span>
                 <div>
                   <h4 style={{ fontSize: '14px', fontWeight: '800', margin: 0, color: '#0f172a' }}>Verified Private Vehicles</h4>
                   <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Innova Crysta, Tempo Traveller &amp; AC Sedans</p>
@@ -77,7 +81,9 @@ export default function PlanTripPage() {
               </div>
 
               <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-                <span style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>🗣️</span>
+                <span style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <UsersIcon size={20} color="#d97706" />
+                </span>
                 <div>
                   <h4 style={{ fontSize: '14px', fontWeight: '800', margin: 0, color: '#0f172a' }}>Multi-Language Guides</h4>
                   <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>English, French, German, Spanish &amp; Regional</p>
@@ -85,7 +91,9 @@ export default function PlanTripPage() {
               </div>
 
               <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-                <span style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>⚡</span>
+                <span style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <SparklesIcon size={20} color="#16a34a" />
+                </span>
                 <div>
                   <h4 style={{ fontSize: '14px', fontWeight: '800', margin: 0, color: '#0f172a' }}>Instant WhatsApp Quotation</h4>
                   <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Transparent pricing with zero hidden charges</p>
@@ -115,21 +123,23 @@ export default function PlanTripPage() {
                   marginBottom: '10px',
                 }}
               >
-                <span>💬</span> WhatsApp: {contactWhatsApp}
+                <WhatsAppIcon size={16} color="#ffffff" /> <span>WhatsApp: {contactWhatsApp}</span>
               </a>
               {contactPhone && (
                 <a
                   href={`tel:${contactPhone}`}
                   style={{
-                    display: 'block',
-                    textAlign: 'center',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
                     color: '#475569',
                     fontSize: '12px',
                     fontWeight: '600',
                     textDecoration: 'none',
                   }}
                 >
-                  📞 Direct Call: {contactPhone}
+                  <PhoneIcon size={14} color="#64748b" /> <span>Direct Call: {contactPhone}</span>
                 </a>
               )}
             </div>

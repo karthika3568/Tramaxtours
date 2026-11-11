@@ -9,6 +9,11 @@ import { formatWhatsAppUrl, getAdminInquiryWhatsAppTemplate } from '../../utils/
 import { printTripVoucher } from '../../utils/tripVoucherPdf';
 import Loading from '../../components/ui/Loading';
 import ErrorState from '../../components/ui/ErrorState';
+import {
+  EyeIcon, EditIcon, TrashIcon, PrintIcon, CalendarIcon, UsersIcon,
+  SearchIcon, XIcon, StethoscopeIcon, CompassIcon, PlaneIcon, RefreshIcon,
+  CarIcon, MapPinIcon, CreditCardIcon, ShieldCheckIcon, FileTextIcon, WhatsAppIcon, DownloadIcon, CheckIcon, CheckCircleIcon, XCircleIcon, BanknoteIcon
+} from '../../components/common/Icons';
 
 export default function AdminInquiriesPage() {
   const { id: urlParamId } = useParams();
@@ -310,15 +315,15 @@ export default function AdminInquiriesPage() {
   const getInterestIcon = (title = '', destination = '') => {
     const combined = (String(title || '') + ' ' + String(destination || '')).toLowerCase();
     if (combined.includes('temple') || combined.includes('heritage') || combined.includes('tamil') || combined.includes('madurai') || combined.includes('kanyakumari')) {
-      return '🛕';
+      return 'Heritage';
     }
     if (combined.includes('backwater') || combined.includes('kerala') || combined.includes('munnar') || combined.includes('beach') || combined.includes('alleppey') || combined.includes('cochin')) {
-      return '🌴';
+      return 'Nature';
     }
     if (combined.includes('safari') || combined.includes('wildlife') || combined.includes('forest') || combined.includes('periyar')) {
-      return '🐘';
+      return 'Wildlife';
     }
-    return '🗺️';
+    return 'Region';
   };
 
   const getStatusClass = (st) => {
@@ -372,7 +377,7 @@ export default function AdminInquiriesPage() {
           title="Refresh Inquiries"
           style={{ height: '38px', padding: '0 14px', borderRadius: '10px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
         >
-          <span>🔄</span> Refresh
+          <RefreshIcon size={14} /> Refresh
         </button>
       </div>
 
@@ -415,7 +420,7 @@ export default function AdminInquiriesPage() {
         </select>
 
         <div className="admin-modern-search-box">
-          <span className="search-icon" aria-hidden="true">🔍</span>
+          <span className="search-icon" aria-hidden="true"><SearchIcon size={15} /></span>
           <input
             type="text"
             className="admin-modern-search-input"
@@ -431,7 +436,7 @@ export default function AdminInquiriesPage() {
               className="search-clear-btn"
               aria-label="Clear search"
             >
-              ✕
+              <XIcon size={12} />
             </button>
           )}
         </div>
@@ -449,7 +454,7 @@ export default function AdminInquiriesPage() {
           </div>
         ) : inquiries.length === 0 ? (
           <div style={{ padding: '64px 20px', textAlign: 'center' }}>
-            <span style={{ fontSize: '36px', display: 'block', marginBottom: '8px' }}>📭</span>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}><CompassIcon size={36} color="#64748b" /></div>
             <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#1e293b' }}>No Trip Requests Found</h3>
             <p style={{ fontSize: '13.5px', color: '#64748b', marginTop: '4px' }}>
               {debouncedSearch || statusFilter !== 'all' || destFilter !== 'all' || dateFrom || dateTo
@@ -469,7 +474,7 @@ export default function AdminInquiriesPage() {
                     <th>Travel Date &amp; Guests</th>
                     <th style={{ width: '130px' }}>Status</th>
                     <th style={{ width: '120px' }}>Received</th>
-                    <th style={{ width: '100px', textAlign: 'right' }}>Actions</th>
+                    <th style={{ width: '160px', textAlign: 'right' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -514,15 +519,15 @@ export default function AdminInquiriesPage() {
                         </td>
                         <td>
                           <div className="admin-interest-cell">
-                            <span className="admin-interest-icon">{isMedical ? '🩺' : icon}</span>
+                            <span className="admin-interest-icon">{isMedical ? <StethoscopeIcon size={14} color="#0d9488" /> : <CompassIcon size={14} color="#0284c7" />}</span>
                             <div>
                               <span className="admin-interest-title">
                                 {inq.tour_title || inq.destination_name || 'Custom Trip'}
                               </span>
                               {isMedical && (
                                 <div style={{ marginTop: '2px' }}>
-                                  <span style={{ fontSize: '10.5px', background: '#ecfdf5', color: '#059669', border: '1px solid #a7f3d0', padding: '1px 6px', borderRadius: '4px', fontWeight: 700 }}>
-                                    🩺 Medical Trip
+                                  <span style={{ fontSize: '10.5px', background: '#ecfdf5', color: '#059669', border: '1px solid #a7f3d0', padding: '1px 6px', borderRadius: '4px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                    <StethoscopeIcon size={11} color="#059669" /> Medical Trip
                                   </span>
                                 </div>
                               )}
@@ -531,8 +536,12 @@ export default function AdminInquiriesPage() {
                         </td>
                         <td>
                           <div className="admin-date-cell">
-                            <span className="admin-date-row">📅 {travelDate}</span>
-                            <span className="admin-guests-row">👤 {travelers} Guests</span>
+                            <span className="admin-date-row" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                              <CalendarIcon size={12} color="#64748b" /> {travelDate}
+                            </span>
+                            <span className="admin-guests-row" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                              <UsersIcon size={12} color="#64748b" /> {travelers} Guests
+                            </span>
                           </div>
                         </td>
                         <td>
@@ -544,22 +553,42 @@ export default function AdminInquiriesPage() {
                           {receivedDate}
                         </td>
                         <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-                          <div className="admin-table-actions">
+                          <div className="admin-table-actions" style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', alignItems: 'center' }}>
                             <button
                               type="button"
                               onClick={() => handleOpenDetail(inq)}
                               className="admin-action-btn-circle"
-                              title="View Details"
+                              title="View Inquiry Details"
+                              aria-label="View Details"
                             >
-                              👁️
+                              <EyeIcon size={15} />
                             </button>
                             <button
                               type="button"
                               onClick={() => handleOpenStatusModal(inq)}
                               className="admin-action-btn-circle"
-                              title="Status & Options"
+                              title="Edit Status, Quotation & Notes"
+                              aria-label="Edit Status & Notes"
                             >
-                              ⋮
+                              <EditIcon size={15} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => printTripVoucher(inq, { site_name: siteName, contact_phone: sitePhone, contact_whatsapp: siteWhatsApp })}
+                              className="admin-action-btn-circle"
+                              title="Print / Export Trip Voucher PDF"
+                              aria-label="Print Voucher"
+                            >
+                              <PrintIcon size={15} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenDeleteModal(inq)}
+                              className="admin-action-btn-circle admin-action-btn-danger"
+                              title="Delete Trip Request"
+                              aria-label="Delete"
+                            >
+                              <TrashIcon size={15} />
                             </button>
                           </div>
                         </td>

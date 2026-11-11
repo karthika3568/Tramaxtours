@@ -1,3 +1,4 @@
+import { AlertTriangleIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import tourService from '../../services/tourService';
@@ -174,7 +175,7 @@ export default function AdminTourFormPage({ mode = 'create' }) {
       {/* Server Validation Alert */}
       {serverError && (
         <div className="tour-form-error-alert" role="alert">
-          <span className="error-icon" aria-hidden="true">⚠️</span>
+          <AlertTriangleIcon size={16} color="#dc2626" />
           <div className="error-content">
             <strong>Validation Error:</strong>
             <p>{serverError}</p>

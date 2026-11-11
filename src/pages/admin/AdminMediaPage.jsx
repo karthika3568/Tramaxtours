@@ -1,3 +1,4 @@
+import { AlertTriangleIcon } from '../../components/common/Icons';
 import { useState, useEffect, useCallback } from 'react';
 import useAuth from '../../hooks/useAuth';
 import mediaService from '../../services/mediaService';
@@ -301,7 +302,7 @@ export default function AdminMediaPage() {
           size="sm"
         >
           <div className="delete-confirm-box">
-            <div className="delete-warning-icon" aria-hidden="true">⚠️</div>
+            <div className="delete-warning-icon" aria-hidden="true"><AlertTriangleIcon size={32} color="#dc2626" /></div>
             <h4 className="delete-confirm-title">Are you sure you want to delete this media asset?</h4>
             <p className="delete-confirm-desc">
               You are about to delete <strong>{deleteTarget.original_name || deleteTarget.filename}</strong> (ID: #{deleteTarget.id}). This will remove the file from storage and database.

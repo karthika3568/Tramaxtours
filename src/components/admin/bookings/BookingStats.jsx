@@ -1,45 +1,47 @@
+import { BanknoteIcon, CheckCircleIcon, ClockIcon, FileTextIcon, SparklesIcon, XCircleIcon } from '../../../components/common/Icons';
+
 export default function BookingStats({ stats = {}, loading = false }) {
   const cards = [
     {
       id: 'total',
       label: 'Total Bookings',
       value: stats?.total ?? 0,
-      icon: '📋',
+      icon: <FileTextIcon size={20} />,
       colorClass: 'stat-primary',
     },
     {
       id: 'pending',
       label: 'Pending Confirmation',
       value: stats?.pending ?? 0,
-      icon: '⏳',
+      icon: <ClockIcon size={20} />,
       colorClass: 'stat-warning',
     },
     {
       id: 'confirmed',
       label: 'Confirmed Bookings',
       value: stats?.confirmed ?? 0,
-      icon: '✅',
+      icon: <CheckCircleIcon size={20} />,
       colorClass: 'stat-success',
     },
     {
       id: 'completed',
       label: 'Completed Tours',
       value: stats?.completed ?? 0,
-      icon: '🏁',
+      icon: <SparklesIcon size={20} />,
       colorClass: 'stat-info',
     },
     {
       id: 'cancelled',
       label: 'Cancelled / Rejected',
       value: (stats?.cancelled ?? 0) + (stats?.rejected ?? 0),
-      icon: '❌',
+      icon: <XCircleIcon size={20} />,
       colorClass: 'stat-danger',
     },
     {
       id: 'revenue',
       label: 'Total Booking Value',
       value: `€${Number(stats?.total_revenue ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      icon: '💶',
+      icon: <BanknoteIcon size={20} />,
       colorClass: 'stat-gold',
     },
   ];

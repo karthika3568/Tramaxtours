@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import reviewService from '../../../services/reviewService';
 import { getMediaUrl } from '../../../utils/media';
+import { StarIcon } from '../../common/Icons';
 
 export default function TestimonialsSection() {
   const [items, setItems] = useState([]);
@@ -213,9 +214,12 @@ export default function TestimonialsSection() {
                       aria-label={`${item.rating || 5} out of 5 stars`}
                     >
                       {[1, 2, 3, 4, 5].map((star) => (
-                        <span key={star} style={{ color: star <= (item.rating || 5) ? '#f59e0b' : '#cbd5e1' }}>
-                          ★
-                        </span>
+                        <StarIcon
+                          key={star}
+                          filled={star <= (item.rating || 5)}
+                          size={16}
+                          color={star <= (item.rating || 5) ? '#f59e0b' : '#cbd5e1'}
+                        />
                       ))}
                       <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#64748b', marginLeft: '6px' }}>
                         {item.rating || 5}.0 / 5.0

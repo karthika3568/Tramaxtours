@@ -1,5 +1,7 @@
+import { EditIcon, EyeIcon, PhoneIcon, TrashIcon, UserIcon, UsersIcon } from '../../common/Icons';
 import { Link } from 'react-router-dom';
 import useAuth from '../../../hooks/useAuth';
+
 
 export default function UserTable({
   users = [],
@@ -56,7 +58,7 @@ export default function UserTable({
   if (!users || users.length === 0) {
     return (
       <div className="users-empty-state">
-        <span className="empty-icon" aria-hidden="true">👥</span>
+        <span className="empty-icon" aria-hidden="true"><UsersIcon size={32} /></span>
         <h3 className="empty-title">No Customers Found</h3>
         <p className="empty-description">
           No customer accounts match your search or filter criteria.
@@ -113,7 +115,7 @@ export default function UserTable({
                       <a href={`mailto:${u.email}`} className="user-email-link" style={{ fontWeight: 600 }}>
                         {u.email}
                       </a>
-                      {u.phone && <span className="user-phone-sub">📞 {u.phone}</span>}
+                      {u.phone && <span className="user-phone-sub" style={{ display: "inline-flex", alignItems: "center", gap: "3px" }}><PhoneIcon size={11} /> {u.phone}</span>}
                     </div>
                   </td>
 
@@ -135,10 +137,10 @@ export default function UserTable({
                             width: 'fit-content',
                           }}
                         >
-                          🎟️ {bookingsCount} {bookingsCount === 1 ? 'Booking' : 'Bookings'}
+                          {bookingsCount} {bookingsCount === 1 ? 'Booking' : 'Bookings'}
                         </span>
-                        <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>
-                          👥 {totalTravelers} {totalTravelers === 1 ? 'Traveler' : 'Travelers / Guests'}
+                        <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          <UsersIcon size={12} color="#64748b" /> {totalTravelers} {totalTravelers === 1 ? 'Traveler' : 'Travelers / Guests'}
                         </span>
                       </div>
                     ) : (
@@ -230,8 +232,9 @@ export default function UserTable({
                         onClick={() => onViewUser(u)}
                         title="View customer profile & booking history"
                         aria-label={`View details for ${u.name}`}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}
                       >
-                        👁️ View
+                        <EyeIcon size={12} /> View
                       </button>
 
                       {/* Edit */}
@@ -241,8 +244,9 @@ export default function UserTable({
                           className="btn btn-outline btn-xs action-btn"
                           title="Edit customer details"
                           aria-label={`Edit ${u.name}`}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}
                         >
-                          ✏️ Edit
+                          <EditIcon size={12} /> Edit
                         </Link>
                       )}
 
@@ -256,7 +260,7 @@ export default function UserTable({
                           title={u.status === 'active' ? 'Disable account' : 'Activate account'}
                           aria-label={`${u.status === 'active' ? 'Disable' : 'Activate'} account for ${u.name}`}
                         >
-                          {u.status === 'active' ? '⏸️' : '▶️'}
+                          {u.status === 'active' ? 'Disable' : 'Activate'}
                         </button>
                       )}
 
@@ -269,8 +273,9 @@ export default function UserTable({
                           disabled={isOperating}
                           title="Delete customer account"
                           aria-label={`Delete ${u.name}`}
+                          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
                         >
-                          🗑️
+                          <TrashIcon size={13} />
                         </button>
                       )}
                     </div>
@@ -315,7 +320,7 @@ export default function UserTable({
                 <div className="mobile-meta-row">
                   <span className="meta-label">Bookings:</span>
                   <span style={{ fontWeight: 700, color: '#01806c' }}>
-                    🎟️ {bookingsCount} Bookings ({totalTravelers} Travelers)
+                    {bookingsCount} Bookings ({totalTravelers} Travelers)
                   </span>
                 </div>
                 {bookedTours.length > 0 && (
@@ -356,16 +361,18 @@ export default function UserTable({
                   type="button"
                   className="btn btn-outline btn-xs action-btn"
                   onClick={() => onViewUser(u)}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}
                 >
-                  👁️ View Details
+                  <EyeIcon size={12} /> View Details
                 </button>
 
                 {canEdit && (
                   <Link
                     to={`/admin/users/${u.id}/edit`}
                     className="btn btn-outline btn-xs action-btn"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}
                   >
-                    ✏️ Edit
+                    <EditIcon size={12} /> Edit
                   </Link>
                 )}
 
@@ -375,8 +382,9 @@ export default function UserTable({
                     className="btn btn-outline-danger btn-xs action-btn"
                     onClick={() => onDeleteUser(u)}
                     disabled={isOperating}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}
                   >
-                    🗑️ Delete
+                    <TrashIcon size={12} /> Delete
                   </button>
                 )}
               </div>

@@ -1,3 +1,4 @@
+import { CheckIcon, EditIcon, FileTextIcon, TrashIcon, XIcon } from '../../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import Modal from '../../ui/Modal';
 import mediaService from '../../../services/mediaService';
@@ -122,7 +123,7 @@ export default function MediaPreviewModal({
             />
           ) : (
             <div className="media-doc-preview">
-              <span className="doc-icon-large" aria-hidden="true">📄</span>
+              <span className="doc-icon-large" aria-hidden="true"><FileTextIcon size={48} /></span>
               <span className="doc-filename-large">{activeData.original_name}</span>
               <span className="doc-mime-large">{activeData.mime_type}</span>
               <a
@@ -212,7 +213,7 @@ export default function MediaPreviewModal({
                     className="btn btn-outline btn-sm edit-meta-btn"
                     onClick={() => setIsEditing(true)}
                   >
-                    ✏️ Edit Text
+                    Edit Text
                   </button>
                 )}
               </div>
@@ -282,7 +283,7 @@ export default function MediaPreviewModal({
                     className="btn btn-primary btn-sm"
                     onClick={handleCopy}
                   >
-                    {copied ? '✓ Copied!' : 'Copy'}
+                    {copied ? 'Copied!' : 'Copy'}
                   </button>
                 </div>
               </div>
@@ -294,7 +295,7 @@ export default function MediaPreviewModal({
                   <ul className="usage-list">
                     {Object.entries(usageRefs).map(([tableKey, count]) => (
                       <li key={tableKey} className="usage-item">
-                        <span className="usage-badge" aria-hidden="true">✓ In Use</span>
+                        <span className="usage-badge" aria-hidden="true">In Use</span>
                         <span>
                           {tableKey.replace(/_/g, ' ')}: <strong>{count} reference(s)</strong>
                         </span>
@@ -316,7 +317,7 @@ export default function MediaPreviewModal({
                     className="btn btn-outline btn-sm btn-delete-asset"
                     onClick={() => onDeleteRequest(activeData)}
                   >
-                    🗑️ Delete Media Asset...
+                    Delete Media Asset...
                   </button>
                 </div>
               )}

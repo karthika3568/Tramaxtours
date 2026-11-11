@@ -1,9 +1,11 @@
+import { BookOpenIcon, ChartBarIcon, CompassIcon, FileTextIcon, HomeIcon, ImageIcon, LayersIcon, LinkIcon, MailIcon, MapPinIcon, MenuIcon, PhoneIcon, PlaneIcon, SettingsIcon, ShieldCheckIcon, SlidersIcon, SparklesIcon, StarIcon, StethoscopeIcon, UsersIcon, XIcon } from '../components/common/Icons';
 import { useState, useEffect, useCallback } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import { useToast } from '../context/ToastContext';
 import inquiryService from '../services/inquiryService';
 import { getAccessToken } from '../utils/storage';
+
 
 export default function AdminLayout() {
   const location = useLocation();
@@ -68,24 +70,29 @@ export default function AdminLayout() {
     };
   }, [sidebarOpen]);
 
+  // Ensure body scroll is unlocked on route change
+  useEffect(() => {
+    document.body.style.overflow = '';
+  }, [location.pathname]);
+
   const navGroups = [
     {
       groupTitle: 'Overview',
       items: [
-        { label: 'Dashboard', path: '/admin', exact: true, permission: 'dashboard.view', icon: '📊' },
+        { label: 'Dashboard', path: '/admin', exact: true, permission: 'dashboard.view', icon: <ChartBarIcon size={18} /> },
       ],
     },
     {
       groupTitle: 'Website Management',
       items: [
-        { label: 'Home Page', path: '/admin/website/home', permission: 'homepage.manage', icon: '🏠' },
-        { label: 'Navigation & Header', path: '/admin/website/navigation', permission: 'settings.view', icon: '🧭' },
-        { label: 'Hero Carousel', path: '/admin/website/home/hero', permission: 'homepage.manage', icon: '🌄' },
-        { label: 'Homepage Sections', path: '/admin/website/home/sections', permission: 'homepage.manage', icon: '🧩' },
-        { label: 'Why Us (Benefits)', path: '/admin/website/home/benefits', permission: 'homepage.manage', icon: '⭐' },
-        { label: 'About Page', path: '/admin/website/about', permission: 'pages.manage', icon: '📖' },
-        { label: 'Contact Page', path: '/admin/website/contact', permission: 'settings.view', icon: '📞' },
-        { label: 'Footer Manager', path: '/admin/website/footer', permission: 'footer.manage', icon: '🔗' },
+        { label: 'Home Page', path: '/admin/website/home', permission: 'homepage.manage', icon: <HomeIcon size={18} /> },
+        { label: 'Navigation & Header', path: '/admin/website/navigation', permission: 'settings.view', icon: <CompassIcon size={18} /> },
+        { label: 'Hero Carousel', path: '/admin/website/home/hero', permission: 'homepage.manage', icon: <SlidersIcon size={18} /> },
+        { label: 'Homepage Sections', path: '/admin/website/home/sections', permission: 'homepage.manage', icon: <LayersIcon size={18} /> },
+        { label: 'Why Us (Benefits)', path: '/admin/website/home/benefits', permission: 'homepage.manage', icon: <SparklesIcon size={18} /> },
+        { label: 'About Page', path: '/admin/website/about', permission: 'pages.manage', icon: <BookOpenIcon size={18} /> },
+        { label: 'Contact Page', path: '/admin/website/contact', permission: 'settings.view', icon: <PhoneIcon size={18} /> },
+        { label: 'Footer Manager', path: '/admin/website/footer', permission: 'footer.manage', icon: <LinkIcon size={18} /> },
       ],
     },
     {
@@ -95,31 +102,31 @@ export default function AdminLayout() {
           label: 'Trip Requests',
           path: '/admin/trip-requests',
           permission: 'contact.view',
-          icon: '✈️',
+          icon: <PlaneIcon size={18} />,
           badgeCount: newRequestsCount,
         },
-        { label: 'Inquiries & Leads', path: '/admin/inquiries', permission: 'contact.view', icon: '📩' },
-        { label: 'Bookings & Orders', path: '/admin/bookings', permission: 'bookings.view', icon: '📋' },
-        { label: 'Curated Tours', path: '/admin/tours', permission: 'tours.view', icon: '🗺️' },
-        { label: 'Medical Trips', path: '/admin/medical-trips', permission: 'tours.view', icon: '🩺' },
-        { label: 'Destinations', path: '/admin/destinations', permission: 'destinations.view', icon: '📍' },
-        { label: 'Media Library', path: '/admin/media', permission: 'media.view', icon: '🖼️' },
-        { label: 'Guest Reviews', path: '/admin/reviews', permission: 'reviews.view', icon: '💬' },
-        { label: 'Standard Pages', path: '/admin/pages', permission: 'pages.manage', icon: '📄' },
+        { label: 'Inquiries & Leads', path: '/admin/inquiries', permission: 'contact.view', icon: <MailIcon size={18} /> },
+        { label: 'Bookings & Orders', path: '/admin/bookings', permission: 'bookings.view', icon: <FileTextIcon size={18} /> },
+        { label: 'Curated Tours', path: '/admin/tours', permission: 'tours.view', icon: <CompassIcon size={18} /> },
+        { label: 'Medical Trips', path: '/admin/medical-trips', permission: 'tours.view', icon: <StethoscopeIcon size={18} /> },
+        { label: 'Destinations', path: '/admin/destinations', permission: 'destinations.view', icon: <MapPinIcon size={18} /> },
+        { label: 'Media Library', path: '/admin/media', permission: 'media.view', icon: <ImageIcon size={18} /> },
+        { label: 'Guest Reviews', path: '/admin/reviews', permission: 'reviews.view', icon: <StarIcon size={18} /> },
+        { label: 'Standard Pages', path: '/admin/pages', permission: 'pages.manage', icon: <FileTextIcon size={18} /> },
       ],
     },
     {
       groupTitle: 'Customer Management',
       items: [
-        { label: 'Customers & Bookings', path: '/admin/users', permission: 'users.view', icon: '👥' },
+        { label: 'Customers & Bookings', path: '/admin/users', permission: 'users.view', icon: <UsersIcon size={18} /> },
       ],
     },
     {
       groupTitle: 'System Settings',
       items: [
-        { label: 'Site Settings', path: '/admin/settings', permission: 'settings.view', icon: '⚙️' },
-        { label: 'Footer Links', path: '/admin/footer-links', permission: 'footer.manage', icon: '📑' },
-        { label: 'Social Channels', path: '/admin/social-links', permission: 'social.manage', icon: '📱' },
+        { label: 'Site Settings', path: '/admin/settings', permission: 'settings.view', icon: <SettingsIcon size={18} /> },
+        { label: 'Footer Links', path: '/admin/footer-links', permission: 'footer.manage', icon: <LinkIcon size={18} /> },
+        { label: 'Social Channels', path: '/admin/social-links', permission: 'social.manage', icon: <PhoneIcon size={18} /> },
       ],
     },
   ];
@@ -186,7 +193,7 @@ export default function AdminLayout() {
             onClick={closeSidebar}
             aria-label="Close admin menu"
           >
-            ✕
+            <XIcon size={18} />
           </button>
         </div>
 
@@ -301,9 +308,9 @@ export default function AdminLayout() {
               </div>
               <div className="admin-user-meta">
                 <span className="admin-user-name">{user?.name || 'Administrator'}</span>
-                <span className="admin-user-role-badge">
-                  {isSuperAdmin && <span className="role-crown" title="Super Administrator">👑</span>}
-                  {roleDisplay}
+                <span className="admin-user-role-badge" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                  {isSuperAdmin && <ShieldCheckIcon size={13} color="#f59e0b" style={{ marginRight: '4px' }} title="Super Administrator" />}
+                  <span>{roleDisplay}</span>
                 </span>
               </div>
             </div>

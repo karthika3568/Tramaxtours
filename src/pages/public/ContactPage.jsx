@@ -1,3 +1,4 @@
+import { CheckCircleIcon, MailIcon, MapPinIcon, PhoneIcon, WhatsAppIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import Breadcrumbs from '../../components/public/common/Breadcrumbs';
 import { updatePageMeta } from '../../utils/metadata';
@@ -5,6 +6,7 @@ import { useSiteSettings } from '../../context/SiteSettingsContext';
 import { formatWhatsAppUrl, getCleanWhatsAppNumber } from '../../utils/whatsapp';
 import client from '../../api/client';
 import { useToast } from '../../context/ToastContext';
+
 
 export default function ContactPage() {
   const { getSetting } = useSiteSettings();
@@ -172,7 +174,7 @@ export default function ContactPage() {
                   transition: 'transform 0.15s ease',
                 }}
               >
-                <span style={{ fontSize: '30px' }}>💬</span>
+                <WhatsAppIcon size={28} color="#ffffff" />
                 <div>
                   <strong style={{ fontSize: '15px', display: 'block' }}>Chat Instantly on WhatsApp</strong>
                   <span style={{ fontSize: '12.5px', opacity: 0.9 }}>{contactWhatsApp} • Quick Response</span>
@@ -191,7 +193,9 @@ export default function ContactPage() {
                   gap: '14px',
                 }}
               >
-                <span style={{ fontSize: '24px' }}>📞</span>
+                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'rgba(1, 170, 144, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <PhoneIcon size={20} color="var(--color-primary, #01aa90)" />
+                </div>
                 <div>
                   <small style={{ color: '#64748b', display: 'block', fontSize: '11.5px' }}>Helpline / Call Us</small>
                   <strong style={{ fontSize: '14.5px', color: '#0B1329' }}>{contactPhone}</strong>
@@ -210,7 +214,9 @@ export default function ContactPage() {
                   gap: '14px',
                 }}
               >
-                <span style={{ fontSize: '24px' }}>✉️</span>
+                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'rgba(1, 170, 144, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <MailIcon size={20} color="var(--color-primary, #01aa90)" />
+                </div>
                 <div>
                   <small style={{ color: '#64748b', display: 'block', fontSize: '11.5px' }}>Email Id</small>
                   <strong style={{ fontSize: '14.5px', color: '#0B1329' }}>{contactEmail}</strong>
@@ -229,7 +235,9 @@ export default function ContactPage() {
                   gap: '14px',
                 }}
               >
-                <span style={{ fontSize: '24px' }}>📍</span>
+                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'rgba(1, 170, 144, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <MapPinIcon size={20} color="var(--color-primary, #01aa90)" />
+                </div>
                 <div>
                   <small style={{ color: '#64748b', display: 'block', fontSize: '11.5px' }}>Address / Location</small>
                   <strong style={{ fontSize: '14.5px', color: '#0B1329' }}>{contactAddress}</strong>
@@ -284,7 +292,9 @@ export default function ContactPage() {
                     textAlign: 'center',
                   }}
                 >
-                  <div style={{ fontSize: '40px', marginBottom: '8px' }}>🎉</div>
+                  <div style={{ marginBottom: '12px' }}>
+                    <CheckCircleIcon size={44} color="#16a34a" />
+                  </div>
                   <h4 style={{ fontSize: '18px', fontWeight: 800, color: '#166534', margin: '0 0 6px' }}>
                     Inquiry Submitted!
                   </h4>
@@ -445,7 +455,7 @@ export default function ContactPage() {
                       opacity: isSubmitting ? 0.75 : 1,
                     }}
                   >
-                    <span>💬</span>
+                    <WhatsAppIcon size={18} color="#ffffff" />
                     <span>{isSubmitting ? 'Preparing WhatsApp...' : 'Send to WhatsApp'}</span>
                   </button>
                 </form>

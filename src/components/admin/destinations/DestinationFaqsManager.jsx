@@ -1,3 +1,4 @@
+import { HelpCircleIcon, XIcon } from '../../../components/common/Icons';
 import { useState } from 'react';
 
 export default function DestinationFaqsManager({ faqs = [], onChange }) {
@@ -81,7 +82,7 @@ export default function DestinationFaqsManager({ faqs = [], onChange }) {
 
       {faqs.length === 0 ? (
         <div className="module-empty-box">
-          <span className="empty-icon">❓</span>
+          <span className="empty-icon"><HelpCircleIcon size={28} /></span>
           <p className="empty-text">No FAQs registered for this destination yet.</p>
           <button
             type="button"
@@ -146,9 +147,7 @@ export default function DestinationFaqsManager({ faqs = [], onChange }) {
                       type="button"
                       className="btn-danger-xs"
                       onClick={() => handleRemove(idx)}
-                    >
-                      ✕
-                    </button>
+                    ><XIcon size={14} /></button>
                   </div>
                 </div>
 

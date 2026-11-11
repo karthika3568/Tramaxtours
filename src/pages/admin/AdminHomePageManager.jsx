@@ -1,3 +1,4 @@
+import { CalendarIcon, CheckIcon, ClockIcon, CompassIcon, CopyIcon, EditIcon, EyeIcon, EyeOffIcon, ImageIcon, InfoIcon, LayersIcon, LockIcon, LuggageIcon, MailIcon, MapPinIcon, MonitorIcon, PhoneIcon, RocketIcon, SearchIcon, SmartphoneIcon, StarIcon, TabletIcon, TrashIcon, WhatsAppIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
@@ -13,6 +14,7 @@ import { getMediaUrl } from '../../utils/media';
 import Loading from '../../components/ui/Loading';
 import Modal from '../../components/ui/Modal';
 import MediaPickerModal from '../../components/admin/media/MediaPickerModal';
+
 
 // High-Fidelity Benefit Vector Icons
 function BenefitVectorIcon({ iconName = '' }) {
@@ -72,28 +74,28 @@ function BenefitVectorIcon({ iconName = '' }) {
 
 // 8 Locked Protected Categories
 const LOCKED_TOUR_CATEGORIES = [
-  { id: 1, name: 'City Sightseeing Tours', slug: 'city-sightseeing-tours', subtitle: 'Urban Exploration & Highlights', icon: '🏙️', badgeColor: '#01aa90' },
-  { id: 2, name: 'Cultural & Heritage Tours', slug: 'cultural-heritage-tours', subtitle: 'Ancient Traditions & Architecture', icon: '🏛️', badgeColor: '#FC961B' },
-  { id: 3, name: 'Guided Tours', slug: 'guided-tours', subtitle: 'Escorted Journeys with Local Guides', icon: '🧭', badgeColor: '#8B5CF6' },
-  { id: 4, name: 'One Day Tours', slug: 'one-day-tours', subtitle: 'Quick Day Trips & Escapes', icon: '☀️', badgeColor: '#4BA7FC' },
-  { id: 5, name: 'Private Tours', slug: 'private-tours', subtitle: 'Exclusive Chauffeur Driven Itineraries', icon: '🚙', badgeColor: '#01806c' },
-  { id: 6, name: 'Family Tours', slug: 'family-tours', subtitle: 'Relaxing Vacations for All Ages', icon: '👨‍👩‍👧‍👦', badgeColor: '#10B981' },
-  { id: 7, name: 'Historical Tours', slug: 'historical-tours', subtitle: 'Forts, Palaces & Royal Legacies', icon: '📜', badgeColor: '#EC4899' },
-  { id: 8, name: 'Pilgrimage / Temple Tours', slug: 'pilgrimage-temple-tours', subtitle: 'Sacred Shrines & Divine Darshan', icon: '🛕', badgeColor: '#F59E0B' },
+  { id: 1, name: 'City Sightseeing Tours', slug: 'city-sightseeing-tours', subtitle: 'Urban Exploration & Highlights', icon: 'map-pin', badgeColor: '#01aa90' },
+  { id: 2, name: 'Cultural & Heritage Tours', slug: 'cultural-heritage-tours', subtitle: 'Ancient Traditions & Architecture', icon: 'layers', badgeColor: '#FC961B' },
+  { id: 3, name: 'Guided Tours', slug: 'guided-tours', subtitle: 'Escorted Journeys with Local Guides', icon: 'compass', badgeColor: '#8B5CF6' },
+  { id: 4, name: 'One Day Tours', slug: 'one-day-tours', subtitle: 'Quick Day Trips & Escapes', icon: 'clock', badgeColor: '#4BA7FC' },
+  { id: 5, name: 'Private Tours', slug: 'private-tours', subtitle: 'Exclusive Chauffeur Driven Itineraries', icon: 'car', badgeColor: '#01806c' },
+  { id: 6, name: 'Family Tours', slug: 'family-tours', subtitle: 'Relaxing Vacations for All Ages', icon: 'users', badgeColor: '#10B981' },
+  { id: 7, name: 'Historical Tours', slug: 'historical-tours', subtitle: 'Forts, Palaces & Royal Legacies', icon: 'landmark', badgeColor: '#EC4899' },
+  { id: 8, name: 'Pilgrimage / Temple Tours', slug: 'pilgrimage-temple-tours', subtitle: 'Sacred Shrines & Divine Darshan', icon: 'sparkles', badgeColor: '#F59E0B' },
 ];
 
 const SECTIONS_METADATA_MAP = {
-  navbar: { id: 'navbar', num: '01', icon: '🧭', name: 'Navigation & Contact Bar', desc: 'Top utility bar, brand logo, menu & primary CTA', canHide: false },
-  hero: { id: 'hero', num: '02', icon: '🌄', name: 'Hero Carousel', desc: 'Full-bleed luxury banner slides, headlines & buttons', canHide: false },
-  search: { id: 'search', num: '03', icon: '🔍', name: 'Tour Finder Widget', desc: 'Where-to destination, category & date search bar', canHide: true },
-  benefits: { id: 'benefits', num: '04', icon: '⭐', name: 'Why Travel With Us', desc: '4 core trust factors and service value proposition', canHide: true },
-  categories: { id: 'categories', num: '05', icon: '🏷️', name: 'Popular Tour Categories', desc: '8 locked protected travel experiences', canHide: true },
-  tours: { id: 'tours', num: '06', icon: '🗺️', name: 'Featured Tours Showcase', desc: 'Spotlighted handcrafted tour packages', canHide: true },
-  destinations: { id: 'destinations', num: '07', icon: '📍', name: 'Top Destinations Showcase', desc: 'South India destinations & regional tours', canHide: true },
-  activities: { id: 'activities', num: '08', icon: '🎒', name: 'Popular Activities', desc: 'Curated day tours & safari itineraries', canHide: true },
-  reviews: { id: 'reviews', num: '09', icon: '💬', name: 'Guest Testimonials', desc: '5-star guest ratings & verified traveler reviews', canHide: true },
-  cms: { id: 'cms', num: '10', icon: '🧩', name: 'Storytelling / CMS Section', desc: 'Modular marketing narrative and promotion blocks', canHide: true },
-  footer: { id: 'footer', num: '11', icon: '🔗', name: 'Website Footer & Policies', desc: '4-column footer, social channels & legal policies', canHide: false },
+  navbar: { id: 'navbar', num: '01', icon: 'compass', name: 'Navigation & Contact Bar', desc: 'Top utility bar, brand logo, menu & primary CTA', canHide: false },
+  hero: { id: 'hero', num: '02', icon: 'mountain', name: 'Hero Carousel', desc: 'Full-bleed luxury banner slides, headlines & buttons', canHide: false },
+  search: { id: 'search', num: '03', icon: 'search', name: 'Tour Finder Widget', desc: 'Where-to destination, category & date search bar', canHide: true },
+  benefits: { id: 'benefits', num: '04', icon: 'star', name: 'Why Travel With Us', desc: '4 core trust factors and service value proposition', canHide: true },
+  categories: { id: 'categories', num: '05', icon: 'tag', name: 'Popular Tour Categories', desc: '8 locked protected travel experiences', canHide: true },
+  tours: { id: 'tours', num: '06', icon: 'compass', name: 'Featured Tours Showcase', desc: 'Spotlighted handcrafted tour packages', canHide: true },
+  destinations: { id: 'destinations', num: '07', icon: 'map-pin', name: 'Top Destinations Showcase', desc: 'South India destinations & regional tours', canHide: true },
+  activities: { id: 'activities', num: '08', icon: 'luggage', name: 'Popular Activities', desc: 'Curated day tours & safari itineraries', canHide: true },
+  reviews: { id: 'reviews', num: '09', icon: 'chat', name: 'Guest Testimonials', desc: '5-star guest ratings & verified traveler reviews', canHide: true },
+  cms: { id: 'cms', num: '10', icon: 'layers', name: 'Storytelling / CMS Section', desc: 'Modular marketing narrative and promotion blocks', canHide: true },
+  footer: { id: 'footer', num: '11', icon: 'link', name: 'Website Footer & Policies', desc: '4-column footer, social channels & legal policies', canHide: false },
 };
 
 const DEFAULT_SECTION_ORDER = [
@@ -636,7 +638,7 @@ export default function AdminHomePageManager() {
 
       setHasUnsavedChanges(false);
       setPublishStatus('Published');
-      toast.success('🎉 Homepage published successfully! Live website updated.');
+      toast.success('Homepage published successfully! Live website updated.');
     } catch (err) {
       toast.error(err?.message || 'Failed to publish all homepage changes.');
     } finally {
@@ -698,7 +700,7 @@ export default function AdminHomePageManager() {
               onClick={() => setActiveViewport('desktop')}
               title="Desktop 100% Canvas"
             >
-              🖥️ <span className="viewport-label">Desktop</span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><MonitorIcon size={14} /> <span className="viewport-label">Desktop</span></span>
             </button>
             <button
               type="button"
@@ -706,7 +708,7 @@ export default function AdminHomePageManager() {
               onClick={() => setActiveViewport('tablet')}
               title="Tablet 768px Canvas"
             >
-              📱 <span className="viewport-label">Tablet</span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><TabletIcon size={14} /> <span className="viewport-label">Tablet</span></span>
             </button>
             <button
               type="button"
@@ -714,7 +716,7 @@ export default function AdminHomePageManager() {
               onClick={() => setActiveViewport('mobile')}
               title="Mobile 390px Canvas"
             >
-              📲 <span className="viewport-label">Mobile</span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><SmartphoneIcon size={14} /> <span className="viewport-label">Mobile</span></span>
             </button>
           </div>
         </div>
@@ -746,7 +748,7 @@ export default function AdminHomePageManager() {
             onClick={handlePublishAll}
             disabled={publishing}
           >
-            {publishing ? 'Publishing...' : '🚀 Publish Changes'}
+            {publishing ? 'Publishing...' : <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><RocketIcon size={14} /> Publish Changes</span>}
           </button>
         </div>
       </header>
@@ -776,7 +778,7 @@ export default function AdminHomePageManager() {
 
             <nav className="structure-sections-list">
               {sectionOrder.map((secId, idx) => {
-                const sec = SECTIONS_METADATA_MAP[secId] || { id: secId, num: `0${idx + 1}`, icon: '📄', name: secId, desc: '' };
+                const sec = SECTIONS_METADATA_MAP[secId] || { id: secId, num: `0${idx + 1}`, icon: 'layers', name: secId, desc: '' };
                 const isSelected = selectedSectionId === sec.id;
                 const isVisible = sectionVisibility[sec.id] !== false;
 
@@ -811,7 +813,7 @@ export default function AdminHomePageManager() {
                           }}
                           title={isVisible ? 'Hide Section' : 'Show Section'}
                         >
-                          {isVisible ? '👁️' : '🚫'}
+                          {isVisible ? <EyeIcon size={14} /> : <EyeOffIcon size={14} />}
                         </button>
                       )}
                       <button
@@ -864,7 +866,7 @@ export default function AdminHomePageManager() {
                     >
                       <div className="canvas-section-overlay-badge">
                         <span>01 — Top Bar & Navigation</span>
-                        <span className="badge-action">✏️ Edit Section</span>
+                        <span className="badge-action" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><EditIcon size={12} /> Edit Section</span>
                       </div>
 
                       {/* Top Contact Bar */}
@@ -872,9 +874,9 @@ export default function AdminHomePageManager() {
                         <div className="header-top-bar" style={{ padding: '8px 0', fontSize: '13px' }}>
                           <div className="container header-top-inner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div className="top-bar-contact" style={{ display: 'flex', gap: '16px' }}>
-                              <span>📞 {navSettings.phone}</span>
-                              <span className="hide-on-mobile">✉️ {navSettings.email}</span>
-                              <span className="hide-on-tablet">💬 WhatsApp: {navSettings.whatsapp}</span>
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><PhoneIcon size={12} /> {navSettings.phone}</span>
+                              <span className="hide-on-mobile" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><MailIcon size={12} /> {navSettings.email}</span>
+                              <span className="hide-on-tablet" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><WhatsAppIcon size={12} /> WhatsApp: {navSettings.whatsapp}</span>
                             </div>
                             <div className="top-bar-auth">
                               <span style={{ color: '#01aa90', fontWeight: 'bold' }}>Staff Portal</span>
@@ -924,7 +926,7 @@ export default function AdminHomePageManager() {
                     >
                       <div className="canvas-section-overlay-badge">
                         <span>02 — Hero Carousel (Slide {activeSlideIndex + 1} of {heroSlides.length || 1})</span>
-                        <span className="badge-action">✏️ Edit Hero Section</span>
+                        <span className="badge-action" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><EditIcon size={12} /> Edit Hero Section</span>
                       </div>
 
                       <section className="hero-section hero-pure-carousel" style={{ minHeight: '460px', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -974,31 +976,31 @@ export default function AdminHomePageManager() {
                     >
                       <div className="canvas-section-overlay-badge">
                         <span>03 — Tour Finder Widget</span>
-                        <span className="badge-action">✏️ Edit Section</span>
+                        <span className="badge-action" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><EditIcon size={12} /> Edit Section</span>
                       </div>
 
                       <div className="canvas-mock-search-wrapper" style={{ padding: '24px 0', background: '#f8fafc' }}>
                         <div className="container">
                           <div className="canvas-mock-search-bar">
                             <div className="search-col">
-                              <label>📍 Where to?</label>
+                              <label style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><MapPinIcon size={12} /> Where to?</label>
                               <span>All Destinations (Ooty, Munnar...)</span>
                             </div>
                             <div className="search-col">
-                              <label>🧭 Tour Type</label>
+                              <label style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><CompassIcon size={12} /> Tour Type</label>
                               <span>8 Tour Categories</span>
                             </div>
                             <div className="search-col">
-                              <label>📅 Travel Date</label>
+                              <label style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><CalendarIcon size={12} /> Travel Date</label>
                               <span>Select Date</span>
                             </div>
                             <div className="search-col">
-                              <label>⏱️ Duration</label>
+                              <label style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><ClockIcon size={12} /> Duration</label>
                               <span>Any Duration</span>
                             </div>
                             <div className="search-col-btn">
                               <button type="button" className="btn-search-action">
-                                🔍 {searchSettings.btn_text}
+                                <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><SearchIcon size={13} /> {searchSettings.btn_text}</span>
                               </button>
                             </div>
                           </div>
@@ -1019,7 +1021,7 @@ export default function AdminHomePageManager() {
                     >
                       <div className="canvas-section-overlay-badge">
                         <span>04 — Why Travel With Us (Benefits)</span>
-                        <span className="badge-action">✏️ Edit Section</span>
+                        <span className="badge-action" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><EditIcon size={12} /> Edit Section</span>
                       </div>
 
                       <section className="benefits-section-v2" style={{ padding: '40px 0', background: '#ffffff' }}>
@@ -1052,7 +1054,7 @@ export default function AdminHomePageManager() {
                     >
                       <div className="canvas-section-overlay-badge">
                         <span>05 — Popular Tour Categories (8 Locked Categories)</span>
-                        <span className="badge-action">✏️ Edit Section</span>
+                        <span className="badge-action" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><EditIcon size={12} /> Edit Section</span>
                       </div>
 
                       <div className="canvas-mock-categories" style={{ padding: '36px 0', background: '#f8fafc' }}>
@@ -1091,7 +1093,7 @@ export default function AdminHomePageManager() {
                     >
                       <div className="canvas-section-overlay-badge">
                         <span>06 — Featured Handcrafted Tours ({featuredTours.length} Featured)</span>
-                        <span className="badge-action">✏️ Edit Section</span>
+                        <span className="badge-action" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><EditIcon size={12} /> Edit Section</span>
                       </div>
 
                       <div className="canvas-mock-tours" style={{ padding: '40px 0', background: '#ffffff' }}>
@@ -1107,13 +1109,13 @@ export default function AdminHomePageManager() {
                               return (
                                 <div key={t.id} className="canvas-tour-card">
                                   <div className="tour-thumb">
-                                    {thumbUrl ? <img src={thumbUrl} alt={t.title} /> : <span>🧭</span>}
+                                    {thumbUrl ? <img src={thumbUrl} alt={t.title} /> : <CompassIcon size={18} color="#94a3b8" />}
                                     <span className="tour-price">€{t.base_price || 0}</span>
                                   </div>
                                   <div className="tour-body">
-                                    <span className="tour-dest">📍 {t.destination?.name || 'South India'}</span>
+                                    <span className="tour-dest" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><MapPinIcon size={11} /> {t.destination?.name || "South India"}</span>
                                     <strong className="tour-name">{t.title}</strong>
-                                    <span className="tour-duration">⏱ {t.duration_days} Day{t.duration_days > 1 ? 's' : ''}</span>
+                                    <span className="tour-duration" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><ClockIcon size={11} /> {t.duration_days} Day{t.duration_days > 1 ? "s" : ""}</span>
                                   </div>
                                 </div>
                               );
@@ -1136,7 +1138,7 @@ export default function AdminHomePageManager() {
                     >
                       <div className="canvas-section-overlay-badge">
                         <span>07 — Top Destinations Showcase ({destinations.length} Destinations)</span>
-                        <span className="badge-action">✏️ Edit Section</span>
+                        <span className="badge-action" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><EditIcon size={12} /> Edit Section</span>
                       </div>
 
                       <div className="canvas-mock-destinations" style={{ padding: '40px 0', background: '#f8fafc' }}>
@@ -1152,7 +1154,7 @@ export default function AdminHomePageManager() {
                               return (
                                 <div key={d.id} className="canvas-dest-card">
                                   <div className="dest-thumb">
-                                    {thumbUrl ? <img src={thumbUrl} alt={d.name} /> : <span>🗺️</span>}
+                                    {thumbUrl ? <img src={thumbUrl} alt={d.name} /> : <CompassIcon size={18} color="#94a3b8" />}
                                   </div>
                                   <div className="dest-body">
                                     <strong className="dest-name">{d.name}</strong>
@@ -1179,7 +1181,7 @@ export default function AdminHomePageManager() {
                     >
                       <div className="canvas-section-overlay-badge">
                         <span>08 — Popular Activities & Day Tours</span>
-                        <span className="badge-action">✏️ Edit Section</span>
+                        <span className="badge-action" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><EditIcon size={12} /> Edit Section</span>
                       </div>
 
                       <div className="canvas-mock-activities" style={{ padding: '40px 0', background: '#ffffff' }}>
@@ -1193,7 +1195,7 @@ export default function AdminHomePageManager() {
                             {allTours.filter((t) => t.tour_type === 'Private Day Tour' || t.duration_days === 1 || (t.title || '').toLowerCase().includes('day tour')).slice(0, 4).map((act) => (
                               <div key={act.id} className="canvas-activity-card">
                                 <strong className="act-title">{act.title}</strong>
-                                <span className="act-dest">📍 {act.destination?.name || 'Day Activity'}</span>
+                                <span className="act-dest" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><MapPinIcon size={11} /> {act.destination?.name || "Day Activity"}</span>
                               </div>
                             ))}
                           </div>
@@ -1214,7 +1216,7 @@ export default function AdminHomePageManager() {
                     >
                       <div className="canvas-section-overlay-badge">
                         <span>09 — Verified Guest Testimonials ({reviews.length} Reviews)</span>
-                        <span className="badge-action">✏️ Edit Section</span>
+                        <span className="badge-action" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><EditIcon size={12} /> Edit Section</span>
                       </div>
 
                       <div className="canvas-mock-reviews" style={{ padding: '40px 0', background: '#f8fafc' }}>
@@ -1227,7 +1229,7 @@ export default function AdminHomePageManager() {
                           <div className="canvas-reviews-grid">
                             {reviews.slice(0, 3).map((r, idx) => (
                               <div key={r.id || idx} className="canvas-review-card">
-                                <span className="stars">★★★★★</span>
+                                <span className="stars" style={{ display: "inline-flex", alignItems: "center", gap: "2px" }}>{[...Array(5)].map((_, i) => <StarIcon key={i} size={13} color="#f59e0b" fill="#f59e0b" />)}</span>
                                 <p className="quote">"{r.content || 'Exceptional experience with Wonderer South India.'}"</p>
                                 <strong className="guest-name">{r.customer_name || 'Verified Guest'}</strong>
                               </div>
@@ -1250,7 +1252,7 @@ export default function AdminHomePageManager() {
                     >
                       <div className="canvas-section-overlay-badge">
                         <span>10 — Storytelling / CMS Sections ({cmsSections.length} Sections)</span>
-                        <span className="badge-action">✏️ Edit Section</span>
+                        <span className="badge-action" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><EditIcon size={12} /> Edit Section</span>
                       </div>
 
                       <div className="canvas-mock-cms" style={{ padding: '40px 0', background: '#ffffff' }}>
@@ -1284,7 +1286,7 @@ export default function AdminHomePageManager() {
                     >
                       <div className="canvas-section-overlay-badge">
                         <span>11 — Website Footer & Legal Policies</span>
-                        <span className="badge-action">✏️ Edit Section</span>
+                        <span className="badge-action" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><EditIcon size={12} /> Edit Section</span>
                       </div>
 
                       <footer className="public-footer" style={{ padding: '40px 0 20px', background: '#0B1329', color: '#ffffff' }}>
@@ -1292,7 +1294,7 @@ export default function AdminHomePageManager() {
                           <div className="footer-col brand">
                             <img src="/logo.png" alt={navSettings.site_name} style={{ height: '36px', marginBottom: '12px' }} />
                             <p style={{ fontSize: '13px', color: '#94a3b8', lineHeight: 1.6 }}>{footerSettings.about_text}</p>
-                            <small style={{ display: 'block', marginTop: '10px', color: '#01aa90' }}>📍 {footerSettings.address}</small>
+                            <small style={{ display: "inline-flex", alignItems: "center", gap: "4px", marginTop: "10px", color: "#01aa90" }}><MapPinIcon size={12} /> {footerSettings.address}</small>
                           </div>
 
                           <div className="footer-col">
@@ -1307,7 +1309,7 @@ export default function AdminHomePageManager() {
 
                           <div className="footer-col">
                             <strong style={{ display: 'block', marginBottom: '12px', fontSize: '14px', color: '#ffffff' }}>Contact & Connect</strong>
-                            <p style={{ fontSize: '13px', color: '#94a3b8', lineHeight: 1.8 }}>📞 {navSettings.phone}<br />✉️ {navSettings.email}<br />💬 WhatsApp Support</p>
+                            <p style={{ fontSize: "13px", color: "#94a3b8", lineHeight: 1.8 }}><span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><PhoneIcon size={12} /> {navSettings.phone}</span><br /><span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><MailIcon size={12} /> {navSettings.email}</span><br /><span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><WhatsAppIcon size={12} /> WhatsApp Support</span></p>
                           </div>
                         </div>
 
@@ -1495,7 +1497,7 @@ export default function AdminHomePageManager() {
                         onClick={handleDuplicateCurrentSlide}
                         title="Duplicate Slide"
                       >
-                        📋 Duplicate
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><CopyIcon size={12} /> Duplicate</span>
                       </button>
                       <button
                         type="button"
@@ -1503,7 +1505,7 @@ export default function AdminHomePageManager() {
                         onClick={handleDeleteCurrentSlide}
                         title="Delete Slide"
                       >
-                        🗑️ Delete
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><TrashIcon size={12} /> Delete</span>
                       </button>
                     </div>
 
@@ -1548,7 +1550,7 @@ export default function AdminHomePageManager() {
                             setIsMediaPickerOpen(true);
                           }}
                         >
-                          🖼️ Change Image
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><ImageIcon size={12} /> Change Image</span>
                         </button>
                       </div>
                     </div>
@@ -1631,8 +1633,9 @@ export default function AdminHomePageManager() {
                     />
                   </div>
                   <div className="settings-info-box">
-                    <p>
-                      ℹ️ The search filter parameters query the <strong>Destinations</strong>, <strong>Tour Categories</strong>, <strong>Travel Date</strong>, and <strong>Duration</strong> catalogs directly on the public tour directory (`/tours`).
+                    <p style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+                      <InfoIcon size={14} color="#0284c7" style={{ marginTop: '2px', flexShrink: 0 }} />
+                      <span>The search filter parameters query the <strong>Destinations</strong>, <strong>Tour Categories</strong>, <strong>Travel Date</strong>, and <strong>Duration</strong> catalogs directly on the public tour directory (<code>/tours</code>).</span>
                     </p>
                   </div>
                 </div>
@@ -1706,7 +1709,7 @@ export default function AdminHomePageManager() {
               {selectedSectionId === 'categories' && (
                 <div className="settings-form-block">
                   <div className="locked-protection-card">
-                    <span className="lock-icon">🔒</span>
+                    <span className="lock-icon"><LockIcon size={12} /></span>
                     <div>
                       <strong>8 Locked Protected Categories</strong>
                       <p>
@@ -1764,11 +1767,11 @@ export default function AdminHomePageManager() {
                       return (
                         <div key={t.id} className={`featured-tour-edit-row ${isFeat ? 'is-featured' : ''}`}>
                           <div className="tour-row-thumb">
-                            {thumbUrl ? <img src={thumbUrl} alt={t.title} /> : <span>🧭</span>}
+                            {thumbUrl ? <img src={thumbUrl} alt={t.title} /> : <CompassIcon size={18} color="#94a3b8" />}
                           </div>
                           <div className="tour-row-info">
                             <strong>{t.title}</strong>
-                            <small>📍 {t.destination?.name || 'South India'} • €{t.base_price || 0}</small>
+                            <small style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><MapPinIcon size={11} /> {t.destination?.name || "South India"} • €{t.base_price || 0}</small>
                           </div>
                           <div style={{ display: 'flex', gap: '6px' }}>
                             <Link
@@ -1783,7 +1786,7 @@ export default function AdminHomePageManager() {
                               className={`btn btn-xs ${isFeat ? 'btn-deactivate' : 'btn-activate'}`}
                               onClick={() => handleToggleFeaturedTour(t)}
                             >
-                              {isFeat ? '★ Featured' : '+ Feature'}
+                              {isFeat ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}><StarIcon size={11} color='#f59e0b' fill='#f59e0b' /> Featured</span> : '+ Feature'}
                             </button>
                           </div>
                         </div>
@@ -1810,7 +1813,7 @@ export default function AdminHomePageManager() {
                       return (
                         <div key={d.id} className={`dest-edit-row ${isFeat ? 'is-featured' : ''}`}>
                           <div className="dest-row-thumb">
-                            {thumbUrl ? <img src={thumbUrl} alt={d.name} /> : <span>🗺️</span>}
+                            {thumbUrl ? <img src={thumbUrl} alt={d.name} /> : <CompassIcon size={18} color="#94a3b8" />}
                           </div>
                           <div className="dest-row-info">
                             <strong>{d.name}</strong>
@@ -1840,7 +1843,7 @@ export default function AdminHomePageManager() {
                               className={`btn btn-xs ${isFeat ? 'btn-deactivate' : 'btn-activate'}`}
                               onClick={() => handleToggleFeaturedDestination(d)}
                             >
-                              {isFeat ? '★ Featured' : '+ Feature'}
+                              {isFeat ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}><StarIcon size={11} color='#f59e0b' fill='#f59e0b' /> Featured</span> : '+ Feature'}
                             </button>
                           </div>
                         </div>
@@ -1859,7 +1862,7 @@ export default function AdminHomePageManager() {
                     Popular 1-day tours and safari packages displayed in the activity showcase.
                   </p>
                   <Link to="/admin/tours" className="btn btn-primary btn-sm" style={{ width: '100%', marginBottom: '14px' }}>
-                    🎒 Manage All Day Tours in Catalog
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><LuggageIcon size={14} /> Manage All Day Tours in Catalog</span>
                   </Link>
                 </div>
               )}
@@ -1881,7 +1884,7 @@ export default function AdminHomePageManager() {
                       return (
                         <div key={r.id || idx} className="review-edit-row">
                           <div className="review-edit-top">
-                            <span className="stars">★★★★★</span>
+                            <span className="stars" style={{ display: "inline-flex", alignItems: "center", gap: "2px" }}>{[...Array(5)].map((_, i) => <StarIcon key={i} size={13} color="#f59e0b" fill="#f59e0b" />)}</span>
                             <span className={`slide-status-tag ${isApproved ? 'active' : 'inactive'}`}>
                               {isApproved ? 'Approved' : 'Pending'}
                             </span>
@@ -1894,7 +1897,7 @@ export default function AdminHomePageManager() {
                               className="btn btn-outline btn-xs"
                               onClick={() => handleToggleReviewFeatured(r)}
                             >
-                              {isFeat ? 'Unfeature' : '★ Feature'}
+                              {isFeat ? 'Unfeature' : <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}><StarIcon size={11} color='#f59e0b' fill='#f59e0b' /> Feature</span>}
                             </button>
                             <button
                               type="button"
@@ -1960,7 +1963,7 @@ export default function AdminHomePageManager() {
                             setIsMediaPickerOpen(true);
                           }}
                         >
-                          🖼️ Change Section Image
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><ImageIcon size={12} /> Change Section Image</span>
                         </button>
                       </div>
                     </div>

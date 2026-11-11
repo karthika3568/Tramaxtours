@@ -1,3 +1,4 @@
+import { RefreshIcon } from '../../components/common/Icons';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -257,7 +258,7 @@ export default function AdminToursPage() {
               title="Compact Table View"
               aria-pressed={viewMode === 'table'}
             >
-              <span className="mode-icon">☰</span> Table
+              Table
             </button>
           </div>
 
@@ -268,7 +269,7 @@ export default function AdminToursPage() {
             disabled={loading}
             title="Refresh tours catalog"
           >
-            <span className={loading ? 'spin-icon' : ''}>🔄</span> Refresh
+            <RefreshIcon size={14} className={loading ? 'spin-icon' : ''} /> Refresh
           </button>
 
           {canCreate && (

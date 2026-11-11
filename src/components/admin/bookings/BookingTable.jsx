@@ -1,4 +1,6 @@
+import { EditIcon, EyeIcon, FileTextIcon, PrintIcon, TrashIcon, XIcon } from '../../common/Icons';
 import useAuth from '../../../hooks/useAuth';
+
 
 export default function BookingTable({
   bookings = [],
@@ -47,7 +49,7 @@ export default function BookingTable({
   if (!loading && bookings.length === 0) {
     return (
       <div className="empty-booking-container">
-        <span className="empty-booking-icon">📋</span>
+        <span className="empty-booking-icon"><FileTextIcon size={32} /></span>
         <h3 className="empty-booking-title">No Bookings Found</h3>
         <p className="empty-booking-desc">
           No bookings match the current search or filter criteria. Try adjusting or clearing your filters.
@@ -157,8 +159,10 @@ export default function BookingTable({
                       className="btn btn-outline btn-xs"
                       onClick={() => onViewDetails(b)}
                       title="View complete booking details"
+                      aria-label="View booking details"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                     >
-                      Details
+                      <EyeIcon size={13} /> Details
                     </button>
 
                     {canEditStatus && (
@@ -166,9 +170,11 @@ export default function BookingTable({
                         type="button"
                         className="btn btn-outline btn-xs btn-status-trigger"
                         onClick={() => onOpenStatusModal(b)}
-                        title="Update status"
+                        title="Update booking status, payments & notes"
+                        aria-label="Edit booking status"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                       >
-                        Status
+                        <EditIcon size={13} /> Status
                       </button>
                     )}
 
@@ -176,9 +182,10 @@ export default function BookingTable({
                       type="button"
                       className="btn btn-outline btn-xs btn-print-trigger"
                       onClick={() => onPrintBooking(b)}
-                      title="Print booking order"
+                      title="Print booking order & voucher"
+                      aria-label="Print booking"
                     >
-                      🖨️
+                      <PrintIcon size={14} />
                     </button>
 
                     {canDelete && (
@@ -186,9 +193,10 @@ export default function BookingTable({
                         type="button"
                         className="btn-danger-xs"
                         onClick={() => onOpenDeleteModal(b)}
-                        title="Delete booking"
+                        title="Delete booking (with confirmation)"
+                        aria-label="Delete booking"
                       >
-                        ✕
+                        <TrashIcon size={14} />
                       </button>
                     )}
                   </div>
@@ -267,18 +275,14 @@ export default function BookingTable({
                 className="btn btn-outline btn-xs"
                 onClick={() => onPrintBooking(b)}
                 title="Print order"
-              >
-                🖨️
-              </button>
+              ><PrintIcon size={13} /></button>
 
               {canDelete && (
                 <button
                   type="button"
                   className="btn-danger-xs"
                   onClick={() => onOpenDeleteModal(b)}
-                >
-                  ✕
-                </button>
+                ><XIcon size={14} /></button>
               )}
             </div>
           </div>

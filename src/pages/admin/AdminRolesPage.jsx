@@ -1,3 +1,4 @@
+import { CheckIcon, FolderIcon, SearchIcon, XIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import roleService from '../../services/roleService';
@@ -109,7 +110,7 @@ export default function AdminRolesPage() {
 
         <div className="header-actions">
           <Link to="/admin/users" className="btn btn-outline">
-            👥 Staff Management &rarr;
+            Staff Management &rarr;
           </Link>
         </div>
       </div>
@@ -151,10 +152,10 @@ export default function AdminRolesPage() {
 
                   <div className="role-card-footer">
                     <span className="role-card-stat">
-                      👥 <strong>{role.users_count ?? 0}</strong> {role.users_count === 1 ? 'member' : 'members'}
+                      <strong>{role.users_count ?? 0}</strong> {role.users_count === 1 ? 'member' : 'members'}
                     </span>
                     <span className="role-card-stat">
-                      🔑 <strong>{isSuper ? 'Wildcard (*)' : role.permissions?.length || 0}</strong> perms
+                      <strong>{isSuper ? 'Wildcard (*)' : role.permissions?.length || 0}</strong> perms
                     </span>
                   </div>
 
@@ -163,7 +164,7 @@ export default function AdminRolesPage() {
                     className="role-select-indicator"
                     aria-label={`Filter matrix for ${role.name}`}
                   >
-                    {isSelected ? '✓ Matrix Filtered' : 'Inspect Matrix &rarr;'}
+                    {isSelected ? 'Matrix Filtered' : 'Inspect Matrix &rarr;'}
                   </button>
                 </div>
               );
@@ -185,7 +186,7 @@ export default function AdminRolesPage() {
               <div className="matrix-controls">
                 {/* Search Permissions */}
                 <div className="matrix-search-box">
-                  <span className="search-icon" aria-hidden="true">🔍</span>
+                  <span className="search-icon" aria-hidden="true"><SearchIcon size={15} /></span>
                   <input
                     type="text"
                     className="filter-search-input"
@@ -200,9 +201,7 @@ export default function AdminRolesPage() {
                       className="filter-search-clear"
                       onClick={() => setPermSearch('')}
                       aria-label="Clear search"
-                    >
-                      ✕
-                    </button>
+                     aria-label="Clear"><XIcon size={14} /></button>
                   )}
                 </div>
 
@@ -249,7 +248,7 @@ export default function AdminRolesPage() {
                   {Object.entries(filteredGroups).map(([groupName, perms]) => (
                     <tr key={groupName} className="matrix-group-row">
                       <td colSpan={2 + activeRoles.length} className="group-divider-cell">
-                        <span className="group-divider-badge">📁 {groupName}</span>
+                        <span className="group-divider-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}><FolderIcon size={13} /> {groupName}</span>
                         <span className="group-divider-count">{perms.length} actions</span>
                       </td>
                     </tr>
@@ -270,9 +269,7 @@ export default function AdminRolesPage() {
                             return (
                               <td key={role.id} className="text-center perm-check-cell">
                                 {hasPerm ? (
-                                  <span className="perm-granted" title={`Granted to ${role.name}`}>
-                                    ✓
-                                  </span>
+                                  <span className="perm-granted" title={`Granted to ${role.name}`}><CheckIcon size={13} strokeWidth={2.5} color="#10b981" /></span>
                                 ) : (
                                   <span className="perm-denied" title={`Not granted to ${role.name}`}>
                                     —

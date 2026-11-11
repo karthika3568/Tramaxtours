@@ -1,3 +1,4 @@
+import { RefreshIcon } from '../../components/common/Icons';
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -197,7 +198,7 @@ export default function AdminDestinationsPage() {
             disabled={loading}
             title="Refresh destinations list"
           >
-            🔄 Refresh
+            Refresh
           </button>
 
           {canCreate && (

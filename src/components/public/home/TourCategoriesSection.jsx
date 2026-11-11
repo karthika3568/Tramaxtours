@@ -1,5 +1,7 @@
+import { BookOpenIcon, CarIcon, ClockIcon, CompassIcon, LayersIcon, MapPinIcon, SparklesIcon, UsersIcon } from '../../common/Icons';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../../context/LanguageContext';
+
 
 const TOUR_CATEGORIES = [
   {
@@ -11,7 +13,7 @@ const TOUR_CATEGORIES = [
     subtitleDe: 'Tagesausflüge & Kurztrips',
     image: '/uploads/media/demo_tamilnadu_mahabalipuram.jpg',
     count: '8+ Tours',
-    icon: '☀️',
+    icon: <ClockIcon size={22} color="#01aa90" />,
   },
   {
     id: 2,
@@ -22,7 +24,7 @@ const TOUR_CATEGORIES = [
     subtitleDe: 'Stadtrundfahrten & Denkmäler',
     image: '/uploads/media/demo_thingstodo_citytour.jpg',
     count: '6+ Tours',
-    icon: '🏙️',
+    icon: <MapPinIcon size={22} color="#01aa90" />,
   },
   {
     id: 3,
@@ -33,7 +35,7 @@ const TOUR_CATEGORIES = [
     subtitleDe: 'Alte Traditionen & Architektur',
     image: '/uploads/media/demo_tamilnadu_culture.jpg',
     count: '12+ Tours',
-    icon: '🏛️',
+    icon: <LayersIcon size={22} color="#01aa90" />,
   },
   {
     id: 4,
@@ -44,7 +46,7 @@ const TOUR_CATEGORIES = [
     subtitleDe: 'Erlebnisreiche Familienreisen',
     image: '/uploads/media/demo_services_food.jpg',
     count: '10+ Tours',
-    icon: '👨‍👩‍👧‍👦',
+    icon: <UsersIcon size={22} color="#01aa90" />,
   },
   {
     id: 5,
@@ -55,7 +57,7 @@ const TOUR_CATEGORIES = [
     subtitleDe: 'Geführte Erlebnisreisen',
     image: '/uploads/media/demo_services_guide.jpg',
     count: '14+ Tours',
-    icon: '🧭',
+    icon: <CompassIcon size={22} color="#01aa90" />,
   },
   {
     id: 6,
@@ -66,7 +68,7 @@ const TOUR_CATEGORIES = [
     subtitleDe: 'Festungen & Paläste',
     image: '/uploads/media/demo_tamilnadu_thanjavur.jpg',
     count: '9+ Tours',
-    icon: '🏰',
+    icon: <BookOpenIcon size={22} color="#01aa90" />,
   },
   {
     id: 7,
@@ -77,7 +79,7 @@ const TOUR_CATEGORIES = [
     subtitleDe: 'Heilige Tempel & Spiritualität',
     image: '/uploads/media/demo_tamilnadu_thiruvannamalai.jpg',
     count: '15+ Tours',
-    icon: '🛕',
+    icon: <SparklesIcon size={22} color="#01aa90" />,
   },
   {
     id: 8,
@@ -88,7 +90,7 @@ const TOUR_CATEGORIES = [
     subtitleDe: 'Exklusive Chauffeurreisen',
     image: '/uploads/media/demo_services_transportation.jpg',
     count: '11+ Tours',
-    icon: '✨',
+    icon: <CarIcon size={22} color="#01aa90" />,
   },
 ];
 

@@ -1,3 +1,4 @@
+import { HotelIcon, UtensilsIcon } from '../../common/Icons';
 import { useState } from 'react';
 
 export default function TourItinerary({ itineraries = [] }) {
@@ -82,12 +83,12 @@ export default function TourItinerary({ itineraries = [] }) {
                       <div className="itinerary-meta-pills">
                         {day.meals_included && (
                           <span className="meta-pill">
-                            🍽️ Meals: <strong>{day.meals_included}</strong>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><UtensilsIcon size={13} color="#01aa90" /> Meals:</span> <strong>{day.meals_included}</strong>
                           </span>
                         )}
                         {day.accommodation && (
                           <span className="meta-pill">
-                            🏨 Stay: <strong>{day.accommodation}</strong>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><HotelIcon size={13} color="#01aa90" /> Stay:</span> <strong>{day.accommodation}</strong>
                           </span>
                         )}
                       </div>

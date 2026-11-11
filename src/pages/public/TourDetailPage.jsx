@@ -1,3 +1,4 @@
+import { CheckIcon, ClockIcon, CompassIcon, MapIcon, MapPinIcon, PhoneIcon, StarIcon, XIcon } from '../../components/common/Icons';
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import tourService from '../../services/tourService';
@@ -10,6 +11,7 @@ import Loading from '../../components/ui/Loading';
 import ErrorState from '../../components/ui/ErrorState';
 import { updatePageMeta } from '../../utils/metadata';
 import { useToast } from '../../context/ToastContext';
+
 
 export default function TourDetailPage() {
   const { slug } = useParams();
@@ -355,7 +357,7 @@ export default function TourDetailPage() {
             ================================================================= */}
         <section className="tour-attributes-strip" aria-label="Key Tour Information">
           <div className="attribute-item">
-            <span className="attr-icon">⏱️</span>
+            <span className="attr-icon"><ClockIcon size={18} color="#01aa90" /></span>
             <div className="attr-content">
               <span className="attr-label">Duration:</span>
               <span className="attr-val">{durationText}</span>
@@ -363,7 +365,7 @@ export default function TourDetailPage() {
           </div>
 
           <div className="attribute-item">
-            <span className="attr-icon">🌐</span>
+            <span className="attr-icon"><CompassIcon size={18} color="#01aa90" /></span>
             <div className="attr-content">
               <span className="attr-label">Language:</span>
               <span className="attr-val">{tour.languages || 'English, Tamil'}</span>
@@ -371,7 +373,7 @@ export default function TourDetailPage() {
           </div>
 
           <div className="attribute-item attr-types-item">
-            <span className="attr-icon">🧳</span>
+            <span className="attr-icon"><MapPinIcon size={18} color="#01aa90" /></span>
             <div className="attr-content">
               <span className="attr-label">Tour type:</span>
               <span className="attr-val">
@@ -382,7 +384,7 @@ export default function TourDetailPage() {
 
           {(tour.opening_times || tour.travel_days) && (
             <div className="attribute-item">
-              <span className="attr-icon">🕒</span>
+              <span className="attr-icon"><ClockIcon size={18} color="#01aa90" /></span>
               <div className="attr-content">
                 <span className="attr-label">Opening Times:</span>
                 <span className="attr-val">{tour.opening_times || tour.travel_days}</span>
@@ -489,8 +491,8 @@ export default function TourDetailPage() {
             {/* Direct Organizer Contact Card */}
             {(tour.organizer_email || tour.organizer_phone || tour.opening_times) && (
               <section className="detail-section-card tour-organizer-direct-card" style={{ background: '#f8fafc', borderColor: '#e2e8f0' }}>
-                <h2 className="detail-block-heading" style={{ fontSize: '19px', color: '#0f172a', marginBottom: '12px' }}>
-                  📞 Tour Organizer &amp; Inquiries
+                <h2 className="detail-block-heading" style={{ fontSize: '19px', color: '#0f172a', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <PhoneIcon size={20} color="#01aa90" /> Tour Organizer &amp; Inquiries
                 </h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px', fontSize: '14.5px' }}>
                   {tour.opening_times && (
@@ -569,15 +571,33 @@ export default function TourDetailPage() {
               <ul className="detail-check-list">
                 {tour.why_choose && tour.why_choose.length > 0 ? (
                   tour.why_choose.map((wc, idx) => (
-                    <li key={wc.id || idx}>✔ {wc.title}</li>
+                    <li key={wc.id || idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <CheckIcon size={14} color="#01aa90" strokeWidth={2.5} />
+                      <span>{wc.title}</span>
+                    </li>
                   ))
                 ) : (
                   <>
-                    <li>✔ Explore UNESCO World Heritage monuments</li>
-                    <li>✔ Experience ancient Pallava architecture</li>
-                    <li>✔ Enjoy a comfortable private sightseeing tour</li>
-                    <li>✔ Ideal for families, couples, and history lovers</li>
-                    <li>✔ Flexible itinerary with professional driver</li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <CheckIcon size={14} color="#01aa90" strokeWidth={2.5} />
+                      <span>Explore UNESCO World Heritage monuments</span>
+                    </li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <CheckIcon size={14} color="#01aa90" strokeWidth={2.5} />
+                      <span>Experience ancient Pallava architecture</span>
+                    </li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <CheckIcon size={14} color="#01aa90" strokeWidth={2.5} />
+                      <span>Enjoy a comfortable private sightseeing tour</span>
+                    </li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <CheckIcon size={14} color="#01aa90" strokeWidth={2.5} />
+                      <span>Ideal for families, couples, and history lovers</span>
+                    </li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <CheckIcon size={14} color="#01aa90" strokeWidth={2.5} />
+                      <span>Flexible itinerary with professional driver</span>
+                    </li>
                   </>
                 )}
               </ul>
@@ -651,8 +671,10 @@ export default function TourDetailPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn-view-map-link"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                     >
-                      🗺️ Open in Google Maps &rarr;
+                      <MapIcon size={14} />
+                      <span>Open in Google Maps &rarr;</span>
                     </a>
                   )}
                 </div>
@@ -667,8 +689,10 @@ export default function TourDetailPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn-view-map-link"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                   >
-                    🗺️ Open in Google Maps &rarr;
+                    <MapIcon size={14} />
+                    <span>Open in Google Maps &rarr;</span>
                   </a>
                 </div>
                 <p className="map-caption-text">{mapTitle} (Coordinates: {lat}, {lng})</p>
@@ -748,8 +772,9 @@ export default function TourDetailPage() {
                   type="button"
                   className="btn btn-primary btn-sm"
                   onClick={() => setShowReviewModal(true)}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}
                 >
-                  ⭐ Write a Review
+                  <StarIcon size={14} filled color="#ffffff" /> Write a Review
                 </button>
               </div>
 
@@ -770,8 +795,15 @@ export default function TourDetailPage() {
                             <span className="reviewer-name">{rev.customer_name}</span>
                             <span className="reviewer-country">{rev.customer_country || 'International Traveler'}</span>
                           </div>
-                          <div className="reviewer-stars">
-                            {'★'.repeat(rating)}{'☆'.repeat(5 - rating)}
+                          <div className="reviewer-stars" style={{ display: 'flex', gap: '2px' }}>
+                            {[...Array(5)].map((_, i) => (
+                              <StarIcon
+                                key={i}
+                                size={13}
+                                filled={i < rating}
+                                color={i < rating ? '#f59e0b' : '#cbd5e1'}
+                              />
+                            ))}
                           </div>
                         </div>
 
@@ -841,8 +873,9 @@ export default function TourDetailPage() {
                 type="button"
                 className="admin-modal-close"
                 onClick={() => setShowReviewModal(false)}
+                aria-label="Close modal"
               >
-                ✕
+                <XIcon size={18} />
               </button>
             </div>
 
@@ -858,7 +891,7 @@ export default function TourDetailPage() {
                       className={`star-pick-btn ${star <= reviewRating ? 'active' : ''}`}
                       onClick={() => setReviewRating(star)}
                     >
-                      ★
+                      <StarIcon size={20} filled={star <= reviewRating} color={star <= reviewRating ? '#f59e0b' : '#cbd5e1'} />
                     </button>
                   ))}
                   <span className="star-rating-text">{reviewRating} Stars</span>
@@ -940,8 +973,9 @@ export default function TourDetailPage() {
                       type="button"
                       className="remove-thumb-btn"
                       onClick={() => setReviewImagePreview(null)}
+                      aria-label="Remove image"
                     >
-                      ✕
+                      <XIcon size={14} />
                     </button>
                   </div>
                 )}

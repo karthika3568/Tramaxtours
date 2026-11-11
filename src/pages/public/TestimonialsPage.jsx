@@ -4,6 +4,7 @@ import { updatePageMeta } from '../../utils/metadata';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import TestimonialsSection from '../../components/public/home/TestimonialsSection';
 import { formatWhatsAppUrl } from '../../utils/whatsapp';
+import { WhatsAppIcon } from '../../components/common/Icons';
 
 export default function TestimonialsPage() {
   const { getSetting } = useSiteSettings();
@@ -27,7 +28,7 @@ export default function TestimonialsPage() {
       <PageHero
         title="Guest Testimonials &amp; Stories"
         subtitle="Discover authentic memories and experiences shared by international and domestic travelers who explored South India with us."
-        badge="⭐ 4.9 / 5 Rated Experience"
+        badge="4.9 / 5 Rated Experience"
         breadcrumbs={[{ label: 'Testimonials' }]}
         heroMedia={{ url: '/uploads/media/demo_carousel_munnar.jpg' }}
       />
@@ -109,7 +110,8 @@ export default function TestimonialsPage() {
             className="btn-whatsapp-planning-pill"
             style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 28px', fontSize: '14px' }}
           >
-            <span>💬</span> Share Your Experience on WhatsApp
+            <WhatsAppIcon size={16} color="#ffffff" />
+            <span>Share Your Experience on WhatsApp</span>
           </a>
         </div>
       </div>

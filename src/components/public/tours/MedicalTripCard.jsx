@@ -1,4 +1,6 @@
+import { ClockIcon, MapPinIcon, StethoscopeIcon } from '../../common/Icons';
 import { Link } from 'react-router-dom';
+
 import { getMediaUrl } from '../../../utils/media';
 
 export default function MedicalTripCard({ trip }) {
@@ -58,7 +60,7 @@ export default function MedicalTripCard({ trip }) {
               boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
             }}
           >
-            <span>🩺</span>
+            <StethoscopeIcon size={12} color="#ffffff" />
             <span>{trip.category || 'Medical Tourism'}</span>
           </span>
         </div>
@@ -86,11 +88,11 @@ export default function MedicalTripCard({ trip }) {
         {/* Location & Duration Row */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', fontSize: '12px', color: '#64748b' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span>📍</span>
+            <MapPinIcon size={13} color="#94a3b8" />
             <span>{trip.location || 'Chennai, India'}</span>
           </span>
           <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span>🗓️</span>
+            <ClockIcon size={13} color="#94a3b8" />
             <span>{trip.duration || '1 Day'}</span>
           </span>
         </div>

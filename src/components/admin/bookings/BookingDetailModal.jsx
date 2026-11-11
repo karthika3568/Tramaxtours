@@ -1,3 +1,4 @@
+import { BanknoteIcon, CheckIcon, ClockIcon, CompassIcon, CreditCardIcon, LockIcon, MailIcon, PhoneIcon, PrintIcon, UserIcon, WhatsAppIcon, XIcon } from '../../../components/common/Icons';
 import { useState } from 'react';
 import useAuth from '../../../hooks/useAuth';
 import { getMediaUrl } from '../../../utils/media';
@@ -155,7 +156,7 @@ export default function BookingDetailModal({
                 </span>
               ) : (
                 <span className="badge badge-success" style={{ fontSize: '11px' }}>
-                  Fully Settled ✓
+                  Fully Settled
                 </span>
               )}
             </div>
@@ -165,9 +166,7 @@ export default function BookingDetailModal({
             className="modal-close-btn"
             onClick={onClose}
             aria-label="Close modal"
-          >
-            ✕
-          </button>
+          ><XIcon size={14} /></button>
         </div>
 
         {/* Action Bar: Customer Contact & Direct Approval */}
@@ -180,7 +179,7 @@ export default function BookingDetailModal({
                   className="btn btn-outline btn-xs"
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                 >
-                  📞 Call: {customerPhone}
+                  Call: {customerPhone}
                 </a>
                 {whatsAppUrl && (
                   <a
@@ -190,7 +189,7 @@ export default function BookingDetailModal({
                     className="btn btn-outline btn-xs"
                     style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', borderColor: '#22c55e', color: '#15803d' }}
                   >
-                    💬 WhatsApp Customer
+                    WhatsApp Customer
                   </a>
                 )}
               </>
@@ -200,7 +199,7 @@ export default function BookingDetailModal({
               className="btn btn-outline btn-xs"
               onClick={() => setShowContactForm(!showContactForm)}
             >
-              📝 {showContactForm ? 'Hide Contact Form' : 'Log Call / WhatsApp Note'}
+              {showContactForm ? 'Hide Contact Form' : 'Log Call / WhatsApp Note'}
             </button>
           </div>
 
@@ -213,7 +212,7 @@ export default function BookingDetailModal({
                 onClick={() => onApproveBooking && onApproveBooking(booking.id)}
                 style={{ background: '#01aa90', borderColor: '#01aa90' }}
               >
-                ✓ Approve Booking &amp; Issue Ticket
+                Approve Booking & Issue Ticket
               </button>
             )}
             {canEditStatus && booking.booking_status !== 'rejected' && booking.booking_status !== 'cancelled' && (
@@ -223,7 +222,7 @@ export default function BookingDetailModal({
                 disabled={isProcessing}
                 onClick={() => onRejectBooking && onRejectBooking(booking.id)}
               >
-                ✕ Reject Booking
+                Reject Booking
               </button>
             )}
             {booking.booking_status === 'confirmed' && onResendConfirmation && (
@@ -233,7 +232,7 @@ export default function BookingDetailModal({
                 disabled={isProcessing}
                 onClick={() => onResendConfirmation(booking.id)}
               >
-                ✉ Resend Ticket Email
+                Resend Ticket Email
               </button>
             )}
           </div>
@@ -245,7 +244,7 @@ export default function BookingDetailModal({
           {showContactForm && (
             <div className="detail-card" style={{ background: '#f0fdfa', border: '1px solid #99f6e4', marginBottom: '18px' }}>
               <h4 style={{ margin: '0 0 10px', fontSize: '14px', color: '#01806c' }}>
-                📞 Record Customer Contact Log
+                Record Customer Contact Log
               </h4>
               <form onSubmit={handleContactSubmit}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr auto', gap: '10px', alignItems: 'start' }}>
@@ -292,7 +291,7 @@ export default function BookingDetailModal({
             <div className="booking-detail-section">
               {/* Customer Information */}
               <div className="detail-card">
-                <h3 className="detail-card-heading">👤 Customer Information</h3>
+                <h3 className="detail-card-heading">Customer Information</h3>
                 <div className="detail-fields-list">
                   <div className="detail-field-row">
                     <span className="field-label">Full Name:</span>
@@ -329,7 +328,7 @@ export default function BookingDetailModal({
 
               {/* Trip Specifications */}
               <div className="detail-card">
-                <h3 className="detail-card-heading">🧳 Trip &amp; Travel Specifications</h3>
+                <h3 className="detail-card-heading">Trip & Travel Specifications</h3>
                 <div className="detail-fields-list">
                   <div className="detail-field-row">
                     <span className="field-label">Destination:</span>
@@ -381,7 +380,7 @@ export default function BookingDetailModal({
               {/* Customer Contact History */}
               <div className="detail-card">
                 <div className="detail-card-header-flex">
-                  <h3 className="detail-card-heading">📞 Customer Contact History</h3>
+                  <h3 className="detail-card-heading">Customer Contact History</h3>
                   <button
                     type="button"
                     className="btn btn-outline btn-xs"
@@ -398,7 +397,7 @@ export default function BookingDetailModal({
                         <div className="timeline-content">
                           <div className="timeline-header">
                             <span className="timeline-transition font-semibold" style={{ textTransform: 'capitalize' }}>
-                              {log.contact_type === 'whatsapp' ? '💬 WhatsApp' : log.contact_type === 'phone' ? '📞 Phone Call' : log.contact_type}
+                              {log.contact_type === 'whatsapp' ? 'WhatsApp' : log.contact_type === 'phone' ? 'Phone Call' : log.contact_type}
                             </span>
                             <span className="timeline-date">
                               {log.contacted_at ? new Date(log.contacted_at).toLocaleString() : ''}
@@ -422,7 +421,7 @@ export default function BookingDetailModal({
               {/* Internal Admin Notes */}
               <div className="detail-card admin-notes-card">
                 <div className="detail-card-header-flex">
-                  <h3 className="detail-card-heading">🔒 Internal Admin Notes</h3>
+                  <h3 className="detail-card-heading">Internal Admin Notes</h3>
                   {!isEditingNotes && canEditStatus && (
                     <button
                       type="button"
@@ -475,7 +474,7 @@ export default function BookingDetailModal({
             <div className="booking-detail-section">
               {/* Tour Package Summary */}
               <div className="detail-card tour-detail-card">
-                <h3 className="detail-card-heading">🧭 Tour Package Information</h3>
+                <h3 className="detail-card-heading">Tour Package Information</h3>
                 <div className="tour-summary-box">
                   {booking.tour?.image_path && (
                     <img
@@ -508,7 +507,7 @@ export default function BookingDetailModal({
               {/* Financial & Payment Breakdown Card */}
               <div className="detail-card" style={{ border: '1.5px solid #01aa90' }}>
                 <div className="detail-card-header-flex">
-                  <h3 className="detail-card-heading" style={{ color: '#01aa90' }}>💳 Payment Tracking &amp; Balance</h3>
+                  <h3 className="detail-card-heading" style={{ color: '#01aa90' }}>Payment Tracking & Balance</h3>
                   {canEditStatus && (
                     <button
                       type="button"
@@ -564,7 +563,7 @@ export default function BookingDetailModal({
                 {showPaymentForm && (
                   <form onSubmit={handlePaymentSubmit} style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '14px', marginTop: '14px' }}>
                     <h4 style={{ margin: '0 0 10px', fontSize: '13px', color: '#0B1329' }}>
-                      💵 Record Manual Customer Payment
+                      Record Manual Customer Payment
                     </h4>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                       <div>
@@ -683,7 +682,7 @@ export default function BookingDetailModal({
 
               {/* Status Change History Timeline */}
               <div className="detail-card">
-                <h3 className="detail-card-heading">⏱️ Booking Status History</h3>
+                <h3 className="detail-card-heading">Booking Status History</h3>
                 {booking.status_history && booking.status_history.length > 0 ? (
                   <div className="status-timeline">
                     {booking.status_history.map((hist, idx) => (
@@ -716,7 +715,7 @@ export default function BookingDetailModal({
 
               {/* Email & Notification Status */}
               <div className="detail-card">
-                <h3 className="detail-card-heading">✉️ Email &amp; Notification Status</h3>
+                <h3 className="detail-card-heading">Email & Notification Status</h3>
                 <div className="detail-fields-list">
                   <div className="detail-field-row">
                     <span className="field-label">Customer Email:</span>
@@ -762,7 +761,7 @@ export default function BookingDetailModal({
               className="btn btn-outline"
               onClick={() => onPrintBooking(booking)}
             >
-              🖨️ Print Voucher
+              Print Voucher
             </button>
           </div>
           <div className="modal-footer-right">

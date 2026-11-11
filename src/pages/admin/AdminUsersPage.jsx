@@ -1,3 +1,4 @@
+import { PlusIcon } from '../../components/common/Icons';
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -175,7 +176,7 @@ export default function AdminUsersPage() {
         <div className="header-actions">
           {canCreate && (
             <Link to="/admin/users/new" className="btn btn-primary">
-              <span aria-hidden="true">➕</span> New Customer Account
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><PlusIcon size={15} /> New Customer Account</span>
             </Link>
           )}
         </div>

@@ -1,7 +1,9 @@
+import { CheckIcon, ClockIcon, GlobeIcon, MailIcon, MapPinIcon, PhoneIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import siteSettingsService from '../../services/siteSettingsService';
 import { useToast } from '../../context/ToastContext';
+
 import { updatePageMeta } from '../../utils/metadata';
 import Loading from '../../components/ui/Loading';
 
@@ -99,7 +101,7 @@ export default function AdminContactPageManager() {
             onClick={handleSave}
             disabled={saving}
           >
-            {saving ? 'Saving...' : '💾 Save Contact Details'}
+            {saving ? 'Saving...' : 'Save Contact Details'}
           </button>
         </div>
       </div>
@@ -114,7 +116,7 @@ export default function AdminContactPageManager() {
         <div className="visual-contact-mock-grid">
           {/* Card 1: Phone */}
           <div className="mock-contact-card">
-            <div className="mock-contact-icon">📞</div>
+            <div className="mock-contact-icon"><PhoneIcon size={18} /></div>
             <div className="mock-contact-details">
               <span className="mock-contact-label">Direct Line / WhatsApp</span>
               <strong className="mock-contact-val text-teal">{contactData.contact_phone}</strong>
@@ -124,7 +126,7 @@ export default function AdminContactPageManager() {
 
           {/* Card 2: Email */}
           <div className="mock-contact-card">
-            <div className="mock-contact-icon">✉️</div>
+            <div className="mock-contact-icon"><MailIcon size={18} /></div>
             <div className="mock-contact-details">
               <span className="mock-contact-label">General & Tour Inquiries</span>
               <strong className="mock-contact-val text-gold">{contactData.contact_email}</strong>
@@ -134,7 +136,7 @@ export default function AdminContactPageManager() {
 
           {/* Card 3: Address */}
           <div className="mock-contact-card">
-            <div className="mock-contact-icon">📍</div>
+            <div className="mock-contact-icon"><MapPinIcon size={18} /></div>
             <div className="mock-contact-details">
               <span className="mock-contact-label">Head Office</span>
               <strong className="mock-contact-val">{contactData.contact_address}</strong>
@@ -144,7 +146,7 @@ export default function AdminContactPageManager() {
 
           {/* Card 4: Hours */}
           <div className="mock-contact-card">
-            <div className="mock-contact-icon">⏱️</div>
+            <div className="mock-contact-icon"><ClockIcon size={20} color="#01aa90" /></div>
             <div className="mock-contact-details">
               <span className="mock-contact-label">Business Hours</span>
               <strong className="mock-contact-val">{contactData.contact_business_hours}</strong>
@@ -238,7 +240,7 @@ export default function AdminContactPageManager() {
           </div>
 
           <div className="contact-social-quicklink">
-            <span className="social-icon-badge">🌐</span>
+            <span className="social-icon-badge"><GlobeIcon size={16} /></span>
             <div className="social-info">
               <strong>Social Media Links</strong>
               <p>Configure Facebook, Instagram, YouTube, and WhatsApp channels.</p>

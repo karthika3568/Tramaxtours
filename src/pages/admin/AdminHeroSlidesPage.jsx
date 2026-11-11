@@ -1,3 +1,4 @@
+import { EditIcon, ImageIcon, TrashIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import homeHeroService from '../../services/homeHeroService';
@@ -259,7 +260,7 @@ export default function AdminHeroSlidesPage() {
         <Loading message="Loading Hero Carousel Slides..." />
       ) : slides.length === 0 ? (
         <EmptyState
-          icon="🌄"
+          icon="image"
           title="No Hero Slides Configured"
           description="Create your first hero carousel slide to showcase stunning travel destinations on the homepage."
           actionText="+ Create First Slide"
@@ -308,7 +309,7 @@ export default function AdminHeroSlidesPage() {
                       fontWeight: 600,
                     }}
                   >
-                    🏷️ {slide.title || `Slide #${slide.id}`}
+                    {slide.title || `Slide #${slide.id}`}
                   </div>
                 </div>
 
@@ -348,14 +349,14 @@ export default function AdminHeroSlidesPage() {
                       className="btn-action-pill btn-action-edit"
                       onClick={() => handleOpenEdit(slide)}
                     >
-                      ✎ Edit Slide
+                      Edit Slide
                     </button>
                     <button
                       type="button"
                       className="btn-action-pill btn-action-delete"
                       onClick={() => handleDelete(slide)}
                     >
-                      🗑 Delete
+                      Delete
                     </button>
                   </div>
                 </div>
@@ -398,7 +399,7 @@ export default function AdminHeroSlidesPage() {
                   className="btn btn-secondary-luxury"
                   onClick={() => setIsMediaPickerOpen(true)}
                 >
-                  🖼 Choose from Media Library
+                  Choose from Media Library
                 </button>
                 {formData.desktop_media_id && (
                   <button

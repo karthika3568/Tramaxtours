@@ -1,3 +1,4 @@
+import { AlertTriangleIcon, MapPinIcon, XIcon } from '../../../components/common/Icons';
 import { useState } from 'react';
 import Modal from '../../ui/Modal';
 import { getMediaUrl } from '../../../utils/media';
@@ -34,14 +35,14 @@ export default function DestinationDeleteModal({
       size="sm"
     >
       <div className="dest-delete-modal-content">
-        <div className="dest-delete-warning-icon" aria-hidden="true">⚠️</div>
+        <div className="dest-delete-warning-icon" aria-hidden="true"><AlertTriangleIcon size={32} color="#dc2626" /></div>
 
         <div className="dest-delete-target-card">
           <div className="dest-delete-mini-thumb">
             {thumbUrl ? (
               <img src={thumbUrl} alt={destination.name} />
             ) : (
-              <span>🗺️</span>
+              <MapPinIcon size={16} />
             )}
           </div>
           <div className="dest-delete-target-info">
@@ -56,7 +57,7 @@ export default function DestinationDeleteModal({
 
         {hasDependencies && (
           <div className="dest-dependency-warning-box">
-            <h4 className="dependency-warning-title">⚠️ Dependency Warning</h4>
+            <h4 className="dependency-warning-title" style={{ display: "flex", alignItems: "center", gap: "6px" }}><AlertTriangleIcon size={16} color="#d97706" /> Dependency Warning</h4>
             <p className="dependency-warning-desc">
               This destination is currently linked to <strong>{toursCount} active tour package{toursCount === 1 ? '' : 's'}</strong>.
             </p>

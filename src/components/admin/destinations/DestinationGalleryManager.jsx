@@ -1,3 +1,4 @@
+import { ImageIcon, SparklesIcon, XIcon } from '../../../components/common/Icons';
 import { useState } from 'react';
 import MediaPickerModal from '../media/MediaPickerModal';
 import { getMediaUrl } from '../../../utils/media';
@@ -98,7 +99,7 @@ export default function DestinationGalleryManager({ gallery = [], onChange }) {
 
       {gallery.length === 0 ? (
         <div className="module-empty-box">
-          <span className="empty-icon">🖼️</span>
+          <span className="empty-icon"><ImageIcon size={28} /></span>
           <p className="empty-text">No gallery images attached yet.</p>
           <button
             type="button"
@@ -122,7 +123,7 @@ export default function DestinationGalleryManager({ gallery = [], onChange }) {
                   />
                   <div className="gallery-order-badge">#{idx + 1}</div>
                   {Boolean(item.is_hero_slide) && (
-                    <div className="gallery-hero-badge">🌟 Hero Slide</div>
+                    <div className="gallery-hero-badge" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><SparklesIcon size={12} /> Hero Slide</div>
                   )}
                 </div>
 
@@ -174,7 +175,7 @@ export default function DestinationGalleryManager({ gallery = [], onChange }) {
                       onClick={() => handleRemove(idx)}
                       title="Remove from gallery"
                     >
-                      ✕ Remove
+                      Remove
                     </button>
                   </div>
                 </div>

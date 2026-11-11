@@ -152,6 +152,7 @@ $router->group('/api/v1', function (Router $router) {
         $router->post('/book', [MedicalTripController::class, 'book']);
     });
 
+
     // Admin Medical Trips Routes
     $router->group('/admin/medical-trips', function (Router $router) {
         $router->get('', [MedicalTripController::class, 'adminIndex'], [new PermissionMiddleware('tours.view')]);
@@ -309,6 +310,10 @@ $router->group('/api/v1', function (Router $router) {
 
         // Get settings by group (Public / Authenticated)
         $router->get('/group/{group}', [SiteSettingController::class, 'getByGroup']);
+
+        // Bulk update site settings (Permission: settings.manage)
+        $router->post('/bulk', [SiteSettingController::class, 'updateBulk'], [new PermissionMiddleware('settings.manage')]);
+        $router->put('/bulk', [SiteSettingController::class, 'updateBulk'], [new PermissionMiddleware('settings.manage')]);
 
         // Get single setting by ID or setting_key (Public / Authenticated)
         $router->get('/{id}', [SiteSettingController::class, 'show']);
@@ -468,6 +473,16 @@ $router->group('/api/v1', function (Router $router) {
         // Restore Booking (Permission: bookings.delete)
         $router->post('/{id}/restore', [BookingController::class, 'restore'], [new PermissionMiddleware('bookings.delete')]);
         $router->patch('/{id}/restore', [BookingController::class, 'restore'], [new PermissionMiddleware('bookings.delete')]);
+    });
+
+    // Orders Management Route Alias
+    $router->group('/orders', function (Router $router) {
+        $router->get('', [BookingController::class, 'index'], [new PermissionMiddleware('bookings.view')]);
+        $router->get('/stats', [BookingController::class, 'stats'], [new PermissionMiddleware('bookings.view')]);
+        $router->get('/{id}', [BookingController::class, 'show'], [new PermissionMiddleware('bookings.view')]);
+        $router->get('/{id}/receipt', [BookingController::class, 'receipt']);
+        $router->put('/{id}', [BookingController::class, 'update'], [new PermissionMiddleware('bookings.edit_status')]);
+        $router->delete('/{id}', [BookingController::class, 'destroy'], [new PermissionMiddleware('bookings.delete')]);
     });
 
     // Staff & User Management Routes

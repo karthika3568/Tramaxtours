@@ -1,3 +1,4 @@
+import { StarIcon } from '../../common/Icons';
 import { useState, useEffect } from 'react';
 import reviewService from '../../../services/reviewService';
 import { getMediaUrl } from '../../../utils/media';
@@ -72,8 +73,7 @@ export default function TourReviews({ tourId, tourTitle }) {
           <span className="rating-score">{avgRating}</span>
           <div className="rating-details">
             <div className="stars-row" aria-label={`Average rating ${avgRating} out of 5 stars`}>
-              {'★'.repeat(Math.round(Number(avgRating)))}
-              {'☆'.repeat(5 - Math.round(Number(avgRating)))}
+              {[...Array(5)].map((_, i) => <StarIcon key={i} size={14} color="#f59e0b" fill={i < Math.round(Number(avgRating)) ? '#f59e0b' : 'none'} />)}
             </div>
             <span className="rating-count">({reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})</span>
           </div>
@@ -108,9 +108,15 @@ export default function TourReviews({ tourId, tourTitle }) {
                   </div>
                 </div>
 
-                <div className="review-stars" aria-label={`${rating} out of 5 stars`}>
-                  {'★'.repeat(rating)}
-                  {'☆'.repeat(5 - rating)}
+                <div className="review-stars" aria-label={`${rating} out of 5 stars`} style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                  {[...Array(5)].map((_, i) => (
+                    <StarIcon
+                      key={i}
+                      size={14}
+                      color="#f59e0b"
+                      fill={i < rating ? '#f59e0b' : 'none'}
+                    />
+                  ))}
                 </div>
               </div>
 

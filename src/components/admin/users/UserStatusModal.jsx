@@ -1,3 +1,6 @@
+import { PauseIcon, PlayIcon, TrashIcon, XIcon } from '../../../components/common/Icons';
+
+
 export default function UserStatusModal({
   user,
   actionType, // 'activate' | 'deactivate' | 'delete'
@@ -59,17 +62,15 @@ export default function UserStatusModal({
             onClick={onCancel}
             disabled={isProcessing}
             aria-label="Close dialog"
-          >
-            ✕
-          </button>
+          ><XIcon size={14} /></button>
         </div>
 
         <div className="admin-modal-body">
           <div className="confirmation-content">
             <div className="confirmation-icon-wrapper">
-              {actionType === 'delete' && <span className="warning-icon">🗑️</span>}
-              {actionType === 'deactivate' && <span className="warning-icon">⏸️</span>}
-              {actionType === 'activate' && <span className="success-icon">▶️</span>}
+              {actionType === 'delete' && <span className="warning-icon"><TrashIcon size={24} color='#ef4444' /></span>}
+              {actionType === 'deactivate' && <span className="warning-icon"><PauseIcon size={24} color='#f59e0b' /></span>}
+              {actionType === 'activate' && <span className="success-icon"><PlayIcon size={24} color='#10b981' /></span>}
             </div>
 
             <p className="confirmation-message">

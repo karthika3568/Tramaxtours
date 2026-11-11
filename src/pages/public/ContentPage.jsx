@@ -1,3 +1,4 @@
+import { EditIcon, MailIcon, PhoneIcon, PrintIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import pageService from '../../services/pageService';
@@ -8,6 +9,7 @@ import ErrorState from '../../components/ui/ErrorState';
 import { updatePageMeta } from '../../utils/metadata';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import useAuth from '../../hooks/useAuth';
+
 
 export default function ContentPage({ defaultSlug = null }) {
   const { slug: paramSlug } = useParams();
@@ -106,7 +108,8 @@ export default function ContentPage({ defaultSlug = null }) {
               className="btn btn-sm btn-primary"
               style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontWeight: '600' }}
             >
-              <span>✏️</span> Edit This Page in Admin
+              <EditIcon size={14} />
+              <span>Edit This Page in Admin</span>
             </Link>
           </div>
         )}
@@ -129,9 +132,9 @@ export default function ContentPage({ defaultSlug = null }) {
                     className="btn btn-sm btn-outline-secondary"
                     onClick={() => window.print()}
                     title="Print this document"
-                    style={{ fontSize: '13px', padding: '6px 12px' }}
+                    style={{ fontSize: '13px', padding: '6px 12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                   >
-                    🖨️ Print / Save PDF
+                    <PrintIcon size={14} /> <span>Print / Save PDF</span>
                   </button>
                 </div>
               </div>
@@ -174,8 +177,14 @@ export default function ContentPage({ defaultSlug = null }) {
                   Have questions regarding our policies, booking terms, or refund procedure? Our concierge is available 24/7.
                 </p>
                 <div style={{ margin: '14px 0', fontSize: '13px', color: 'var(--color-text-muted)' }}>
-                  <div>📞 <a href="tel:+918072566010" style={{ color: 'var(--color-primary)', fontWeight: '600' }}>+91 80725 66010</a></div>
-                  <div style={{ marginTop: '4px' }}>📧 <a href="mailto:contact@wonderersouthindia.in" style={{ color: 'var(--color-primary)', fontWeight: '600' }}>contact@wonderersouthindia.in</a></div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <PhoneIcon size={13} color="var(--color-primary)" />
+                    <a href="tel:+918072566010" style={{ color: 'var(--color-primary)', fontWeight: '600' }}>+91 80725 66010</a>
+                  </div>
+                  <div style={{ marginTop: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <MailIcon size={13} color="var(--color-primary)" />
+                    <a href="mailto:contact@wonderersouthindia.in" style={{ color: 'var(--color-primary)', fontWeight: '600' }}>contact@wonderersouthindia.in</a>
+                  </div>
                 </div>
                 <Link to="/contact" className="btn btn-primary btn-sm btn-block">
                   Contact Our Team

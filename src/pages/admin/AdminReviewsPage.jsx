@@ -1,6 +1,8 @@
+import { AwardIcon, CameraIcon, CheckCircleIcon, ClockIcon, ImageIcon, MessageSquareIcon, PlusIcon, RefreshIcon, SearchIcon, StarIcon, UserIcon, XIcon } from '../../components/common/Icons';
 import { useState, useEffect, useCallback } from 'react';
 import useAuth from '../../hooks/useAuth';
 import { useToast } from '../../context/ToastContext';
+
 import reviewService from '../../services/reviewService';
 import tourService from '../../services/tourService';
 import { updatePageMeta } from '../../utils/metadata';
@@ -13,6 +15,7 @@ import MediaPickerModal from '../../components/admin/media/MediaPickerModal';
 import Loading from '../../components/ui/Loading';
 import EmptyState from '../../components/ui/EmptyState';
 import ErrorState from '../../components/ui/ErrorState';
+
 
 function StarRatingSelector({ value = 5, onChange }) {
   const [hoverVal, setHoverVal] = useState(0);
@@ -41,7 +44,7 @@ function StarRatingSelector({ value = 5, onChange }) {
             title={`Rate ${star} Star${star > 1 ? 's' : ''}`}
             aria-label={`${star} star rating`}
           >
-            ★
+            <StarIcon size={22} filled={star <= activeRating} color={star <= activeRating ? '#f59e0b' : '#cbd5e1'} />
           </button>
         ))}
       </div>
@@ -60,6 +63,7 @@ export default function AdminReviewsPage() {
 
   // Page Title & Metadata
   useEffect(() => {
+    document.body.style.overflow = '';
     updatePageMeta({
       title: 'Admin - Customer Reviews & Testimonials | Wonderer South India',
       description: 'Moderate customer testimonials, verify ratings, approve traveler feedback, and manage featured reviews.',
@@ -476,7 +480,7 @@ export default function AdminReviewsPage() {
   };
 
   return (
-    <div className="admin-destinations-page-container admin-reviews-management-view">
+    <div className="admin-page-container admin-reviews-management-view">
       {/* Header & Title */}
       <div className="admin-page-header">
         <div className="admin-header-title-group">
@@ -499,7 +503,7 @@ export default function AdminReviewsPage() {
             onClick={() => setIsAddModalOpen(true)}
             title="Create a new client testimonial"
           >
-            ➕ Add Testimonial
+            Add Testimonial
           </button>
           <button
             type="button"
@@ -508,7 +512,7 @@ export default function AdminReviewsPage() {
             disabled={loading}
             title="Refresh review list from server"
           >
-            🔄 Refresh
+            Refresh
           </button>
         </div>
       </div>
@@ -516,7 +520,7 @@ export default function AdminReviewsPage() {
       {/* Real-time Statistics Summary Cards */}
       <div className="dest-stats-grid review-stats-grid">
         <div className="dest-stat-card">
-          <div className="dest-stat-icon">💬</div>
+          <div className="dest-stat-icon"><MessageSquareIcon size={24} color="#01aa90" /></div>
           <div className="dest-stat-info">
             <span className="dest-stat-label">Total Reviews</span>
             <strong className="dest-stat-value">{totalCount}</strong>
@@ -524,7 +528,7 @@ export default function AdminReviewsPage() {
         </div>
 
         <div className="dest-stat-card">
-          <div className="dest-stat-icon stat-icon-published">🟢</div>
+          <div className="dest-stat-icon stat-icon-published"><CheckCircleIcon size={24} color="#16a34a" /></div>
           <div className="dest-stat-info">
             <span className="dest-stat-label">Approved</span>
             <strong className="dest-stat-value">{approvedCount}</strong>
@@ -532,7 +536,7 @@ export default function AdminReviewsPage() {
         </div>
 
         <div className="dest-stat-card">
-          <div className="dest-stat-icon stat-icon-draft">🟡</div>
+          <div className="dest-stat-icon stat-icon-draft"><ClockIcon size={24} color="#d97706" /></div>
           <div className="dest-stat-info">
             <span className="dest-stat-label">Pending</span>
             <strong className="dest-stat-value">{pendingCount}</strong>
@@ -540,7 +544,7 @@ export default function AdminReviewsPage() {
         </div>
 
         <div className="dest-stat-card">
-          <div className="dest-stat-icon">🔴</div>
+          <div className="dest-stat-icon"><XIcon size={22} color="#ef4444" /></div>
           <div className="dest-stat-info">
             <span className="dest-stat-label">Rejected</span>
             <strong className="dest-stat-value">{rejectedCount}</strong>
@@ -548,7 +552,7 @@ export default function AdminReviewsPage() {
         </div>
 
         <div className="dest-stat-card">
-          <div className="dest-stat-icon">⭐</div>
+          <div className="dest-stat-icon"><StarIcon size={22} color="#f59e0b" fill="#f59e0b" /></div>
           <div className="dest-stat-info">
             <span className="dest-stat-label">Average Rating</span>
             <strong className="dest-stat-value">{avgRating} / 5.0</strong>
@@ -556,7 +560,7 @@ export default function AdminReviewsPage() {
         </div>
 
         <div className="dest-stat-card">
-          <div className="dest-stat-icon">🏆</div>
+          <div className="dest-stat-icon"><AwardIcon size={22} color="#10b981" /></div>
           <div className="dest-stat-info">
             <span className="dest-stat-label">Featured</span>
             <strong className="dest-stat-value">{featuredCount}</strong>
@@ -798,9 +802,7 @@ export default function AdminReviewsPage() {
                     color: '#64748b',
                     flexShrink: 0,
                   }}
-                >
-                  👤
-                </div>
+                ><UserIcon size={18} color="#94a3b8" /></div>
               )}
               <input
                 type="text"
@@ -819,7 +821,7 @@ export default function AdminReviewsPage() {
                 }}
                 style={{ whiteSpace: 'nowrap' }}
               >
-                🖼 Select Image
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><ImageIcon size={14} /> Select Image</span>
               </button>
               {addFormData.image_url && (
                 <button
@@ -827,9 +829,7 @@ export default function AdminReviewsPage() {
                   className="btn btn-ghost btn-sm"
                   onClick={() => setAddFormData((prev) => ({ ...prev, image_url: '' }))}
                   title="Remove Image"
-                >
-                  ✕
-                </button>
+                 aria-label="Remove image"><XIcon size={13} /></button>
               )}
             </div>
           </div>
@@ -855,7 +855,7 @@ export default function AdminReviewsPage() {
                 checked={addFormData.is_active}
                 onChange={(e) => setAddFormData((prev) => ({ ...prev, is_active: e.target.checked }))}
               />
-              <span>🟢 Active &amp; Approved (Visible on Live Site)</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><CheckCircleIcon size={14} color="#10b981" /> Active &amp; Approved (Visible on Live Site)</span>
             </label>
 
             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '14px' }}>
@@ -864,7 +864,7 @@ export default function AdminReviewsPage() {
                 checked={addFormData.is_featured}
                 onChange={(e) => setAddFormData((prev) => ({ ...prev, is_featured: e.target.checked }))}
               />
-              <span>⭐ Featured on Homepage</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><StarIcon size={14} color="#f59e0b" fill="#f59e0b" /> Featured on Homepage</span>
             </label>
           </div>
 
@@ -968,9 +968,7 @@ export default function AdminReviewsPage() {
                     color: '#64748b',
                     flexShrink: 0,
                   }}
-                >
-                  👤
-                </div>
+                ><UserIcon size={18} color="#94a3b8" /></div>
               )}
               <input
                 type="text"
@@ -989,7 +987,7 @@ export default function AdminReviewsPage() {
                 }}
                 style={{ whiteSpace: 'nowrap' }}
               >
-                🖼 Replace Image
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><ImageIcon size={14} /> Replace Image</span>
               </button>
               {editFormData.image_url && (
                 <button
@@ -997,9 +995,7 @@ export default function AdminReviewsPage() {
                   className="btn btn-ghost btn-sm"
                   onClick={() => setEditFormData((prev) => ({ ...prev, image_url: '' }))}
                   title="Remove Image"
-                >
-                  ✕
-                </button>
+                 aria-label="Remove image"><XIcon size={13} /></button>
               )}
             </div>
           </div>
@@ -1024,7 +1020,7 @@ export default function AdminReviewsPage() {
                 checked={editFormData.is_active}
                 onChange={(e) => setEditFormData((prev) => ({ ...prev, is_active: e.target.checked }))}
               />
-              <span>🟢 Active &amp; Approved (Visible on Live Site)</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><CheckCircleIcon size={14} color="#10b981" /> Active &amp; Approved (Visible on Live Site)</span>
             </label>
 
             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '14px' }}>
@@ -1033,7 +1029,7 @@ export default function AdminReviewsPage() {
                 checked={editFormData.is_featured}
                 onChange={(e) => setEditFormData((prev) => ({ ...prev, is_featured: e.target.checked }))}
               />
-              <span>⭐ Featured on Homepage</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><StarIcon size={14} color="#f59e0b" fill="#f59e0b" /> Featured on Homepage</span>
             </label>
           </div>
 

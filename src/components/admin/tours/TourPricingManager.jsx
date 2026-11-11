@@ -1,3 +1,4 @@
+import { BanknoteIcon, TagIcon, XIcon } from '../../../components/common/Icons';
 import { useState } from 'react';
 
 const COMMON_SERVICE_OPTIONS = [
@@ -97,7 +98,7 @@ export default function TourPricingManager({
 
       {pricingTiers.length === 0 ? (
         <div className="module-empty-box">
-          <span className="empty-icon">🏷️</span>
+          <span className="empty-icon"><TagIcon size={24} color="#94a3b8" /></span>
           <p className="empty-text">No custom tiered pricing rules. Tour will use Base Price ({currency} {basePrice}).</p>
           <button
             type="button"
@@ -301,9 +302,7 @@ export default function TourPricingManager({
                           type="button"
                           className="btn-danger-xs"
                           onClick={() => handleRemove(idx)}
-                        >
-                          ✕
-                        </button>
+                        ><XIcon size={14} /></button>
                       </div>
                     </td>
                   </tr>

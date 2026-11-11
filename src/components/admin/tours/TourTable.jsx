@@ -1,5 +1,7 @@
+import { ClockIcon, CompassIcon, EditIcon, ExternalLinkIcon, EyeIcon, MapPinIcon, StarIcon, TrashIcon } from '../../common/Icons';
 import { Link } from 'react-router-dom';
 import { getMediaUrl } from '../../../utils/media';
+
 
 export default function TourTable({
   tours = [],
@@ -48,7 +50,7 @@ export default function TourTable({
                     />
                   ) : (
                     <div className="tour-card-img-placeholder" aria-label="No cover image">
-                      <span className="placeholder-icon">🧭</span>
+                      <span className="placeholder-icon"><CompassIcon size={24} /></span>
                       <span className="placeholder-text">Curated Journey</span>
                     </div>
                   )}
@@ -65,7 +67,7 @@ export default function TourTable({
 
                     {Boolean(tour.is_featured) && (
                       <span className="tour-featured-pill">
-                        ⭐ Spotlight
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><StarIcon size={12} color="#f59e0b" fill="#f59e0b" /> Spotlight</span>
                       </span>
                     )}
                   </div>
@@ -73,7 +75,7 @@ export default function TourTable({
                   {/* Rating Overlay if Available */}
                   {tour.average_rating ? (
                     <div className="tour-card-rating-badge">
-                      <span className="star-icon">★</span>
+                      <span className="star-icon"><StarIcon filled size={12} color="#eab308" /></span>
                       <strong>{parseFloat(tour.average_rating).toFixed(1)}</strong>
                       {tour.reviews_count > 0 && (
                         <span className="rating-count">({tour.reviews_count})</span>
@@ -108,12 +110,12 @@ export default function TourTable({
                   {/* Metadata Row: Destination & Duration */}
                   <div className="tour-card-meta-row">
                     <span className="meta-destination">
-                      <span className="meta-icon" aria-hidden="true">📍</span>
+                      <span className="meta-icon" aria-hidden="true"><MapPinIcon size={12} /></span>
                       <span className="meta-label">{tour.destination?.name || 'Unassigned'}</span>
                     </span>
 
                     <span className="meta-duration">
-                      <span className="meta-icon" aria-hidden="true">⏱</span>
+                      <span className="meta-icon" aria-hidden="true"><ClockIcon size={11} /></span>
                       <span className="meta-label">{durationLabel}</span>
                     </span>
                   </div>
@@ -150,8 +152,9 @@ export default function TourTable({
                       className="btn-card-action view-btn"
                       title="View public guest tour page"
                       aria-label={`View public page for ${tour.title}`}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                     >
-                      <span>↗</span> View
+                      <ExternalLinkIcon size={14} /> View
                     </a>
 
                     {canEdit && (
@@ -160,8 +163,9 @@ export default function TourTable({
                         className="btn-card-action edit-btn"
                         title="Edit tour package"
                         aria-label={`Edit ${tour.title}`}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                       >
-                        <span>✏️</span> Edit
+                        <EditIcon size={14} /> Edit
                       </Link>
                     )}
                   </div>
@@ -188,8 +192,9 @@ export default function TourTable({
                         onClick={() => onDeleteClick(tour)}
                         title="Delete tour package"
                         aria-label={`Delete ${tour.title}`}
+                        style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
                       >
-                        <span>🗑️</span>
+                        <TrashIcon size={14} />
                       </button>
                     )}
                   </div>
@@ -236,9 +241,7 @@ export default function TourTable({
                             loading="lazy"
                           />
                         ) : (
-                          <div className="tour-table-thumb-placeholder" aria-label="No image">
-                            🧭
-                          </div>
+                          <div className="tour-table-thumb-placeholder" aria-label="No image"><CompassIcon size={16} color="#94a3b8" /></div>
                         )}
                       </div>
                     </td>
@@ -256,14 +259,14 @@ export default function TourTable({
                           )}
                           {Boolean(tour.is_featured) && (
                             <span className="tour-badge-featured" title="Featured Tour Spotlight">
-                              ⭐ Spotlight
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><StarIcon size={12} color="#f59e0b" fill="#f59e0b" /> Spotlight</span>
                             </span>
                           )}
                         </div>
                         <code className="tour-slug-code">/{tour.slug}</code>
                         {tour.average_rating && (
                           <span className="tour-rating-snippet">
-                            ★ {parseFloat(tour.average_rating).toFixed(1)} ({tour.reviews_count || 0})
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: "3px" }}><StarIcon size={11} color="#f59e0b" fill="#f59e0b" /> {parseFloat(tour.average_rating).toFixed(1)}</span> ({tour.reviews_count || 0})
                           </span>
                         )}
                       </div>
@@ -271,8 +274,8 @@ export default function TourTable({
 
                     {/* Destination */}
                     <td className="col-destination">
-                      <span className="tour-destination-pill">
-                        📍 {tour.destination?.name || 'Unassigned'}
+                      <span className="tour-destination-pill" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <MapPinIcon size={12} color="#01aa90" /> {tour.destination?.name || 'Unassigned'}
                       </span>
                     </td>
 
@@ -288,7 +291,7 @@ export default function TourTable({
                     {/* Duration */}
                     <td className="col-duration">
                       <span className="tour-duration-tag">
-                        ⏱ {tour.duration_days} Day{tour.duration_days === 1 ? '' : 's'}
+                        {tour.duration_days} Day{tour.duration_days === 1 ? '' : 's'}
                         {tour.duration_text ? ` (${tour.duration_text})` : ''}
                       </span>
                     </td>
@@ -324,8 +327,9 @@ export default function TourTable({
                           className="btn-action-icon view-action"
                           title="View public tour detail page"
                           aria-label={`View public page for ${tour.title}`}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}
                         >
-                          ↗ View
+                          <ExternalLinkIcon size={13} /> View
                         </a>
 
                         {/* Edit */}
@@ -335,8 +339,9 @@ export default function TourTable({
                             className="btn-action-icon edit-action"
                             title="Edit tour package"
                             aria-label={`Edit ${tour.title}`}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}
                           >
-                            ✏️ Edit
+                            <EditIcon size={13} /> Edit
                           </Link>
                         )}
 
@@ -350,7 +355,7 @@ export default function TourTable({
                             title={isPublished ? 'Revert to draft status' : 'Publish tour live'}
                             aria-label={isPublished ? `Unpublish ${tour.title}` : `Publish ${tour.title}`}
                           >
-                            {isProcessing ? '⏳...' : isPublished ? 'Draft' : 'Publish'}
+                            {isProcessing ? '...' : isPublished ? 'Draft' : 'Publish'}
                           </button>
                         )}
 
@@ -363,8 +368,9 @@ export default function TourTable({
                             onClick={() => onDeleteClick(tour)}
                             title="Delete tour package"
                             aria-label={`Delete ${tour.title}`}
+                            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
                           >
-                            🗑️
+                            <TrashIcon size={14} />
                           </button>
                         )}
                       </div>
@@ -390,7 +396,7 @@ export default function TourTable({
                   {thumbUrl ? (
                     <img src={thumbUrl} alt={tour.title} className="tour-mobile-card-img" loading="lazy" />
                   ) : (
-                    <div className="tour-table-thumb-placeholder" aria-label="No image">🧭</div>
+                    <div className="tour-table-thumb-placeholder" aria-label="No image"><CompassIcon size={16} color="#94a3b8" /></div>
                   )}
                 </div>
 
@@ -404,18 +410,18 @@ export default function TourTable({
                       <strong className="tour-table-name">{tour.title}</strong>
                     )}
                     {Boolean(tour.is_featured) && (
-                      <span className="tour-badge-featured" title="Featured Tour Spotlight">⭐</span>
+                      <span className="tour-badge-featured" title="Featured Tour Spotlight"><StarIcon size={11} color="#f59e0b" fill="#f59e0b" /></span>
                     )}
                   </div>
 
                   <div className="mobile-meta-row">
                     <span className="mobile-meta-label">Destination:</span>
-                    <span className="mobile-meta-value">📍 {tour.destination?.name || 'Unassigned'}</span>
+                    <span className="mobile-meta-value" style={{ display: "inline-flex", alignItems: "center", gap: "3px" }}><MapPinIcon size={11} /> {tour.destination?.name || "Unassigned"}</span>
                   </div>
                   <div className="mobile-meta-row">
                     <span className="mobile-meta-label">Duration:</span>
                     <span className="mobile-meta-value">
-                      ⏱ {tour.duration_days} Day{tour.duration_days === 1 ? '' : 's'}
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: "3px" }}><ClockIcon size={11} /> {tour.duration_days} Day</span>{tour.duration_days === 1 ? '' : 's'}
                     </span>
                   </div>
                   <div className="mobile-meta-row">
@@ -443,7 +449,7 @@ export default function TourTable({
                     </a>
                     {canEdit && (
                       <Link to={`/admin/tours/${tour.id}/edit`} className="btn-action-icon edit-action">
-                        ✏️ Edit
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><EditIcon size={12} /> Edit</span>
                       </Link>
                     )}
                     {canPublish && (
@@ -462,9 +468,7 @@ export default function TourTable({
                         className="btn-action-icon delete-action"
                         disabled={isProcessing}
                         onClick={() => onDeleteClick(tour)}
-                      >
-                        🗑️
-                      </button>
+                      ><TrashIcon size={13} /></button>
                     )}
                   </div>
                 </div>

@@ -260,8 +260,16 @@ class MedicalTrip extends BaseModel
         foreach ($allowed as $field) {
             if (array_key_exists($field, $data)) {
                 $val = $data[$field];
-                if (in_array($field, ['highlights', 'benefits', 'included_services', 'excluded_services']) && is_array($val)) {
+                if (in_array($field, ['highlights', 'benefits', 'included_services', 'excluded_services'], true) && is_array($val)) {
                     $val = json_encode($val);
+                } elseif (in_array($field, ['price', 'discount_price'], true)) {
+                    if ($val === '' || $val === null) {
+                        $val = ($field === 'price') ? 0.00 : null;
+                    } else {
+                        $val = (float) $val;
+                    }
+                } elseif (in_array($field, ['is_active', 'is_published'], true)) {
+                    $val = ($val === true || $val === 1 || $val === '1' || $val === 'true') ? 1 : 0;
                 }
                 $fields[] = "`{$field}` = :{$field}";
                 $params[":{$field}"] = $val;
@@ -380,8 +388,14 @@ class MedicalTrip extends BaseModel
         $allowed = ['title', 'subtitle', 'short_description', 'description', 'image', 'icon', 'covers', 'display_order', 'is_active'];
         foreach ($allowed as $f) {
             if (array_key_exists($f, $data)) {
+                $val = $data[$f];
+                if ($f === 'is_active') {
+                    $val = ($val === true || $val === 1 || $val === '1' || $val === 'true') ? 1 : 0;
+                } elseif ($f === 'display_order') {
+                    $val = (int) $val;
+                }
                 $fields[] = "`{$f}` = :{$f}";
-                $params[":{$f}"] = $data[$f];
+                $params[":{$f}"] = $val;
             }
         }
 

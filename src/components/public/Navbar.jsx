@@ -1,17 +1,18 @@
+import Icon, { SparklesIcon, StethoscopeIcon, BookOpenIcon } from '../common/Icons';
 import { useState, useEffect, useRef } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import tourService from '../../services/tourService';
 
 const DEFAULT_TOUR_CATEGORIES = [
-  { id: 1, name: 'City Sightseeing Tours', slug: 'city-sightseeing-tours', icon: '🏙️' },
-  { id: 2, name: 'Cultural & Heritage Tours', slug: 'cultural-heritage-tours', icon: '🏛️' },
-  { id: 7, name: 'Family Tours', slug: 'family-tours', icon: '👨‍👩‍👧‍👦' },
-  { id: 3, name: 'Guided Tours', slug: 'guided-tours', icon: '🧭' },
-  { id: 4, name: 'Historical Tours', slug: 'historical-tours', icon: '📜' },
-  { id: 5, name: 'One Day Tours', slug: 'one-day-tours', icon: '☀️' },
-  { id: 9, name: 'Pilgrimage / Temple Tours', slug: 'pilgrimage-temple-tours', icon: '🛕' },
-  { id: 6, name: 'Private Tours', slug: 'private-tours', icon: '🚘' },
+  { id: 1, name: 'City Sightseeing Tours', slug: 'city-sightseeing-tours', icon: 'building' },
+  { id: 2, name: 'Cultural & Heritage Tours', slug: 'cultural-heritage-tours', icon: 'culture' },
+  { id: 7, name: 'Family Tours', slug: 'family-tours', icon: 'guests' },
+  { id: 3, name: 'Guided Tours', slug: 'guided-tours', icon: 'compass' },
+  { id: 4, name: 'Historical Tours', slug: 'historical-tours', icon: 'book' },
+  { id: 5, name: 'One Day Tours', slug: 'one-day-tours', icon: 'sun' },
+  { id: 9, name: 'Pilgrimage / Temple Tours', slug: 'pilgrimage-temple-tours', icon: 'temple' },
+  { id: 6, name: 'Private Tours', slug: 'private-tours', icon: 'car' },
 ];
 
 export default function Navbar({ onLinkClick, className = '', isMobile = false }) {
@@ -32,9 +33,19 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
         const res = await tourService.getCategories();
         const items = Array.isArray(res) ? res : (res?.data || []);
         if (isMounted && items.length > 0) {
-          const nonMed = items.filter(
-            (c) => !c.slug?.includes('medical') && !c.name?.toLowerCase().includes('medical')
-          );
+          const nonMed = items
+            .filter(
+              (c) =>
+                !c.slug?.includes('medical') &&
+                !c.name?.toLowerCase().includes('medical') &&
+                !c.slug?.includes('palm') &&
+                !c.name?.toLowerCase().includes('palm')
+            )
+            .sort((a, b) => {
+              const aSight = (a.name?.toLowerCase().includes('sightseeing') || a.slug?.includes('sightseeing')) ? 1 : 0;
+              const bSight = (b.name?.toLowerCase().includes('sightseeing') || b.slug?.includes('sightseeing')) ? 1 : 0;
+              return bSight - aSight;
+            });
           if (nonMed.length > 0) {
             setCategories(nonMed);
           }
@@ -182,7 +193,7 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                   }}
                 >
                   <span style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                    ✨ {item.label}
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}><SparklesIcon size={14} color="#f59e0b" /> {item.label}</span>
                   </span>
                 </NavLink>
               </li>
@@ -267,38 +278,13 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                           cursor: 'pointer',
                         }}
                       >
-                        <span>🌟</span>
+                        <SparklesIcon size={15} color="#f59e0b" />
                         <span>All Tours</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleSelectCategory('medical-tourism', true)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          padding: '10px 12px',
-                          border: '1px solid #ccfbf1',
-                          background: '#f0fdfa',
-                          borderRadius: '8px',
-                          color: '#0f766e',
-                          fontSize: '15px',
-                          fontWeight: 800,
-                          textAlign: 'left',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <span>🩺</span>
-                        <span>Medical Tour</span>
-                        <span style={{ fontSize: '10px', background: '#01aa90', color: '#ffffff', padding: '1px 6px', borderRadius: '4px', marginLeft: 'auto' }}>
-                          Special
-                        </span>
                       </button>
 
                       {categories.map((cat) => {
                         const catName = cat.name || cat.slug;
-                        const icon = cat.icon || '📍';
+                        const icon = cat.icon || 'compass';
                         return (
                           <button
                             key={cat.id || cat.slug}
@@ -323,6 +309,60 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                           </button>
                         );
                       })}
+
+                      <div style={{ height: '1px', backgroundColor: '#e2e8f0', margin: '6px 4px' }} />
+
+                      {/* Medical Tour at bottom */}
+                      <button
+                        type="button"
+                        onClick={() => handleSelectCategory('medical-tourism', true)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '10px 12px',
+                          border: '1px solid #ccfbf1',
+                          background: '#f0fdfa',
+                          borderRadius: '8px',
+                          color: '#0f766e',
+                          fontSize: '14.5px',
+                          fontWeight: 800,
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <StethoscopeIcon size={15} color="#01aa90" />
+                        <span>Medical Tour</span>
+                        <span style={{ fontSize: '10px', background: '#01aa90', color: '#ffffff', padding: '1px 6px', borderRadius: '4px', marginLeft: 'auto' }}>
+                          Special
+                        </span>
+                      </button>
+
+                      {/* Palm Leaf Horoscope at bottom */}
+                      <button
+                        type="button"
+                        onClick={() => handleSelectCategory('palm-leaf-horoscope')}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '10px 12px',
+                          border: '1px solid #fef3c7',
+                          background: '#fffbeb',
+                          borderRadius: '8px',
+                          color: '#92400e',
+                          fontSize: '14.5px',
+                          fontWeight: 800,
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <SparklesIcon size={15} color="#d97706" />
+                        <span>Palm Leaf Horoscope</span>
+                        <span style={{ fontSize: '10px', background: '#d97706', color: '#ffffff', padding: '1px 6px', borderRadius: '4px', marginLeft: 'auto' }}>
+                          Nadi
+                        </span>
+                      </button>
                     </div>
                   )}
                 </li>
@@ -418,7 +458,7 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                         transition: 'background 0.15s ease, color 0.15s ease',
                       }}
                     >
-                      <span style={{ fontSize: '17px' }}>🌟</span>
+                      <SparklesIcon size={17} color="#f59e0b" />
                       <div style={{ flex: 1 }}>
                         <div>All Tours</div>
                         <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
@@ -427,55 +467,7 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                       </div>
                     </button>
 
-                    {/* Main Featured: Medical Tour */}
-                    <button
-                      type="button"
-                      onClick={() => handleSelectCategory('medical-tourism', true)}
-                      className="nav-dropdown-item-btn nav-dropdown-item-medical"
-                      style={{
-                        width: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        padding: '10px 12px',
-                        marginTop: '4px',
-                        border: '1px solid #ccfbf1',
-                        background: 'linear-gradient(135deg, rgba(1, 170, 144, 0.08) 0%, rgba(204, 251, 241, 0.3) 100%)',
-                        borderRadius: '12px',
-                        cursor: 'pointer',
-                        fontSize: '14px',
-                        fontWeight: 800,
-                        color: '#0f766e',
-                        textAlign: 'left',
-                        transition: 'all 0.15s ease',
-                      }}
-                    >
-                      <span style={{ fontSize: '18px' }}>🩺</span>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span>Medical Tour</span>
-                          <span
-                            style={{
-                              fontSize: '10px',
-                              fontWeight: 800,
-                              background: '#01aa90',
-                              color: '#ffffff',
-                              padding: '1px 6px',
-                              borderRadius: '6px',
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.04em',
-                            }}
-                          >
-                            Special
-                          </span>
-                        </div>
-                        <div style={{ fontSize: '11px', color: '#0f766e', opacity: 0.85, fontWeight: 500 }}>
-                          Health checks, MRI scans &amp; biomarkers
-                        </div>
-                      </div>
-                    </button>
-
-                    <div style={{ height: '1px', backgroundColor: '#e2e8f0', margin: '8px 4px' }} />
+                    <div style={{ height: '1px', backgroundColor: '#e2e8f0', margin: '6px 4px' }} />
 
                     <div
                       style={{
@@ -487,14 +479,14 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                         letterSpacing: '0.05em',
                       }}
                     >
-                      Tour Types
+                      Sightseeing &amp; Tours
                     </div>
 
-                    {/* Dynamic Tour Categories List */}
-                    <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
+                    {/* Tour Categories List (Sightseeing First) */}
+                    <div style={{ maxHeight: '240px', overflowY: 'auto' }}>
                       {categories.map((cat) => {
                         const catName = cat.name || cat.slug;
-                        const icon = cat.icon || '📍';
+                        const icon = cat.icon || 'compass';
                         return (
                           <button
                             key={cat.id || cat.slug}
@@ -524,6 +516,117 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                         );
                       })}
                     </div>
+
+                    <div style={{ height: '1px', backgroundColor: '#e2e8f0', margin: '6px 4px' }} />
+
+                    <div
+                      style={{
+                        padding: '4px 10px',
+                        fontSize: '11px',
+                        fontWeight: 800,
+                        color: '#01aa90',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
+                      Special Experiences
+                    </div>
+
+                    {/* Medical Tour Option (At Bottom) */}
+                    <button
+                      type="button"
+                      onClick={() => handleSelectCategory('medical-tourism', true)}
+                      className="nav-dropdown-item-btn nav-dropdown-item-medical"
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        padding: '9px 12px',
+                        marginTop: '2px',
+                        border: '1px solid #ccfbf1',
+                        background: 'linear-gradient(135deg, rgba(1, 170, 144, 0.08) 0%, rgba(204, 251, 241, 0.3) 100%)',
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        fontSize: '13.5px',
+                        fontWeight: 800,
+                        color: '#0f766e',
+                        textAlign: 'left',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      <StethoscopeIcon size={17} color="#01aa90" />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span>Medical Tour</span>
+                          <span
+                            style={{
+                              fontSize: '9.5px',
+                              fontWeight: 800,
+                              background: '#01aa90',
+                              color: '#ffffff',
+                              padding: '1px 5px',
+                              borderRadius: '5px',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.04em',
+                            }}
+                          >
+                            Health
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#0f766e', opacity: 0.85, fontWeight: 500 }}>
+                          Health checks, MRI scans &amp; biomarkers
+                        </div>
+                      </div>
+                    </button>
+
+                    {/* Palm Leaf Horoscope Option (At Bottom) */}
+                    <button
+                      type="button"
+                      onClick={() => handleSelectCategory('palm-leaf-horoscope')}
+                      className="nav-dropdown-item-btn"
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        padding: '9px 12px',
+                        marginTop: '4px',
+                        border: '1px solid #fef3c7',
+                        background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(254, 243, 199, 0.4) 100%)',
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        fontSize: '13.5px',
+                        fontWeight: 800,
+                        color: '#92400e',
+                        textAlign: 'left',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      <SparklesIcon size={17} color="#d97706" />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span>Palm Leaf Horoscope</span>
+                          <span
+                            style={{
+                              fontSize: '9.5px',
+                              fontWeight: 800,
+                              background: '#d97706',
+                              color: '#ffffff',
+                              padding: '1px 5px',
+                              borderRadius: '5px',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.04em',
+                            }}
+                          >
+                            Nadi
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#92400e', opacity: 0.85, fontWeight: 500 }}>
+                          Ancient destiny predictions (Maharishis)
+                        </div>
+                      </div>
+                    </button>
                   </div>
                 )}
               </li>

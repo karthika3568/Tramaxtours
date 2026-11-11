@@ -1,3 +1,4 @@
+import { CheckIcon, GlobeIcon } from '../common/Icons';
 import { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -27,7 +28,7 @@ export default function LanguageSwitcher({ isMobile = false }) {
     return (
       <div className="mobile-language-switcher" style={{ padding: '12px 16px', borderTop: '1px solid #e2e8f0', marginTop: '10px' }}>
         <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
-          🌐 Select Language / Sprache
+          <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><GlobeIcon size={15} /> Select Language / Sprache</span>
         </span>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
           {languages.map((item) => {
@@ -160,7 +161,7 @@ export default function LanguageSwitcher({ isMobile = false }) {
                   </div>
                 </div>
                 {isSelected && (
-                  <span style={{ color: '#01aa90', fontWeight: 'bold' }}>✓</span>
+                  <CheckIcon size={14} color="#01aa90" strokeWidth={2.5} />
                 )}
               </button>
             );

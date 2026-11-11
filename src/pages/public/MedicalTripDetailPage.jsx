@@ -1,3 +1,4 @@
+import { CalendarIcon, CheckCircleIcon, CheckIcon, ClockIcon, FileTextIcon, LockIcon, MapPinIcon, PhoneIcon, PlaneIcon, ShieldCheckIcon, SparklesIcon, StethoscopeIcon } from '../../components/common/Icons';
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import medicalTripService from '../../services/medicalTripService';
@@ -6,6 +7,7 @@ import { updatePageMeta } from '../../utils/metadata';
 import { useToast } from '../../context/ToastContext';
 import Loading from '../../components/ui/Loading';
 import ErrorState from '../../components/ui/ErrorState';
+
 
 export default function MedicalTripDetailPage() {
   const { slug } = useParams();
@@ -208,7 +210,7 @@ export default function MedicalTripDetailPage() {
           {/* Banner Left Details */}
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(1, 170, 144, 0.12)', color: '#01aa90', padding: '6px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: '700', marginBottom: '16px' }}>
-              <span>🩺</span>
+              <StethoscopeIcon size={14} color="#01aa90" />
               <span>{trip.category || 'Medical Tourism & Comprehensive Diagnostics'}</span>
             </div>
 
@@ -229,15 +231,15 @@ export default function MedicalTripDetailPage() {
             {/* Quick Meta Pills */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#ffffff', padding: '8px 16px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 2px 6px rgba(0,0,0,0.03)', fontSize: '13px', fontWeight: '600' }}>
-                <span style={{ fontSize: '16px' }}>🗓️</span>
+                <ClockIcon size={15} color="#01aa90" />
                 <span>{trip.duration || '1 Day'}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#ffffff', padding: '8px 16px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 2px 6px rgba(0,0,0,0.03)', fontSize: '13px', fontWeight: '600' }}>
-                <span style={{ fontSize: '16px' }}>📍</span>
+                <MapPinIcon size={15} color="#01aa90" />
                 <span>{trip.location || 'Chennai, Tamil Nadu'}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#ffffff', padding: '8px 16px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 2px 6px rgba(0,0,0,0.03)', fontSize: '13px', fontWeight: '600' }}>
-                <span style={{ fontSize: '16px' }}>🩺</span>
+                <StethoscopeIcon size={15} color="#01aa90" />
                 <span>{assessments.length} Clinical Assessments</span>
               </div>
             </div>
@@ -276,15 +278,15 @@ export default function MedicalTripDetailPage() {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(8px)', padding: '6px 12px', borderRadius: '12px', fontSize: '11px', fontWeight: '700', color: '#0f172a', border: '1px solid #e2e8f0', boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }}>
-                  <span style={{ color: '#01aa90' }}>🛡️</span>
+                  <ShieldCheckIcon size={14} color="#01aa90" />
                   <span>Advanced Diagnostics</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(8px)', padding: '6px 12px', borderRadius: '12px', fontSize: '11px', fontWeight: '700', color: '#0f172a', border: '1px solid #e2e8f0', boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }}>
-                  <span style={{ color: '#01aa90' }}>🩺</span>
+                  <StethoscopeIcon size={14} color="#01aa90" />
                   <span>Trusted Healthcare</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(8px)', padding: '6px 12px', borderRadius: '12px', fontSize: '11px', fontWeight: '700', color: '#0f172a', border: '1px solid #e2e8f0', boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }}>
-                  <span style={{ color: '#01aa90' }}>✈️</span>
+                  <PlaneIcon size={14} color="#01aa90" />
                   <span>Medical Tourism Experience</span>
                 </div>
               </div>
@@ -359,15 +361,7 @@ export default function MedicalTripDetailPage() {
                             boxShadow: '0 4px 10px rgba(1, 170, 144, 0.4)',
                           }}
                         >
-                          {item.icon ? (
-                            item.icon.length <= 3 ? (
-                              <span>{item.icon}</span>
-                            ) : (
-                              <span>🩺</span>
-                            )
-                          ) : (
-                            <span>🩺</span>
-                          )}
+                          <StethoscopeIcon size={18} color="#ffffff" />
                         </div>
                       </div>
 
@@ -576,7 +570,7 @@ export default function MedicalTripDetailPage() {
 
                           {/* Reports Summary */}
                           <div style={{ background: '#f0fdfa', border: '1px dashed #5eead4', borderRadius: '8px', padding: '10px 12px', fontSize: '12px', color: '#0f766e', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span>📋</span>
+                            <FileTextIcon size={16} color="#0f766e" />
                             <span>Comprehensive multi-page diagnostic report with specialist physician review.</span>
                           </div>
                         </div>
@@ -654,7 +648,7 @@ export default function MedicalTripDetailPage() {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '20px' }}>📅</span>
+                  <CalendarIcon size={20} color="#ffffff" />
                   <h3 style={{ fontSize: '18px', fontWeight: '800', margin: 0, color: '#ffffff' }}>
                     Book Your Medical Trip
                   </h3>
@@ -681,8 +675,8 @@ export default function MedicalTripDetailPage() {
               <div style={{ padding: '24px' }}>
                 {bookingSuccess ? (
                   <div style={{ textAlign: 'center', padding: '16px 0' }}>
-                    <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: '#ecfdf5', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', margin: '0 auto 16px auto' }}>
-                      ✓
+                    <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: '#ecfdf5', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
+                      <CheckIcon size={28} color="#10b981" strokeWidth={3} />
                     </div>
                     <h4 style={{ fontSize: '17px', fontWeight: '800', color: '#0f172a', marginBottom: '8px' }}>
                       Booking Request Received!
@@ -886,7 +880,7 @@ export default function MedicalTripDetailPage() {
                         if (!isSubmittingBooking) e.currentTarget.style.backgroundColor = '#01aa90';
                       }}
                     >
-                      <span>✈️</span>
+                      <PlaneIcon size={16} />
                       <span>{isSubmittingBooking ? 'Submitting...' : 'Submit Booking Request'}</span>
                     </button>
 
@@ -904,13 +898,13 @@ export default function MedicalTripDetailPage() {
                       }}
                     >
                       <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <span>🔒</span> Secure Booking
+                        <LockIcon size={13} color="#64748b" /> Secure Booking
                       </span>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <span>🛡️</span> Trusted Partners
+                        <ShieldCheckIcon size={13} color="#64748b" /> Trusted Partners
                       </span>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <span>🎧</span> 24/7 Support
+                        <PhoneIcon size={13} color="#64748b" /> 24/7 Support
                       </span>
                     </div>
                   </form>

@@ -1,3 +1,6 @@
+import { AlertTriangleIcon, XIcon } from '../../../components/common/Icons';
+
+
 export default function BookingDeleteModal({
   booking,
   isOpen,
@@ -14,15 +17,13 @@ export default function BookingDeleteModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-header">
-          <h2 className="modal-title text-danger">⚠️ Delete Booking Record</h2>
+          <h2 className="modal-title text-danger" style={{ display: "flex", alignItems: "center", gap: "8px" }}><AlertTriangleIcon size={18} color="#dc2626" /> Delete Booking Record</h2>
           <button
             type="button"
             className="modal-close-btn"
             onClick={onClose}
             aria-label="Close modal"
-          >
-            ✕
-          </button>
+          ><XIcon size={14} /></button>
         </div>
 
         <div className="modal-body">

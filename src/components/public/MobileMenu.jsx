@@ -1,3 +1,4 @@
+import { SettingsIcon, UserIcon } from '../common/Icons';
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from './Navbar';
@@ -89,7 +90,7 @@ export default function MobileMenu({ isOpen, onClose }) {
                   className="btn btn-outline btn-full"
                   onClick={onClose}
                 >
-                  ⚙️ {t('nav_admin_console', 'Admin Console')}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}><SettingsIcon size={16} /> {t('nav_admin_console', 'Admin Console')}</span>
                 </Link>
               ) : (
                 <Link
@@ -97,7 +98,7 @@ export default function MobileMenu({ isOpen, onClose }) {
                   className="btn btn-outline btn-full"
                   onClick={onClose}
                 >
-                  👤 {t('nav_my_bookings', 'My Bookings')}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}><UserIcon size={16} /> {t('nav_my_bookings', 'My Bookings')}</span>
                 </Link>
               )}
               <button

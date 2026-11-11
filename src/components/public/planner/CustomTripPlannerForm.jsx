@@ -1,9 +1,11 @@
+import { BanknoteIcon, CalendarIcon, CarIcon, CheckCircleIcon, CheckIcon, ClockIcon, FileTextIcon, MapPinIcon, PlaneIcon, RocketIcon, ShieldCheckIcon, UsersIcon, WhatsAppIcon } from '../../common/Icons';
 import { useState, useId } from 'react';
 import { inquiryService } from '../../../services/inquiryService';
 import { useSiteSettings } from '../../../context/SiteSettingsContext';
 import { useToast } from '../../../context/ToastContext';
 import { formatWhatsAppUrl } from '../../../utils/whatsapp';
 import { printTripVoucher } from '../../../utils/tripVoucherPdf';
+
 
 export default function CustomTripPlannerForm({ initialDestination = '', initialTour = '', onSubmitted = null }) {
   const toast = useToast();
@@ -322,8 +324,8 @@ export default function CustomTripPlannerForm({ initialDestination = '', initial
 
     return (
       <div className="bg-white rounded-3xl p-8 md:p-10 shadow-2xl border border-teal-200 text-center space-y-6 animate-fade-in">
-        <div className="w-20 h-20 bg-teal-50 text-teal-600 rounded-full flex items-center justify-center text-4xl mx-auto shadow-inner border border-teal-100">
-          🎉
+        <div className="w-20 h-20 bg-teal-50 text-teal-600 rounded-full flex items-center justify-center mx-auto shadow-inner border border-teal-100">
+          <CheckCircleIcon size={38} color="#0d9488" />
         </div>
         <div className="space-y-2">
           <span className="inline-block bg-teal-50 text-teal-700 font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider border border-teal-200">
@@ -340,38 +342,38 @@ export default function CustomTripPlannerForm({ initialDestination = '', initial
         {/* Detailed Breakdown Card */}
         <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-700 max-w-xl mx-auto text-left space-y-2.5">
           <div className="flex justify-between border-b border-slate-200/80 pb-1.5">
-            <span className="font-bold text-slate-900">📍 Destination:</span>
+            <span className="inline-flex items-center gap-1.5 font-bold text-slate-900"><MapPinIcon size={14} color="#0d9488" /> Destination:</span>
             <span className="text-teal-700 font-bold">{formData.destination}</span>
           </div>
           <div className="flex justify-between border-b border-slate-200/80 pb-1.5">
-            <span className="font-bold text-slate-900">📅 Dates &amp; Duration:</span>
+            <span className="inline-flex items-center gap-1.5 font-bold text-slate-900"><CalendarIcon size={14} color="#0d9488" /> Dates &amp; Duration:</span>
             <span>{formData.arrival_date || 'Flexible'} to {formData.departure_date || 'Flexible'} ({formData.duration_days})</span>
           </div>
           <div className="flex justify-between border-b border-slate-200/80 pb-1.5">
-            <span className="font-bold text-slate-900">👥 Travelers:</span>
+            <span className="inline-flex items-center gap-1.5 font-bold text-slate-900"><UsersIcon size={14} color="#0d9488" /> Travelers:</span>
             <span>{formData.adults_count} Adults, {formData.children_count} Children, {formData.infants_count} Infants</span>
           </div>
           <div className="flex justify-between border-b border-slate-200/80 pb-1.5">
-            <span className="font-bold text-slate-900">🚗 Private Vehicle:</span>
+            <span className="inline-flex items-center gap-1.5 font-bold text-slate-900"><CarIcon size={14} color="#0d9488" /> Private Vehicle:</span>
             <span>{formData.vehicle_preference} (Airport: {formData.airport_pickup === 'Yes' ? 'Pickup' : ''} {formData.airport_drop === 'Yes' ? '& Drop' : ''})</span>
           </div>
           <div className="flex justify-between border-b border-slate-200/80 pb-1.5">
-            <span className="font-bold text-slate-900">🏨 Stay:</span>
+            <span className="inline-flex items-center gap-1.5 font-bold text-slate-900"><MapPinIcon size={14} color="#0d9488" /> Stay:</span>
             <span>{formData.hotel_category} • {formData.rooms_count} Room ({formData.room_type})</span>
           </div>
           <div className="flex justify-between border-b border-slate-200/80 pb-1.5">
-            <span className="font-bold text-slate-900">🗣️ Tour Guide:</span>
+            <span className="inline-flex items-center gap-1.5 font-bold text-slate-900"><UsersIcon size={14} color="#0d9488" /> Tour Guide:</span>
             <span>{formData.tour_guide_required === 'Yes' ? `Yes (${formData.preferred_language})` : 'No Guide Needed'}</span>
           </div>
           {formData.arrival_flight_train_number && (
             <div className="flex justify-between border-b border-slate-200/80 pb-1.5">
-              <span className="font-bold text-slate-900">✈️ Flight/Train:</span>
+              <span className="inline-flex items-center gap-1.5 font-bold text-slate-900"><PlaneIcon size={14} color="#0d9488" /> Flight/Train:</span>
               <span>Arrival: {formData.arrival_flight_train_number} {formData.arrival_time ? `(${formData.arrival_time})` : ''}</span>
             </div>
           )}
           {formData.approximate_budget && (
             <div className="flex justify-between pt-0.5 font-bold">
-              <span className="text-slate-900">💰 Estimated Budget:</span>
+              <span className="inline-flex items-center gap-1.5 text-slate-900"><BanknoteIcon size={14} color="#0d9488" /> Estimated Budget:</span>
               <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">{formData.budget_currency} {formData.approximate_budget}</span>
             </div>
           )}
@@ -384,7 +386,7 @@ export default function CustomTripPlannerForm({ initialDestination = '', initial
             onClick={() => printTripVoucher(summaryData, { site_name: siteName, contact_whatsapp: contactWhatsApp })}
             className="w-full sm:w-auto px-6 py-3.5 bg-teal-700 hover:bg-teal-800 text-white font-bold text-sm rounded-xl shadow-lg transition-transform hover:-translate-y-0.5 inline-flex items-center justify-center gap-2"
           >
-            <span>📄</span> Download / Print PDF Itinerary
+            <FileTextIcon size={16} /> <span>Download / Print PDF Itinerary</span>
           </button>
 
           <a
@@ -393,7 +395,7 @@ export default function CustomTripPlannerForm({ initialDestination = '', initial
             rel="noopener noreferrer"
             className="w-full sm:w-auto px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-lg transition-transform hover:-translate-y-0.5 inline-flex items-center justify-center gap-2"
           >
-            <span>💬</span> Send to WhatsApp
+            <WhatsAppIcon size={16} color="#ffffff" /> <span>Send to WhatsApp</span>
           </a>
 
           <button
@@ -956,8 +958,8 @@ export default function CustomTripPlannerForm({ initialDestination = '', initial
           </div>
 
           <div>
-            <label htmlFor={arrTimeId} className="block text-xs font-bold text-slate-700 mb-1">
-              Arrival Time 🕒
+            <label htmlFor={arrTimeId} className="flex items-center gap-1.5 text-xs font-bold text-slate-700 mb-1">
+              <ClockIcon size={13} color="#0d9488" /> Arrival Time
             </label>
             <input
               id={arrTimeId}
@@ -985,8 +987,8 @@ export default function CustomTripPlannerForm({ initialDestination = '', initial
           </div>
 
           <div>
-            <label htmlFor={depTimeId} className="block text-xs font-bold text-slate-700 mb-1">
-              Departure Time 🕒
+            <label htmlFor={depTimeId} className="flex items-center gap-1.5 text-xs font-bold text-slate-700 mb-1">
+              <ClockIcon size={13} color="#0d9488" /> Departure Time
             </label>
             <input
               id={depTimeId}
@@ -1063,7 +1065,9 @@ export default function CustomTripPlannerForm({ initialDestination = '', initial
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="p-4 border-2 border-dashed border-slate-200 rounded-2xl text-center bg-slate-50/50 hover:border-teal-400 transition-colors">
-            <span className="text-2xl block mb-1">🛂</span>
+            <div className="flex justify-center mb-1">
+              <ShieldCheckIcon size={24} color="#0d9488" />
+            </div>
             <label htmlFor={passportId} className="block text-xs font-bold text-slate-800 mb-1 cursor-pointer">
               Passport Copy (Optional)
             </label>
@@ -1074,11 +1078,17 @@ export default function CustomTripPlannerForm({ initialDestination = '', initial
               onChange={handlePassportUpload}
               className="text-xs text-slate-500 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer"
             />
-            {passportFileName && <span className="block text-[11px] text-teal-700 font-medium mt-1">✓ {passportFileName}</span>}
+            {passportFileName && (
+              <span className="inline-flex items-center gap-1 text-[11px] text-teal-700 font-medium mt-1">
+                <CheckIcon size={12} color="#0f766e" /> {passportFileName}
+              </span>
+            )}
           </div>
 
           <div className="p-4 border-2 border-dashed border-slate-200 rounded-2xl text-center bg-slate-50/50 hover:border-teal-400 transition-colors">
-            <span className="text-2xl block mb-1">✈️</span>
+            <div className="flex justify-center mb-1">
+              <PlaneIcon size={24} color="#0d9488" />
+            </div>
             <label htmlFor={ticketId} className="block text-xs font-bold text-slate-800 mb-1 cursor-pointer">
               Flight Ticket (Optional)
             </label>
@@ -1089,7 +1099,11 @@ export default function CustomTripPlannerForm({ initialDestination = '', initial
               onChange={handleTicketUpload}
               className="text-xs text-slate-500 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer"
             />
-            {ticketFileName && <span className="block text-[11px] text-teal-700 font-medium mt-1">✓ {ticketFileName}</span>}
+            {ticketFileName && (
+              <span className="inline-flex items-center gap-1 text-[11px] text-teal-700 font-medium mt-1">
+                <CheckIcon size={12} color="#0f766e" /> {ticketFileName}
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -1162,7 +1176,7 @@ export default function CustomTripPlannerForm({ initialDestination = '', initial
               </>
             ) : (
               <>
-                <span>🚀</span> [ REQUEST MY TRIP ]
+                <RocketIcon size={16} /> <span>REQUEST MY TRIP</span>
               </>
             )}
           </button>
@@ -1174,7 +1188,7 @@ export default function CustomTripPlannerForm({ initialDestination = '', initial
             className="w-full sm:w-auto px-6 py-4 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 font-bold text-xs rounded-2xl border border-emerald-200 transition-colors flex items-center justify-center gap-2"
             id="btn-whatsapp-direct-plan"
           >
-            <span>💬</span> Message Specialist on WhatsApp
+            <WhatsAppIcon size={16} color="#065f46" /> <span>Message Specialist on WhatsApp</span>
           </a>
         </div>
 

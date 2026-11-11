@@ -1,3 +1,4 @@
+import { MapPinIcon, PlusIcon, XIcon } from '../../../components/common/Icons';
 import { useState } from 'react';
 
 export default function TourPlacesManager({ places = [], onChange }) {
@@ -79,7 +80,7 @@ export default function TourPlacesManager({ places = [], onChange }) {
 
       {/* Add New Place Form */}
       <div className="card p-3 mb-4 bg-slate-50 border border-slate-200 rounded-xl">
-        <h5 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">➕ Add New Place Covered</h5>
+        <h5 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2" style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}><PlusIcon size={12} /> Add New Place Covered</h5>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
           <div>
             <label className="form-label text-xs font-semibold text-slate-600 mb-1">Place / Monument Name *</label>
@@ -147,7 +148,7 @@ export default function TourPlacesManager({ places = [], onChange }) {
 
       {places.length === 0 ? (
         <div className="module-empty-box mt-3 text-center p-6 border border-dashed border-slate-300 rounded-xl">
-          <span className="empty-icon text-3xl block mb-1">📍</span>
+          <span className="empty-icon block mb-1"><MapPinIcon size={28} color="#94a3b8" /></span>
           <p className="empty-text text-slate-500 text-sm">No places covered added yet. Add places above to show them on the public map.</p>
         </div>
       ) : (
@@ -219,9 +220,7 @@ export default function TourPlacesManager({ places = [], onChange }) {
                     className="btn text-red-500 hover:text-red-700 btn-xs p-1"
                     onClick={() => handleRemove(idx)}
                     title="Remove place"
-                  >
-                    ✕
-                  </button>
+                  ><XIcon size={14} /></button>
                 </div>
               </div>
             </div>

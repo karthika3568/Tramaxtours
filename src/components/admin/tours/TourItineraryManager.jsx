@@ -1,3 +1,4 @@
+import { CalendarIcon, XIcon } from '../../../components/common/Icons';
 import { useState } from 'react';
 
 export default function TourItineraryManager({ itineraries = [], onChange }) {
@@ -82,7 +83,7 @@ export default function TourItineraryManager({ itineraries = [], onChange }) {
 
       {itineraries.length === 0 ? (
         <div className="module-empty-box">
-          <span className="empty-icon">📅</span>
+          <span className="empty-icon"><CalendarIcon size={28} /></span>
           <p className="empty-text">No itinerary items created for this tour yet.</p>
           <button
             type="button"
@@ -147,9 +148,7 @@ export default function TourItineraryManager({ itineraries = [], onChange }) {
                       type="button"
                       className="btn-danger-xs"
                       onClick={() => handleRemove(idx)}
-                    >
-                      ✕
-                    </button>
+                    ><XIcon size={14} /></button>
                   </div>
                 </div>
 

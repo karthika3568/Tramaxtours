@@ -1,3 +1,4 @@
+import { SearchIcon } from '../../../components/common/Icons';
 export default function BookingFilters({
   search = '',
   status = 'all',
@@ -30,7 +31,7 @@ export default function BookingFilters({
             Search Bookings
           </label>
           <div className="search-input-wrapper">
-            <span className="search-icon" aria-hidden="true">🔍</span>
+            <span className="search-icon" aria-hidden="true"><SearchIcon size={15} /></span>
             <input
               type="text"
               id="booking-search"

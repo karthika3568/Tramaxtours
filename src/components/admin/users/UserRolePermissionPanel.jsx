@@ -1,3 +1,4 @@
+import { CheckIcon, KeyIcon, ShieldCheckIcon, XIcon } from '../../../components/common/Icons';
 import { useState, useMemo } from 'react';
 
 export default function UserRolePermissionPanel({
@@ -79,7 +80,7 @@ export default function UserRolePermissionPanel({
       {/* 1. Role Assignment & Overview Section */}
       <div className="panel-section role-summary-section">
         <div className="panel-section-header">
-          <h4 className="panel-section-title">🛡️ Role & Authorization Level</h4>
+          <h4 className="panel-section-title" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><ShieldCheckIcon size={16} color="#01aa90" /> Role & Authorization Level</h4>
           <span className="panel-header-badge">Backend Authoritative</span>
         </div>
 
@@ -91,7 +92,7 @@ export default function UserRolePermissionPanel({
                 {user?.role ? user.role.replace(/_/g, ' ') : 'None'}
               </span>
               {isSuperAdmin && (
-                <span className="super-wildcard-tag">👑 Wildcard Access (*)</span>
+                <span className="super-wildcard-tag" style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}><ShieldCheckIcon size={12} /> Wildcard Access (*)</span>
               )}
             </div>
           </div>
@@ -123,7 +124,7 @@ export default function UserRolePermissionPanel({
       <div className="panel-section permissions-breakdown-section">
         <div className="panel-section-header">
           <div>
-            <h4 className="panel-section-title">🔑 Effective Permissions</h4>
+            <h4 className="panel-section-title" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><KeyIcon size={16} color="#01aa90" /> Effective Permissions</h4>
             <p className="panel-section-subtitle">
               Granular privileges derived directly from assigned role policies.
             </p>
@@ -145,9 +146,7 @@ export default function UserRolePermissionPanel({
                   className="perm-filter-clear"
                   onClick={() => setFilterQuery('')}
                   aria-label="Clear filter"
-                >
-                  ✕
-                </button>
+                ><XIcon size={14} /></button>
               )}
             </div>
           )}
@@ -155,7 +154,7 @@ export default function UserRolePermissionPanel({
 
         {isSuperAdmin ? (
           <div className="super-admin-permission-banner">
-            <span className="crown-icon">👑</span>
+            <ShieldCheckIcon size={14} color="#f59e0b" />
             <div className="banner-content">
               <strong>Unrestricted Super Administrator Privileges</strong>
               <p>
@@ -174,7 +173,7 @@ export default function UserRolePermissionPanel({
                 <div className="group-block-tags">
                   {perms.map((p) => (
                     <span key={p} className="perm-tag-item">
-                      <span className="perm-check-icon">✓</span>
+                      <span className="perm-check-icon"><CheckIcon size={12} color="#10b981" /></span>
                       <code className="perm-slug">{p}</code>
                     </span>
                   ))}

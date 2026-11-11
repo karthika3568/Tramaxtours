@@ -1,15 +1,18 @@
+import { CalendarIcon, MapPinIcon, StarIcon, StethoscopeIcon, XIcon } from '../../components/common/Icons';
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import tourService from '../../services/tourService';
 import destinationService from '../../services/destinationService';
 import TourCard from '../../components/public/tours/TourCard';
 import MedicalTripCard from '../../components/public/tours/MedicalTripCard';
+import PalmLeafCard from '../../components/public/tours/PalmLeafCard';
 import medicalTripService from '../../services/medicalTripService';
 import Pagination from '../../components/public/common/Pagination';
 import Loading from '../../components/ui/Loading';
 import EmptyState from '../../components/ui/EmptyState';
 import ErrorState from '../../components/ui/ErrorState';
 import { updatePageMeta } from '../../utils/metadata';
+
 
 const DEFAULT_CATEGORIES = [
   { id: 1, name: 'City Sightseeing Tours', slug: 'city-sightseeing-tours' },
@@ -20,9 +23,9 @@ const DEFAULT_CATEGORIES = [
   { id: 5, name: 'One Day Tours', slug: 'one-day-tours' },
   { id: 9, name: 'Pilgrimage / Temple Tours', slug: 'pilgrimage-temple-tours' },
   { id: 6, name: 'Private Tours', slug: 'private-tours' },
-  { id: 10, name: 'Medical Tourism & Health Checks', slug: 'medical-tourism' },
   { id: 8, name: 'Surfing Tour', slug: 'surfing-tour' },
-  { id: 7, name: 'Palmleaf Horoscope Tour', slug: 'palmleaf-horoscope' },
+  { id: 10, name: 'Medical Tourism & Health Checks', slug: 'medical-tourism' },
+  { id: 11, name: 'Palm Leaf Horoscope', slug: 'palm-leaf-horoscope' },
 ];
 
 const DEFAULT_FAQS = [
@@ -350,7 +353,7 @@ export default function ToursPage() {
     });
   }, [tours, selectedDurations, selectedCategories, selectedRating]);
 
-  // Determine visibility of medical trips vs regular tours
+  // Determine visibility of medical trips, palm leaf, and regular tours
   const isMedicalOnlySelected =
     selectedCategories.length > 0 &&
     selectedCategories.every(
@@ -361,12 +364,48 @@ export default function ToursPage() {
     (c) => c.toLowerCase().includes('medical') || c.toLowerCase().includes('health')
   );
 
-  const isSpecificNonMedicalCategorySelected =
-    selectedCategories.length > 0 && !isMedicalIncluded;
+  const isPalmLeafOnlySelected =
+    selectedCategories.length > 0 &&
+    selectedCategories.every(
+      (c) => c.toLowerCase().includes('palm') || c.toLowerCase().includes('horoscope') || c.toLowerCase().includes('nadi')
+    );
 
-  const visibleMedicalTrips = isSpecificNonMedicalCategorySelected ? [] : medicalTrips;
-  const visibleTours = isMedicalOnlySelected ? [] : filteredTours;
-  const totalResultsCount = visibleMedicalTrips.length + visibleTours.length;
+  const isPalmLeafIncluded = selectedCategories.some(
+    (c) => c.toLowerCase().includes('palm') || c.toLowerCase().includes('horoscope') || c.toLowerCase().includes('nadi')
+  );
+
+  const isSpecificNonSpecialCategorySelected =
+    selectedCategories.length > 0 && !isMedicalIncluded && !isPalmLeafIncluded;
+
+  const visibleMedicalTrips = isSpecificNonSpecialCategorySelected || isPalmLeafOnlySelected ? [] : medicalTrips;
+  const showPalmLeaf = !isSpecificNonSpecialCategorySelected && !isMedicalOnlySelected;
+  const visibleTours = (isMedicalOnlySelected || isPalmLeafOnlySelected) ? [] : filteredTours;
+
+  // Sort tours so Sightseeing tours appear first, then other tours
+  const sortedVisibleTours = useMemo(() => {
+    const list = [...visibleTours];
+    if (sortBy === 'default') {
+      list.sort((a, b) => {
+        const aSight = (
+          a.title?.toLowerCase().includes('sightseeing') ||
+          a.tour_type?.toLowerCase().includes('sightseeing') ||
+          a.slug?.toLowerCase().includes('sightseeing') ||
+          a.overview?.toLowerCase().includes('sightseeing')
+        ) ? 1 : 0;
+        const bSight = (
+          b.title?.toLowerCase().includes('sightseeing') ||
+          b.tour_type?.toLowerCase().includes('sightseeing') ||
+          b.slug?.toLowerCase().includes('sightseeing') ||
+          b.overview?.toLowerCase().includes('sightseeing')
+        ) ? 1 : 0;
+        if (aSight !== bSight) return bSight - aSight; // Sightseeing tours come first!
+        return (a.display_order ?? 0) - (b.display_order ?? 0);
+      });
+    }
+    return list;
+  }, [visibleTours, sortBy]);
+
+  const totalResultsCount = sortedVisibleTours.length + visibleMedicalTrips.length + (showPalmLeaf ? 1 : 0);
 
   const handleToggleDuration = (val) => {
     setSelectedDurations((prev) =>
@@ -450,7 +489,7 @@ export default function ToursPage() {
                 role="button"
                 tabIndex={0}
               >
-                <span className="input-icon">📍</span>
+                <span className="input-icon"><MapPinIcon size={16} color="var(--color-primary, #01aa90)" /></span>
                 <span className={`input-val ${!selectedDestinationObj ? 'placeholder' : ''}`}>
                   {selectedDestinationObj ? selectedDestinationObj.name : 'All destination'}
                 </span>
@@ -463,10 +502,10 @@ export default function ToursPage() {
                       setDestinationFilter('');
                     }}
                   >
-                    ✕
+                    <XIcon size={12} />
                   </button>
                 ) : (
-                  <span className="input-clear-placeholder">✕</span>
+                  <span className="input-clear-placeholder"><XIcon size={12} /></span>
                 )}
               </div>
 
@@ -517,7 +556,7 @@ export default function ToursPage() {
             {/* Date Selector Input */}
             <div className="where-when-input-wrapper">
               <div className="where-when-input">
-                <span className="input-icon">📅</span>
+                <span className="input-icon"><CalendarIcon size={16} color="var(--color-primary, #01aa90)" /></span>
                 <input
                   type="text"
                   placeholder="Select dates"
@@ -535,10 +574,10 @@ export default function ToursPage() {
                     className="input-clear-btn"
                     onClick={() => setSelectedDate('')}
                   >
-                    ✕
+                    <XIcon size={12} />
                   </button>
                 )}
-                {!selectedDate && <span className="input-clear-placeholder">✕</span>}
+                {!selectedDate && <span className="input-clear-placeholder"><XIcon size={12} /></span>}
               </div>
             </div>
           </div>
@@ -563,25 +602,25 @@ export default function ToursPage() {
                 {selectedDestinationObj && (
                   <span className="active-chip">
                     {selectedDestinationObj.name}
-                    <button type="button" onClick={() => setDestinationFilter('')}>✕</button>
+                    <button type="button" onClick={() => setDestinationFilter('')}><XIcon size={10} /></button>
                   </span>
                 )}
                 {selectedDurations.map((d) => (
                   <span key={d} className="active-chip">
                     {d === 'less_than_1' ? '< 1 day' : d === '1_to_3' ? '1 to 3 days' : '3+ days'}
-                    <button type="button" onClick={() => handleToggleDuration(d)}>✕</button>
+                    <button type="button" onClick={() => handleToggleDuration(d)}><XIcon size={10} /></button>
                   </span>
                 ))}
                 {selectedCategories.map((c) => (
                   <span key={c} className="active-chip">
                     {c}
-                    <button type="button" onClick={() => handleToggleCategory(c)}>✕</button>
+                    <button type="button" onClick={() => handleToggleCategory(c)}><XIcon size={10} /></button>
                   </span>
                 ))}
                 {selectedRating !== 'all' && (
                   <span className="active-chip">
-                    {selectedRating}★ & Up
-                    <button type="button" onClick={() => setSelectedRating('all')}>✕</button>
+                    {selectedRating} Stars &amp; Up
+                    <button type="button" onClick={() => setSelectedRating('all')}><XIcon size={10} /></button>
                   </span>
                 )}
               </div>
@@ -624,25 +663,23 @@ export default function ToursPage() {
             </div>
           </div>
 
-          {/* 4. Tour Types Checkboxes */}
+          {/* 4. Tour Types Checkboxes (Sightseeing First, Special at Bottom) */}
           <div className="sidebar-filter-block">
             <h3 className="sidebar-section-title">Tour Types</h3>
             <div className="filter-checkbox-group">
-              {/* Medical Tour Checkbox */}
-              <label className="filter-checkbox-item">
-                <input
-                  type="checkbox"
-                  checked={selectedCategories.some((c) => c.toLowerCase().includes('medical'))}
-                  onChange={() => handleToggleCategory('medical-tourism')}
-                />
-                <span className="checkbox-custom" />
-                <span className="checkbox-label-text" style={{ fontWeight: 600 }}>
-                  🩺 Medical Tourism &amp; Health Checks
-                </span>
-              </label>
-
               {categories
-                .filter((c) => !c.slug?.includes('medical') && !c.name?.toLowerCase().includes('medical'))
+                .filter(
+                  (c) =>
+                    !c.slug?.includes('medical') &&
+                    !c.name?.toLowerCase().includes('medical') &&
+                    !c.slug?.includes('palm') &&
+                    !c.name?.toLowerCase().includes('palm')
+                )
+                .sort((a, b) => {
+                  const aSight = (a.name?.toLowerCase().includes('sightseeing') || a.slug?.includes('sightseeing')) ? 1 : 0;
+                  const bSight = (b.name?.toLowerCase().includes('sightseeing') || b.slug?.includes('sightseeing')) ? 1 : 0;
+                  return bSight - aSight;
+                })
                 .map((cat) => {
                   const catName = cat.name || cat.slug;
                   const isChecked =
@@ -661,6 +698,36 @@ export default function ToursPage() {
                     </label>
                   );
                 })}
+
+              <div style={{ height: '1px', backgroundColor: '#e2e8f0', margin: '4px 0' }} />
+
+              {/* Special: Medical Tour Checkbox */}
+              <label className="filter-checkbox-item">
+                <input
+                  type="checkbox"
+                  checked={selectedCategories.some((c) => c.toLowerCase().includes('medical'))}
+                  onChange={() => handleToggleCategory('medical-tourism')}
+                />
+                <span className="checkbox-custom" />
+                <span className="checkbox-label-text" style={{ fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#0f766e' }}>
+                  <StethoscopeIcon size={14} color="#0d9488" />
+                  <span>Medical Tourism</span>
+                </span>
+              </label>
+
+              {/* Special: Palm Leaf Horoscope Checkbox */}
+              <label className="filter-checkbox-item">
+                <input
+                  type="checkbox"
+                  checked={selectedCategories.some((c) => c.toLowerCase().includes('palm') || c.toLowerCase().includes('horoscope'))}
+                  onChange={() => handleToggleCategory('palm-leaf-horoscope')}
+                />
+                <span className="checkbox-custom" />
+                <span className="checkbox-label-text" style={{ fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#92400e' }}>
+                  <SparklesIcon size={14} color="#d97706" />
+                  <span>Palm Leaf Horoscope</span>
+                </span>
+              </label>
             </div>
           </div>
 
@@ -689,7 +756,11 @@ export default function ToursPage() {
                   onChange={(e) => setSelectedRating(e.target.value)}
                 />
                 <span className="radio-custom" />
-                <span className="radio-stars">★★★★★</span>
+                <span className="radio-stars" style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <StarIcon key={s} filled size={13} color="#eab308" />
+                  ))}
+                </span>
                 <span className="radio-label-text">& Up</span>
               </label>
 
@@ -702,7 +773,12 @@ export default function ToursPage() {
                   onChange={(e) => setSelectedRating(e.target.value)}
                 />
                 <span className="radio-custom" />
-                <span className="radio-stars">★★★★☆</span>
+                <span className="radio-stars" style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                  {[1, 2, 3, 4].map((s) => (
+                    <StarIcon key={s} filled size={13} color="#eab308" />
+                  ))}
+                  <StarIcon size={13} color="#cbd5e1" />
+                </span>
                 <span className="radio-label-text">& Up</span>
               </label>
 
@@ -715,7 +791,14 @@ export default function ToursPage() {
                   onChange={(e) => setSelectedRating(e.target.value)}
                 />
                 <span className="radio-custom" />
-                <span className="radio-stars">★★★☆☆</span>
+                <span className="radio-stars" style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                  {[1, 2, 3].map((s) => (
+                    <StarIcon key={s} filled size={13} color="#eab308" />
+                  ))}
+                  {[1, 2].map((s) => (
+                    <StarIcon key={s} size={13} color="#cbd5e1" />
+                  ))}
+                </span>
                 <span className="radio-label-text">& Up</span>
               </label>
 
@@ -728,7 +811,14 @@ export default function ToursPage() {
                   onChange={(e) => setSelectedRating(e.target.value)}
                 />
                 <span className="radio-custom" />
-                <span className="radio-stars">★★☆☆☆</span>
+                <span className="radio-stars" style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                  {[1, 2].map((s) => (
+                    <StarIcon key={s} filled size={13} color="#eab308" />
+                  ))}
+                  {[1, 2, 3].map((s) => (
+                    <StarIcon key={s} size={13} color="#cbd5e1" />
+                  ))}
+                </span>
                 <span className="radio-label-text">& Up</span>
               </label>
             </div>
@@ -791,9 +881,19 @@ export default function ToursPage() {
                   }}
                 >
                   <option value="all">All Tour Types</option>
-                  <option value="medical-tourism">🩺 Medical Tourism &amp; Health Checks</option>
                   {categories
-                    .filter((c) => !c.slug?.includes('medical') && !c.name?.toLowerCase().includes('medical'))
+                    .filter(
+                      (c) =>
+                        !c.slug?.includes('medical') &&
+                        !c.name?.toLowerCase().includes('medical') &&
+                        !c.slug?.includes('palm') &&
+                        !c.name?.toLowerCase().includes('palm')
+                    )
+                    .sort((a, b) => {
+                      const aSight = (a.name?.toLowerCase().includes('sightseeing') || a.slug?.includes('sightseeing')) ? 1 : 0;
+                      const bSight = (b.name?.toLowerCase().includes('sightseeing') || b.slug?.includes('sightseeing')) ? 1 : 0;
+                      return bSight - aSight;
+                    })
                     .map((cat) => {
                       const val = cat.name || cat.slug;
                       return (
@@ -802,6 +902,8 @@ export default function ToursPage() {
                         </option>
                       );
                     })}
+                  <option value="medical-tourism">Medical Tourism &amp; Health Checks</option>
+                  <option value="palm-leaf-horoscope">Palm Leaf Horoscope (Nadi Astrology)</option>
                 </select>
               </div>
 
@@ -858,45 +960,63 @@ export default function ToursPage() {
             />
           ) : (
             <>
-              {visibleMedicalTrips.length > 0 && (
-                <div style={{ marginBottom: '32px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                    <div>
-                      <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#0f172a', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span>🩺</span>
-                        <span>Medical Tourism &amp; Health Checks</span>
-                      </h2>
-                      <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>
-                        Executive clinical assessments, advanced MRI &amp; biomarkers screening packages.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="tours-two-column-grid">
-                    {visibleMedicalTrips.map((mTrip) => (
-                      <MedicalTripCard key={`med-${mTrip.id}`} trip={mTrip} />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {visibleTours.length > 0 && (
-                <div className="tours-two-column-grid">
-                  {visibleTours.map((tour) => (
+              {/* 1. Main Tours: Sightseeing first, then other tour categories */}
+              {sortedVisibleTours.length > 0 && (
+                <div className="tours-two-column-grid" style={{ marginBottom: '24px' }}>
+                  {sortedVisibleTours.map((tour) => (
                     <TourCard key={tour.id} tour={tour} />
                   ))}
                 </div>
               )}
 
-              {pagination.total_pages > 1 && visibleTours.length > 0 && (
+              {/* Pagination for main tours */}
+              {pagination.total_pages > 1 && sortedVisibleTours.length > 0 && (
                 <Pagination
                   currentPage={pagination.page || currentPage}
                   totalPages={pagination.total_pages || 1}
-                  totalItems={pagination.total || visibleTours.length}
+                  totalItems={pagination.total || sortedVisibleTours.length}
                   onPageChange={(page) => {
                     setCurrentPage(page);
-                    window.scrollTo({ top: 150, behavior: 'smooth' });
+                    setSearchParams((prev) => {
+                      const next = new URLSearchParams(prev);
+                      next.set('page', String(page));
+                      return next;
+                    });
+                    window.scrollTo({ top: 350, behavior: 'smooth' });
                   }}
                 />
+              )}
+
+              {/* 2. Specialized Experiences: Medical Tourism & Palm Leaf separately at bottom */}
+              {(visibleMedicalTrips.length > 0 || showPalmLeaf) && (
+                <div
+                  style={{
+                    marginTop: sortedVisibleTours.length > 0 ? '48px' : '0',
+                    paddingTop: sortedVisibleTours.length > 0 ? '36px' : '0',
+                    borderTop: sortedVisibleTours.length > 0 ? '2px dashed #e2e8f0' : 'none',
+                    marginBottom: '24px',
+                  }}
+                >
+                  <div style={{ marginBottom: '20px' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.07em', color: '#01aa90', background: 'rgba(1, 170, 144, 0.1)', padding: '3px 10px', borderRadius: '6px', marginBottom: '8px' }}>
+                      <SparklesIcon size={13} color="#01aa90" />
+                      <span>Special Experiences &amp; Wellness Programs</span>
+                    </div>
+                    <h2 style={{ fontSize: '22px', fontWeight: '800', color: '#0f172a', margin: '4px 0 6px 0' }}>
+                      Medical Tourism &amp; Palm Leaf Horoscope
+                    </h2>
+                    <p style={{ fontSize: '13.5px', color: '#64748b', margin: 0 }}>
+                      Comprehensive clinical health checkups, MRI diagnostics, and authentic 3,000-year-old Maharishi Palm Leaf (Nadi) destiny readings.
+                    </p>
+                  </div>
+
+                  <div className="tours-two-column-grid">
+                    {visibleMedicalTrips.map((mTrip) => (
+                      <MedicalTripCard key={`med-${mTrip.id}`} trip={mTrip} />
+                    ))}
+                    {showPalmLeaf && <PalmLeafCard />}
+                  </div>
+                </div>
               )}
             </>
           )}

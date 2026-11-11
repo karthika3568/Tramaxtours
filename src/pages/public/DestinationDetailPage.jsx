@@ -1,3 +1,4 @@
+import { BanknoteIcon, ClockIcon, CompassIcon, GlobeIcon, MailIcon, PhoneIcon, SparklesIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import destinationService from '../../services/destinationService';
@@ -8,6 +9,7 @@ import ErrorState from '../../components/ui/ErrorState';
 import EmptyState from '../../components/ui/EmptyState';
 import { updatePageMeta } from '../../utils/metadata';
 import { getMediaUrl } from '../../utils/media';
+
 
 function formatSlugName(slug) {
   if (!slug) return 'Destination';
@@ -128,11 +130,11 @@ export default function DestinationDetailPage() {
     .sort((a, b) => a.display_order - b.display_order);
 
   const quickFacts = [
-    { icon: '🌐', label: 'Language', value: destination.language },
-    { icon: '💰', label: 'Currency', value: destination.currency },
-    { icon: '🙏', label: 'Religion', value: destination.religion },
-    { icon: '⏰', label: 'Timezone', value: destination.timezone },
-    { icon: '🛕', label: 'Heritage', value: destination.heritage },
+    { icon: <GlobeIcon size={18} color="var(--color-primary, #01aa90)" />, label: 'Language', value: destination.language },
+    { icon: <BanknoteIcon size={18} color="var(--color-primary, #01aa90)" />, label: 'Currency', value: destination.currency },
+    { icon: <SparklesIcon size={18} color="var(--color-primary, #01aa90)" />, label: 'Religion', value: destination.religion },
+    { icon: <ClockIcon size={18} color="var(--color-primary, #01aa90)" />, label: 'Timezone', value: destination.timezone },
+    { icon: <CompassIcon size={18} color="var(--color-primary, #01aa90)" />, label: 'Heritage', value: destination.heritage },
   ].filter((f) => f.value);
 
   return (
@@ -333,14 +335,14 @@ export default function DestinationDetailPage() {
               guides, and luxury stays.
             </p>
             <div className="dest-inquiry-contacts">
-              <a href="tel:+918072566010" className="dest-contact-pill">
-                📞 +91 80725 66010
+              <a href="tel:+918072566010" className="dest-contact-pill" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <PhoneIcon size={14} /> <span>+91 80725 66010</span>
               </a>
-              <a href="tel:+919840291110" className="dest-contact-pill">
-                📞 +91 98402 91110
+              <a href="tel:+919840291110" className="dest-contact-pill" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <PhoneIcon size={14} /> <span>+91 98402 91110</span>
               </a>
-              <a href="mailto:info@wanderersouthindia.com" className="dest-contact-pill">
-                ✉️ info@wanderersouthindia.com
+              <a href="mailto:info@wanderersouthindia.com" className="dest-contact-pill" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <MailIcon size={14} /> <span>info@wanderersouthindia.com</span>
               </a>
             </div>
           </div>

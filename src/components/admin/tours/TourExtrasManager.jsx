@@ -1,3 +1,4 @@
+import { CheckIcon, HelpCircleIcon, XIcon } from '../../../components/common/Icons';
 import { useState } from 'react';
 
 export default function TourExtrasManager({
@@ -90,7 +91,7 @@ export default function TourExtrasManager({
         {/* Inclusions Card */}
         <div className="inc-exc-admin-box">
           <div className="inc-exc-header">
-            <span className="inc-title">✓ What is Included ({includes.length})</span>
+            <span className="inc-title" style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}><CheckIcon size={14} color="#10b981" /> What is Included ({includes.length})</span>
           </div>
 
           <div className="inc-exc-add-bar">
@@ -120,7 +121,7 @@ export default function TourExtrasManager({
           <ul className="inc-exc-list">
             {includes.map((item, idx) => (
               <li key={item.id || idx} className="inc-exc-item">
-                <span className="check-mark-bullet">✓</span>
+                <span className="check-mark-bullet"><CheckIcon size={12} color="#10b981" /></span>
                 <input
                   type="text"
                   className="form-input form-input-xs flex-1"
@@ -131,9 +132,7 @@ export default function TourExtrasManager({
                   type="button"
                   className="btn-danger-xs"
                   onClick={() => handleRemoveInclude(idx)}
-                >
-                  ✕
-                </button>
+                ><XIcon size={14} /></button>
               </li>
             ))}
           </ul>
@@ -142,7 +141,7 @@ export default function TourExtrasManager({
         {/* Exclusions Card */}
         <div className="inc-exc-admin-box">
           <div className="inc-exc-header">
-            <span className="exc-title">✕ What is Not Included ({excludes.length})</span>
+            <span className="exc-title" style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}><XIcon size={14} color="#ef4444" /> What is Not Included ({excludes.length})</span>
           </div>
 
           <div className="inc-exc-add-bar">
@@ -172,7 +171,7 @@ export default function TourExtrasManager({
           <ul className="inc-exc-list">
             {excludes.map((item, idx) => (
               <li key={item.id || idx} className="inc-exc-item">
-                <span className="cross-mark-bullet">✕</span>
+                <span className="cross-mark-bullet"><XIcon size={14} /></span>
                 <input
                   type="text"
                   className="form-input form-input-xs flex-1"
@@ -183,9 +182,7 @@ export default function TourExtrasManager({
                   type="button"
                   className="btn-danger-xs"
                   onClick={() => handleRemoveExclude(idx)}
-                >
-                  ✕
-                </button>
+                ><XIcon size={14} /></button>
               </li>
             ))}
           </ul>
@@ -211,7 +208,7 @@ export default function TourExtrasManager({
 
       {faqs.length === 0 ? (
         <div className="module-empty-box">
-          <span className="empty-icon">❓</span>
+          <span className="empty-icon"><HelpCircleIcon size={24} color="#94a3b8" /></span>
           <p className="empty-text">No specific FAQs registered for this tour yet.</p>
         </div>
       ) : (
@@ -244,9 +241,7 @@ export default function TourExtrasManager({
                       type="button"
                       className="btn-danger-xs"
                       onClick={() => handleRemoveFaq(idx)}
-                    >
-                      ✕
-                    </button>
+                    ><XIcon size={14} /></button>
                   </div>
                 </div>
 

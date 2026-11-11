@@ -1,3 +1,4 @@
+import { SearchIcon, XIcon } from '../../../components/common/Icons';
 import { useState, useEffect } from 'react';
 
 export default function UserFilters({
@@ -43,7 +44,7 @@ export default function UserFilters({
   return (
     <div className="users-filter-bar">
       <div className="filter-search-box">
-        <span className="search-icon" aria-hidden="true">🔍</span>
+        <span className="search-icon" aria-hidden="true"><SearchIcon size={15} /></span>
         <input
           type="text"
           className="filter-search-input"
@@ -58,9 +59,7 @@ export default function UserFilters({
             className="filter-search-clear"
             onClick={() => setSearchInput('')}
             aria-label="Clear search"
-          >
-            ✕
-          </button>
+          ><XIcon size={14} /></button>
         )}
       </div>
 

@@ -1,4 +1,6 @@
+import { EditIcon, EyeIcon, FileTextIcon, PauseIcon, RocketIcon, TrashIcon } from '../../common/Icons';
 import { Link } from 'react-router-dom';
+
 
 const SYSTEM_PAGE_SLUGS = ['about-us', 'terms-conditions', 'refund-policy', 'privacy-policy'];
 
@@ -93,7 +95,7 @@ export default function PageTable({
                     <div className="page-seo-preview-cell">
                       {page.seo_title ? (
                         <span className="page-seo-title-preview" title={page.seo_title}>
-                          🏷️ {page.seo_title}
+                          {page.seo_title}
                         </span>
                       ) : (
                         <span className="text-muted" style={{ fontSize: '0.8125rem' }}>
@@ -136,7 +138,7 @@ export default function PageTable({
                         title="View Public Page (opens in new tab)"
                         aria-label={`View public page ${page.title}`}
                       >
-                        👁️
+                        <EyeIcon size={15} />
                       </a>
 
                       {/* Edit */}
@@ -147,7 +149,7 @@ export default function PageTable({
                           title="Edit CMS Page"
                           aria-label={`Edit ${page.title}`}
                         >
-                          ✏️
+                          <EditIcon size={15} />
                         </Link>
                       )}
 
@@ -163,7 +165,7 @@ export default function PageTable({
                           onClick={() => onPublishToggle(page)}
                           disabled={isLoading}
                         >
-                          {isLoading ? '⏳' : isPublished ? '⏸️' : '🚀'}
+                          {isLoading ? '...' : isPublished ? <PauseIcon size={14} /> : <RocketIcon size={14} />}
                         </button>
                       )}
 
@@ -177,7 +179,7 @@ export default function PageTable({
                           onClick={() => onDeleteClick(page)}
                           disabled={isLoading}
                         >
-                          🗑️
+                          <TrashIcon size={15} />
                         </button>
                       )}
                     </div>
@@ -201,7 +203,7 @@ export default function PageTable({
             <div key={page.id} className="admin-mobile-card">
               <div className="admin-mobile-card-header">
                 <div className="admin-mobile-card-thumb">
-                  <span>📄</span>
+                  <FileTextIcon size={16} />
                 </div>
 
                 <div className="admin-mobile-card-title-group">
@@ -249,16 +251,18 @@ export default function PageTable({
                   target="_blank"
                   rel="noreferrer"
                   className="btn btn-outline btn-sm"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                 >
-                  👁️ View Public
+                  <EyeIcon size={13} /> View Public
                 </a>
 
                 {canManage && (
                   <Link
                     to={`/admin/pages/${page.id}/edit`}
                     className="btn btn-primary btn-sm"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                   >
-                    ✏️ Edit
+                    <EditIcon size={13} /> Edit
                   </Link>
                 )}
 
@@ -268,12 +272,13 @@ export default function PageTable({
                     className="btn btn-outline btn-sm"
                     onClick={() => onPublishToggle(page)}
                     disabled={isLoading}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                   >
                     {isLoading
                       ? 'Updating...'
                       : isPublished
-                      ? '⏸️ Unpublish'
-                      : '🚀 Publish'}
+                      ? <><PauseIcon size={13} /> Unpublish</>
+                      : <><RocketIcon size={13} /> Publish</>}
                   </button>
                 )}
 
@@ -283,8 +288,9 @@ export default function PageTable({
                     className="btn btn-outline btn-sm btn-delete-danger"
                     onClick={() => onDeleteClick(page)}
                     disabled={isLoading}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                   >
-                    🗑️ Delete
+                    <TrashIcon size={13} /> Delete
                   </button>
                 )}
               </div>

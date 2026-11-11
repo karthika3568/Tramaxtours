@@ -1,3 +1,4 @@
+import { CompassIcon, XIcon } from '../../common/Icons';
 import { useState, useEffect } from 'react';
 import { useSiteSettings } from '../../../context/SiteSettingsContext';
 import { formatWhatsAppUrl } from '../../../utils/whatsapp';
@@ -27,7 +28,7 @@ export default function FloatingChatWidget() {
         <div className="floating-chat-card animate-fade-in-up">
           <div className="floating-chat-header">
             <div className="floating-chat-avatar-wrap">
-              <div className="floating-chat-avatar">🌴</div>
+              <div className="floating-chat-avatar"><CompassIcon size={22} color="#01aa90" /></div>
               <span className="floating-online-dot" title="Online now" />
             </div>
             <div className="floating-chat-header-info">
@@ -39,15 +40,13 @@ export default function FloatingChatWidget() {
               className="floating-chat-close-btn"
               onClick={() => setIsOpen(false)}
               aria-label="Close Chat"
-            >
-              ✕
-            </button>
+             aria-label="Close chat"><XIcon size={14} /></button>
           </div>
 
           <div className="floating-chat-body">
             <div className="floating-chat-bubble">
               <p>
-                Hi there! 👋 Looking for private chauffeur tours, luxury temple expeditions, or custom family vacations across South India?
+                Hi there! Looking for private chauffeur tours, luxury temple expeditions, or custom family vacations across South India?
               </p>
               <span className="floating-chat-time">Just now</span>
             </div>

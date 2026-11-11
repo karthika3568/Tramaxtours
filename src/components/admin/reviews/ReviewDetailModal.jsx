@@ -1,3 +1,4 @@
+import { CalendarIcon, CheckIcon, CompassIcon, MailIcon, MapPinIcon, SearchIcon, StarIcon, TrashIcon, XIcon } from '../../../components/common/Icons';
 import { useState } from 'react';
 import Modal from '../../ui/Modal';
 import { getMediaUrl } from '../../../utils/media';
@@ -71,7 +72,7 @@ export default function ReviewDetailModal({
                   </span>
                   {isFeatured && (
                     <span className="admin-badge admin-badge-gold">
-                      ⭐ Featured Testimonial
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}><StarIcon size={13} color="#f59e0b" fill="#f59e0b" /> Featured Testimonial</span>
                     </span>
                   )}
                 </div>
@@ -79,15 +80,15 @@ export default function ReviewDetailModal({
 
               <div className="review-detail-contact-meta">
                 <span className="review-contact-item">
-                  ✉️ {review.customer_email}
+                  {review.customer_email}
                 </span>
                 {review.customer_country && (
                   <span className="review-contact-item">
-                    📍 {review.customer_country}
+                    {review.customer_country}
                   </span>
                 )}
                 <span className="review-contact-item text-muted">
-                  🗓️ {new Date(review.created_at).toLocaleDateString(undefined, {
+                  {new Date(review.created_at).toLocaleDateString(undefined, {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
@@ -108,7 +109,7 @@ export default function ReviewDetailModal({
                 className="review-tour-link"
                 title="View Tour Package on public website"
               >
-                🗺️ {review.tour.title} &rarr;
+                {review.tour.title} &rarr;
               </a>
             ) : (
               <span className="text-muted">Tour #{review.tour_id}</span>
@@ -119,7 +120,7 @@ export default function ReviewDetailModal({
           <div className="review-detail-content-section">
             <div className="review-detail-rating-banner">
               <div className="review-stars-visual">
-                {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+                {review.rating}.0 / 5.0
               </div>
               <span className="review-rating-number">{review.rating}.0 / 5.0 Rating</span>
             </div>
@@ -155,7 +156,7 @@ export default function ReviewDetailModal({
                         alt={mediaItem.alt_text || 'Traveler review photo'}
                         loading="lazy"
                       />
-                      <span className="photo-zoom-icon">🔍</span>
+                      <span className="photo-zoom-icon"><SearchIcon size={14} /></span>
                     </button>
                   );
                 })}
@@ -194,7 +195,7 @@ export default function ReviewDetailModal({
                     onClick={() => onApprove(review)}
                     disabled={actionLoading}
                   >
-                    ✓ Approve Review
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}><CheckIcon size={13} /> Approve Review</span>
                   </button>
                 )}
 
@@ -206,7 +207,7 @@ export default function ReviewDetailModal({
                     onClick={() => onReject(review)}
                     disabled={actionLoading}
                   >
-                    ✕ Reject Review
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}><XIcon size={13} /> Reject Review</span>
                   </button>
                 )}
 
@@ -217,7 +218,7 @@ export default function ReviewDetailModal({
                   onClick={() => onToggleFeature(review)}
                   disabled={actionLoading}
                 >
-                  {isFeatured ? '★ Unfeature' : '⭐ Set as Featured'}
+                  {isFeatured ? 'Unfeature' : <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}><StarIcon size={13} color='#f59e0b' fill='#f59e0b' /> Set as Featured</span>}
                 </button>
 
                 {/* Delete Button */}
@@ -227,7 +228,7 @@ export default function ReviewDetailModal({
                   onClick={() => onDelete(review)}
                   disabled={actionLoading}
                 >
-                  🗑️ Delete
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}><TrashIcon size={13} /> Delete</span>
                 </button>
               </div>
             )}

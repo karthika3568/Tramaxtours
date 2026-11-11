@@ -1,3 +1,4 @@
+import { ImageIcon, StarIcon, XIcon } from '../../../components/common/Icons';
 import { useState } from 'react';
 import MediaPickerModal from '../media/MediaPickerModal';
 import { getMediaUrl } from '../../../utils/media';
@@ -87,7 +88,7 @@ export default function TourGalleryManager({ gallery = [], onChange }) {
 
       {gallery.length === 0 ? (
         <div className="module-empty-box">
-          <span className="empty-icon">🖼️</span>
+          <span className="empty-icon"><ImageIcon size={28} /></span>
           <p className="empty-text">No gallery images attached to this tour package.</p>
           <button
             type="button"
@@ -112,7 +113,7 @@ export default function TourGalleryManager({ gallery = [], onChange }) {
                     className="tour-gallery-thumb"
                   />
                   <div className="tour-gallery-order-badge">#{idx + 1}</div>
-                  {isCover && <div className="tour-cover-badge">★ Primary Cover</div>}
+                  {isCover && <div className="tour-cover-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><StarIcon size={11} color='#fff' fill='#fff' /> Primary Cover</div>}
                 </div>
 
                 <div className="tour-gallery-card-body">
@@ -156,7 +157,7 @@ export default function TourGalleryManager({ gallery = [], onChange }) {
                       className="btn-danger-xs"
                       onClick={() => handleRemove(idx)}
                     >
-                      ✕ Remove
+                      Remove
                     </button>
                   </div>
                 </div>

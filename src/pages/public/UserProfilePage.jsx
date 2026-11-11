@@ -1,3 +1,4 @@
+import { BanknoteIcon, CalendarIcon, CheckIcon, CompassIcon, FileTextIcon, MailIcon, PhoneIcon, PrintIcon, UserIcon, UsersIcon, WhatsAppIcon, XCircleIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -9,6 +10,7 @@ import Loading from '../../components/ui/Loading';
 import Modal from '../../components/ui/Modal';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import { formatWhatsAppUrl, getCleanWhatsAppNumber } from '../../utils/whatsapp';
+
 
 export default function UserProfilePage() {
   const { user, isAuthenticated, isLoading: isAuthLoading, logout } = useAuth();
@@ -215,7 +217,7 @@ export default function UserProfilePage() {
                 boxShadow: '0 4px 12px rgba(1, 170, 144, 0.3)',
               }}
             >
-              {user.name ? user.name.charAt(0).toUpperCase() : '👤'}
+              {user.name ? user.name.charAt(0).toUpperCase() : <UserIcon size={24} color="#ffffff" />}
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -236,15 +238,23 @@ export default function UserProfilePage() {
                   Verified Traveler
                 </span>
               </div>
-              <p style={{ color: '#64748b', fontSize: '14px', margin: '4px 0 0' }}>
-                ✉️ {user.email} {user.phone && <span>• 📞 {user.phone}</span>}
+              <p style={{ color: '#64748b', fontSize: '14px', margin: '4px 0 0', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <MailIcon size={14} color="#64748b" /> {user.email}
+                </span>
+                {user.phone && (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    • <PhoneIcon size={14} color="#64748b" /> {user.phone}
+                  </span>
+                )}
               </p>
             </div>
           </div>
 
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <Link to="/tours" className="btn btn-primary btn-sm">
-              🧭 Explore More Tours
+            <Link to="/tours" className="btn btn-primary btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <CompassIcon size={15} />
+              <span>Explore More Tours</span>
             </Link>
             <button type="button" onClick={logout} className="btn btn-outline btn-sm">
               Sign Out
@@ -313,7 +323,9 @@ export default function UserProfilePage() {
                 border: '1px dashed #cbd5e1',
               }}
             >
-              <span style={{ fontSize: '48px', display: 'block', marginBottom: '12px' }}>🏖️</span>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
+                <CompassIcon size={48} color="#cbd5e1" />
+              </div>
               <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#0B1329' }}>
                 No {filterStatus !== 'all' ? filterStatus : ''} Bookings Found
               </h3>
@@ -374,8 +386,8 @@ export default function UserProfilePage() {
                           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />
                       ) : (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: '32px' }}>
-                          🧭
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                          <CompassIcon size={32} color="#94a3b8" />
                         </div>
                       )}
                     </div>
@@ -405,9 +417,15 @@ export default function UserProfilePage() {
                       </h3>
 
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '13px', color: '#475569' }}>
-                        <span>📅 <strong>Travel Date:</strong> {travelDate}</span>
-                        <span>👥 <strong>Guests:</strong> {b.tickets_count || `${b.adults || 1} Adults`}</span>
-                        <span>💵 <strong>Payment:</strong> Pay on Arrival</span>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                          <CalendarIcon size={13} color="#64748b" /> <strong>Travel Date:</strong> {travelDate}
+                        </span>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                          <UsersIcon size={13} color="#64748b" /> <strong>Guests:</strong> {b.tickets_count || `${b.adults || 1} Adults`}
+                        </span>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                          <BanknoteIcon size={13} color="#64748b" /> <strong>Payment:</strong> Pay on Arrival
+                        </span>
                       </div>
 
                       {b.special_requests && (
@@ -432,17 +450,20 @@ export default function UserProfilePage() {
                           className="btn btn-outline btn-xs"
                           onClick={() => handlePrintReceipt(b)}
                           title="Print or Download PDF Receipt"
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                         >
-                          📄 Download PDF
+                          <FileTextIcon size={12} />
+                          <span>Download PDF</span>
                         </button>
                         <button
                           type="button"
                           className="btn btn-outline btn-xs"
                           onClick={() => handleSendWhatsAppReceipt(b)}
                           title="Share to WhatsApp"
-                          style={{ color: '#16a34a' }}
+                          style={{ color: '#16a34a', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                         >
-                          💬 WhatsApp
+                          <WhatsAppIcon size={12} color="#16a34a" />
+                          <span>WhatsApp</span>
                         </button>
                         <button
                           type="button"
@@ -450,8 +471,16 @@ export default function UserProfilePage() {
                           onClick={() => handleSendEmailReceipt(b)}
                           disabled={emailingBookingId === b.id}
                           title="Send confirmation email"
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                         >
-                          {emailingBookingId === b.id ? '⏳ Sending...' : '✉️ Email'}
+                          {emailingBookingId === b.id ? (
+                            'Sending...'
+                          ) : (
+                            <>
+                              <MailIcon size={12} />
+                              <span>Email</span>
+                            </>
+                          )}
                         </button>
                         {status !== 'cancelled' && status !== 'completed' && (
                           <button
@@ -459,8 +488,10 @@ export default function UserProfilePage() {
                             className="btn btn-danger-outline btn-xs"
                             onClick={() => setCancelModalBooking(b)}
                             title="Cancel this reservation"
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                           >
-                            ❌ Cancel
+                            <XCircleIcon size={12} color="#ef4444" />
+                            <span>Cancel</span>
                           </button>
                         )}
                       </div>
@@ -548,23 +579,33 @@ export default function UserProfilePage() {
             {/* Bottom Bar */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
               <div style={{ fontSize: '12px', color: '#64748b' }}>
-                <p style={{ margin: 0 }}>✓ Payment Mode: <strong>Pay on Arrival / Cash or UPI</strong></p>
-                <p style={{ margin: 0 }}>✓ 24/7 Helpline: <strong>{contactPhone}</strong></p>
+                <p style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <CheckIcon size={12} color="#01aa90" />
+                  <span>Payment Mode: <strong>Pay on Arrival / Cash or UPI</strong></span>
+                </p>
+                <p style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <CheckIcon size={12} color="#01aa90" />
+                  <span>24/7 Helpline: <strong>{contactPhone}</strong></span>
+                </p>
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button
                   type="button"
                   className="btn btn-outline btn-sm"
                   onClick={() => window.print()}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                 >
-                  🖨️ Print Receipt
+                  <PrintIcon size={14} />
+                  <span>Print Receipt</span>
                 </button>
                 <button
                   type="button"
                   className="btn btn-primary btn-sm"
                   onClick={() => handleSendWhatsAppReceipt(selectedReceiptBooking)}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                 >
-                  💬 Share on WhatsApp
+                  <WhatsAppIcon size={14} color="#ffffff" />
+                  <span>Share on WhatsApp</span>
                 </button>
               </div>
             </div>

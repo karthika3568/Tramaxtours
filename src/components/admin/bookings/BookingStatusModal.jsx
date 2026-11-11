@@ -1,3 +1,4 @@
+import { CheckIcon, StarIcon, XIcon } from '../../../components/common/Icons';
 import { useState } from 'react';
 
 const STATUS_OPTIONS = [
@@ -70,9 +71,7 @@ export default function BookingStatusModal({
             className="modal-close-btn"
             onClick={onClose}
             aria-label="Close modal"
-          >
-            ✕
-          </button>
+          ><XIcon size={14} /></button>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -86,21 +85,21 @@ export default function BookingStatusModal({
                   className={`btn btn-xs ${newStatus === 'confirmed' ? 'btn-primary' : 'btn-outline'}`}
                   onClick={() => handleQuickAction('confirmed')}
                 >
-                  ✓ Confirm
+                  Confirm
                 </button>
                 <button
                   type="button"
                   className={`btn btn-xs ${newStatus === 'completed' ? 'btn-primary' : 'btn-outline'}`}
                   onClick={() => handleQuickAction('completed', 'paid')}
                 >
-                  ★ Complete & Settle
+                  Complete & Settle
                 </button>
                 <button
                   type="button"
                   className={`btn btn-xs ${newStatus === 'cancelled' ? 'btn-danger' : 'btn-outline'}`}
                   onClick={() => handleQuickAction('cancelled')}
                 >
-                  ✕ Cancel
+                  Cancel
                 </button>
               </div>
             </div>

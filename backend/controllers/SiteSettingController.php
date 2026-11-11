@@ -350,6 +350,42 @@ class SiteSettingController extends BaseController
      * @param string $id
      * @return void
      */
+    /**
+     * Bulk update multiple site settings.
+     * POST /api/v1/site-settings/bulk
+     * PUT /api/v1/site-settings/bulk
+     * Permission: settings.manage
+     *
+     * @return void
+     */
+    public function updateBulk(): void
+    {
+        $body = Request::getBody();
+        $settings = $body['settings'] ?? $body;
+
+        if (!is_array($settings) || empty($settings)) {
+            $this->error('No settings provided for bulk update.', 422, null, 'INVALID_PAYLOAD');
+        }
+
+        try {
+            $userId = Request::getUserId();
+            $updated = SiteSetting::updateBulk($settings, $userId);
+
+            AuditService::log(
+                $userId,
+                'site_settings_bulk_update',
+                'site_setting',
+                null,
+                null,
+                ['updated_keys' => array_keys($updated)]
+            );
+
+            $this->success($updated, 'Site settings updated successfully');
+        } catch (\Throwable $e) {
+            $this->error($e->getMessage(), 500, null, 'BULK_UPDATE_FAILED');
+        }
+    }
+
     public function restore(string $id): void
     {
         $setting = null;

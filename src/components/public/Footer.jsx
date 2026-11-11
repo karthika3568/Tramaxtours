@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import { formatWhatsAppUrl } from '../../utils/whatsapp';
 import SocialLinks from './SocialLinks';
+import { PhoneIcon } from '../common/Icons';
 
 export default function Footer() {
   const { getSetting } = useSiteSettings();
@@ -73,8 +74,8 @@ export default function Footer() {
               </a>
             )}
             {contactPhone && (
-              <a href={`tel:${contactPhone.replace(/\s+/g, '')}`} className="planning-brand-phone">
-                📞 {contactPhone}
+              <a href={`tel:${contactPhone.replace(/\s+/g, '')}`} className="planning-brand-phone" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                <PhoneIcon size={14} /> {contactPhone}
               </a>
             )}
           </div>

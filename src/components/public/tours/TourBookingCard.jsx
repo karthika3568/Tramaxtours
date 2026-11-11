@@ -1,3 +1,4 @@
+import { CalendarIcon, CheckCircleIcon, CheckIcon, ClockIcon, PhoneIcon, PrintIcon, UserIcon, WhatsAppIcon, XCircleIcon, XIcon, ZapIcon } from '../../common/Icons';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -5,6 +6,7 @@ import bookingService from '../../../services/bookingService';
 import { useToast } from '../../../context/ToastContext';
 import { useSiteSettings } from '../../../context/SiteSettingsContext';
 import useAuth from '../../../hooks/useAuth';
+
 import { formatWhatsAppUrl, getCleanWhatsAppNumber } from '../../../utils/whatsapp';
 import TripRequestForm from '../planner/TripRequestForm';
 
@@ -186,8 +188,8 @@ export default function TourBookingCard({ tour }) {
       <div className="booking-widget-body">
         {/* Date Selector */}
         <div className="booking-field-group">
-          <label htmlFor="booking-date" className="booking-field-label">
-            <span className="label-icon">📅</span> Select Travel Date:
+          <label htmlFor="booking-date" className="booking-field-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <CalendarIcon size={14} color="#01aa90" /> Select Travel Date:
           </label>
           {usesDateAvailability ? (
             <select
@@ -222,7 +224,7 @@ export default function TourBookingCard({ tour }) {
         {/* Time Slot Selector */}
         <div className="booking-field-group">
           <label htmlFor="booking-time" className="booking-field-label">
-            <span className="label-icon">⏱️</span> Select Time Slot:
+            <span className="label-icon"><ClockIcon size={13} /></span> Select Time Slot:
           </label>
           <select
             id="booking-time"
@@ -318,7 +320,7 @@ export default function TourBookingCard({ tour }) {
           {isFull ? (
             <div className="alert-box-full" style={{ padding: '14px', borderRadius: '10px', background: '#fee2e2', border: '1px solid #fca5a5', textAlign: 'center', marginBottom: '10px' }}>
               <strong style={{ color: '#b91c1c', display: 'block', fontSize: '14px' }}>
-                {usesDateAvailability ? '🔴 Selected Date Unavailable' : '🔴 Fully Booked / Closed'}
+                {usesDateAvailability ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><XCircleIcon size={13} color='#ef4444' /> Selected Date Unavailable</span> : <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><XCircleIcon size={13} color='#ef4444' /> Fully Booked / Closed</span>}
               </strong>
               <span style={{ fontSize: '12px', color: '#7f1d1d' }}>
                 {usesDateAvailability
@@ -330,7 +332,7 @@ export default function TourBookingCard({ tour }) {
             <>
               {isLowSeats && (
                 <div className="alert-box-low-seats" style={{ padding: '8px 12px', borderRadius: '8px', background: '#fef3c7', border: '1px solid #fde68a', textAlign: 'center', marginBottom: '8px', fontSize: '12.5px', color: '#92400e', fontWeight: 600 }}>
-                  ⚡ Only {seatsLeft} seats left for this date
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><ZapIcon size={13} color="#f59e0b" /> Only {seatsLeft} seats left for this date</span>
                 </div>
               )}
               <button
@@ -339,7 +341,7 @@ export default function TourBookingCard({ tour }) {
                 className="btn btn-primary btn-block widget-book-btn"
                 style={{ textAlign: 'center', cursor: 'pointer', fontWeight: 800, fontSize: '15px' }}
               >
-                ⚡ Instant Reservation &rarr;
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><ZapIcon size={14} /> Instant Reservation &rarr;</span>
               </button>
             </>
           )}
@@ -350,7 +352,7 @@ export default function TourBookingCard({ tour }) {
             rel="noopener noreferrer"
             className="btn btn-whatsapp btn-block"
           >
-            💬 Inquire on WhatsApp
+            <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><WhatsAppIcon size={14} /> Inquire on WhatsApp</span>
           </a>
         </div>
 
@@ -366,7 +368,7 @@ export default function TourBookingCard({ tour }) {
             fontSize: '13px'
           }}>
             <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>📞</span> Organizer Direct Contact
+              <PhoneIcon size={14} color="#01aa90" /> Organizer Direct Contact
             </div>
             {(tour?.organizer_email || tour?.metadata?.organizer_email) && (
               <div style={{ color: '#475569', marginBottom: '4px' }}>
@@ -394,9 +396,9 @@ export default function TourBookingCard({ tour }) {
 
         {/* Trust Badges */}
         <div className="booking-trust-badges">
-          <div className="trust-badge-line">✓ Instant Confirmation & Voucher</div>
-          <div className="trust-badge-line">✓ Private AC Vehicle & Chauffeur Guide</div>
-          <div className="trust-badge-line">✓ Free Cancellation up to 48 Hours</div>
+          <div className="trust-badge-line" style={{ display: "flex", alignItems: "center", gap: "6px" }}><CheckIcon size={13} color="#01aa90" /> Instant Confirmation & Voucher</div>
+          <div className="trust-badge-line" style={{ display: "flex", alignItems: "center", gap: "6px" }}><CheckIcon size={13} color="#01aa90" /> Private AC Vehicle & Chauffeur Guide</div>
+          <div className="trust-badge-line" style={{ display: "flex", alignItems: "center", gap: "6px" }}><CheckIcon size={13} color="#01aa90" /> Free Cancellation up to 48 Hours</div>
         </div>
       </div>
 
@@ -455,15 +457,13 @@ export default function TourBookingCard({ tour }) {
                 }}
                 aria-label="Close dialog"
                 style={{ fontSize: '20px', background: 'none', border: 'none', cursor: 'pointer' }}
-              >
-                ✕
-              </button>
+               aria-label="Close"><XIcon size={18} /></button>
             </div>
 
             <div className="admin-modal-body">
               {bookingSuccess ? (
                 <div className="booking-success-box text-center" style={{ padding: '24px 12px' }}>
-                  <div className="success-icon-big" style={{ fontSize: '52px', marginBottom: '12px' }}>📋</div>
+                  <div className="success-icon-big" style={{ marginBottom: "12px", display: "flex", justifyContent: "center" }}><CheckCircleIcon size={48} color="#01aa90" /></div>
                   <h4 className="success-title" style={{ fontSize: '22px', fontWeight: '800', color: '#01aa90', margin: '0 0 8px' }}>
                     Booking Request Received!
                   </h4>
@@ -509,7 +509,7 @@ export default function TourBookingCard({ tour }) {
                       onClick={handlePrintSummary}
                       title="Print or Save Summary via browser"
                     >
-                      🖨️ Print Request Summary
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><PrintIcon size={14} /> Print Request Summary</span>
                     </button>
                     <button
                       type="button"
@@ -518,7 +518,7 @@ export default function TourBookingCard({ tour }) {
                       style={{ background: '#16a34a', borderColor: '#16a34a' }}
                       title="Message us on WhatsApp"
                     >
-                      💬 Chat on WhatsApp
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><WhatsAppIcon size={14} /> Chat on WhatsApp</span>
                     </button>
                   </div>
 
@@ -533,7 +533,7 @@ export default function TourBookingCard({ tour }) {
                       onClick={() => setShowBookingModal(false)}
                       style={{ marginTop: '8px' }}
                     >
-                      👤 View in My Bookings &rarr;
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><UserIcon size={14} /> View in My Bookings &rarr;</span>
                     </Link>
                   )}
                 </div>

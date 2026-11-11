@@ -1,3 +1,4 @@
+import { GlobeIcon, ImageIcon } from '../../../components/common/Icons';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MediaPickerModal from '../media/MediaPickerModal';
@@ -452,7 +453,7 @@ export default function DestinationForm({
                   </div>
                 ) : (
                   <div className="empty-media-box">
-                    <span>🖼️ No Image Selected</span>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><ImageIcon size={15} /> No Image Selected</span>
                   </div>
                 )}
               </div>
@@ -497,7 +498,7 @@ export default function DestinationForm({
                   </div>
                 ) : (
                   <div className="empty-media-box">
-                    <span>🌄 No Intro Media Selected</span>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><ImageIcon size={15} /> No Intro Media Selected</span>
                   </div>
                 )}
               </div>
@@ -542,7 +543,7 @@ export default function DestinationForm({
                   </div>
                 ) : (
                   <div className="empty-media-box">
-                    <span>🌐 No Social Image Selected</span>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><GlobeIcon size={15} /> No Social Image Selected</span>
                   </div>
                 )}
               </div>

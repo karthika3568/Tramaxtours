@@ -11,20 +11,14 @@ class AuditService
     /**
      * Log an administrative, security, or domain action into audit_logs.
      *
-     * @param int|null $userId
-     * @param string $action
-     * @param string $entityType
-     * @param int|null $entityId
-     * @param array|null $oldValues
-     * @param array|null $newValues
-     * @param string|null $ipAddress
-     * @param string|null $userAgent
-     * @return bool
+     * Supports both signatures:
+     * - log(?int $userId, string $action, string $entityType, ?int $entityId, ?array $oldValues, ?array $newValues)
+     * - log(string $action, string $entityType, ?int $entityId, ?array $oldValues, ?array $newValues)
      */
     public static function log(
-        ?int $userId,
-        string $action,
-        string $entityType,
+        $userId,
+        string $action = '',
+        string $entityType = '',
         ?int $entityId = null,
         ?array $oldValues = null,
         ?array $newValues = null,
@@ -32,6 +26,17 @@ class AuditService
         ?string $userAgent = null
     ): bool {
         try {
+            if (is_string($userId)) {
+                // Shift arguments when userId was omitted
+                $newValues = $oldValues;
+                $oldValues = is_array($entityId) ? $entityId : null;
+                $entityId = is_numeric($entityType) ? (int) $entityType : null;
+                $entityType = $action ?: 'system';
+                $action = $userId;
+                $userId = Request::getUserId();
+            } else {
+                $userId = $userId ? (int) $userId : Request::getUserId();
+            }
             $pdo = Database::getConnection();
 
             $ip = $ipAddress ?? Request::getClientIp();

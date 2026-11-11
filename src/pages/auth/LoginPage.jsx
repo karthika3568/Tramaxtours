@@ -1,3 +1,4 @@
+import { EyeIcon, KeyIcon, LockIcon, MailIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -5,6 +6,7 @@ import { useToast } from '../../context/ToastContext';
 import { updatePageMeta } from '../../utils/metadata';
 import Button from '../../components/ui/Button';
 import { ADMIN_ROLES } from '../../utils/roles';
+
 
 export default function LoginPage() {
   const { login, isAuthenticated, isLoading: isAuthLoading, role, roles } = useAuth();
@@ -137,7 +139,7 @@ export default function LoginPage() {
                 Email Address <span className="text-danger">*</span>
               </label>
               <div className="input-with-icon">
-                <span className="input-leading-icon" aria-hidden="true">✉️</span>
+                <span className="input-leading-icon" aria-hidden="true"><MailIcon size={16} /></span>
                 <input
                   id="email"
                   name="email"
@@ -166,7 +168,7 @@ export default function LoginPage() {
                 </label>
               </div>
               <div className="password-input-wrapper">
-                <span className="input-leading-icon" aria-hidden="true">🔑</span>
+                <span className="input-leading-icon" aria-hidden="true"><KeyIcon size={16} /></span>
                 <input
                   id="password"
                   name="password"
@@ -185,8 +187,9 @@ export default function LoginPage() {
                   className="password-toggle-btn"
                   onClick={() => setShowPassword((prev) => !prev)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
-                  {showPassword ? '👁️' : '🔒'}
+                  {showPassword ? <EyeIcon size={16} /> : <LockIcon size={16} />}
                 </button>
               </div>
               {fieldErrors.password && (

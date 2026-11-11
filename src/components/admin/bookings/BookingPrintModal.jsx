@@ -1,3 +1,6 @@
+import { PrintIcon, XIcon } from '../../../components/common/Icons';
+
+
 export default function BookingPrintModal({ booking, isOpen, onClose }) {
   if (!isOpen || !booking) return null;
 
@@ -13,19 +16,17 @@ export default function BookingPrintModal({ booking, isOpen, onClose }) {
       >
         {/* Modal Controls (Hidden in Print) */}
         <div className="modal-header no-print">
-          <h2 className="modal-title">🖨️ Printable Order / Voucher</h2>
+          <h2 className="modal-title" style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}><PrintIcon size={20} /> Printable Order / Voucher</h2>
           <div className="print-controls-right">
             <button type="button" className="btn btn-primary btn-sm" onClick={handlePrint}>
-              Print Now 🖨️
+              Print Now
             </button>
             <button
               type="button"
               className="modal-close-btn"
               onClick={onClose}
               aria-label="Close modal"
-            >
-              ✕
-            </button>
+            ><XIcon size={14} /></button>
           </div>
         </div>
 
@@ -167,7 +168,7 @@ export default function BookingPrintModal({ booking, isOpen, onClose }) {
         {/* Modal Footer (Hidden in Print) */}
         <div className="modal-footer no-print">
           <button type="button" className="btn btn-primary" onClick={handlePrint}>
-            Print / Save PDF 🖨️
+            Print / Save PDF
           </button>
           <button type="button" className="btn btn-outline" onClick={onClose}>
             Close

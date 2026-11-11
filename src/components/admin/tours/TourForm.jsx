@@ -1,3 +1,4 @@
+import { CalendarIcon, GlobeIcon, ImageIcon, SparklesIcon, TagIcon, UsersIcon } from '../../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MediaPickerModal from '../media/MediaPickerModal';
@@ -7,6 +8,7 @@ import TourItineraryManager from './TourItineraryManager';
 import TourPricingManager from './TourPricingManager';
 import TourAvailabilityManager from './TourAvailabilityManager';
 import TourPlacesManager from './TourPlacesManager';
+import TourExtrasManager from './TourExtrasManager';
 import { getMediaUrl } from '../../../utils/media';
 import destinationService from '../../../services/destinationService';
 import tourService, { ALLOWED_TOUR_TYPES } from '../../../services/tourService';
@@ -725,7 +727,7 @@ export default function TourForm({
             {/* Live Tour Card Badge Preview */}
             <div style={{ marginTop: '16px', padding: '12px 16px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #cbd5e1' }}>
               <span style={{ fontSize: '12px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
-                🏷️ Live Tour Card Badges Preview:
+                Live Tour Card Badges Preview:
               </span>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                 {selectedCategories.length === 0 ? (
@@ -754,7 +756,7 @@ export default function TourForm({
                           boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                         }}
                       >
-                        {isOneDay ? '☀️' : '✨'} {catName}
+                        {catName}
                       </span>
                     );
                   })
@@ -906,7 +908,7 @@ export default function TourForm({
             {/* Total Capacity Seats */}
             <div className="form-group">
               <label htmlFor="tour-total-seats" className="form-label">
-                💺 Total Tour Capacity (Seats)
+                Total Tour Capacity (Seats)
               </label>
               <input
                 type="number"
@@ -923,7 +925,7 @@ export default function TourForm({
             {/* Available Remaining Seats */}
             <div className="form-group">
               <label htmlFor="tour-available-seats" className="form-label">
-                🎟️ Remaining Available Seats
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}><UsersIcon size={14} /> Remaining Available Seats</span>
               </label>
               <input
                 type="number"
@@ -957,7 +959,7 @@ export default function TourForm({
             {/* Departure Days */}
             <div className="form-group">
               <label htmlFor="tour-travel-days" className="form-label">
-                🗓️ Departure / Operating Schedule
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}><CalendarIcon size={14} /> Departure / Operating Schedule</span>
               </label>
               <input
                 type="text"
@@ -1037,7 +1039,7 @@ export default function TourForm({
                   </div>
                 ) : (
                   <div className="empty-media-box">
-                    <span>🖼️ No Featured Image Selected</span>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}><ImageIcon size={14} /> No Featured Image Selected</span>
                   </div>
                 )}
               </div>
@@ -1082,7 +1084,7 @@ export default function TourForm({
                   </div>
                 ) : (
                   <div className="empty-media-box">
-                    <span>🌐 No Social Image Selected</span>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}><GlobeIcon size={14} /> No Social Image Selected</span>
                   </div>
                 )}
               </div>

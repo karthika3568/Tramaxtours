@@ -1,3 +1,4 @@
+import { ClockIcon, MailIcon, MapPinIcon, PhoneIcon } from '../../common/Icons';
 import { useSiteSettings } from '../../../context/SiteSettingsContext';
 import SocialLinks from '../SocialLinks';
 
@@ -15,7 +16,7 @@ export default function ContactInfo({ className = '' }) {
       <div className="contact-info-cards-grid">
         {/* Phone Card */}
         <div className="contact-card">
-          <div className="contact-card-icon" aria-hidden="true">📞</div>
+          <div className="contact-card-icon" aria-hidden="true"><PhoneIcon size={22} color="#01aa90" /></div>
           <div className="contact-card-content">
             <span className="contact-card-label">Direct Line / WhatsApp</span>
             <a href={`tel:${phone.replace(/\s+/g, '')}`} className="contact-card-value contact-link">
@@ -27,7 +28,7 @@ export default function ContactInfo({ className = '' }) {
 
         {/* Email Card */}
         <div className="contact-card">
-          <div className="contact-card-icon" aria-hidden="true">✉️</div>
+          <div className="contact-card-icon" aria-hidden="true"><MailIcon size={22} color="#01aa90" /></div>
           <div className="contact-card-content">
             <span className="contact-card-label">General & Tour Inquiries</span>
             <a href={`mailto:${email}`} className="contact-card-value contact-link">
@@ -39,7 +40,7 @@ export default function ContactInfo({ className = '' }) {
 
         {/* Address Card */}
         <div className="contact-card">
-          <div className="contact-card-icon" aria-hidden="true">📍</div>
+          <div className="contact-card-icon" aria-hidden="true"><MapPinIcon size={22} color="#01aa90" /></div>
           <div className="contact-card-content">
             <span className="contact-card-label">Head Office</span>
             <p className="contact-card-value text-normal">{address}</p>
@@ -51,7 +52,7 @@ export default function ContactInfo({ className = '' }) {
 
         {/* Hours Card */}
         <div className="contact-card">
-          <div className="contact-card-icon" aria-hidden="true">⏱️</div>
+          <div className="contact-card-icon" aria-hidden="true"><ClockIcon size={22} color="#01aa90" /></div>
           <div className="contact-card-content">
             <span className="contact-card-label">Business Hours</span>
             <p className="contact-card-value text-normal">{businessHours}</p>

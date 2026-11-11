@@ -1,3 +1,6 @@
+import { SearchIcon, XIcon } from '../../../components/common/Icons';
+
+
 export default function PageFilters({
   search,
   onSearchChange,
@@ -20,9 +23,7 @@ export default function PageFilters({
       {/* Search Input */}
       <div className="dest-search-group">
         <div className="dest-search-wrapper">
-          <span className="search-icon" aria-hidden="true">
-            🔍
-          </span>
+          <span className="search-icon" aria-hidden="true"><SearchIcon size={13} /></span>
           <input
             type="text"
             className="dest-search-input"
@@ -37,9 +38,7 @@ export default function PageFilters({
               className="search-clear-btn"
               onClick={() => onSearchChange('')}
               aria-label="Clear search query"
-            >
-              ✕
-            </button>
+            ><XIcon size={14} /></button>
           )}
         </div>
       </div>

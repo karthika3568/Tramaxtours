@@ -2,3 +2,4 @@
 -- Per user request: Entire "Diseases Screened" concept removed from medical trips.
 
 DROP TABLE IF EXISTS `medical_trip_diseases`;
+

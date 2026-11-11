@@ -1,8 +1,10 @@
+import { CompassIcon, SaveIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import siteSettingsService from '../../services/siteSettingsService';
 import { useToast } from '../../context/ToastContext';
 import { updatePageMeta } from '../../utils/metadata';
+
 import MediaPickerModal from '../../components/admin/media/MediaPickerModal';
 import Loading from '../../components/ui/Loading';
 import { getMediaUrl } from '../../utils/media';
@@ -122,10 +124,10 @@ export default function AdminSettingsPage() {
         </div>
         <div className="admin-header-actions">
           <Link to="/admin/website/navigation" className="btn btn-outline btn-sm">
-            🧭 Header &amp; Nav Manager
+            Header & Nav Manager
           </Link>
           <Link to="/admin/social-links" className="btn btn-outline btn-sm">
-            📱 Social Channels
+            Social Channels
           </Link>
         </div>
       </div>
@@ -134,7 +136,7 @@ export default function AdminSettingsPage() {
         {/* Brand & Identity Box */}
         <div className="admin-box-card" style={{ marginBottom: '24px' }}>
           <div className="admin-box-header">
-            <h3 className="admin-box-title">🏢 Brand &amp; Identity</h3>
+            <h3 className="admin-box-title">Brand & Identity</h3>
           </div>
           <div className="form-grid-2col">
             <div className="form-group">
@@ -187,7 +189,7 @@ export default function AdminSettingsPage() {
                 className="btn btn-outline btn-sm"
                 onClick={() => setIsMediaPickerOpen(true)}
               >
-                🖼️ {settings.site_logo_url ? 'Change Logo' : 'Select Logo'}
+                {settings.site_logo_url ? 'Change Logo' : 'Select Logo'}
               </button>
             </div>
           </div>
@@ -196,7 +198,7 @@ export default function AdminSettingsPage() {
         {/* Contact & Support Information Box */}
         <div className="admin-box-card" style={{ marginBottom: '24px' }}>
           <div className="admin-box-header">
-            <h3 className="admin-box-title">📞 Contact &amp; Support Details</h3>
+            <h3 className="admin-box-title">Contact & Support Details</h3>
           </div>
           <div className="form-grid-2col">
             <div className="form-group">
@@ -268,7 +270,7 @@ export default function AdminSettingsPage() {
         {/* Travel Planning Footer CMS Content Box */}
         <div className="admin-box-card" style={{ marginBottom: '24px' }}>
           <div className="admin-box-header">
-            <h3 className="admin-box-title">🌴 Travel Planning Footer Showcase (Live CMS)</h3>
+            <h3 className="admin-box-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CompassIcon size={18} color="#01aa90" /> Travel Planning Footer Showcase (Live CMS)</h3>
           </div>
           <p className="admin-box-desc" style={{ fontSize: '13px', color: '#64748b', marginBottom: '18px' }}>
             Customize the prominent Travel Planning Services showcase footer displayed across all pages of your website.
@@ -391,7 +393,7 @@ export default function AdminSettingsPage() {
         {/* Submit Actions */}
         <div className="admin-form-actions-bar" style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
           <button type="submit" className="btn btn-primary btn-lg" disabled={saving}>
-            {saving ? 'Saving Settings...' : '💾 Save Global Settings'}
+            {saving ? 'Saving Settings...' : <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><SaveIcon size={14} /> Save Global Settings</span>}
           </button>
         </div>
       </form>

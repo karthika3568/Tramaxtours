@@ -1,3 +1,4 @@
+import { AlertTriangleIcon, MessageSquareIcon, XIcon } from '../../../components/common/Icons';
 import { useState } from 'react';
 import Modal from '../../ui/Modal';
 
@@ -29,13 +30,11 @@ export default function ReviewDeleteModal({
       size="sm"
     >
       <div className="dest-delete-modal-content">
-        <div className="dest-delete-warning-icon" aria-hidden="true">
-          ⚠️
-        </div>
+        <div className="dest-delete-warning-icon" aria-hidden="true"><AlertTriangleIcon size={20} color="#f59e0b" /></div>
 
         <div className="dest-delete-target-card">
           <div className="dest-delete-mini-thumb">
-            <span style={{ fontSize: '1.5rem' }}>💬</span>
+            <MessageSquareIcon size={24} color='#01aa90' />
           </div>
           <div className="dest-delete-target-info">
             <strong className="dest-target-name">{review.customer_name}</strong>
@@ -52,7 +51,7 @@ export default function ReviewDeleteModal({
 
         <div className="review-delete-snippet-box">
           <div className="review-delete-rating">
-            {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)} ({review.rating}.0)
+            {review.rating}.0 / 5.0
           </div>
           <p className="review-delete-text">&quot;{review.content?.substring(0, 120)}...&quot;</p>
         </div>

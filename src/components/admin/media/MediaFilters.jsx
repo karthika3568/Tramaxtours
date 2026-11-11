@@ -1,3 +1,6 @@
+import { SearchIcon, XIcon } from '../../../components/common/Icons';
+
+
 export default function MediaFilters({
   search,
   onSearchChange,
@@ -13,7 +16,7 @@ export default function MediaFilters({
     <div className="media-filters-toolbar">
       {/* Search Input */}
       <div className="media-search-group">
-        <span className="search-icon" aria-hidden="true">🔍</span>
+        <span className="search-icon" aria-hidden="true"><SearchIcon size={15} /></span>
         <input
           type="text"
           className="media-search-input"
@@ -28,9 +31,7 @@ export default function MediaFilters({
             className="clear-search-btn"
             onClick={() => onSearchChange('')}
             aria-label="Clear search text"
-          >
-            ✕
-          </button>
+          ><XIcon size={14} /></button>
         )}
       </div>
 

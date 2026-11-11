@@ -1,13 +1,15 @@
+import { AwardIcon, CompassIcon, EditIcon, GlobeIcon, ShieldCheckIcon, StarIcon, TrashIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import homeBenefitsService from '../../services/homeBenefitsService';
 import { useToast } from '../../context/ToastContext';
+
 import { updatePageMeta } from '../../utils/metadata';
 import Modal from '../../components/ui/Modal';
 import Loading from '../../components/ui/Loading';
 import EmptyState from '../../components/ui/EmptyState';
 
-const COMMON_ICONS = ['🛡️', '⭐', '🧭', '🌍', '💎', '✈️', '🏝️', '🏆', '🌿', '🤝', '🛎️', '🚗'];
+const COMMON_ICONS = ['shield', 'star', 'compass', 'globe', 'sparkles', 'plane', 'map', 'trophy', 'mountain', 'award', 'hotel', 'car'];
 
 export default function AdminHomeBenefitsPage() {
   const toast = useToast();
@@ -22,7 +24,7 @@ export default function AdminHomeBenefitsPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    icon: '⭐',
+    icon: 'star',
     display_order: 0,
     status: 'active',
   });
@@ -66,7 +68,7 @@ export default function AdminHomeBenefitsPage() {
     setFormData({
       title: '',
       description: '',
-      icon: '⭐',
+      icon: 'star',
       display_order: benefits.length + 1,
       status: 'active',
     });
@@ -78,7 +80,7 @@ export default function AdminHomeBenefitsPage() {
     setFormData({
       title: benefit.title || '',
       description: benefit.description || '',
-      icon: benefit.icon || '⭐',
+      icon: benefit.icon || 'star',
       display_order: benefit.display_order ?? 0,
       status: benefit.status || 'active',
     });
@@ -97,7 +99,7 @@ export default function AdminHomeBenefitsPage() {
       const payload = {
         title: formData.title.trim(),
         description: formData.description.trim(),
-        icon: formData.icon.trim() || '⭐',
+        icon: formData.icon.trim() || 'star',
         display_order: Number(formData.display_order) || 0,
         status: formData.status,
       };
@@ -228,7 +230,7 @@ export default function AdminHomeBenefitsPage() {
         <Loading message="Loading Homepage Benefit Cards..." />
       ) : benefits.length === 0 ? (
         <EmptyState
-          icon="⭐"
+          icon="star"
           title="No Benefits Configured"
           description="Highlight why travelers choose Wonderer South India with luxury guarantee cards."
           actionText="+ Create First Benefit"
@@ -242,7 +244,7 @@ export default function AdminHomeBenefitsPage() {
               className={`visual-benefit-card ${benefit.status === 'inactive' ? 'is-inactive' : ''}`}
             >
               <div className="benefit-card-top">
-                <div className="benefit-icon-badge">{benefit.icon || '⭐'}</div>
+                <div className="benefit-icon-badge" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><StarIcon size={20} color="#01aa90" /></div>
                 <div className="benefit-meta-right">
                   <span className="order-badge">#{index + 1} • Seq: {benefit.display_order}</span>
                   <span className={`status-badge-luxury ${benefit.status === 'active' ? 'status-active' : 'status-inactive'}`}>
@@ -291,15 +293,13 @@ export default function AdminHomeBenefitsPage() {
                     className="btn-action-pill btn-action-edit"
                     onClick={() => handleOpenEdit(benefit)}
                   >
-                    ✎ Edit
+                    Edit
                   </button>
                   <button
                     type="button"
                     className="btn-action-pill btn-action-delete"
                     onClick={() => handleDelete(benefit)}
-                  >
-                    🗑
-                  </button>
+                  ><TrashIcon size={13} /></button>
                 </div>
               </div>
             </div>

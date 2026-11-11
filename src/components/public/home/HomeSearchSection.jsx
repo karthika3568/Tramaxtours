@@ -1,6 +1,8 @@
+import { CalendarIcon, ClockIcon, CompassIcon, MapPinIcon, SearchIcon } from '../../common/Icons';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../context/LanguageContext';
+
 
 export default function HomeSearchSection() {
   const navigate = useNavigate();
@@ -27,8 +29,8 @@ export default function HomeSearchSection() {
         <form onSubmit={handleSearchSubmit} className="home-search-widget-bar">
           {/* Destination Field */}
           <div className="search-widget-col">
-            <label htmlFor="search-dest-select" className="search-widget-label">
-              <span className="widget-label-icon">📍</span> WHERE TO?
+            <label htmlFor="search-dest-select" className="search-widget-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <MapPinIcon size={14} color="#01aa90" /> <span>WHERE TO?</span>
             </label>
             <div className="search-select-wrapper">
               <select
@@ -52,8 +54,8 @@ export default function HomeSearchSection() {
 
           {/* Tour Category Field */}
           <div className="search-widget-col">
-            <label htmlFor="search-cat-select" className="search-widget-label">
-              <span className="widget-label-icon">🧭</span> TOUR TYPE
+            <label htmlFor="search-cat-select" className="search-widget-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <CompassIcon size={14} color="#01aa90" /> <span>TOUR TYPE</span>
             </label>
             <div className="search-select-wrapper">
               <select
@@ -77,8 +79,8 @@ export default function HomeSearchSection() {
 
           {/* Travel Date Field */}
           <div className="search-widget-col">
-            <label htmlFor="search-date-picker" className="search-widget-label">
-              <span className="widget-label-icon">📅</span> TRAVEL DATE
+            <label htmlFor="search-date-picker" className="search-widget-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <CalendarIcon size={14} color="#01aa90" /> <span>TRAVEL DATE</span>
             </label>
             <input
               id="search-date-picker"
@@ -91,8 +93,8 @@ export default function HomeSearchSection() {
 
           {/* Duration Field */}
           <div className="search-widget-col">
-            <label htmlFor="search-dur-select" className="search-widget-label">
-              <span className="widget-label-icon">⏱️</span> DURATION
+            <label htmlFor="search-dur-select" className="search-widget-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <ClockIcon size={14} color="#01aa90" /> <span>DURATION</span>
             </label>
             <div className="search-select-wrapper">
               <select
@@ -112,8 +114,9 @@ export default function HomeSearchSection() {
 
           {/* Submit Action Button */}
           <div className="search-widget-btn-col">
-            <button type="submit" className="btn-home-search-submit">
-              <span className="search-icon-symbol">🔍</span> {t('search_btn', 'Find Tours')}
+            <button type="submit" className="btn-home-search-submit" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              <SearchIcon size={15} color="#ffffff" />
+              <span>{t('search_btn', 'Find Tours')}</span>
             </button>
           </div>
         </form>

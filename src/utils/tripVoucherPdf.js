@@ -176,7 +176,7 @@ export function printTripVoucher(data, siteSettings = {}) {
 <body>
   <div class="no-print" style="background: #0B1329; color: #fff; padding: 12px 20px; margin-bottom: 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center;">
     <div><strong>Ready to Print or Save as PDF:</strong> Click the button on the right or press Ctrl+P.</div>
-    <button onclick="window.print()" style="background: #01aa90; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 800; cursor: pointer;">🖨️ Print / Save PDF</button>
+    <button onclick="window.print()" style="background: #01aa90; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 800; cursor: pointer;">Print / Save PDF</button>
   </div>
 
   <div class="voucher-header">
@@ -184,7 +184,7 @@ export function printTripVoucher(data, siteSettings = {}) {
       <h1 class="brand-title">${siteName}</h1>
       <div class="brand-tagline">Customized Tours • Verified Chauffeurs • South India Packages</div>
       <div style="font-size: 11px; color: #475569; margin-top: 4px;">
-        📞 ${sitePhone} | 💬 WhatsApp: ${siteWhatsApp} | ✉️ ${siteEmail}
+        Tel: ${sitePhone} | WhatsApp: ${siteWhatsApp} | Email: ${siteEmail}
       </div>
     </div>
     <div class="voucher-ref-box">
@@ -196,7 +196,7 @@ export function printTripVoucher(data, siteSettings = {}) {
 
   <!-- SECTION 1: CUSTOMER & CONTACT INFORMATION -->
   <div class="section-box">
-    <div class="section-title">👤 1. Guest &amp; Contact Details</div>
+    <div class="section-title">1. Guest &amp; Contact Details</div>
     <div class="grid-3">
       <div>
         <span class="field-label">Full Name:</span>
@@ -227,7 +227,7 @@ export function printTripVoucher(data, siteSettings = {}) {
 
   <!-- SECTION 2: DESTINATION & DATES -->
   <div class="section-box">
-    <div class="section-title">📍 2. Destination, Schedule &amp; Party</div>
+    <div class="section-title">2. Destination, Schedule &amp; Party</div>
     <div class="grid-3">
       <div>
         <span class="field-label">Requested Destination(s):</span>
@@ -258,7 +258,7 @@ export function printTripVoucher(data, siteSettings = {}) {
 
   <!-- SECTION 3: TRANSPORTATION & FLIGHT SCHEDULE -->
   <div class="section-box">
-    <div class="section-title">🚗 3. Chauffeur Vehicle &amp; Flight Schedules</div>
+    <div class="section-title">3. Chauffeur Vehicle &amp; Flight Schedules</div>
     <div class="grid-3">
       <div>
         <span class="field-label">Vehicle Preference:</span>
@@ -266,7 +266,7 @@ export function printTripVoucher(data, siteSettings = {}) {
       </div>
       <div>
         <span class="field-label">Airport Transfers:</span>
-        <span class="field-value">${data.airport_pickup ? '✓ Pickup' : ''} ${data.airport_drop ? '✓ Drop' : ''}</span>
+        <span class="field-value">${data.airport_pickup ? 'Pickup' : ''} ${data.airport_drop ? 'Drop' : ''}</span>
       </div>
       <div>
         <span class="field-label">Guide Required:</span>
@@ -289,7 +289,7 @@ export function printTripVoucher(data, siteSettings = {}) {
 
   <!-- SECTION 4: ACCOMMODATION & BUDGET -->
   <div class="section-box">
-    <div class="section-title">🏨 4. Accommodation &amp; Budget Preference</div>
+    <div class="section-title">4. Accommodation &amp; Budget Preference</div>
     <div class="grid-3">
       <div>
         <span class="field-label">Hotel Category:</span>
@@ -316,7 +316,7 @@ export function printTripVoucher(data, siteSettings = {}) {
 
   ${data.message || data.special_requests ? `
   <div class="section-box" style="margin-top: 10px;">
-    <div class="section-title">📝 Special Requests &amp; Sightseeing Notes</div>
+    <div class="section-title">Special Requests &amp; Sightseeing Notes</div>
     <div style="font-size: 12px; color: #334155; line-height: 1.6;">${data.message || data.special_requests}</div>
   </div>
   ` : ''}

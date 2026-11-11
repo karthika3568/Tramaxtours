@@ -1,6 +1,7 @@
 import { useSiteSettings } from '../../../context/SiteSettingsContext';
 import { formatWhatsAppUrl } from '../../../utils/whatsapp';
 import SocialLinks from '../SocialLinks';
+import { PhoneIcon } from '../../common/Icons';
 
 export default function TravelPlanningSection() {
   const { getSetting } = useSiteSettings();
@@ -58,8 +59,8 @@ export default function TravelPlanningSection() {
               {contactEmail}
             </a>
             {contactPhone && (
-              <a href={`tel:${contactPhone.replace(/\s+/g, '')}`} className="planning-brand-phone">
-                📞 {contactPhone}
+              <a href={`tel:${contactPhone.replace(/\s+/g, '')}`} className="planning-brand-phone" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <PhoneIcon size={14} /> <span>{contactPhone}</span>
               </a>
             )}
           </div>

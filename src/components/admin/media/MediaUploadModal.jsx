@@ -1,3 +1,4 @@
+import { AlertTriangleIcon, FileTextIcon, FolderIcon, XIcon } from '../../../components/common/Icons';
 import { useState, useRef } from 'react';
 import Modal from '../../ui/Modal';
 import mediaService from '../../../services/mediaService';
@@ -96,7 +97,7 @@ export default function MediaUploadModal({ isOpen, onClose, onUploadSuccess }) {
       <form onSubmit={handleSubmit} className="media-upload-form">
         {uploadError && (
           <div className="upload-error-alert" role="alert">
-            <span className="error-icon" aria-hidden="true">⚠️</span>
+            <AlertTriangleIcon size={16} color="#dc2626" />
             <span>{uploadError}</span>
           </div>
         )}
@@ -118,7 +119,7 @@ export default function MediaUploadModal({ isOpen, onClose, onUploadSuccess }) {
               {previewUrl ? (
                 <img src={previewUrl} alt="Upload preview" className="selected-img-preview" />
               ) : (
-                <div className="selected-doc-icon">📄</div>
+                <div className="selected-doc-icon"><FileTextIcon size={24} /></div>
               )}
               <div className="selected-meta-info">
                 <span className="selected-filename">{selectedFile.name}</span>
@@ -137,7 +138,7 @@ export default function MediaUploadModal({ isOpen, onClose, onUploadSuccess }) {
             </div>
           ) : (
             <label htmlFor="media-file-input" className="upload-dropzone-label">
-              <div className="dropzone-icon" aria-hidden="true">📁</div>
+              <div className="dropzone-icon" aria-hidden="true"><FolderIcon size={36} color="#01aa90" /></div>
               <span className="dropzone-prompt">
                 <strong>Click to browse</strong> or drag & drop file here
               </span>

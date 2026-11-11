@@ -203,7 +203,8 @@ class MedicalTripController extends BaseController
         try {
             $id = MedicalTrip::create($body);
             $newTrip = MedicalTrip::findById($id, true);
-            AuditService::log('medical_trip.create', 'medical_trips', $id, null, ['title' => $body['title']]);
+            $userId = Request::getUserId();
+            AuditService::log($userId, 'medical_trip_create', 'medical_trips', $id, null, ['title' => $body['title'] ?? '']);
 
             $this->success($newTrip, 'Medical trip package created successfully!', 201);
         } catch (Throwable $e) {
@@ -229,7 +230,8 @@ class MedicalTripController extends BaseController
         try {
             MedicalTrip::update($tripId, $body);
             $updated = MedicalTrip::findById($tripId, true);
-            AuditService::log('medical_trip.update', 'medical_trips', $tripId, null, $body);
+            $userId = Request::getUserId();
+            AuditService::log($userId, 'medical_trip_update', 'medical_trips', $tripId, null, $body);
 
             $this->success($updated, 'Medical trip package updated successfully!');
         } catch (Throwable $e) {
@@ -252,7 +254,8 @@ class MedicalTripController extends BaseController
 
         try {
             MedicalTrip::delete($tripId);
-            AuditService::log('medical_trip.delete', 'medical_trips', $tripId, $existing, null);
+            $userId = Request::getUserId();
+            AuditService::log($userId, 'medical_trip_delete', 'medical_trips', $tripId, $existing, null);
             $this->success(['id' => $tripId], 'Medical trip package deleted successfully!');
         } catch (Throwable $e) {
             $this->error('Failed to delete medical trip: ' . $e->getMessage(), 500);

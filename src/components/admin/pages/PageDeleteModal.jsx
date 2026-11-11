@@ -1,3 +1,4 @@
+import { AlertTriangleIcon, FileTextIcon, XIcon } from '../../../components/common/Icons';
 import { useState } from 'react';
 import Modal from '../../ui/Modal';
 
@@ -33,13 +34,11 @@ export default function PageDeleteModal({
       size="sm"
     >
       <div className="dest-delete-modal-content">
-        <div className="dest-delete-warning-icon" aria-hidden="true">
-          ⚠️
-        </div>
+        <div className="dest-delete-warning-icon" aria-hidden="true"><AlertTriangleIcon size={20} color="#f59e0b" /></div>
 
         <div className="dest-delete-target-card">
           <div className="dest-delete-mini-thumb">
-            <span>📄</span>
+            <FileTextIcon size={16} />
           </div>
           <div className="dest-delete-target-info">
             <strong className="dest-target-name">{page.title}</strong>
@@ -53,7 +52,7 @@ export default function PageDeleteModal({
 
         {isSystemPage && (
           <div className="dest-dependency-warning-box">
-            <h4 className="dependency-warning-title">⚠️ Core System Page Warning</h4>
+            <h4 className="dependency-warning-title"><AlertTriangleIcon size={16} color="#d97706" /> Core System Page Warning</h4>
             <p className="dependency-warning-desc">
               <strong>{page.title}</strong> is a core system page (<code>/{page.slug}</code>) referenced by public navigation and footer menus.
             </p>

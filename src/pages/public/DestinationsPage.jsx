@@ -1,3 +1,4 @@
+import { SearchIcon, XIcon } from '../../components/common/Icons';
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import destinationService from '../../services/destinationService';
@@ -8,6 +9,7 @@ import Loading from '../../components/ui/Loading';
 import EmptyState from '../../components/ui/EmptyState';
 import ErrorState from '../../components/ui/ErrorState';
 import { updatePageMeta } from '../../utils/metadata';
+
 
 export default function DestinationsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -144,7 +146,9 @@ export default function DestinationsPage() {
               }}
             >
               <div className="search-input-group" style={{ flex: '1 1 auto', position: 'relative', display: 'flex', alignItems: 'center', minWidth: 0 }}>
-                <span className="search-icon" aria-hidden="true" style={{ position: 'relative', fontSize: '18px', color: '#01aa90', marginRight: '10px', pointerEvents: 'none', flexShrink: 0 }}>🔍</span>
+                <span className="search-icon" aria-hidden="true" style={{ position: 'relative', marginRight: '10px', pointerEvents: 'none', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                  <SearchIcon size={18} color="#01aa90" />
+                </span>
                 <input
                   type="text"
                   className="search-input"
@@ -190,7 +194,7 @@ export default function DestinationsPage() {
                       flexShrink: 0,
                     }}
                   >
-                    ✕
+                    <XIcon size={11} strokeWidth={2.5} />
                   </button>
                 )}
               </div>

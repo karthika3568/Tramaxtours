@@ -1,3 +1,4 @@
+import { SearchIcon } from '../../common/Icons';
 import { useState } from 'react';
 import { getMediaUrl } from '../../../utils/media';
 import Modal from '../../ui/Modal';
@@ -55,7 +56,7 @@ export default function TourGallery({ gallery = [], tourTitle = 'Tour' }) {
           {currentCaption && (
             <div className="tour-gallery-caption-bar">
               <span>{currentCaption}</span>
-              <span className="expand-hint">🔍 Click to enlarge</span>
+              <span className="expand-hint" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><SearchIcon size={12} /> Click to enlarge</span>
             </div>
           )}
         </div>

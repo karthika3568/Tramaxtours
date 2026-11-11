@@ -1,4 +1,8 @@
 import { getMediaUrl } from '../../../utils/media';
+import {
+  EyeIcon, EditIcon, TrashIcon, CheckIcon, XIcon, StarIcon,
+  CompassIcon, CameraIcon
+} from '../../common/Icons';
 
 export default function ReviewTable({
   reviews,
@@ -18,10 +22,16 @@ export default function ReviewTable({
   const renderStars = (rating) => {
     const num = Math.max(1, Math.min(5, parseInt(rating, 10) || 5));
     return (
-      <span className="review-stars-cell" title={`${num} out of 5 stars`}>
-        <span className="stars-filled">{'★'.repeat(num)}</span>
-        <span className="stars-empty">{'☆'.repeat(5 - num)}</span>
-        <span className="rating-numeric"> {num}.0</span>
+      <span className="review-stars-cell" title={`${num} out of 5 stars`} style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+        {[...Array(5)].map((_, i) => (
+          <StarIcon
+            key={i}
+            size={13}
+            filled={i < num}
+            color={i < num ? '#eab308' : '#cbd5e1'}
+          />
+        ))}
+        <span className="rating-numeric" style={{ marginLeft: '4px', fontSize: '12px' }}> {num}.0</span>
       </span>
     );
   };
@@ -129,18 +139,18 @@ export default function ReviewTable({
 
                       <div className="review-table-meta-tags">
                         {review.tour && (
-                          <span className="review-tour-tag">
-                            🗺️ {review.tour.title}
+                          <span className="review-tour-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <CompassIcon size={12} color="#01aa90" /> {review.tour.title}
                           </span>
                         )}
                         {mediaCount > 0 && (
-                          <span className="review-photo-count-badge">
-                            📷 {mediaCount} photo{mediaCount === 1 ? '' : 's'}
+                          <span className="review-photo-count-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <CameraIcon size={12} color="#64748b" /> {mediaCount} photo{mediaCount === 1 ? '' : 's'}
                           </span>
                         )}
                         {isFeatured && (
-                          <span className="admin-badge admin-badge-gold">
-                            ⭐ Featured
+                          <span className="admin-badge admin-badge-gold" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <StarIcon size={12} filled color="#eab308" /> Featured
                           </span>
                         )}
                       </div>
@@ -188,7 +198,7 @@ export default function ReviewTable({
                         aria-label={`View review details from ${review.customer_name}`}
                         onClick={() => onViewDetails(review)}
                       >
-                        👁️
+                        <EyeIcon size={15} />
                       </button>
 
                       {/* Edit Testimonial */}
@@ -200,7 +210,7 @@ export default function ReviewTable({
                           aria-label={`Edit review from ${review.customer_name}`}
                           onClick={() => onEditClick(review)}
                         >
-                          ✎
+                          <EditIcon size={15} />
                         </button>
                       )}
 
@@ -214,7 +224,7 @@ export default function ReviewTable({
                           onClick={() => onApprove(review)}
                           disabled={isLoading}
                         >
-                          {isLoading ? '⏳' : '✓'}
+                          {isLoading ? '...' : <CheckIcon size={15} />}
                         </button>
                       )}
 
@@ -228,7 +238,7 @@ export default function ReviewTable({
                           onClick={() => onReject(review)}
                           disabled={isLoading}
                         >
-                          {isLoading ? '⏳' : '✕'}
+                          {isLoading ? '...' : <XIcon size={15} />}
                         </button>
                       )}
 
@@ -244,7 +254,7 @@ export default function ReviewTable({
                           onClick={() => onToggleFeature(review)}
                           disabled={isLoading}
                         >
-                          {isFeatured ? '★' : '☆'}
+                          <StarIcon size={15} filled={isFeatured} color={isFeatured ? '#eab308' : 'currentColor'} />
                         </button>
                       )}
 
@@ -258,7 +268,7 @@ export default function ReviewTable({
                           onClick={() => onDeleteClick(review)}
                           disabled={isLoading}
                         >
-                          🗑️
+                          <TrashIcon size={15} />
                         </button>
                       )}
                     </div>
@@ -353,13 +363,13 @@ export default function ReviewTable({
 
               <div className="admin-mobile-card-meta">
                 {review.tour && (
-                  <span className="review-tour-tag">
-                    🗺️ {review.tour.title}
+                  <span className="review-tour-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <CompassIcon size={12} color="#01aa90" /> {review.tour.title}
                   </span>
                 )}
                 {mediaCount > 0 && (
-                  <span className="review-photo-count-badge">
-                    📷 {mediaCount} photo{mediaCount === 1 ? '' : 's'}
+                  <span className="review-photo-count-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <CameraIcon size={12} color="#64748b" /> {mediaCount} photo{mediaCount === 1 ? '' : 's'}
                   </span>
                 )}
                 <span className="text-muted">
@@ -372,8 +382,9 @@ export default function ReviewTable({
                   type="button"
                   className="btn btn-outline btn-sm"
                   onClick={() => onViewDetails(review)}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                 >
-                  👁️ Inspect Details
+                  <EyeIcon size={13} /> Inspect Details
                 </button>
 
                 {canModerate && !isApproved && (
@@ -382,8 +393,9 @@ export default function ReviewTable({
                     className="btn btn-primary btn-sm"
                     onClick={() => onApprove(review)}
                     disabled={isLoading}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                   >
-                    ✓ Approve
+                    <CheckIcon size={13} /> Approve
                   </button>
                 )}
 
@@ -393,8 +405,9 @@ export default function ReviewTable({
                     className="btn btn-outline btn-sm btn-reject"
                     onClick={() => onReject(review)}
                     disabled={isLoading}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                   >
-                    ✕ Reject
+                    <XIcon size={13} /> Reject
                   </button>
                 )}
 
@@ -404,8 +417,9 @@ export default function ReviewTable({
                     className="btn btn-outline btn-sm btn-delete-danger"
                     onClick={() => onDeleteClick(review)}
                     disabled={isLoading}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                   >
-                    🗑️ Delete
+                    <TrashIcon size={13} /> Delete
                   </button>
                 )}
               </div>

@@ -1,3 +1,4 @@
+import { CalendarIcon, ClockIcon, CompassIcon, FileTextIcon, MapPinIcon, MessageSquareIcon, RefreshIcon, StarIcon } from '../../components/common/Icons';
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -7,6 +8,7 @@ import BookingDetailModal from '../../components/admin/bookings/BookingDetailMod
 import Loading from '../../components/ui/Loading';
 import ErrorState from '../../components/ui/ErrorState';
 import { updatePageMeta } from '../../utils/metadata';
+
 
 export default function AdminDashboardPage() {
   const { user, hasPermission } = useAuth();
@@ -117,7 +119,7 @@ export default function AdminDashboardPage() {
       description: 'Create curated itinerary & pricing tiers',
       path: '/admin/tours/new',
       permission: 'tours.create',
-      icon: '🧭',
+      icon: 'compass',
       accent: 'teal',
     },
     {
@@ -125,7 +127,7 @@ export default function AdminDashboardPage() {
       description: 'Add destination guide, regions & media',
       path: '/admin/destinations/new',
       permission: 'destinations.create',
-      icon: '🗺️',
+      icon: 'map-pin',
       accent: 'gold',
     },
     {
@@ -133,7 +135,7 @@ export default function AdminDashboardPage() {
       description: 'Publish policy or luxury content page',
       path: '/admin/pages/new',
       permission: 'pages.manage',
-      icon: '📄',
+      icon: 'file-text',
       accent: 'purple',
     },
     {
@@ -141,7 +143,7 @@ export default function AdminDashboardPage() {
       description: 'Inspect orders, dates & payment statuses',
       path: '/admin/bookings',
       permission: 'bookings.view',
-      icon: '📋',
+      icon: 'file',
       accent: 'teal',
     },
     {
@@ -149,7 +151,7 @@ export default function AdminDashboardPage() {
       description: 'Inspect traveler feedback & star ratings',
       path: '/admin/reviews',
       permission: 'reviews.view',
-      icon: '💬',
+      icon: 'chat',
       accent: 'gold',
     },
     {
@@ -157,7 +159,7 @@ export default function AdminDashboardPage() {
       description: 'Upload high-resolution photography',
       path: '/admin/media',
       permission: 'media.view',
-      icon: '🖼️',
+      icon: 'image',
       accent: 'slate',
     },
     {
@@ -165,7 +167,7 @@ export default function AdminDashboardPage() {
       description: 'Manage staff accounts & RBAC roles',
       path: '/admin/users',
       permission: 'users.view',
-      icon: '👥',
+      icon: 'users',
       accent: 'indigo',
     },
   ];
@@ -208,7 +210,7 @@ export default function AdminDashboardPage() {
             disabled={loading}
             title="Refresh live operational data"
           >
-            <span className={loading ? 'spin-icon' : ''}>🔄</span>
+            <span className={loading ? 'spin-icon' : ''}><RefreshIcon size={16} /></span>
             <span>{loading ? 'Syncing...' : 'Refresh Data'}</span>
           </button>
         </div>
@@ -249,7 +251,7 @@ export default function AdminDashboardPage() {
                 <div className="kpi-card">
                   <div className="kpi-card-header">
                     <span className="kpi-category">Bookings</span>
-                    <span className="kpi-icon-box kpi-icon-teal">📋</span>
+                    <span className="kpi-icon-box kpi-icon-teal"><FileTextIcon size={20} /></span>
                   </div>
                   <div className="kpi-card-body">
                     <div className="kpi-stat-number">{bookings.total ?? 0}</div>
@@ -262,8 +264,8 @@ export default function AdminDashboardPage() {
                       </span>
                     </div>
                     <div className="kpi-stat-subtext" style={{ marginTop: '4px' }}>
-                      <span className="subtext-note">📅 {bookings.today ?? 0} booked today</span>
-                      <span className="subtext-note">🧳 {bookings.upcoming ?? 0} upcoming</span>
+                      <span className="subtext-note">{bookings.today ?? 0} booked today</span>
+                      <span className="subtext-note">{bookings.upcoming ?? 0} upcoming</span>
                     </div>
                   </div>
                   <div className="kpi-card-footer">
@@ -279,7 +281,7 @@ export default function AdminDashboardPage() {
                 <div className="kpi-card">
                   <div className="kpi-card-header">
                     <span className="kpi-category">Curated Tours</span>
-                    <span className="kpi-icon-box kpi-icon-blue">🧭</span>
+                    <span className="kpi-icon-box kpi-icon-blue"><CompassIcon size={20} /></span>
                   </div>
                   <div className="kpi-card-body">
                     <div className="kpi-stat-number">{tours.total ?? 0}</div>
@@ -305,7 +307,7 @@ export default function AdminDashboardPage() {
                 <div className="kpi-card">
                   <div className="kpi-card-header">
                     <span className="kpi-category">Destinations</span>
-                    <span className="kpi-icon-box kpi-icon-gold">🗺️</span>
+                    <span className="kpi-icon-box kpi-icon-gold"><MapPinIcon size={20} /></span>
                   </div>
                   <div className="kpi-card-body">
                     <div className="kpi-stat-number">{destinations.total ?? 0}</div>
@@ -331,13 +333,13 @@ export default function AdminDashboardPage() {
                 <div className="kpi-card">
                   <div className="kpi-card-header">
                     <span className="kpi-category">Guest Reviews</span>
-                    <span className="kpi-icon-box kpi-icon-amber">💬</span>
+                    <span className="kpi-icon-box kpi-icon-amber"><MessageSquareIcon size={20} /></span>
                   </div>
                   <div className="kpi-card-body">
                     <div className="kpi-stat-number">{reviews.total ?? 0}</div>
                     <div className="kpi-stat-subtext">
-                      <span className="highlight-pill highlight-gold">
-                        ★ {Number(reviews.average_rating || 5).toFixed(1)} avg rating
+                      <span className="highlight-pill highlight-gold" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <StarIcon filled size={12} color="#eab308" /> {Number(reviews.average_rating || 5).toFixed(1)} avg rating
                       </span>
                       <span className="subtext-note">
                         {reviews.pending ?? 0} pending
@@ -357,7 +359,7 @@ export default function AdminDashboardPage() {
                 <div className="kpi-card">
                   <div className="kpi-card-header">
                     <span className="kpi-category">CMS Pages</span>
-                    <span className="kpi-icon-box kpi-icon-purple">📄</span>
+                    <span className="kpi-icon-box kpi-icon-purple"><FileTextIcon size={20} /></span>
                   </div>
                   <div className="kpi-card-body">
                     <div className="kpi-stat-number">{pages.total ?? 0}</div>
@@ -393,7 +395,7 @@ export default function AdminDashboardPage() {
               {hasPermission('bookings.view') && (
                 <Link to="/admin/bookings" className="attention-row-card">
                   <div className="attention-indicator indicator-warning" />
-                  <div className="attention-icon">📋</div>
+                  <div className="attention-icon"><FileTextIcon size={24} color="#0d9488" /></div>
                   <div className="attention-content">
                     <div className="attention-heading">
                       <span className="attention-count-badge warning-count">
@@ -410,7 +412,7 @@ export default function AdminDashboardPage() {
               {hasPermission('reviews.view') && (
                 <Link to="/admin/reviews" className="attention-row-card">
                   <div className="attention-indicator indicator-warning" />
-                  <div className="attention-icon">💬</div>
+                  <div className="attention-icon"><MessageSquareIcon size={24} color="#d97706" /></div>
                   <div className="attention-content">
                     <div className="attention-heading">
                       <span className="attention-count-badge warning-count">
@@ -427,7 +429,7 @@ export default function AdminDashboardPage() {
               {hasPermission('tours.view') && (
                 <Link to="/admin/tours" className="attention-row-card">
                   <div className="attention-indicator indicator-info" />
-                  <div className="attention-icon">🧭</div>
+                  <div className="attention-icon"><CompassIcon size={24} color="#0284c7" /></div>
                   <div className="attention-content">
                     <div className="attention-heading">
                       <span className="attention-count-badge info-count">
@@ -444,7 +446,7 @@ export default function AdminDashboardPage() {
               {hasPermission('destinations.view') && (
                 <Link to="/admin/destinations" className="attention-row-card">
                   <div className="attention-indicator indicator-info" />
-                  <div className="attention-icon">🗺️</div>
+                  <div className="attention-icon"><MapPinIcon size={24} color="#0284c7" /></div>
                   <div className="attention-content">
                     <div className="attention-heading">
                       <span className="attention-count-badge info-count">
@@ -616,7 +618,7 @@ export default function AdminDashboardPage() {
                   </div>
                 ) : (
                   <div className="feed-empty-state">
-                    <span className="empty-icon">📋</span>
+                    <span className="empty-icon"><FileTextIcon size={28} /></span>
                     <p className="empty-text">No traveler bookings recorded yet.</p>
                   </div>
                 )}
@@ -648,7 +650,9 @@ export default function AdminDashboardPage() {
                               <div className="guest-meta">
                                 <span className="guest-name">{rev.customer_name}</span>
                                 {rev.customer_country && (
-                                  <span className="guest-country">📍 {rev.customer_country}</span>
+                                  <span className="guest-country" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                    <MapPinIcon size={11} /> {rev.customer_country}
+                                  </span>
                                 )}
                               </div>
                             </div>
@@ -658,8 +662,10 @@ export default function AdminDashboardPage() {
                           </div>
 
                           <div className="review-stars-row">
-                            <span className="star-rating">
-                              {'★'.repeat(Number(rev.rating || 5))}
+                            <span className="star-rating" style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                              {[...Array(Math.min(5, Math.max(1, Math.round(Number(rev.rating || 5)))))].map((_, i) => (
+                                <StarIcon key={i} filled size={11} color="#eab308" />
+                              ))}
                             </span>
                             <span className="star-score">({rev.rating}/5)</span>
                             {rev.tour_title && (
@@ -678,7 +684,7 @@ export default function AdminDashboardPage() {
                   </div>
                 ) : (
                   <div className="feed-empty-state">
-                    <span className="empty-icon">💬</span>
+                    <span className="empty-icon"><MessageSquareIcon size={28} /></span>
                     <p className="empty-text">No guest reviews submitted yet.</p>
                   </div>
                 )}
@@ -712,15 +718,15 @@ export default function AdminDashboardPage() {
                       >
                         <div className="review-card-top">
                           <div className="review-guest">
-                            <div className="guest-avatar">📅</div>
+                            <div className="guest-avatar"><CalendarIcon size={16} /></div>
                             <div className="guest-meta">
                               <span className="guest-name">
                                 {new Date(b.booking_date).toLocaleDateString(undefined, { day: '2-digit', month: 'short' })}
                                 {' — '}
                                 {b.tour_title || 'Curated Tour'}
                               </span>
-                              <span className="guest-country">
-                                📍 {b.destination_name || 'Unassigned'} • {b.tickets_count} guest{b.tickets_count === 1 ? '' : 's'}
+                              <span className="guest-country" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                <MapPinIcon size={11} /> {b.destination_name || 'Unassigned'} • {b.tickets_count} guest{b.tickets_count === 1 ? '' : 's'}
                               </span>
                             </div>
                           </div>
@@ -734,7 +740,7 @@ export default function AdminDashboardPage() {
                 </div>
               ) : (
                 <div className="feed-empty-state">
-                  <span className="empty-icon">🧳</span>
+                  <span className="empty-icon"><CompassIcon size={28} /></span>
                   <p className="empty-text">No upcoming travel dates booked yet.</p>
                 </div>
               )}
@@ -764,9 +770,15 @@ export default function AdminDashboardPage() {
                       </span>
                     </div>
                     <h4 className="snapshot-tour-title">{tour.title}</h4>
-                    <p className="snapshot-tour-details">
-                      {tour.destination_name ? `📍 ${tour.destination_name} • ` : ''}
-                      ⏱️ {tour.duration_days} Day(s)
+                    <p className="snapshot-tour-details" style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                      {tour.destination_name && (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                          <MapPinIcon size={11} /> {tour.destination_name} •{' '}
+                        </span>
+                      )}
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                        <ClockIcon size={11} /> {tour.duration_days} Day(s)
+                      </span>
                     </p>
                     <div className="snapshot-card-bottom">
                       <span className="snapshot-from-price">

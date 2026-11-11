@@ -1,3 +1,4 @@
+import { MailIcon, PhoneIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import siteSettingsService from '../../services/siteSettingsService';
@@ -92,6 +93,7 @@ export default function AdminFooterManagerPage() {
       };
 
       await siteSettingsService.updateBulkSettings(updates);
+      window.dispatchEvent(new CustomEvent('site-settings-updated'));
       toast.success('Footer branding, planning CTA & copyright updated successfully');
     } catch (err) {
       toast.error(err.message || 'Failed to update footer settings');
@@ -135,7 +137,7 @@ export default function AdminFooterManagerPage() {
             onClick={handleSaveSettings}
             disabled={savingSettings}
           >
-            {savingSettings ? 'Saving...' : '💾 Save Footer'}
+            {savingSettings ? 'Saving...' : 'Save Footer'}
           </button>
         </div>
       </div>
@@ -210,7 +212,7 @@ export default function AdminFooterManagerPage() {
                 {footerSettings.site_name}
               </h3>
               <p style={{ margin: 0, fontSize: '14px', color: '#94a3b8' }}>
-                ✉️ {footerSettings.contact_email} &nbsp;•&nbsp; 📞 {footerSettings.contact_phone}
+                {footerSettings.contact_email} &nbsp;•&nbsp; {footerSettings.contact_phone}
               </p>
             </div>
 
@@ -370,7 +372,7 @@ export default function AdminFooterManagerPage() {
               disabled={savingSettings}
               style={{ width: '100%', justifyContent: 'center' }}
             >
-              {savingSettings ? 'Saving Changes...' : '💾 Save Footer Configuration'}
+              {savingSettings ? 'Saving Changes...' : 'Save Footer Configuration'}
             </button>
           </div>
         </div>

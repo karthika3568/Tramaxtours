@@ -1,6 +1,9 @@
-import { useState, useRef } from 'react';
+import { EditIcon, EyeIcon, FileTextIcon, LinkIcon, SearchIcon } from '../../common/Icons';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CmsContentRenderer from '../../public/common/CmsContentRenderer';
+import { getMediaUrl } from '../../../utils/media';
+
 
 export default function PageForm({
   initialData = null,
@@ -37,6 +40,21 @@ export default function PageForm({
 
   // Validation Errors
   const [errors, setErrors] = useState({});
+
+  // Synchronize form fields whenever initialData arrives or updates
+  useEffect(() => {
+    if (initialData) {
+      setTitle(initialData.title || '');
+      setSlug(initialData.slug || '');
+      setAutoSlug(!initialData.slug);
+      setSubtitle(initialData.subtitle || '');
+      setStatus(initialData.status || 'published');
+      setContent(initialData.content || '');
+      setHeroMedia(initialData.hero_media || null);
+      setSeoTitle(initialData.seo_title || '');
+      setSeoDescription(initialData.seo_description || '');
+    }
+  }, [initialData]);
 
   // Auto-generate slug from title if autoSlug is enabled
   const handleTitleChange = (e) => {
@@ -149,8 +167,9 @@ export default function PageForm({
           aria-selected={activeTab === 'basic'}
           className={`admin-form-tab-btn ${activeTab === 'basic' ? 'active' : ''}`}
           onClick={() => setActiveTab('basic')}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
         >
-          <span className="tab-icon">📄</span>
+          <FileTextIcon size={15} />
           <span>1. Basic Info</span>
           {(errors.title || errors.slug || errors.subtitle) && (
             <span className="tab-error-dot" title="Validation errors in this tab">•</span>
@@ -163,8 +182,9 @@ export default function PageForm({
           aria-selected={activeTab === 'content'}
           className={`admin-form-tab-btn ${activeTab === 'content' ? 'active' : ''}`}
           onClick={() => setActiveTab('content')}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
         >
-          <span className="tab-icon">✍️</span>
+          <EditIcon size={15} />
           <span>2. Page Content</span>
         </button>
 
@@ -174,8 +194,9 @@ export default function PageForm({
           aria-selected={activeTab === 'seo'}
           className={`admin-form-tab-btn ${activeTab === 'seo' ? 'active' : ''}`}
           onClick={() => setActiveTab('seo')}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
         >
-          <span className="tab-icon">🔍</span>
+          <SearchIcon size={15} />
           <span>3. SEO & SERP Preview</span>
         </button>
       </div>
@@ -300,14 +321,14 @@ export default function PageForm({
                 className={`mode-toggle-btn ${contentViewMode === 'edit' ? 'active' : ''}`}
                 onClick={() => setContentViewMode('edit')}
               >
-                ✏️ Editor Mode
+                Editor Mode
               </button>
               <button
                 type="button"
                 className={`mode-toggle-btn ${contentViewMode === 'preview' ? 'active' : ''}`}
                 onClick={() => setContentViewMode('preview')}
               >
-                👁️ Live Safe Preview
+                Live Safe Preview
               </button>
             </div>
           </div>
@@ -372,7 +393,7 @@ export default function PageForm({
                     insertFormatting('<blockquote>', '</blockquote>', 'Important note or quote.')
                   }
                 >
-                  ❝ Quote
+                  Quote
                 </button>
                 <button
                   type="button"
@@ -382,7 +403,7 @@ export default function PageForm({
                     insertFormatting('<a href="https://example.com">', '</a>', 'Link Text')
                   }
                 >
-                  🔗 Link
+                  Link
                 </button>
                 <button
                   type="button"
@@ -420,7 +441,7 @@ export default function PageForm({
             /* Live Preview Mode */
             <div className="cms-preview-viewport">
               <div className="cms-preview-banner">
-                <span>👁️ Live CMS Rendering Preview</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><EyeIcon size={16} /> Live CMS Rendering Preview</span>
                 <span className="text-muted">Uses public CmsContentRenderer</span>
               </div>
               <div className="cms-article-card cms-preview-card">

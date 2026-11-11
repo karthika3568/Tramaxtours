@@ -1,3 +1,4 @@
+import { ClockIcon, EditIcon, EyeIcon, HospitalIcon, MapPinIcon, PauseIcon, PlusIcon, RefreshIcon, RocketIcon, SearchIcon, StethoscopeIcon, TrashIcon, XIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import medicalTripService from '../../services/medicalTripService';
@@ -5,6 +6,7 @@ import { useToast } from '../../context/ToastContext';
 import { updatePageMeta } from '../../utils/metadata';
 import Loading from '../../components/ui/Loading';
 import ErrorState from '../../components/ui/ErrorState';
+
 
 export default function AdminMedicalTripsPage() {
   const navigate = useNavigate();
@@ -164,7 +166,7 @@ export default function AdminMedicalTripsPage() {
             title="Refresh Packages"
             style={{ height: '40px', padding: '0 14px', borderRadius: '10px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
           >
-            <span>🔄</span> Refresh
+            <RefreshIcon size={14} style={{ marginRight: '5px' }} /> Refresh
           </button>
 
           <Link
@@ -172,7 +174,7 @@ export default function AdminMedicalTripsPage() {
             className="btn btn-primary"
             style={{ height: '40px', padding: '0 16px', borderRadius: '10px', display: 'inline-flex', alignItems: 'center', gap: '6px', fontWeight: '700', fontSize: '13.5px' }}
           >
-            <span>➕</span> Add Medical Package
+            <PlusIcon size={15} /> Add Medical Package
           </Link>
         </div>
       </div>
@@ -212,7 +214,7 @@ export default function AdminMedicalTripsPage() {
         </select>
 
         <div className="admin-modern-search-box">
-          <span className="search-icon" aria-hidden="true">🔍</span>
+          <SearchIcon size={16} className="search-icon" color="#94a3b8" />
           <input
             type="text"
             className="admin-modern-search-input"
@@ -228,7 +230,7 @@ export default function AdminMedicalTripsPage() {
               className="search-clear-btn"
               aria-label="Clear search"
             >
-              ✕
+              <XIcon size={14} />
             </button>
           )}
         </div>
@@ -246,7 +248,9 @@ export default function AdminMedicalTripsPage() {
           </div>
         ) : trips.length === 0 ? (
           <div style={{ padding: '64px 20px', textAlign: 'center' }}>
-            <span style={{ fontSize: '36px', display: 'block', marginBottom: '8px' }}>🏥</span>
+            <div style={{ marginBottom: '12px' }}>
+              <HospitalIcon size={42} color="#01aa90" />
+            </div>
             <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#1e293b' }}>No Medical Packages Found</h3>
             <p style={{ fontSize: '13.5px', color: '#64748b', marginTop: '4px' }}>
               {debouncedSearch || statusFilter !== 'all' || categoryFilter !== 'all'
@@ -307,15 +311,17 @@ export default function AdminMedicalTripsPage() {
                               <span style={{ fontSize: '12px', color: '#01aa90', fontWeight: '600' }}>
                                 {trip.category || 'Executive Health Check'}
                               </span>
-                              <span style={{ fontSize: '11.5px', color: '#64748b', display: 'block' }}>
-                                📍 {trip.location || 'Chennai, Tamil Nadu'} • <code style={{ fontSize: '11px', color: '#475569' }}>/{trip.slug}</code>
+                              <span style={{ fontSize: '11.5px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px' }}>
+                                <MapPinIcon size={12} color="#94a3b8" /> {trip.location || 'Chennai, Tamil Nadu'} • <code style={{ fontSize: '11px', color: '#475569' }}>/{trip.slug}</code>
                               </span>
                             </div>
                           </div>
                         </td>
 
-                        <td style={{ fontWeight: '500', color: '#334155' }}>
-                          ⏱️ {trip.duration || '1 Day'}
+                        <td style={{ fontWeight: '500', color: '#334155', fontSize: '13px' }}>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <ClockIcon size={13} color="#64748b" /> {trip.duration || '1 Day'}
+                          </span>
                         </td>
 
                         <td>
@@ -346,7 +352,7 @@ export default function AdminMedicalTripsPage() {
                               fontWeight: '700',
                             }}
                           >
-                            🔬 {trip.assessments_count || 0} Assessments
+                            <StethoscopeIcon size={13} color="#16a34a" /> {trip.assessments_count || 0} Assessments
                           </span>
                         </td>
 
@@ -374,8 +380,9 @@ export default function AdminMedicalTripsPage() {
                               rel="noreferrer"
                               className="admin-action-btn-circle"
                               title="View Public Details Page"
+                              aria-label="View public page"
                             >
-                              👁️
+                              <EyeIcon size={15} />
                             </a>
 
                             {/* Edit Package */}
@@ -383,8 +390,9 @@ export default function AdminMedicalTripsPage() {
                               to={`/admin/medical-trips/${trip.id}/edit`}
                               className="admin-action-btn-circle"
                               title="Edit Package & Assessments"
+                              aria-label="Edit package"
                             >
-                              ✏️
+                              <EditIcon size={15} />
                             </Link>
 
                             {/* Toggle Publish / Draft */}
@@ -394,9 +402,10 @@ export default function AdminMedicalTripsPage() {
                               disabled={isOperating}
                               className="admin-action-btn-circle"
                               title={isPublished ? 'Unpublish (set to Draft)' : 'Publish Live'}
+                              aria-label={isPublished ? 'Unpublish' : 'Publish'}
                               style={{ color: isPublished ? '#d97706' : '#16a34a' }}
                             >
-                              {isPublished ? '⏸️' : '🚀'}
+                              {isPublished ? <PauseIcon size={14} /> : <RocketIcon size={14} />}
                             </button>
 
                             {/* Delete */}
@@ -406,9 +415,10 @@ export default function AdminMedicalTripsPage() {
                               disabled={isOperating}
                               className="admin-action-btn-circle"
                               title="Delete Medical Trip"
+                              aria-label="Delete package"
                               style={{ color: '#dc2626' }}
                             >
-                              🗑️
+                              <TrashIcon size={15} />
                             </button>
                           </div>
                         </td>

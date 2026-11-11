@@ -1,3 +1,4 @@
+import { EditIcon, ImageIcon, TrashIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import cmsSectionService from '../../services/cmsSectionService';
@@ -259,7 +260,7 @@ export default function AdminCmsSectionsPage() {
         <Loading message="Loading CMS Content Sections..." />
       ) : sections.length === 0 ? (
         <EmptyState
-          icon="🧩"
+          icon="layers"
           title="No CMS Story Sections"
           description="Create engaging editorial banners or story sections to feature on the homepage."
           actionText="+ Create Story Section"
@@ -343,14 +344,14 @@ export default function AdminCmsSectionsPage() {
                       className="btn-action-pill btn-action-edit"
                       onClick={() => handleOpenEdit(section)}
                     >
-                      ✎ Edit Section
+                      Edit Section
                     </button>
                     <button
                       type="button"
                       className="btn-action-pill btn-action-delete"
                       onClick={() => handleDelete(section)}
                     >
-                      🗑 Delete
+                      Delete
                     </button>
                   </div>
                 </div>
@@ -444,7 +445,7 @@ export default function AdminCmsSectionsPage() {
                   className="btn btn-secondary-luxury"
                   onClick={() => setIsMediaPickerOpen(true)}
                 >
-                  🖼 Choose from Media Library
+                  Choose from Media Library
                 </button>
                 {formData.media_id && (
                   <button

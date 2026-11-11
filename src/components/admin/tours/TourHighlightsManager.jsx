@@ -1,10 +1,11 @@
+import { StarIcon, XIcon } from '../../../components/common/Icons';
 import { useState } from 'react';
 
-const COMMON_ICONS = ['★', '🦁', '🐘', '🌅', '🚙', '🏨', '🍽️', '📸', '✈️', '⛵', '🌿', '⛰️'];
+const COMMON_ICONS = ['star', 'compass', 'mountain', 'sun', 'car', 'hotel', 'utensils', 'camera', 'plane', 'map', 'sparkles', 'shield'];
 
 export default function TourHighlightsManager({ highlights = [], onChange }) {
   const [newText, setNewText] = useState('');
-  const [newIcon, setNewIcon] = useState('★');
+  const [newIcon, setNewIcon] = useState('star');
 
   const handleAddHighlight = (e) => {
     e?.preventDefault();
@@ -12,7 +13,7 @@ export default function TourHighlightsManager({ highlights = [], onChange }) {
 
     const newItem = {
       highlight_text: newText.trim(),
-      icon: newIcon || '★',
+      icon: newIcon || 'star',
       display_order: highlights.length,
     };
 
@@ -118,7 +119,7 @@ export default function TourHighlightsManager({ highlights = [], onChange }) {
 
       {highlights.length === 0 ? (
         <div className="module-empty-box mt-3">
-          <span className="empty-icon">★</span>
+          <span className="empty-icon"><StarIcon size={24} color="#94a3b8" /></span>
           <p className="empty-text">No highlights added yet. Type a highlight above and click Add.</p>
         </div>
       ) : (
@@ -129,7 +130,7 @@ export default function TourHighlightsManager({ highlights = [], onChange }) {
 
               <select
                 className="form-select icon-select-xs"
-                value={h.icon || '★'}
+                value={h.icon || 'star'}
                 onChange={(e) => handleUpdateIcon(idx, e.target.value)}
               >
                 {COMMON_ICONS.map((ic) => (
@@ -172,9 +173,7 @@ export default function TourHighlightsManager({ highlights = [], onChange }) {
                 className="btn-danger-xs"
                 onClick={() => handleRemove(idx)}
                 title="Remove highlight"
-              >
-                ✕
-              </button>
+              ><XIcon size={14} /></button>
             </li>
           ))}
         </ul>

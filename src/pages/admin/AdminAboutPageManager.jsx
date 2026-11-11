@@ -1,3 +1,4 @@
+import { RocketIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import pageService from '../../services/pageService';
@@ -131,7 +132,7 @@ export default function AdminAboutPageManager() {
             onClick={() => handleSave('published')}
             disabled={saving}
           >
-            {saving ? 'Publishing...' : '🚀 Publish Changes'}
+            {saving ? 'Publishing...' : 'Publish Changes'}
           </button>
         </div>
       </div>

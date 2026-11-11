@@ -1,10 +1,13 @@
+import { CheckCircleIcon, FileTextIcon, LuggageIcon, ShieldCheckIcon, UsersIcon, XCircleIcon } from '../../../components/common/Icons';
+
+
 export default function UserStats({ stats }) {
   const safeStats = stats || {};
 
   return (
     <div className="users-stats-grid">
       <div className="user-stat-card stat-total">
-        <div className="stat-card-icon">👥</div>
+        <div className="stat-card-icon"><UsersIcon size={24} /></div>
         <div className="stat-card-body">
           <span className="stat-card-number">{safeStats.total_staff ?? 0}</span>
           <span className="stat-card-label">Total Customers</span>
@@ -12,7 +15,7 @@ export default function UserStats({ stats }) {
       </div>
 
       <div className="user-stat-card stat-active">
-        <div className="stat-card-icon">📋</div>
+        <div className="stat-card-icon"><FileTextIcon size={22} color="#01aa90" /></div>
         <div className="stat-card-body">
           <span className="stat-card-number">{safeStats.total_bookings ?? 0}</span>
           <span className="stat-card-label">Total Bookings Placed</span>
@@ -20,7 +23,7 @@ export default function UserStats({ stats }) {
       </div>
 
       <div className="user-stat-card stat-super">
-        <div className="stat-card-icon">🧳</div>
+        <div className="stat-card-icon"><LuggageIcon size={22} color="#01aa90" /></div>
         <div className="stat-card-body">
           <span className="stat-card-number">{safeStats.total_travelers ?? 0}</span>
           <span className="stat-card-label">Total Travelers Booked</span>
@@ -28,7 +31,7 @@ export default function UserStats({ stats }) {
       </div>
 
       <div className="user-stat-card stat-roles">
-        <div className="stat-card-icon">✅</div>
+        <div className="stat-card-icon"><CheckCircleIcon size={24} /></div>
         <div className="stat-card-body">
           <span className="stat-card-number">{safeStats.active_staff ?? 0}</span>
           <span className="stat-card-label">Active Accounts</span>

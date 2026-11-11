@@ -1,3 +1,4 @@
+import { CompassIcon, MapPinIcon, SearchIcon, StarIcon, TagIcon, XIcon } from '../../../components/common/Icons';
 import { ALLOWED_TOUR_TYPES } from '../../../services/tourService';
 
 export default function TourFilters({
@@ -32,7 +33,7 @@ export default function TourFilters({
       {/* Search Input */}
       <div className="tour-search-row">
         <div className="tour-search-box">
-          <span className="search-lead-icon" aria-hidden="true">🔍</span>
+          <span className="search-lead-icon" aria-hidden="true"><SearchIcon size={15} /></span>
           <input
             type="text"
             className="tour-search-input"
@@ -48,9 +49,7 @@ export default function TourFilters({
               onClick={() => onSearchChange('')}
               aria-label="Clear search input"
               title="Clear search"
-            >
-              ✕
-            </button>
+            ><XIcon size={14} /></button>
           )}
         </div>
       </div>
@@ -60,7 +59,7 @@ export default function TourFilters({
         {/* Destination Filter */}
         <div className="filter-select-group">
           <label htmlFor="tour-dest-select" className="filter-group-label">
-            <span className="label-icon">📍</span> Destination
+            <span className="label-icon"><MapPinIcon size={13} /></span> Destination
           </label>
           <select
             id="tour-dest-select"
@@ -80,7 +79,7 @@ export default function TourFilters({
         {/* Tour Type / Category Filter (Strict 8 locked types) */}
         <div className="filter-select-group">
           <label htmlFor="tour-type-select" className="filter-group-label">
-            <span className="label-icon">🧭</span> Category
+            <span className="label-icon"><CompassIcon size={13} /></span> Category
           </label>
           <select
             id="tour-type-select"
@@ -100,7 +99,7 @@ export default function TourFilters({
         {/* Publication Status Filter */}
         <div className="filter-select-group">
           <label htmlFor="tour-status-select" className="filter-group-label">
-            <span className="label-icon">🏷️</span> Status
+            <TagIcon size={14} /> Status
           </label>
           <select
             id="tour-status-select"
@@ -118,7 +117,7 @@ export default function TourFilters({
         {/* Featured Spotlight Filter */}
         <div className="filter-select-group">
           <label htmlFor="tour-featured-select" className="filter-group-label">
-            <span className="label-icon">⭐</span> Spotlight
+            <span className="label-icon"><StarIcon size={13} color="#f59e0b" fill="#f59e0b" /></span> Spotlight
           </label>
           <select
             id="tour-featured-select"

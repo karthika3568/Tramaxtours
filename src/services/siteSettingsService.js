@@ -74,6 +74,16 @@ export const siteSettingsService = {
    * @param {string|number} id
    * @returns {Promise<any>}
    */
+  /**
+   * Bulk update key-value site settings
+   * @param {Object} settings
+   * @returns {Promise<any>}
+   */
+  updateBulkSettings: async (settings) => {
+    const response = await client.post('/site-settings/bulk', { settings });
+    return response.data;
+  },
+
   deleteSetting: async (id) => {
     const response = await client.delete(`/site-settings/${encodeURIComponent(id)}`);
     return response.data;

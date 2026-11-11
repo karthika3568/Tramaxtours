@@ -1,8 +1,10 @@
+import { AlertTriangleIcon, CheckIcon, FileTextIcon, LockIcon, PlusIcon, SparklesIcon } from '../../common/Icons';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import inquiryService from '../../../services/inquiryService';
 import bookingService from '../../../services/bookingService';
 import { useToast } from '../../../context/ToastContext';
+
 
 export const REQUIRE_GMAIL = true;
 
@@ -612,8 +614,9 @@ export default function TripRequestForm({
     <form ref={formRef} onSubmit={handleSubmit} className="trip-request-single-card" noValidate>
       {/* Global Server Error Banner */}
       {serverError && (
-        <div style={{ padding: '16px 20px', borderRadius: '12px', background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', marginBottom: '24px', fontSize: '14px' }}>
-          <strong>⚠️ Submission Error:</strong> {serverError}
+        <div style={{ padding: '16px 20px', borderRadius: '12px', background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', marginBottom: '24px', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <AlertTriangleIcon size={18} color="#991b1b" />
+          <span><strong>Submission Error:</strong> {serverError}</span>
         </div>
       )}
 
@@ -998,8 +1001,10 @@ export default function TripRequestForm({
                   onClick={() => handleToggleTourType(type)}
                   className={`pill-toggle-btn ${isSelected ? 'is-selected' : ''}`}
                   aria-pressed={isSelected}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                 >
-                  {isSelected ? '✓ ' : '+ '} {type}
+                  {isSelected ? <CheckIcon size={12} /> : <PlusIcon size={12} />}
+                  <span>{type}</span>
                 </button>
               );
             })}
@@ -1289,7 +1294,9 @@ export default function TripRequestForm({
         <div className="trip-form-control">
           {passportFile ? (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#eff6ff', border: '1px solid #bfdbfe', padding: '10px 14px', borderRadius: '10px' }}>
-              <span style={{ fontSize: '13.5px', fontWeight: 600, color: '#1d4ed8' }}>📄 {passportFile.name}</span>
+              <span style={{ fontSize: '13.5px', fontWeight: 600, color: '#1d4ed8', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <FileTextIcon size={16} color="#1d4ed8" /> {passportFile.name}
+              </span>
               <button type="button" onClick={() => setPassportFile(null)} style={{ background: 'none', border: 'none', color: '#ef4444', fontWeight: 700, cursor: 'pointer' }}>Remove</button>
             </div>
           ) : (
@@ -1313,7 +1320,9 @@ export default function TripRequestForm({
         <div className="trip-form-control">
           {ticketFile ? (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#eff6ff', border: '1px solid #bfdbfe', padding: '10px 14px', borderRadius: '10px' }}>
-              <span style={{ fontSize: '13.5px', fontWeight: 600, color: '#1d4ed8' }}>📄 {ticketFile.name}</span>
+              <span style={{ fontSize: '13.5px', fontWeight: 600, color: '#1d4ed8', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <FileTextIcon size={16} color="#1d4ed8" /> {ticketFile.name}
+              </span>
               <button type="button" onClick={() => setTicketFile(null)} style={{ background: 'none', border: 'none', color: '#ef4444', fontWeight: 700, cursor: 'pointer' }}>Remove</button>
             </div>
           ) : (
@@ -1345,8 +1354,10 @@ export default function TripRequestForm({
                   onClick={() => handleToggleContactMethod(method)}
                   className={`pill-toggle-btn ${isSelected ? 'is-selected' : ''}`}
                   aria-pressed={isSelected}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                 >
-                  {isSelected ? '✓ ' : '+ '} {method}
+                  {isSelected ? <CheckIcon size={12} /> : <PlusIcon size={12} />}
+                  <span>{method}</span>
                 </button>
               );
             })}
@@ -1399,18 +1410,23 @@ export default function TripRequestForm({
               <span className="spinner-dot" /> Submitting...
             </span>
           ) : isBookingMode ? (
-            '🔒 Confirm & Complete Booking Reservation →'
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              <LockIcon size={18} /> Confirm &amp; Complete Booking Reservation →
+            </span>
           ) : (
-            '✨ Request My Trip & Quotation →'
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              <SparklesIcon size={18} /> Request My Trip &amp; Quotation →
+            </span>
           )}
         </button>
 
-        <p style={{ fontSize: '13px', color: '#64748b', marginTop: '14px', marginBottom: 0 }}>
-          {isBookingMode ? (
-            '✓ Official Receipt Generated Instantly • No Upfront Fee • Free Cancellation'
-          ) : (
-            '✓ 100% Free & No Obligation • Custom Quote within 4 Hours • Direct WhatsApp Delivery'
-          )}
+        <p style={{ fontSize: '13px', color: '#64748b', marginTop: '14px', marginBottom: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+          <CheckIcon size={14} color="#01aa90" />
+          <span>
+            {isBookingMode
+              ? 'Official Receipt Generated Instantly • No Upfront Fee • Free Cancellation'
+              : '100% Free & No Obligation • Custom Quote within 4 Hours • Direct WhatsApp Delivery'}
+          </span>
         </p>
       </div>
     </form>

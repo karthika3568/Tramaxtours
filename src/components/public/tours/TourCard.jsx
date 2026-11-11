@@ -1,5 +1,7 @@
+import { CalendarIcon, StarIcon, XCircleIcon, ZapIcon } from '../../common/Icons';
 import { Link } from 'react-router-dom';
 import { getMediaUrl } from '../../../utils/media';
+
 import { useLanguage } from '../../../context/LanguageContext';
 
 export default function TourCard({ tour }) {
@@ -57,11 +59,12 @@ export default function TourCard({ tour }) {
   const travelDays = tour.travel_days || 'Daily';
   const basePrice = tour.base_price ? Number(tour.base_price) : null;
   const currencySymbol = tour.currency === 'EUR' ? '€' : tour.currency === 'INR' ? '₹' : (tour.currency || '₹');
+  const tourUrl = `/tours/${tour.slug}`;
 
   return (
     <article className={`activity-tour-card ${isUnavailable ? 'tour-card-full' : ''}`}>
       {/* Top Image Container */}
-      <Link to={`/tours/${tour.slug}`} className="activity-card-media" aria-label={tour.title}>
+      <Link to={tourUrl} className="activity-card-media" aria-label={tour.title}>
         <img
           src={imageUrl}
           alt={tour.title}
@@ -72,12 +75,12 @@ export default function TourCard({ tour }) {
         {/* Capacity / Full / Closed / Low Seat Badges */}
         <div className="activity-card-top-badges">
           {isFull ? (
-            <span className="card-status-badge badge-full">🔴 Fully Booked</span>
+            <span className="card-status-badge badge-full" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><XCircleIcon size={12} /> Fully Booked</span>
           ) : isBookingClosed ? (
-            <span className="card-status-badge badge-full">⛔ Booking Closed</span>
+            <span className="card-status-badge badge-full" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><XCircleIcon size={12} /> Booking Closed</span>
           ) : isLowSeats ? (
             <span className="card-status-badge badge-low-seats">
-              ⚡ Only {seatsLeftLabel} Seats Left
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><ZapIcon size={12} /> Only {seatsLeftLabel} Seats Left</span>
             </span>
           ) : null}
         </div>
@@ -96,20 +99,20 @@ export default function TourCard({ tour }) {
           </div>
 
           {travelDays && (
-            <span className="activity-schedule-tag" title="Operating Schedule">
-              🗓️ {travelDays}
+            <span className="activity-schedule-tag" title="Operating Schedule" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+              <CalendarIcon size={12} color="#01aa90" /> {travelDays}
             </span>
           )}
         </div>
 
         {/* Tour Title */}
         <h3 className="activity-tour-title">
-          <Link to={`/tours/${tour.slug}`}>{tour.title}</Link>
+          <Link to={tourUrl}>{tour.title}</Link>
         </h3>
 
         {/* Star Rating & Reviews Count */}
-        <div className="activity-rating-row">
-          <span className="activity-star-icon">★</span>
+        <div className="activity-rating-row" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <StarIcon size={14} filled color="#eab308" />
           <span className="activity-rating-score">{rating}</span>
           <span className="activity-reviews-text">
             ({reviewsCount} {t('card_reviews', 'reviews')})
@@ -139,7 +142,7 @@ export default function TourCard({ tour }) {
         {/* Action Row */}
         <div className="activity-card-footer-row" style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
           <Link
-            to={`/tours/${tour.slug}`}
+            to={tourUrl}
             className={`btn ${isUnavailable ? 'btn-secondary' : 'btn-primary'} btn-xs`}
             style={{ padding: '8px 16px', fontSize: '12px', borderRadius: '8px', width: '100%', textAlign: 'center', fontWeight: '700' }}
           >

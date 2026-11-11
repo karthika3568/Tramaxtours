@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { CheckIcon, CopyIcon, EditIcon, EyeIcon, FileTextIcon, ImageIcon, TrashIcon } from '../../../components/common/Icons';
 import { getMediaUrl } from '../../../utils/media';
 
 export default function MediaCard({
@@ -10,20 +12,27 @@ export default function MediaCard({
 }) {
   if (!media) return null;
 
+  const [copied, setCopied] = useState(false);
+  const [imgError, setImgError] = useState(false);
+
   const imageUrl = getMediaUrl(media);
-  const isImage = media.is_image || (media.mime_type && media.mime_type.startsWith('image/'));
+  const isImage = (media.is_image || (media.mime_type && media.mime_type.startsWith('image/'))) && !imgError;
 
   const handleCopyUrl = (e) => {
     e.stopPropagation();
-    if (media.url) {
-      navigator.clipboard.writeText(media.url);
+    const targetUrl = media.url || imageUrl;
+    if (targetUrl) {
+      navigator.clipboard.writeText(targetUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
   return (
     <article className="media-admin-card">
+      {/* 1. Thumbnail Container with Hover Preview */}
       <div
-        className="media-card-thumbnail"
+        className="media-card-thumbnail-box"
         onClick={() => onPreview(media)}
         role="button"
         tabIndex={0}
@@ -41,51 +50,76 @@ export default function MediaCard({
             alt={media.alt_text || media.original_name || 'Media asset'}
             loading="lazy"
             className="media-card-img"
+            onError={() => setImgError(true)}
           />
         ) : (
-          <div className="media-card-fallback-icon">
-            <span className="file-doc-icon" aria-hidden="true">📄</span>
-            <span className="file-mime-text">{media.mime_type || 'Document'}</span>
+          <div className="media-doc-placeholder">
+            <span className="doc-icon" aria-hidden="true">
+              {media.mime_type?.startsWith('image/') ? <ImageIcon size={32} /> : <FileTextIcon size={32} />}
+            </span>
+            <span className="doc-ext-badge">{media.mime_type || 'Asset'}</span>
           </div>
         )}
 
-        <div className="media-hover-overlay">
-          <span className="overlay-btn-text">🔍 Click to Preview</span>
-        </div>
+        {/* Top-Left ID Badge */}
+        <span className="media-card-id-badge">ID: {media.id}</span>
 
-        <span className="media-id-badge">ID: {media.id}</span>
+        {/* Hover Overlay with Preview Action */}
+        <div className="media-card-overlay">
+          <span className="overlay-view-btn">
+            <EyeIcon size={13} /> Click to Preview
+          </span>
+        </div>
       </div>
 
-      <div className="media-card-info">
-        <h4 className="media-card-title" title={media.original_name || media.filename}>
+      {/* 2. Text Details & Metadata */}
+      <div className="media-card-details">
+        <h4 className="media-file-name" title={media.original_name || media.filename}>
           {media.original_name || media.filename}
         </h4>
 
-        <div className="media-card-meta-row">
-          <span className="media-meta-size">{media.file_size_human || `${Math.round(media.file_size / 1024)} KB`}</span>
+        <div className="media-meta-subline">
+          <span className="media-meta-size">
+            {media.file_size_human || `${Math.round((media.file_size || 0) / 1024)} KB`}
+          </span>
           <span className="media-meta-sep">•</span>
           <span className="media-meta-date">
             {media.created_at ? new Date(media.created_at).toLocaleDateString() : ''}
           </span>
         </div>
 
-        {media.alt_text && (
+        {media.alt_text ? (
           <p className="media-card-alt" title={media.alt_text}>
-            <span className="alt-label">Alt:</span> {media.alt_text}
+            <strong className="alt-label">Alt:</strong> {media.alt_text}
+          </p>
+        ) : (
+          <p className="media-card-alt media-card-alt-empty" title="No alt text">
+            <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '11px' }}>No alt text provided</span>
           </p>
         )}
+      </div>
 
-        <div className="media-card-actions">
-          <button
-            type="button"
-            className="media-action-btn btn-copy"
-            onClick={handleCopyUrl}
-            title="Copy Public URL to clipboard"
-            aria-label="Copy Public URL"
-          >
-            📋 Copy URL
-          </button>
+      {/* 3. Actions Bar */}
+      <div className="media-card-actions-bar">
+        <button
+          type="button"
+          className="media-action-btn btn-copy"
+          onClick={handleCopyUrl}
+          title="Copy URL to clipboard"
+          aria-label="Copy Public URL"
+        >
+          {copied ? (
+            <span style={{ color: '#059669', display: 'inline-flex', alignItems: 'center', gap: '3px', fontWeight: 700 }}>
+              <CheckIcon size={12} strokeWidth={2.5} color="#059669" /> Copied!
+            </span>
+          ) : (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+              <CopyIcon size={12} /> Copy URL
+            </span>
+          )}
+        </button>
 
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
           {canManage && onEdit && (
             <button
               type="button"
@@ -97,14 +131,14 @@ export default function MediaCard({
               title="Edit Alt Text and Caption"
               aria-label="Edit metadata"
             >
-              ✏️ Edit
+              <EditIcon size={12} /> Edit
             </button>
           )}
 
           {canDelete && onDelete && (
             <button
               type="button"
-              className="media-action-btn btn-delete"
+              className="media-action-btn delete-btn"
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete(media);
@@ -112,7 +146,7 @@ export default function MediaCard({
               title="Delete media asset"
               aria-label="Delete media asset"
             >
-              🗑️
+              <TrashIcon size={13} />
             </button>
           )}
         </div>

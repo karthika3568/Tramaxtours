@@ -1,3 +1,4 @@
+import { AlertTriangleIcon, CompassIcon, XIcon } from '../../../components/common/Icons';
 import { useState } from 'react';
 import Modal from '../../ui/Modal';
 import { getMediaUrl } from '../../../utils/media';
@@ -34,14 +35,14 @@ export default function TourDeleteModal({
       size="sm"
     >
       <div className="tour-delete-modal-content">
-        <div className="tour-delete-warning-icon" aria-hidden="true">⚠️</div>
+        <div className="tour-delete-warning-icon" aria-hidden="true"><AlertTriangleIcon size={32} color="#dc2626" /></div>
 
         <div className="tour-delete-target-card">
           <div className="tour-delete-mini-thumb">
             {thumbUrl ? (
               <img src={thumbUrl} alt={tour.title} />
             ) : (
-              <span>🧭</span>
+              <CompassIcon size={16} />
             )}
           </div>
           <div className="tour-delete-target-info">
@@ -57,7 +58,7 @@ export default function TourDeleteModal({
 
         {hasDependencies && (
           <div className="tour-dependency-warning-box">
-            <h4 className="dependency-warning-title">⚠️ Booking Dependency Warning</h4>
+            <h4 className="dependency-warning-title" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><AlertTriangleIcon size={16} color="#f59e0b" /> Booking Dependency Warning</h4>
             <p className="dependency-warning-desc">
               This tour currently has <strong>{bookingsCount} active booking(s)</strong> attached to it.
             </p>

@@ -102,8 +102,7 @@ class ReviewController extends BaseController
         }
         if (!$tourId) {
             // Pick first active tour as default associated package
-            $firstTour = Tour::fetchOne('SELECT `id` FROM `tours` WHERE `deleted_at` IS NULL ORDER BY `id` ASC LIMIT 1');
-            $tourId = $firstTour ? (int) $firstTour['id'] : 1;
+            $tourId = Review::getDefaultTourId() ?? 1;
         }
 
         // 2. User ID Validation (Optional)
@@ -263,7 +262,7 @@ class ReviewController extends BaseController
         $mediaIdsToSync = null;
 
         // Tour ID
-        if (array_key_exists('tour_id', $data)) {
+        if (array_key_exists('tour_id', $data) && $data['tour_id'] !== null && $data['tour_id'] !== '') {
             if (!is_numeric($data['tour_id']) || (int) $data['tour_id'] <= 0) {
                 $errors['tour_id'] = 'Valid tour ID is required.';
             } else {
