@@ -30,6 +30,10 @@ use App\Utils\Router;
  * @var Router $router
  */
 
+// Root Health & Welcome Check (GET / and GET /healthz)
+$router->get('/', [HealthController::class, 'health']);
+$router->get('/healthz', [HealthController::class, 'health']);
+
 // Global API v1 Route Group
 $router->group('/api/v1', function (Router $router) {
 
