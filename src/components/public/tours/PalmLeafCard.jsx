@@ -23,13 +23,13 @@ export default function PalmLeafCard() {
         style={{ position: 'relative', height: '210px', display: 'block', overflow: 'hidden' }}
       >
         <img
-          src="/uploads/media/palmleaf_reading_session.jpg"
+          src="/uploads/media/palmleaf_sage_astrology.jpg"
           alt="Palm Leaf Horoscope Nadi Reading"
           loading="lazy"
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           onError={(e) => {
             e.target.onerror = null;
-            e.target.src = '/uploads/media/palmleaf_vaitheeswaran_temple.jpg';
+            e.target.src = '/uploads/media/palmleaf_manuscripts_bundle.jpg';
           }}
         />
 
