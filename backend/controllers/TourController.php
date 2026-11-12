@@ -29,6 +29,7 @@ class TourController extends BaseController
             'search' => $params['search'] ?? null,
             'destination_id' => $params['destination_id'] ?? null,
             'category_id' => $params['category_id'] ?? null,
+            'category_slug' => $params['category_slug'] ?? ($params['category'] ?? null),
             'status' => $params['status'] ?? null,
             'is_featured' => $params['is_featured'] ?? null,
             'tour_type' => $params['tour_type'] ?? null,

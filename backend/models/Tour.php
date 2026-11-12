@@ -730,7 +730,10 @@ class Tour extends BaseModel
         }
 
         // Filter by category
-        if (!empty($filters['category_id'])) {
+        if (!empty($filters['category_slug'])) {
+            $where[] = 'EXISTS (SELECT 1 FROM `tour_category_map` tcm JOIN `tour_categories` tc ON tcm.`category_id` = tc.`id` WHERE tcm.`tour_id` = t.`id` AND (tc.`slug` = :cat_slug OR tc.`name` = :cat_slug))';
+            $params[':cat_slug'] = trim($filters['category_slug']);
+        } elseif (!empty($filters['category_id'])) {
             $where[] = 'EXISTS (SELECT 1 FROM `tour_category_map` tcm WHERE tcm.`tour_id` = t.`id` AND tcm.`category_id` = :category_id)';
             $params[':category_id'] = (int) $filters['category_id'];
         }

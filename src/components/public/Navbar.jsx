@@ -5,14 +5,14 @@ import { useLanguage } from '../../context/LanguageContext';
 import tourService from '../../services/tourService';
 
 const DEFAULT_TOUR_CATEGORIES = [
-  { id: 1, name: 'City Sightseeing Tours', slug: 'city-sightseeing-tours', icon: 'building' },
-  { id: 2, name: 'Cultural & Heritage Tours', slug: 'cultural-heritage-tours', icon: 'culture' },
-  { id: 7, name: 'Family Tours', slug: 'family-tours', icon: 'guests' },
-  { id: 3, name: 'Guided Tours', slug: 'guided-tours', icon: 'compass' },
-  { id: 4, name: 'Historical Tours', slug: 'historical-tours', icon: 'book' },
-  { id: 5, name: 'One Day Tours', slug: 'one-day-tours', icon: 'sun' },
-  { id: 9, name: 'Pilgrimage / Temple Tours', slug: 'pilgrimage-temple-tours', icon: 'temple' },
-  { id: 6, name: 'Private Tours', slug: 'private-tours', icon: 'car' },
+  { id: 11, name: 'City Sightseeing Tours', slug: 'city-sightseeing-tours', icon: 'building' },
+  { id: 12, name: 'Cultural & Heritage Tours', slug: 'cultural-heritage-tours', icon: 'culture' },
+  { id: 13, name: 'Family Tours', slug: 'family-tours', icon: 'guests' },
+  { id: 14, name: 'Guided Tours', slug: 'guided-tours', icon: 'compass' },
+  { id: 15, name: 'Historical Tours', slug: 'historical-tours', icon: 'book' },
+  { id: 16, name: 'One Day Tours', slug: 'one-day-tours', icon: 'sun' },
+  { id: 17, name: 'Pilgrimage / Temple Tours', slug: 'pilgrimage-temple-tours', icon: 'temple' },
+  { id: 18, name: 'Private Tours', slug: 'private-tours', icon: 'car' },
 ];
 
 export default function Navbar({ onLinkClick, className = '', isMobile = false }) {
@@ -346,8 +346,7 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                           cursor: 'pointer',
                         }}
                       >
-                        <CompassIcon size={15} color="#0284c7" />
-                        <span>Surfing Tour</span>
+                        <span>Surfing Tours</span>
                         <span style={{ fontSize: '10px', background: '#0284c7', color: '#ffffff', padding: '1px 6px', borderRadius: '4px', marginLeft: 'auto' }}>
                           Waves
                         </span>
@@ -382,7 +381,7 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                       {/* Palm Leaf Horoscope at bottom */}
                       <button
                         type="button"
-                        onClick={() => handleSelectCategory('palm-leaf-horoscope')}
+                        onClick={() => handleSelectCategory('palmleaf-horoscope')}
                         style={{
                           display: 'flex',
                           alignItems: 'center',
@@ -594,10 +593,9 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                         transition: 'all 0.15s ease',
                       }}
                     >
-                      <CompassIcon size={17} color="#0284c7" />
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span>Surfing Tour</span>
+                          <span>Surfing Tours</span>
                           <span
                             style={{
                               fontSize: '9.5px',
@@ -670,7 +668,7 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                     {/* Palm Leaf Horoscope Option (At Bottom) */}
                     <button
                       type="button"
-                      onClick={() => handleSelectCategory('palm-leaf-horoscope')}
+                      onClick={() => handleSelectCategory('palmleaf-horoscope')}
                       className="nav-dropdown-item-btn"
                       style={{
                         width: '100%',

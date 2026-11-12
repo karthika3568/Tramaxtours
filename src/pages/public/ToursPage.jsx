@@ -15,18 +15,56 @@ import ErrorState from '../../components/ui/ErrorState';
 import { updatePageMeta } from '../../utils/metadata';
 
 
+export const normalizeCategoryToken = (val) => {
+  if (!val) return '';
+  const s = String(val).toLowerCase().trim().replace(/[^a-z0-9]/g, '');
+  if (s.includes('surf')) return 'surfing';
+  if (s.includes('palm') || s.includes('horoscope') || s.includes('nadi')) return 'palmleaf';
+  if (s.includes('medical') || s.includes('health') || s.includes('checkup')) return 'medical';
+  if (s.includes('sightseeing') || s.includes('city')) return 'sightseeing';
+  if (s.includes('oneday') || s.includes('daytour')) return 'oneday';
+  if (s.includes('cultural') || s.includes('heritage')) return 'cultural';
+  if (s.includes('pilgrim') || s.includes('temple')) return 'pilgrimage';
+  if (s.includes('family')) return 'family';
+  if (s.includes('historic')) return 'historical';
+  if (s.includes('guided')) return 'guided';
+  if (s.includes('private')) return 'private';
+  return s;
+};
+
+export const getTourCategoryTokens = (tour) => {
+  const tokens = new Set();
+  if (tour.tour_type) {
+    tokens.add(normalizeCategoryToken(tour.tour_type));
+  }
+  if (Array.isArray(tour.categories)) {
+    tour.categories.forEach((cat) => {
+      const val = typeof cat === 'string' ? cat : (cat?.slug || cat?.name || '');
+      if (val) tokens.add(normalizeCategoryToken(val));
+    });
+  }
+  const slug = (tour.slug || '').toLowerCase();
+  const title = (tour.title || '').toLowerCase();
+  if (slug.includes('surfing') || title.includes('surfing')) tokens.add('surfing');
+  if (slug.includes('palmleaf') || slug.includes('palm-leaf') || title.includes('palmleaf')) tokens.add('palmleaf');
+  if (slug.includes('medical') || title.includes('medical')) tokens.add('medical');
+  if (slug.includes('sightseeing') || title.includes('sightseeing')) tokens.add('sightseeing');
+  if (slug.includes('day-tour') || title.includes('day tour')) tokens.add('oneday');
+  return Array.from(tokens);
+};
+
 const DEFAULT_CATEGORIES = [
-  { id: 1, name: 'City Sightseeing Tours', slug: 'city-sightseeing-tours' },
-  { id: 2, name: 'Cultural & Heritage Tours', slug: 'cultural-heritage-tours' },
-  { id: 7, name: 'Family Tours', slug: 'family-tours' },
-  { id: 3, name: 'Guided Tours', slug: 'guided-tours' },
-  { id: 4, name: 'Historical Tours', slug: 'historical-tours' },
-  { id: 5, name: 'One Day Tours', slug: 'one-day-tours' },
-  { id: 9, name: 'Pilgrimage / Temple Tours', slug: 'pilgrimage-temple-tours' },
-  { id: 6, name: 'Private Tours', slug: 'private-tours' },
-  { id: 8, name: 'Surfing Tour', slug: 'surfing-tour' },
-  { id: 10, name: 'Medical Tourism & Health Checks', slug: 'medical-tourism' },
-  { id: 11, name: 'Palm Leaf Horoscope', slug: 'palm-leaf-horoscope' },
+  { id: 11, name: 'City Sightseeing Tours', slug: 'city-sightseeing-tours' },
+  { id: 12, name: 'Cultural & Heritage Tours', slug: 'cultural-heritage-tours' },
+  { id: 13, name: 'Family Tours', slug: 'family-tours' },
+  { id: 14, name: 'Guided Tours', slug: 'guided-tours' },
+  { id: 15, name: 'Historical Tours', slug: 'historical-tours' },
+  { id: 16, name: 'One Day Tours', slug: 'one-day-tours' },
+  { id: 17, name: 'Pilgrimage / Temple Tours', slug: 'pilgrimage-temple-tours' },
+  { id: 18, name: 'Private Tours', slug: 'private-tours' },
+  { id: 8, name: 'Surfing Tours', slug: 'surfing-tour' },
+  { id: 9, name: 'Medical Tourism & Health Checks', slug: 'medical-tourism' },
+  { id: 10, name: 'Palmleaf Horoscope Tours', slug: 'palmleaf-horoscope' },
 ];
 
 const DEFAULT_FAQS = [
@@ -240,6 +278,21 @@ export default function ToursPage() {
     };
   }, [currentPage, destinationFilter, sortBy, destinations, reloadTrigger]);
 
+  // Extract normalized category tokens for fast & exact matching
+  const selectedCategoryTokens = useMemo(() => {
+    return selectedCategories.map(normalizeCategoryToken).filter(Boolean);
+  }, [selectedCategories]);
+
+  const isMedicalSelected = selectedCategoryTokens.includes('medical');
+  const isPalmLeafSelected = selectedCategoryTokens.includes('palmleaf');
+  const isSurfingSelected = selectedCategoryTokens.includes('surfing');
+  const hasSpecificCategory = selectedCategoryTokens.length > 0;
+
+  // Determine if only specialized experiences are selected
+  const isOnlySpecialSelected =
+    hasSpecificCategory &&
+    selectedCategoryTokens.every((t) => ['medical', 'palmleaf', 'surfing'].includes(t));
+
   // Client-side filtering for Duration, Categories, Rating, and Price Range
   const filteredTours = useMemo(() => {
     return tours.filter((tour) => {
@@ -265,80 +318,10 @@ export default function ToursPage() {
       }
 
       // 2. Tour Types / Categories Filter
-      if (selectedCategories.length > 0) {
-        // If only medical is selected, standard tours will not match unless tagged medical
-        const onlyMedical = selectedCategories.every(
-          (c) => c.toLowerCase().includes('medical') || c.toLowerCase().includes('health')
-        );
-        if (onlyMedical) {
-          const tourCats = Array.isArray(tour.categories) ? tour.categories : [];
-          const tourCatNames = tourCats.map((c) => (typeof c === 'string' ? c : c.name || c.slug || ''));
-          const tourType = tour.tour_type || '';
-          const tourTitle = tour.title || '';
-          const hasMedical =
-            tourCatNames.some((c) => c.toLowerCase().includes('medical')) ||
-            tourType.toLowerCase().includes('medical') ||
-            tourTitle.toLowerCase().includes('medical');
-          if (!hasMedical) return false;
-        } else {
-          const tourCats = Array.isArray(tour.categories) ? tour.categories : [];
-          const tourCatNames = tourCats.map((c) => (typeof c === 'string' ? c : c.name || c.slug || ''));
-          const tourType = tour.tour_type || '';
-          const tourTitle = tour.title || '';
-          const tourOverview = tour.overview || tour.short_description || '';
-
-          const matchCat = selectedCategories.some((sel) => {
-            const sLower = sel.toLowerCase().trim();
-            const sNorm = sLower.replace(/-/g, ' ');
-            return (
-              tourCatNames.some((cName) => {
-                const cLower = cName.toLowerCase().trim();
-                const cNorm = cLower.replace(/-/g, ' ');
-                return (
-                  cLower.includes(sLower) ||
-                  sLower.includes(cLower) ||
-                  cNorm.includes(sNorm) ||
-                  sNorm.includes(cNorm)
-                );
-              }) ||
-              tourType.toLowerCase().includes(sLower) ||
-              tourType.toLowerCase().includes(sNorm) ||
-              (sLower.includes('one day') &&
-                (tour.duration_days === 1 ||
-                  tourTitle.toLowerCase().includes('day tour') ||
-                  tour.duration_text?.toLowerCase().includes('day'))) ||
-              (sLower.includes('sightseeing') &&
-                (tourTitle.toLowerCase().includes('sightseeing') ||
-                  tourOverview.toLowerCase().includes('sightseeing') ||
-                  tourType.toLowerCase().includes('sightseeing'))) ||
-              (sLower.includes('cultural') &&
-                (tourTitle.toLowerCase().includes('heritage') ||
-                  tourOverview.toLowerCase().includes('heritage') ||
-                  tourOverview.toLowerCase().includes('cultural'))) ||
-              (sLower.includes('historical') &&
-                (tourTitle.toLowerCase().includes('history') ||
-                  tourTitle.toLowerCase().includes('historical') ||
-                  tourOverview.toLowerCase().includes('historic'))) ||
-              (sLower.includes('pilgrimage') &&
-                (tourTitle.toLowerCase().includes('temple') ||
-                  tourTitle.toLowerCase().includes('pilgrimage') ||
-                  tourOverview.toLowerCase().includes('temple'))) ||
-              (sLower.includes('family') &&
-                (tourTitle.toLowerCase().includes('family') ||
-                  tourOverview.toLowerCase().includes('family'))) ||
-              (sLower.includes('guided') &&
-                (tourType.toLowerCase().includes('guided') ||
-                  tourTitle.toLowerCase().includes('guided') ||
-                  tourOverview.toLowerCase().includes('guided'))) ||
-              (sLower.includes('private') &&
-                (tourType.toLowerCase().includes('private') ||
-                  tourTitle.toLowerCase().includes('private') ||
-                  tourOverview.toLowerCase().includes('private')))
-            );
-          });
-
-          if (!matchCat) return false;
-        }
+      if (hasSpecificCategory) {
+        const tourTokens = getTourCategoryTokens(tour);
+        const matches = selectedCategoryTokens.some((tok) => tourTokens.includes(tok));
+        if (!matches) return false;
       }
 
       // 3. Rating Filter
@@ -352,56 +335,27 @@ export default function ToursPage() {
 
       return true;
     });
-  }, [tours, selectedDurations, selectedCategories, selectedRating]);
+  }, [tours, selectedDurations, selectedCategoryTokens, hasSpecificCategory, selectedRating]);
 
   // Determine visibility of medical trips, palm leaf, surfing, and regular tours
-  const isMedicalOnlySelected =
-    selectedCategories.length > 0 &&
-    selectedCategories.every(
-      (c) => c.toLowerCase().includes('medical') || c.toLowerCase().includes('health')
-    );
+  const visibleMedicalTrips = !hasSpecificCategory
+    ? medicalTrips
+    : isMedicalSelected
+    ? medicalTrips
+    : [];
 
-  const isMedicalIncluded = selectedCategories.some(
-    (c) => c.toLowerCase().includes('medical') || c.toLowerCase().includes('health')
-  );
+  const showPalmLeaf = !hasSpecificCategory
+    ? true
+    : isPalmLeafSelected || (selectedCategoryTokens.includes('pilgrimage') && getTourCategoryTokens({ slug: 'palmleaf', tour_type: 'Palmleaf Horoscope Tours' }).includes('pilgrimage'));
 
-  const isPalmLeafOnlySelected =
-    selectedCategories.length > 0 &&
-    selectedCategories.every(
-      (c) => c.toLowerCase().includes('palm') || c.toLowerCase().includes('horoscope') || c.toLowerCase().includes('nadi')
-    );
+  const showSurfing = !hasSpecificCategory ? true : isSurfingSelected;
 
-  const isPalmLeafIncluded = selectedCategories.some(
-    (c) => c.toLowerCase().includes('palm') || c.toLowerCase().includes('horoscope') || c.toLowerCase().includes('nadi')
-  );
-
-  const isSurfingOnlySelected =
-    selectedCategories.length > 0 &&
-    selectedCategories.every(
-      (c) => c.toLowerCase().includes('surf')
-    );
-
-  const isSurfingIncluded = selectedCategories.some(
-    (c) => c.toLowerCase().includes('surf')
-  );
-
-  const isSpecificNonSpecialCategorySelected =
-    selectedCategories.length > 0 && !isMedicalIncluded && !isPalmLeafIncluded && !isSurfingIncluded;
-
-  const visibleMedicalTrips = isSpecificNonSpecialCategorySelected || isPalmLeafOnlySelected || isSurfingOnlySelected ? [] : medicalTrips;
-  const showPalmLeaf = !isSpecificNonSpecialCategorySelected && !isMedicalOnlySelected && !isSurfingOnlySelected;
-  const showSurfing = !isSpecificNonSpecialCategorySelected && !isMedicalOnlySelected && !isPalmLeafOnlySelected;
-
-  const visibleTours = (isMedicalOnlySelected || isPalmLeafOnlySelected || isSurfingOnlySelected)
+  const visibleTours = isOnlySpecialSelected
     ? []
-    : filteredTours.filter(
-        (t) =>
-          !t.slug?.toLowerCase().includes('palmleaf') &&
-          !t.slug?.toLowerCase().includes('palm-leaf') &&
-          !t.tour_type?.toLowerCase().includes('palmleaf') &&
-          !t.slug?.toLowerCase().includes('surfing') &&
-          !t.tour_type?.toLowerCase().includes('surfing')
-      );
+    : filteredTours.filter((t) => {
+        const tok = getTourCategoryTokens(t);
+        return !tok.includes('surfing') && !tok.includes('palmleaf');
+      });
 
   // Sort tours so Sightseeing tours appear first, then other tours
   const sortedVisibleTours = useMemo(() => {
@@ -426,6 +380,35 @@ export default function ToursPage() {
     }
     return list;
   }, [visibleTours, sortBy]);
+
+  const specialSectionInfo = useMemo(() => {
+    if (isSurfingSelected && !isMedicalSelected && !isPalmLeafSelected) {
+      return {
+        badge: 'Surfing Adventure',
+        title: 'Surfing Tours & Ocean Wave Coaching',
+        desc: 'Professional ocean wave riding and stand-up surfing lessons with certified instructors at Covelong Point.',
+      };
+    }
+    if (isPalmLeafSelected && !isMedicalSelected && !isSurfingSelected) {
+      return {
+        badge: 'Nadi Astrology',
+        title: 'Sacred Palm Leaf Horoscope (Find Your Destiny)',
+        desc: 'Discover your ancient destiny leaf inscribed by Maharishi Agastya over 2,000 years ago at Vaitheeswaran Kovil.',
+      };
+    }
+    if (isMedicalSelected && !isSurfingSelected && !isPalmLeafSelected) {
+      return {
+        badge: 'Medical Tourism',
+        title: 'Medical Tourism & Clinical Health Diagnostics',
+        desc: 'Comprehensive multi-specialty health checkups, preventative screenings and medical tourism wellness in South India.',
+      };
+    }
+    return {
+      badge: 'Special Experiences & Wellness Programs',
+      title: 'Surfing Adventures, Medical Tourism & Palm Leaf Horoscope',
+      desc: 'Authentic ocean wave surfing lessons at Covelong Point, comprehensive clinical health diagnostics, and 3,000-year-old Maharishi Palm Leaf destiny readings.',
+    };
+  }, [isSurfingSelected, isMedicalSelected, isPalmLeafSelected]);
 
   const totalResultsCount =
     sortedVisibleTours.length +
@@ -710,16 +693,16 @@ export default function ToursPage() {
                 })
                 .map((cat) => {
                   const catName = cat.name || cat.slug;
-                  const isChecked =
-                    selectedCategories.includes(catName) ||
-                    selectedCategories.includes(cat.slug);
+                  const catSlug = cat.slug || cat.name;
+                  const tok = normalizeCategoryToken(catSlug);
+                  const isChecked = selectedCategoryTokens.includes(tok);
 
                   return (
                     <label key={cat.id || cat.slug} className="filter-checkbox-item">
                       <input
                         type="checkbox"
                         checked={isChecked}
-                        onChange={() => handleToggleCategory(catName)}
+                        onChange={() => handleToggleCategory(catSlug)}
                       />
                       <span className="checkbox-custom" />
                       <span className="checkbox-label-text">{catName}</span>
@@ -733,13 +716,12 @@ export default function ToursPage() {
               <label className="filter-checkbox-item">
                 <input
                   type="checkbox"
-                  checked={selectedCategories.some((c) => c.toLowerCase().includes('surf'))}
+                  checked={selectedCategoryTokens.includes('surfing')}
                   onChange={() => handleToggleCategory('surfing-tour')}
                 />
                 <span className="checkbox-custom" />
-                <span className="checkbox-label-text" style={{ fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#0369a1' }}>
-                  <CompassIcon size={14} color="#0284c7" />
-                  <span>Surfing Tours</span>
+                <span className="checkbox-label-text" style={{ fontWeight: 600, color: '#0369a1' }}>
+                  Surfing Tours
                 </span>
               </label>
 
@@ -747,7 +729,7 @@ export default function ToursPage() {
               <label className="filter-checkbox-item">
                 <input
                   type="checkbox"
-                  checked={selectedCategories.some((c) => c.toLowerCase().includes('medical'))}
+                  checked={selectedCategoryTokens.includes('medical')}
                   onChange={() => handleToggleCategory('medical-tourism')}
                 />
                 <span className="checkbox-custom" />
@@ -761,8 +743,8 @@ export default function ToursPage() {
               <label className="filter-checkbox-item">
                 <input
                   type="checkbox"
-                  checked={selectedCategories.some((c) => c.toLowerCase().includes('palm') || c.toLowerCase().includes('horoscope'))}
-                  onChange={() => handleToggleCategory('palm-leaf-horoscope')}
+                  checked={selectedCategoryTokens.includes('palmleaf')}
+                  onChange={() => handleToggleCategory('palmleaf-horoscope')}
                 />
                 <span className="checkbox-custom" />
                 <span className="checkbox-label-text" style={{ fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#92400e' }}>
@@ -896,8 +878,12 @@ export default function ToursPage() {
                   value={
                     selectedCategories.length === 0
                       ? 'all'
-                      : isMedicalOnlySelected
+                      : isMedicalSelected
                       ? 'medical-tourism'
+                      : isSurfingSelected
+                      ? 'surfing-tour'
+                      : isPalmLeafSelected
+                      ? 'palmleaf-horoscope'
                       : selectedCategories[0]
                   }
                   onChange={(e) => {
@@ -939,16 +925,17 @@ export default function ToursPage() {
                       return bSight - aSight;
                     })
                     .map((cat) => {
-                      const val = cat.name || cat.slug;
+                      const val = cat.slug || cat.name;
+                      const label = cat.name || cat.slug;
                       return (
                         <option key={cat.id || cat.slug} value={val}>
-                          {val}
+                          {label}
                         </option>
                       );
                     })}
                   <option value="surfing-tour">Surfing Tours (Covelong Point)</option>
                   <option value="medical-tourism">Medical Tourism &amp; Health Checks</option>
-                  <option value="palm-leaf-horoscope">Palm Leaf Horoscope (Nadi Astrology)</option>
+                  <option value="palmleaf-horoscope">Palm Leaf Horoscope (Nadi Astrology)</option>
                 </select>
               </div>
 
@@ -1045,13 +1032,13 @@ export default function ToursPage() {
                   <div style={{ marginBottom: '20px' }}>
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.07em', color: '#01aa90', background: 'rgba(1, 170, 144, 0.1)', padding: '3px 10px', borderRadius: '6px', marginBottom: '8px' }}>
                       <SparklesIcon size={13} color="#01aa90" />
-                      <span>Special Experiences &amp; Wellness Programs</span>
+                      <span>{specialSectionInfo.badge}</span>
                     </div>
                     <h2 style={{ fontSize: '22px', fontWeight: '800', color: '#0f172a', margin: '4px 0 6px 0' }}>
-                      Surfing Adventures, Medical Tourism &amp; Palm Leaf Horoscope
+                      {specialSectionInfo.title}
                     </h2>
                     <p style={{ fontSize: '13.5px', color: '#64748b', margin: 0 }}>
-                      Authentic ocean wave surfing lessons at Covelong Point, comprehensive clinical health diagnostics, and 3,000-year-old Maharishi Palm Leaf destiny readings.
+                      {specialSectionInfo.desc}
                     </p>
                   </div>
 
