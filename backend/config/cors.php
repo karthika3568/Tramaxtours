@@ -2,7 +2,7 @@
 
 use App\Utils\Env;
 
-$rawOrigins = (string) Env::get('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000');
+$rawOrigins = (string) Env::get('CORS_ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,https://tourproject-three.vercel.app');
 $allowedOrigins = array_values(array_filter(array_map('trim', explode(',', $rawOrigins))));
 
 return [

@@ -26,11 +26,15 @@ class CorsMiddleware
 
         $origin = Request::getHeader('Origin');
 
-        // Check if origin is allowed or if development wildcard
+        // Check if origin is allowed or dynamic origin support (including vercel.app)
         if ($origin) {
-            if (in_array('*', $allowedOrigins, true)) {
-                header('Access-Control-Allow-Origin: *');
-            } elseif (in_array($origin, $allowedOrigins, true)) {
+            if (
+                in_array('*', $allowedOrigins, true) ||
+                in_array($origin, $allowedOrigins, true) ||
+                preg_match('/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i', $origin) ||
+                preg_match('/^https?:\/\/.*\.vercel\.app$/i', $origin) ||
+                preg_match('/^https?:\/\/.*\.ethiodeploy\.app$/i', $origin)
+            ) {
                 header("Access-Control-Allow-Origin: {$origin}");
                 header('Vary: Origin');
             }
