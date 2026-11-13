@@ -24,6 +24,12 @@ export default function BookingTable({
         return 'status-badge-confirmed';
       case 'completed':
         return 'status-badge-completed';
+      case 'contacted':
+        return 'status-badge-contacted';
+      case 'payment_discussion':
+        return 'status-badge-discussion';
+      case 'awaiting_confirmation':
+        return 'status-badge-awaiting';
       case 'cancelled':
       case 'rejected':
         return 'status-badge-cancelled';
@@ -83,6 +89,24 @@ export default function BookingTable({
                 {/* Order Number */}
                 <td>
                   <span className="order-number-tag">{b.order_number}</span>
+                  {b.ticket_number && (
+                    <div style={{ marginTop: '4px' }}>
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          fontSize: '10.5px',
+                          fontWeight: '700',
+                          color: '#065f46',
+                          backgroundColor: '#d1fae5',
+                          padding: '2px 6px',
+                          borderRadius: '4px',
+                          border: '1px solid #a7f3d0',
+                        }}
+                      >
+                        ✓ {b.ticket_number}
+                      </span>
+                    </div>
+                  )}
                 </td>
 
                 {/* Customer */}
@@ -123,14 +147,26 @@ export default function BookingTable({
                 {/* Amount */}
                 <td>
                   <span className="booking-price-amount">
-                    {b.currency === 'EUR' ? '€' : b.currency} {Number(b.total_price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {b.currency === 'EUR' ? '€' : b.currency} {Number(b.agreed_price || b.total_price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
+                  {b.agreed_price && Number(b.agreed_price) !== Number(b.total_price) && (
+                    <div style={{ fontSize: '10px', color: '#64748b' }}>
+                      (Orig: {b.currency} {Number(b.total_price).toFixed(2)})
+                    </div>
+                  )}
+                  {Number(b.advance_amount || 0) > 0 && (
+                    <div style={{ fontSize: '10.5px', color: '#16a34a', fontWeight: '600' }}>
+                      Adv: {b.currency} {Number(b.advance_amount).toFixed(0)}
+                    </div>
+                  )}
                 </td>
 
                 {/* Payment Method */}
                 <td>
                   <div className="payment-cell">
-                    <span className="payment-method-pill">Pay on Arrival</span>
+                    <span className="payment-method-pill" style={{ textTransform: 'capitalize' }}>
+                      {b.payment_method?.replace(/_/g, ' ') || 'Pay on Arrival'}
+                    </span>
                     <span className={`payment-status-dot ${getPaymentBadgeClass(b.payment_status)}`}>
                       {b.payment_status || 'pending'}
                     </span>

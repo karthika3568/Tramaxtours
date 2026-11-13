@@ -521,7 +521,10 @@ export default function TripRequestForm({
 
         const response = await bookingService.createBooking(bookingPayload);
         const createdData = response?.data || response;
-        toast.success('Your tour booking reservation has been placed successfully!', 'Booking Confirmed');
+        toast.success(
+          'Your tour booking request has been received! Our team will contact you shortly to discuss payment details and booking confirmation.',
+          'Booking Request Received'
+        );
 
         if (onBookingSuccess) {
           onBookingSuccess(createdData);
@@ -1411,7 +1414,7 @@ export default function TripRequestForm({
             </span>
           ) : isBookingMode ? (
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-              <LockIcon size={18} /> Confirm &amp; Complete Booking Reservation →
+              <LockIcon size={18} /> Submit Booking Request →
             </span>
           ) : (
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
@@ -1424,7 +1427,7 @@ export default function TripRequestForm({
           <CheckIcon size={14} color="#01aa90" />
           <span>
             {isBookingMode
-              ? 'Official Receipt Generated Instantly • No Upfront Fee • Free Cancellation'
+              ? 'Request Received • Initial Status PENDING • Admin Will Contact You to Finalize Payment & Confirmation'
               : '100% Free & No Obligation • Custom Quote within 4 Hours • Direct WhatsApp Delivery'}
           </span>
         </p>

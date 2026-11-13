@@ -7,8 +7,53 @@ use PDO;
 
 class Booking extends BaseModel
 {
-    public const ALLOWED_STATUSES = ['pending', 'confirmed', 'completed', 'cancelled', 'rejected'];
+    public const ALLOWED_STATUSES = [
+        'pending',
+        'contacted',
+        'payment_discussion',
+        'awaiting_confirmation',
+        'confirmed',
+        'completed',
+        'cancelled',
+        'rejected',
+    ];
     public const ALLOWED_PAYMENT_STATUSES = ['pending', 'paid', 'not_required', 'failed', 'refunded'];
+
+    /**
+     * Generate a unique confirmed ticket number (e.g. TKT-20261113-A8F2).
+     *
+     * @return string
+     */
+    public static function generateTicketNumber(): string
+    {
+        $prefix = 'TKT-' . date('Ymd') . '-';
+        do {
+            $suffix = strtoupper(bin2hex(random_bytes(2)));
+            $ticketNumber = $prefix . $suffix;
+        } while (self::ticketNumberExists($ticketNumber));
+
+        return $ticketNumber;
+    }
+
+    /**
+     * Check if a ticket number already exists.
+     *
+     * @param string $ticketNumber
+     * @param int|null $excludeId
+     * @return bool
+     */
+    public static function ticketNumberExists(string $ticketNumber, ?int $excludeId = null): bool
+    {
+        $sql = 'SELECT COUNT(*) FROM `bookings` WHERE `ticket_number` = :ticket_number';
+        $params = [':ticket_number' => $ticketNumber];
+
+        if ($excludeId !== null) {
+            $sql .= ' AND `id` != :exclude_id';
+            $params[':exclude_id'] = $excludeId;
+        }
+
+        return ((int) self::fetchColumn($sql, $params)) > 0;
+    }
 
     /**
      * Generate a unique order number (e.g. TT-20260925-A8F2).
@@ -338,19 +383,22 @@ class Booking extends BaseModel
 
         $allowedColumns = [
             'booking_date', 'tickets_count', 'unit_price', 'subtotal',
-            'tax_amount', 'discount_amount', 'total_price', 'advance_amount', 'balance_amount',
-            'approved_at', 'approved_by', 'currency',
-            'booking_status', 'payment_method', 'payment_status',
-            'customer_notes', 'admin_notes'
+            'tax_amount', 'discount_amount', 'total_price', 'agreed_price',
+            'advance_amount', 'balance_amount',
+            'approved_at', 'approved_by', 'confirmed_at', 'confirmed_by',
+            'ticket_number', 'ticket_pdf_path',
+            'sms_status', 'sms_sent_at', 'last_sms_error',
+            'currency', 'booking_status', 'payment_method', 'payment_status',
+            'payment_discussion_notes', 'customer_notes', 'admin_notes'
         ];
 
         foreach ($allowedColumns as $col) {
             if (array_key_exists($col, $data)) {
                 $fields[] = "`{$col}` = :{$col}";
-                if (in_array($col, ['tickets_count', 'approved_by'], true)) {
+                if (in_array($col, ['tickets_count', 'approved_by', 'confirmed_by'], true)) {
                     $params[":{$col}"] = $data[$col] !== null ? (int) $data[$col] : null;
-                } elseif (in_array($col, ['unit_price', 'subtotal', 'tax_amount', 'discount_amount', 'total_price', 'advance_amount', 'balance_amount'], true)) {
-                    $params[":{$col}"] = (float) $data[$col];
+                } elseif (in_array($col, ['unit_price', 'subtotal', 'tax_amount', 'discount_amount', 'total_price', 'agreed_price', 'advance_amount', 'balance_amount'], true)) {
+                    $params[":{$col}"] = $data[$col] !== null ? (float) $data[$col] : null;
                 } else {
                     $params[":{$col}"] = $data[$col] !== null ? (string) $data[$col] : null;
                 }
@@ -424,6 +472,121 @@ class Booking extends BaseModel
         }
 
         return false;
+    }
+
+    /**
+     * Record payment discussion outcomes (Agreed Price, Advance, Balance, Payment Method, Discussion Notes).
+     * Transitions status to 'payment_discussion' or 'awaiting_confirmation', and logs history.
+     *
+     * @param int $id
+     * @param array $data
+     * @param int|null $adminId
+     * @return array
+     */
+    public static function recordPaymentDiscussion(int $id, array $data, ?int $adminId = null): array
+    {
+        $booking = self::findById($id);
+        if (!$booking) {
+            throw new \RuntimeException('Booking not found.', 404);
+        }
+
+        $prevStatus = $booking['booking_status'];
+        $newStatus = !empty($data['booking_status']) && in_array($data['booking_status'], self::ALLOWED_STATUSES, true)
+            ? $data['booking_status']
+            : 'payment_discussion';
+
+        $agreedPrice = isset($data['agreed_price']) && is_numeric($data['agreed_price'])
+            ? (float) $data['agreed_price']
+            : (isset($booking['agreed_price']) && is_numeric($booking['agreed_price']) ? (float) $booking['agreed_price'] : (float) $booking['total_price']);
+
+        $advanceAmount = isset($data['advance_amount']) && is_numeric($data['advance_amount'])
+            ? (float) $data['advance_amount']
+            : (float) $booking['advance_amount'];
+
+        $balanceAmount = isset($data['balance_amount']) && is_numeric($data['balance_amount'])
+            ? (float) $data['balance_amount']
+            : max(0.0, $agreedPrice - $advanceAmount);
+
+        $paymentMethod = !empty($data['payment_method']) ? trim($data['payment_method']) : ($booking['payment_method'] ?? 'cash');
+        $discussionNotes = isset($data['payment_discussion_notes']) ? trim($data['payment_discussion_notes']) : ($booking['payment_discussion_notes'] ?? null);
+        $adminNotes = isset($data['admin_notes']) ? trim($data['admin_notes']) : ($booking['admin_notes'] ?? null);
+
+        Database::beginTransaction();
+        try {
+            $sql = 'UPDATE `bookings` SET 
+                `agreed_price` = :agreed_price,
+                `total_price` = :total_price,
+                `advance_amount` = :advance_amount,
+                `balance_amount` = :balance_amount,
+                `payment_method` = :payment_method,
+                `payment_discussion_notes` = :discussion_notes,
+                `admin_notes` = :admin_notes,
+                `booking_status` = :booking_status,
+                `updated_at` = NOW()
+                WHERE `id` = :id AND `deleted_at` IS NULL';
+
+            self::execute($sql, [
+                ':agreed_price' => $agreedPrice,
+                ':total_price' => $agreedPrice,
+                ':advance_amount' => $advanceAmount,
+                ':balance_amount' => $balanceAmount,
+                ':payment_method' => $paymentMethod,
+                ':discussion_notes' => $discussionNotes,
+                ':admin_notes' => $adminNotes,
+                ':booking_status' => $newStatus,
+                ':id' => $id,
+            ]);
+
+            $historyNotes = !empty($data['notes'])
+                ? trim($data['notes'])
+                : "Payment terms discussed & recorded: Agreed Price {$booking['currency']} {$agreedPrice}, Advance: {$advanceAmount}, Balance: {$balanceAmount}, Method: {$paymentMethod}";
+
+            $histSql = 'INSERT INTO `booking_status_history` (
+                `booking_id`, `previous_status`, `new_status`, `changed_by`, `notes`, `created_at`
+            ) VALUES (
+                :booking_id, :prev_status, :new_status, :changed_by, :notes, NOW()
+            )';
+            self::execute($histSql, [
+                ':booking_id' => $id,
+                ':prev_status' => $prevStatus,
+                ':new_status' => $newStatus,
+                ':changed_by' => $adminId,
+                ':notes' => $historyNotes,
+            ]);
+
+            Database::commit();
+
+            return self::findById($id);
+        } catch (\Throwable $e) {
+            Database::rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Record SMS dispatch outcome.
+     *
+     * @param int $id
+     * @param bool $sent
+     * @param string|null $error
+     * @return void
+     */
+    public static function recordSmsDispatchResult(int $id, bool $sent, ?string $error = null): void
+    {
+        $status = $sent ? 'sent' : ($error ? 'failed' : 'pending');
+        $sql = 'UPDATE `bookings` SET
+            `sms_status` = :status,
+            `sms_sent_at` = CASE WHEN :sent_check = 1 THEN NOW() ELSE `sms_sent_at` END,
+            `last_sms_error` = :error,
+            `updated_at` = NOW()
+            WHERE `id` = :id';
+
+        self::execute($sql, [
+            ':status' => $status,
+            ':sent_check' => $sent ? 1 : 0,
+            ':error' => $error ? mb_substr($error, 0, 500) : null,
+            ':id' => $id,
+        ]);
     }
 
     /**
@@ -611,14 +774,15 @@ class Booking extends BaseModel
     }
 
     /**
-     * Approve a booking. Atomic status transition to 'confirmed', sets approved_at and approved_by.
+     * Approve and confirm a booking. Atomic status transition to 'confirmed', issues unique ticket number,
+     * sets confirmed_at, confirmed_by, approved_at, and approved_by.
      *
      * @param int $id
      * @param int|null $adminId
-     * @param string|null $notes
+     * @param string|array|null $notesOrData
      * @return array ['booking' => array, 'already_approved' => bool]
      */
-    public static function approveBooking(int $id, ?int $adminId = null, ?string $notes = null): array
+    public static function approveBooking(int $id, ?int $adminId = null, $notesOrData = null): array
     {
         $booking = self::findById($id);
         if (!$booking) {
@@ -626,19 +790,78 @@ class Booking extends BaseModel
         }
 
         $prevStatus = $booking['booking_status'];
-        $alreadyApproved = ($prevStatus === 'confirmed' && !empty($booking['approved_at']));
+        $alreadyApproved = ($prevStatus === 'confirmed' && !empty($booking['confirmed_at']));
+
+        $notes = is_string($notesOrData) ? $notesOrData : ($notesOrData['notes'] ?? 'Booking confirmed by administrator');
+        $ticketNumber = !empty($booking['ticket_number']) ? $booking['ticket_number'] : self::generateTicketNumber();
+
+        $agreedPrice = null;
+        $advanceAmount = null;
+        $balanceAmount = null;
+        $paymentMethod = null;
+        $ticketPdfPath = null;
+
+        if (is_array($notesOrData)) {
+            if (isset($notesOrData['agreed_price']) && is_numeric($notesOrData['agreed_price'])) {
+                $agreedPrice = (float) $notesOrData['agreed_price'];
+            }
+            if (isset($notesOrData['advance_amount']) && is_numeric($notesOrData['advance_amount'])) {
+                $advanceAmount = (float) $notesOrData['advance_amount'];
+            }
+            if (isset($notesOrData['balance_amount']) && is_numeric($notesOrData['balance_amount'])) {
+                $balanceAmount = (float) $notesOrData['balance_amount'];
+            }
+            if (!empty($notesOrData['payment_method'])) {
+                $paymentMethod = trim($notesOrData['payment_method']);
+            }
+            if (!empty($notesOrData['ticket_pdf_path'])) {
+                $ticketPdfPath = trim($notesOrData['ticket_pdf_path']);
+            }
+        }
+
+        if ($agreedPrice === null) {
+            $agreedPrice = isset($booking['agreed_price']) && is_numeric($booking['agreed_price'])
+                ? (float) $booking['agreed_price']
+                : (float) $booking['total_price'];
+        }
+        if ($advanceAmount === null) {
+            $advanceAmount = (float) ($booking['advance_amount'] ?? 0.0);
+        }
+        if ($balanceAmount === null) {
+            $balanceAmount = max(0.0, $agreedPrice - $advanceAmount);
+        }
+        if ($paymentMethod === null) {
+            $paymentMethod = $booking['payment_method'] ?? 'cash';
+        }
 
         Database::beginTransaction();
         try {
             $sql = 'UPDATE `bookings` SET 
                 `booking_status` = "confirmed",
+                `ticket_number` = :ticket_number,
+                `agreed_price` = :agreed_price,
+                `total_price` = :total_price,
+                `advance_amount` = :advance_amount,
+                `balance_amount` = :balance_amount,
+                `payment_method` = :payment_method,
+                `confirmed_at` = COALESCE(`confirmed_at`, NOW()),
+                `confirmed_by` = COALESCE(`confirmed_by`, :admin_id),
                 `approved_at` = COALESCE(`approved_at`, NOW()),
-                `approved_by` = COALESCE(`approved_by`, :admin_id),
+                `approved_by` = COALESCE(`approved_by`, :admin_id2),
+                `ticket_pdf_path` = COALESCE(:ticket_pdf_path, `ticket_pdf_path`),
                 `updated_at` = NOW()
                 WHERE `id` = :id AND `deleted_at` IS NULL';
             self::execute($sql, [
+                ':ticket_number' => $ticketNumber,
+                ':agreed_price' => $agreedPrice,
+                ':total_price' => $agreedPrice,
+                ':advance_amount' => $advanceAmount,
+                ':balance_amount' => $balanceAmount,
+                ':payment_method' => $paymentMethod,
+                ':ticket_pdf_path' => $ticketPdfPath,
                 ':id' => $id,
                 ':admin_id' => $adminId,
+                ':admin_id2' => $adminId,
             ]);
 
             if (!$alreadyApproved) {
@@ -651,7 +874,7 @@ class Booking extends BaseModel
                     ':booking_id' => $id,
                     ':prev_status' => $prevStatus,
                     ':changed_by' => $adminId,
-                    ':notes' => $notes ?: 'Booking approved by administrator',
+                    ':notes' => $notes ?: "Booking confirmed and Ticket {$ticketNumber} issued",
                 ]);
             }
 
@@ -948,11 +1171,14 @@ class Booking extends BaseModel
         $sql = 'SELECT
             COUNT(*) AS total_bookings,
             SUM(CASE WHEN `booking_status` = "pending" THEN 1 ELSE 0 END) AS pending_count,
+            SUM(CASE WHEN `booking_status` = "contacted" THEN 1 ELSE 0 END) AS contacted_count,
+            SUM(CASE WHEN `booking_status` = "payment_discussion" THEN 1 ELSE 0 END) AS payment_discussion_count,
+            SUM(CASE WHEN `booking_status` = "awaiting_confirmation" THEN 1 ELSE 0 END) AS awaiting_confirmation_count,
             SUM(CASE WHEN `booking_status` = "confirmed" THEN 1 ELSE 0 END) AS confirmed_count,
             SUM(CASE WHEN `booking_status` = "completed" THEN 1 ELSE 0 END) AS completed_count,
             SUM(CASE WHEN `booking_status` = "cancelled" THEN 1 ELSE 0 END) AS cancelled_count,
             SUM(CASE WHEN `booking_status` = "rejected" THEN 1 ELSE 0 END) AS rejected_count,
-            SUM(CASE WHEN `booking_status` != "cancelled" AND `booking_status` != "rejected" THEN `total_price` ELSE 0 END) AS total_revenue,
+            SUM(CASE WHEN `booking_status` NOT IN ("cancelled", "rejected") THEN COALESCE(`agreed_price`, `total_price`) ELSE 0 END) AS total_revenue,
             SUM(CASE WHEN DATE(`created_at`) = CURDATE() THEN 1 ELSE 0 END) AS today_count
         FROM `bookings`
         WHERE `deleted_at` IS NULL';
@@ -962,6 +1188,9 @@ class Booking extends BaseModel
         return [
             'total' => (int) ($row['total_bookings'] ?? 0),
             'pending' => (int) ($row['pending_count'] ?? 0),
+            'contacted' => (int) ($row['contacted_count'] ?? 0),
+            'payment_discussion' => (int) ($row['payment_discussion_count'] ?? 0),
+            'awaiting_confirmation' => (int) ($row['awaiting_confirmation_count'] ?? 0),
             'confirmed' => (int) ($row['confirmed_count'] ?? 0),
             'completed' => (int) ($row['completed_count'] ?? 0),
             'cancelled' => (int) ($row['cancelled_count'] ?? 0),
@@ -981,12 +1210,15 @@ class Booking extends BaseModel
     {
         $customerName = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''));
         $totalPrice = (float) ($row['total_price'] ?? 0.0);
+        $agreedPrice = isset($row['agreed_price']) && is_numeric($row['agreed_price']) ? (float) $row['agreed_price'] : $totalPrice;
         $advanceAmount = (float) ($row['advance_amount'] ?? 0.0);
-        $balanceAmount = isset($row['balance_amount']) ? (float) $row['balance_amount'] : max(0.0, $totalPrice - $advanceAmount);
+        $balanceAmount = isset($row['balance_amount']) && is_numeric($row['balance_amount']) ? (float) $row['balance_amount'] : max(0.0, $agreedPrice - $advanceAmount);
 
         return [
             'id' => (int) $row['id'],
             'order_number' => $row['order_number'],
+            'ticket_number' => $row['ticket_number'] ?? null,
+            'ticket_pdf_path' => $row['ticket_pdf_path'] ?? null,
             'tour_id' => (int) $row['tour_id'],
             'tour' => [
                 'id' => (int) $row['tour_id'],
@@ -1008,15 +1240,22 @@ class Booking extends BaseModel
             ],
             'booking_date' => $row['booking_date'],
             'tickets_count' => (int) $row['tickets_count'],
+            'adults_count' => isset($row['adults_count']) ? (int) $row['adults_count'] : (int) $row['tickets_count'],
+            'children_count' => isset($row['children_count']) ? (int) $row['children_count'] : 0,
             'unit_price' => (float) $row['unit_price'],
             'total_price' => $totalPrice,
+            'agreed_price' => $agreedPrice,
             'advance_amount' => $advanceAmount,
             'balance_amount' => $balanceAmount,
             'approved_at' => $row['approved_at'] ?? null,
+            'confirmed_at' => $row['confirmed_at'] ?? null,
+            'confirmed_by' => $row['confirmed_by'] ?? null,
+            'payment_discussion_notes' => $row['payment_discussion_notes'] ?? null,
             'currency' => $row['currency'],
             'booking_status' => $row['booking_status'],
             'payment_method' => $row['payment_method'],
             'payment_status' => $row['payment_status'],
+            'sms_status' => $row['sms_status'] ?? 'pending',
             'created_at' => $row['created_at'],
         ];
     }
@@ -1071,12 +1310,15 @@ class Booking extends BaseModel
 
         $customerName = trim(($customer['first_name'] ?? '') . ' ' . ($customer['last_name'] ?? ''));
         $totalPrice = (float) ($row['total_price'] ?? 0.0);
+        $agreedPrice = isset($row['agreed_price']) && is_numeric($row['agreed_price']) ? (float) $row['agreed_price'] : $totalPrice;
         $advanceAmount = (float) ($row['advance_amount'] ?? 0.0);
-        $balanceAmount = isset($row['balance_amount']) ? (float) $row['balance_amount'] : max(0.0, $totalPrice - $advanceAmount);
+        $balanceAmount = isset($row['balance_amount']) && is_numeric($row['balance_amount']) ? (float) $row['balance_amount'] : max(0.0, $agreedPrice - $advanceAmount);
 
         return [
             'id' => $bookingId,
             'order_number' => $row['order_number'],
+            'ticket_number' => $row['ticket_number'] ?? null,
+            'ticket_pdf_path' => $row['ticket_pdf_path'] ?? null,
             'user_id' => $row['user_id'] ? (int) $row['user_id'] : null,
             'tour_id' => (int) $row['tour_id'],
             'tour' => [
@@ -1100,14 +1342,18 @@ class Booking extends BaseModel
             'tax_amount' => (float) $row['tax_amount'],
             'discount_amount' => (float) $row['discount_amount'],
             'total_price' => $totalPrice,
+            'agreed_price' => $agreedPrice,
             'advance_amount' => $advanceAmount,
             'balance_amount' => $balanceAmount,
             'approved_at' => $row['approved_at'] ?? null,
             'approved_by' => $row['approved_by'] ? (int) $row['approved_by'] : null,
+            'confirmed_at' => $row['confirmed_at'] ?? null,
+            'confirmed_by' => $row['confirmed_by'] ? (int) $row['confirmed_by'] : null,
             'currency' => $row['currency'],
             'booking_status' => $row['booking_status'],
             'payment_method' => $row['payment_method'],
             'payment_status' => $row['payment_status'],
+            'payment_discussion_notes' => $row['payment_discussion_notes'] ?? null,
             'customer_notes' => $row['customer_notes'],
             'admin_notes' => $row['admin_notes'],
             'first_name' => $row['first_name'] ?? ($customer['first_name'] ?? null),
@@ -1203,6 +1449,9 @@ class Booking extends BaseModel
             'email_send_count' => (int) ($row['email_send_count'] ?? 0),
             'last_email_attempt_at' => $row['last_email_attempt_at'] ?? null,
             'last_email_error' => $row['last_email_error'] ?? null,
+            'sms_status' => $row['sms_status'] ?? 'pending',
+            'sms_sent_at' => $row['sms_sent_at'] ?? null,
+            'last_sms_error' => $row['last_sms_error'] ?? null,
             'created_at' => $row['created_at'],
             'updated_at' => $row['updated_at'],
             'deleted_at' => $row['deleted_at'] ?? null,

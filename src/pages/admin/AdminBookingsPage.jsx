@@ -280,16 +280,16 @@ export default function AdminBookingsPage() {
   };
 
   // Direct Approval
-  const handleApproveBooking = async (bookingId) => {
+  const handleApproveBooking = async (bookingId, confirmPayload = '') => {
     try {
       setIsSubmittingStatus(true);
-      const updated = await bookingService.approveBooking(bookingId);
-      toast.success(`Booking #${updated?.order_number || selectedBooking?.order_number} approved and official ticket issued!`);
+      const updated = await bookingService.approveBooking(bookingId, confirmPayload);
+      toast.success(`Booking #${updated?.order_number || selectedBooking?.order_number} confirmed and ticket ${updated?.ticket_number ? '#' + updated.ticket_number : ''} issued!`);
       const full = await bookingService.getBooking(bookingId);
       setSelectedBooking(full);
       setReloadTrigger((prev) => prev + 1);
     } catch (err) {
-      toast.error(err.message || 'Failed to approve booking.');
+      toast.error(err.message || 'Failed to confirm booking.');
     } finally {
       setIsSubmittingStatus(false);
     }
@@ -306,6 +306,22 @@ export default function AdminBookingsPage() {
       setReloadTrigger((prev) => prev + 1);
     } catch (err) {
       toast.error(err.message || 'Failed to reject booking.');
+    } finally {
+      setIsSubmittingStatus(false);
+    }
+  };
+
+  // Record Payment Discussion
+  const handleRecordPaymentDiscussion = async (bookingId, discussionData) => {
+    try {
+      setIsSubmittingStatus(true);
+      const updated = await bookingService.recordPaymentDiscussion(bookingId, discussionData);
+      toast.success(`Payment terms & discussion for #${updated?.order_number || selectedBooking?.order_number} saved.`);
+      const full = await bookingService.getBooking(bookingId);
+      setSelectedBooking(full);
+      setReloadTrigger((prev) => prev + 1);
+    } catch (err) {
+      toast.error(err.message || 'Failed to save payment discussion.');
     } finally {
       setIsSubmittingStatus(false);
     }
@@ -329,6 +345,9 @@ export default function AdminBookingsPage() {
   const handleAddContactLog = async (bookingId, logData) => {
     try {
       await bookingService.addContactLog(bookingId, logData);
+      if (selectedBooking?.booking_status === 'pending') {
+        await bookingService.updateBookingStatus(bookingId, 'contacted', `Customer contacted via ${logData.contact_type}`);
+      }
       toast.success('Customer contact log saved.');
       const full = await bookingService.getBooking(bookingId);
       setSelectedBooking(full);
@@ -465,6 +484,7 @@ export default function AdminBookingsPage() {
         onApproveBooking={handleApproveBooking}
         onRejectBooking={handleRejectBooking}
         onRecordPayment={handleRecordPayment}
+        onRecordPaymentDiscussion={handleRecordPaymentDiscussion}
         onAddContactLog={handleAddContactLog}
         onResendConfirmation={handleResendConfirmation}
         isSavingNotes={isSavingNotes}

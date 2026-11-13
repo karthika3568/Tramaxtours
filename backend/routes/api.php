@@ -452,6 +452,12 @@ $router->group('/api/v1', function (Router $router) {
         // Manual Payment Recording (Permission: bookings.edit_status)
         $router->post('/{id}/payments', [BookingController::class, 'recordPayment'], [new PermissionMiddleware('bookings.edit_status')]);
 
+        // Payment Discussion & Terms Negotiation (Permission: bookings.edit_status)
+        $router->post('/{id}/payment-discussion', [BookingController::class, 'recordPaymentDiscussion'], [new PermissionMiddleware('bookings.edit_status')]);
+
+        // Status History Timeline (Permission: bookings.view)
+        $router->get('/{id}/status-history', [BookingController::class, 'statusHistory'], [new PermissionMiddleware('bookings.view')]);
+
         // Customer Contact Logging (Permission: bookings.edit_status)
         $router->post('/{id}/contact-logs', [BookingController::class, 'addContactLog'], [new PermissionMiddleware('bookings.edit_status')]);
 

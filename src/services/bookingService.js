@@ -83,12 +83,34 @@ export const bookingService = {
   /**
    * Approve booking and issue official confirmed ticket.
    * @param {number} id
-   * @param {string} [notes]
+   * @param {string|Object} [payload] - Optional notes string or discussion data object
    * @returns {Promise<Object>}
    */
-  approveBooking: async (id, notes = '') => {
-    const res = await client.post(`/bookings/${id}/approve`, { notes });
+  approveBooking: async (id, payload = '') => {
+    const body = typeof payload === 'string' ? { notes: payload } : payload;
+    const res = await client.post(`/bookings/${id}/approve`, body);
     return res.data;
+  },
+
+  /**
+   * Record payment discussion terms (agreed price, advance, balance, method, notes).
+   * @param {number} id
+   * @param {Object} data - { agreed_price, advance_amount, balance_amount, payment_method, payment_discussion_notes, admin_notes, booking_status }
+   * @returns {Promise<Object>}
+   */
+  recordPaymentDiscussion: async (id, data) => {
+    const res = await client.post(`/bookings/${id}/payment-discussion`, data);
+    return res.data;
+  },
+
+  /**
+   * Get booking status timeline history.
+   * @param {number} id
+   * @returns {Promise<Array>}
+   */
+  getStatusHistory: async (id) => {
+    const res = await client.get(`/bookings/${id}/status-history`);
+    return res.data || [];
   },
 
   /**

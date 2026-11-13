@@ -56,6 +56,9 @@ export default function BookingFilters({
           >
             <option value="all">All Statuses</option>
             <option value="pending">Pending</option>
+            <option value="contacted">Contacted</option>
+            <option value="payment_discussion">Payment Discussion</option>
+            <option value="awaiting_confirmation">Awaiting Confirmation</option>
             <option value="confirmed">Confirmed</option>
             <option value="completed">Completed</option>
             <option value="cancelled">Cancelled</option>

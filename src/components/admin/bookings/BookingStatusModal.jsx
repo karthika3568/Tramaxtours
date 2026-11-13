@@ -2,11 +2,14 @@ import { CheckIcon, StarIcon, XIcon } from '../../../components/common/Icons';
 import { useState } from 'react';
 
 const STATUS_OPTIONS = [
-  { value: 'pending', label: 'Pending', description: 'Initial booking awaiting review or confirmation' },
-  { value: 'confirmed', label: 'Confirmed', description: 'Tour reservation is approved and confirmed' },
+  { value: 'pending', label: 'Pending', description: 'Initial booking request received, awaiting staff review' },
+  { value: 'contacted', label: 'Contacted', description: 'Customer reached via Phone / WhatsApp' },
+  { value: 'payment_discussion', label: 'Payment Discussion', description: 'Pricing, advance and payment terms under negotiation' },
+  { value: 'awaiting_confirmation', label: 'Awaiting Confirmation', description: 'Terms agreed, pending final confirmation' },
+  { value: 'confirmed', label: 'Confirmed', description: 'Tour confirmed and official ticket issued' },
   { value: 'completed', label: 'Completed', description: 'Tour successfully executed and finished' },
   { value: 'cancelled', label: 'Cancelled', description: 'Booking cancelled by customer or operator' },
-  { value: 'rejected', label: 'Rejected', description: 'Booking declined due to capacity or policy' },
+  { value: 'rejected', label: 'Rejected', description: 'Booking declined' },
 ];
 
 const PAYMENT_STATUS_OPTIONS = [

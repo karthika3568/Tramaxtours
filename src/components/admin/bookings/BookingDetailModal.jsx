@@ -1,7 +1,8 @@
-import { BanknoteIcon, CheckIcon, ClockIcon, CompassIcon, CreditCardIcon, LockIcon, MailIcon, PhoneIcon, PrintIcon, UserIcon, WhatsAppIcon, XIcon } from '../../../components/common/Icons';
-import { useState } from 'react';
+import { BanknoteIcon, CheckIcon, ClockIcon, CompassIcon, CreditCardIcon, DownloadIcon, LockIcon, MailIcon, PhoneIcon, PrintIcon, SparklesIcon, UserIcon, WhatsAppIcon, XIcon } from '../../../components/common/Icons';
+import { useState, useEffect } from 'react';
 import useAuth from '../../../hooks/useAuth';
 import { getMediaUrl } from '../../../utils/media';
+import bookingService from '../../../services/bookingService';
 
 export default function BookingDetailModal({
   booking,
@@ -13,6 +14,7 @@ export default function BookingDetailModal({
   onApproveBooking,
   onRejectBooking,
   onRecordPayment,
+  onRecordPaymentDiscussion,
   onAddContactLog,
   onResendConfirmation,
   isSavingNotes = false,
@@ -39,12 +41,44 @@ export default function BookingDetailModal({
   const [contactNotes, setContactNotes] = useState('');
   const [isSubmittingContact, setIsSubmittingContact] = useState(false);
 
+  // Payment discussion form state
+  const [showDiscussionForm, setShowDiscussionForm] = useState(false);
+  const [discussionAgreedPrice, setDiscussionAgreedPrice] = useState(
+    booking?.agreed_price !== undefined && booking?.agreed_price !== null ? booking.agreed_price : (booking?.total_price || '')
+  );
+  const [discussionAdvance, setDiscussionAdvance] = useState(booking?.advance_amount || 0);
+  const [discussionPaymentMethod, setDiscussionPaymentMethod] = useState(booking?.payment_method || 'cash');
+  const [discussionNotes, setDiscussionNotes] = useState(booking?.payment_discussion_notes || '');
+  const [discussionNextStatus, setDiscussionNextStatus] = useState('payment_discussion');
+  const [isSubmittingDiscussion, setIsSubmittingDiscussion] = useState(false);
+
+  // Explicit confirmation popup state
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+  const [confirmNotes, setConfirmNotes] = useState('');
+  const [confirmAcknowledged, setConfirmAcknowledged] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+
+  // Sync state when booking changes
+  useEffect(() => {
+    if (booking) {
+      setAdminNotes(booking.admin_notes || '');
+      setDiscussionAgreedPrice(
+        booking.agreed_price !== undefined && booking.agreed_price !== null ? booking.agreed_price : (booking.total_price || '')
+      );
+      setDiscussionAdvance(booking.advance_amount || 0);
+      setDiscussionPaymentMethod(booking.payment_method || 'cash');
+      setDiscussionNotes(booking.payment_discussion_notes || '');
+    }
+  }, [booking]);
+
   if (!isOpen || !booking) return null;
 
   const currency = booking.currency === 'EUR' ? '€' : (booking.currency || 'INR');
   const totalPrice = Number(booking.total_price || 0);
+  const agreedPrice = Number(booking.agreed_price !== undefined && booking.agreed_price !== null ? booking.agreed_price : totalPrice);
   const advanceAmount = Number(booking.advance_amount || 0);
-  const balanceAmount = Number(booking.balance_amount !== undefined ? booking.balance_amount : Math.max(0, totalPrice - advanceAmount));
+  const balanceAmount = Number(booking.balance_amount !== undefined ? booking.balance_amount : Math.max(0, agreedPrice - advanceAmount));
 
   const customerPhone = booking.customer?.phone || booking.phone || '';
   const cleanPhone = customerPhone.replace(/[^0-9]/g, '');
@@ -58,6 +92,12 @@ export default function BookingDetailModal({
         return 'status-badge-confirmed';
       case 'completed':
         return 'status-badge-completed';
+      case 'contacted':
+        return 'status-badge-contacted';
+      case 'payment_discussion':
+        return 'status-badge-discussion';
+      case 'awaiting_confirmation':
+        return 'status-badge-awaiting';
       case 'cancelled':
       case 'rejected':
         return 'status-badge-cancelled';
@@ -109,6 +149,67 @@ export default function BookingDetailModal({
       setPayNotes('');
     } finally {
       setIsSubmittingPay(false);
+    }
+  };
+
+  const handleDiscussionSubmit = async (e) => {
+    e.preventDefault();
+    if (!onRecordPaymentDiscussion) return;
+    const priceVal = parseFloat(discussionAgreedPrice);
+    const advanceVal = parseFloat(discussionAdvance) || 0;
+    if (isNaN(priceVal) || priceVal < 0) return;
+
+    try {
+      setIsSubmittingDiscussion(true);
+      await onRecordPaymentDiscussion(booking.id, {
+        agreed_price: priceVal,
+        advance_amount: advanceVal,
+        balance_amount: Math.max(0, priceVal - advanceVal),
+        payment_method: discussionPaymentMethod,
+        payment_discussion_notes: discussionNotes.trim(),
+        booking_status: discussionNextStatus,
+      });
+      setShowDiscussionForm(false);
+    } finally {
+      setIsSubmittingDiscussion(false);
+    }
+  };
+
+  const handleExplicitConfirm = async (e) => {
+    e.preventDefault();
+    if (!onApproveBooking) return;
+
+    try {
+      setIsConfirming(true);
+      await onApproveBooking(booking.id, {
+        agreed_price: Number(discussionAgreedPrice || agreedPrice),
+        advance_amount: Number(discussionAdvance || advanceAmount),
+        balance_amount: Math.max(0, Number(discussionAgreedPrice || agreedPrice) - Number(discussionAdvance || advanceAmount)),
+        payment_method: discussionPaymentMethod || booking.payment_method,
+        notes: confirmNotes.trim() || 'Booking confirmed by administrator and official ticket issued',
+      });
+      setShowConfirmPopup(false);
+    } finally {
+      setIsConfirming(false);
+    }
+  };
+
+  const handleDownloadTicketPdf = async () => {
+    try {
+      setIsDownloadingPdf(true);
+      const blob = await bookingService.downloadReceipt(booking.id);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ticket_${booking.ticket_number || booking.order_number}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch {
+      alert('Unable to download ticket PDF. Please try again.');
+    } finally {
+      setIsDownloadingPdf(false);
     }
   };
 
@@ -201,18 +302,39 @@ export default function BookingDetailModal({
             >
               {showContactForm ? 'Hide Contact Form' : 'Log Call / WhatsApp Note'}
             </button>
+            {canEditStatus && (
+              <button
+                type="button"
+                className="btn btn-outline btn-xs"
+                onClick={() => setShowDiscussionForm(!showDiscussionForm)}
+                style={{ borderColor: '#8b5cf6', color: '#6d28d9' }}
+              >
+                {showDiscussionForm ? 'Hide Terms Form' : 'Discuss / Negotiate Payment Terms'}
+              </button>
+            )}
           </div>
 
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {booking.ticket_number && (
+              <button
+                type="button"
+                className="btn btn-outline btn-xs"
+                onClick={handleDownloadTicketPdf}
+                disabled={isDownloadingPdf}
+                style={{ borderColor: '#059669', color: '#047857', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+              >
+                <DownloadIcon size={13} /> {isDownloadingPdf ? 'Generating...' : 'Download Ticket PDF'}
+              </button>
+            )}
             {canEditStatus && booking.booking_status !== 'confirmed' && (
               <button
                 type="button"
                 className="btn btn-primary btn-xs"
                 disabled={isProcessing}
-                onClick={() => onApproveBooking && onApproveBooking(booking.id)}
-                style={{ background: '#01aa90', borderColor: '#01aa90' }}
+                onClick={() => setShowConfirmPopup(true)}
+                style={{ background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
               >
-                Approve Booking & Issue Ticket
+                <CheckIcon size={13} /> Confirm Booking &amp; Issue Ticket
               </button>
             )}
             {canEditStatus && booking.booking_status !== 'rejected' && booking.booking_status !== 'cancelled' && (
@@ -240,6 +362,82 @@ export default function BookingDetailModal({
 
         {/* Modal Body */}
         <div className="modal-body booking-modal-content">
+          {/* Confirmed Ticket Notice Banner OR Pending Notice */}
+          {booking.ticket_number ? (
+            <div
+              style={{
+                background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
+                border: '1.5px solid #10b981',
+                borderRadius: '12px',
+                padding: '14px 20px',
+                marginBottom: '18px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '12px',
+              }}
+            >
+              <div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#047857' }}>
+                  <SparklesIcon size={14} color="#059669" />
+                  <span>Official Confirmed Tour Ticket Issued</span>
+                </div>
+                <h3 style={{ margin: '4px 0 2px', fontSize: '18px', fontWeight: '800', color: '#065f46' }}>
+                  Ticket Number: {booking.ticket_number}
+                </h3>
+                <p style={{ margin: 0, fontSize: '12.5px', color: '#047857' }}>
+                  Confirmed Date: {booking.confirmed_at ? new Date(booking.confirmed_at).toLocaleString() : new Date().toLocaleString()}
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={handleDownloadTicketPdf}
+                  disabled={isDownloadingPdf}
+                  style={{ background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '5px' }}
+                >
+                  <DownloadIcon size={14} />
+                  <span>{isDownloadingPdf ? 'Downloading...' : 'Download Ticket PDF'}</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div
+              style={{
+                background: '#fefce8',
+                border: '1px solid #fef08a',
+                borderRadius: '10px',
+                padding: '12px 18px',
+                marginBottom: '18px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '10px',
+              }}
+            >
+              <div>
+                <strong style={{ color: '#854d0e', fontSize: '13.5px' }}>
+                  Booking Status: {booking.booking_status?.toUpperCase() || 'PENDING'}
+                </strong>
+                <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#a16207' }}>
+                  Initial booking request received. No confirmed ticket has been issued yet. Contact customer, finalize payment terms, then click "Confirm Booking &amp; Issue Ticket".
+                </p>
+              </div>
+              {canEditStatus && (
+                <button
+                  type="button"
+                  className="btn btn-primary btn-xs"
+                  onClick={() => setShowConfirmPopup(true)}
+                  style={{ background: '#059669', borderColor: '#059669' }}
+                >
+                  Confirm Booking Now
+                </button>
+              )}
+            </div>
+          )}
           {/* Collapsible Contact Log Entry Form */}
           {showContactForm && (
             <div className="detail-card" style={{ background: '#f0fdfa', border: '1px solid #99f6e4', marginBottom: '18px' }}>
@@ -507,30 +705,161 @@ export default function BookingDetailModal({
               {/* Financial & Payment Breakdown Card */}
               <div className="detail-card" style={{ border: '1.5px solid #01aa90' }}>
                 <div className="detail-card-header-flex">
-                  <h3 className="detail-card-heading" style={{ color: '#01aa90' }}>Payment Tracking & Balance</h3>
+                  <h3 className="detail-card-heading" style={{ color: '#01aa90' }}>
+                    Payment Discussion &amp; Financial Tracking
+                  </h3>
                   {canEditStatus && (
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-xs"
-                      onClick={() => {
-                        setShowPaymentForm(!showPaymentForm);
-                        if (!payAmount && balanceAmount > 0) {
-                          setPayAmount(balanceAmount.toString());
-                        }
-                      }}
-                    >
-                      + Record Payment
-                    </button>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <button
+                        type="button"
+                        className="btn btn-outline btn-xs"
+                        onClick={() => setShowDiscussionForm(!showDiscussionForm)}
+                        style={{ borderColor: '#8b5cf6', color: '#6d28d9' }}
+                      >
+                        {showDiscussionForm ? 'Close Terms' : '✏️ Edit Terms'}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-xs"
+                        onClick={() => {
+                          setShowPaymentForm(!showPaymentForm);
+                          if (!payAmount && balanceAmount > 0) {
+                            setPayAmount(balanceAmount.toString());
+                          }
+                        }}
+                      >
+                        + Record Payment
+                      </button>
+                    </div>
                   )}
                 </div>
 
+                {/* Collapsible Payment Discussion & Negotiation Form */}
+                {showDiscussionForm && (
+                  <form
+                    onSubmit={handleDiscussionSubmit}
+                    style={{
+                      background: '#f5f3ff',
+                      border: '1.5px solid #c4b5fd',
+                      borderRadius: '8px',
+                      padding: '14px',
+                      marginTop: '12px',
+                      marginBottom: '12px',
+                    }}
+                  >
+                    <h4 style={{ margin: '0 0 10px', fontSize: '13px', color: '#5b21b6', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <CreditCardIcon size={14} color="#6d28d9" />
+                      <span>Negotiate / Record Agreed Payment Terms</span>
+                    </h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      <div>
+                        <label className="form-label" style={{ fontSize: '11.5px' }}>Agreed Package Price ({currency}) *</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          className="form-control form-control-sm"
+                          value={discussionAgreedPrice}
+                          onChange={(e) => setDiscussionAgreedPrice(e.target.value)}
+                          placeholder="e.g. 35000"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="form-label" style={{ fontSize: '11.5px' }}>Advance Amount ({currency})</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          className="form-control form-control-sm"
+                          value={discussionAdvance}
+                          onChange={(e) => setDiscussionAdvance(e.target.value)}
+                          placeholder="e.g. 10000"
+                        />
+                      </div>
+                      <div>
+                        <label className="form-label" style={{ fontSize: '11.5px' }}>Calculated Balance ({currency})</label>
+                        <input
+                          type="text"
+                          className="form-control form-control-sm"
+                          readOnly
+                          value={`${currency} ${Math.max(0, (parseFloat(discussionAgreedPrice) || 0) - (parseFloat(discussionAdvance) || 0)).toFixed(2)}`}
+                          style={{ background: '#f1f5f9', fontWeight: 'bold' }}
+                        />
+                      </div>
+                      <div>
+                        <label className="form-label" style={{ fontSize: '11.5px' }}>Agreed Payment Mode</label>
+                        <select
+                          className="form-control form-select form-control-sm"
+                          value={discussionPaymentMethod}
+                          onChange={(e) => setDiscussionPaymentMethod(e.target.value)}
+                        >
+                          <option value="cash">Cash (Direct)</option>
+                          <option value="upi">UPI (GPay / PhonePe / Paytm)</option>
+                          <option value="bank_transfer">Bank Transfer / NEFT / IMPS</option>
+                          <option value="direct">Direct Payment</option>
+                          <option value="pay_on_arrival">Pay on Arrival</option>
+                        </select>
+                      </div>
+                      <div style={{ gridColumn: 'span 2' }}>
+                        <label className="form-label" style={{ fontSize: '11.5px' }}>Discussion Notes &amp; Terms Agreed</label>
+                        <textarea
+                          rows={2}
+                          className="form-control form-control-sm"
+                          placeholder="e.g. Customer agreed to ₹32,000 package rate with 30% advance on WhatsApp. Remaining at hotel check-in."
+                          value={discussionNotes}
+                          onChange={(e) => setDiscussionNotes(e.target.value)}
+                        />
+                      </div>
+                      <div style={{ gridColumn: 'span 2' }}>
+                        <label className="form-label" style={{ fontSize: '11.5px' }}>Update Status To</label>
+                        <select
+                          className="form-control form-select form-control-sm"
+                          value={discussionNextStatus}
+                          onChange={(e) => setDiscussionNextStatus(e.target.value)}
+                        >
+                          <option value="payment_discussion">Payment Discussion (Terms Under Negotiation)</option>
+                          <option value="awaiting_confirmation">Awaiting Confirmation (Terms Settled, Awaiting Final Go-Ahead)</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '12px' }}>
+                      <button
+                        type="button"
+                        className="btn btn-outline btn-xs"
+                        onClick={() => setShowDiscussionForm(false)}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="btn btn-primary btn-xs"
+                        disabled={isSubmittingDiscussion}
+                        style={{ background: '#7c3aed', borderColor: '#7c3aed' }}
+                      >
+                        {isSubmittingDiscussion ? 'Saving Terms...' : 'Save Payment Discussion Terms'}
+                      </button>
+                    </div>
+                  </form>
+                )}
+
                 <div className="detail-fields-list price-breakdown-list" style={{ marginTop: '12px' }}>
                   <div className="detail-field-row">
-                    <span className="field-label">Total Booking Amount:</span>
-                    <span className="field-value font-bold" style={{ fontSize: '15px' }}>
+                    <span className="field-label">Original Booking Price:</span>
+                    <span className="field-value font-bold" style={{ fontSize: '14px', color: '#64748b' }}>
                       {currency} {totalPrice.toFixed(2)}
                     </span>
                   </div>
+                  {booking.agreed_price && (
+                    <div className="detail-field-row" style={{ background: '#faf5ff', padding: '6px 8px', borderRadius: '4px' }}>
+                      <span className="field-label font-bold" style={{ color: '#7c3aed' }}>
+                        Agreed Package Price:
+                      </span>
+                      <span className="field-value font-bold" style={{ fontSize: '15px', color: '#7c3aed' }}>
+                        {currency} {agreedPrice.toFixed(2)}
+                      </span>
+                    </div>
+                  )}
                   <div className="detail-field-row">
                     <span className="field-label">Agreed Payment Mode:</span>
                     <span className="field-value font-bold text-accent" style={{ textTransform: 'capitalize' }}>
@@ -551,6 +880,16 @@ export default function BookingDetailModal({
                       {currency} {balanceAmount.toFixed(2)}
                     </span>
                   </div>
+                  {booking.payment_discussion_notes && (
+                    <div className="detail-field-row" style={{ flexDirection: 'column', alignItems: 'flex-start', background: '#f8fafc', padding: '6px 8px', borderRadius: '4px' }}>
+                      <span className="field-label font-semibold" style={{ color: '#64748b', fontSize: '11px', textTransform: 'uppercase' }}>
+                        Payment Discussion Remarks:
+                      </span>
+                      <span className="field-value" style={{ fontStyle: 'italic', fontSize: '12.5px', marginTop: '2px' }}>
+                        "{booking.payment_discussion_notes}"
+                      </span>
+                    </div>
+                  )}
                   <div className="detail-field-row">
                     <span className="field-label">Payment Status:</span>
                     <span className={`payment-status-dot ${getPaymentBadgeClass(booking.payment_status)}`}>
@@ -715,7 +1054,7 @@ export default function BookingDetailModal({
 
               {/* Email & Notification Status */}
               <div className="detail-card">
-                <h3 className="detail-card-heading">Email & Notification Status</h3>
+                <h3 className="detail-card-heading">Email &amp; Notification Status</h3>
                 <div className="detail-fields-list">
                   <div className="detail-field-row">
                     <span className="field-label">Customer Email:</span>
@@ -744,6 +1083,19 @@ export default function BookingDetailModal({
                     </span>
                   </div>
                   <div className="detail-field-row">
+                    <span className="field-label">Customer SMS:</span>
+                    <span className="field-value">
+                      <span className={`badge badge-sm ${booking.sms_status === 'sent' ? 'badge-success' : booking.sms_status === 'failed' ? 'badge-danger' : 'badge-info'}`}>
+                        {booking.sms_status ? booking.sms_status.toUpperCase() : 'SIMULATED / ACTIVE'}
+                      </span>
+                      {booking.sms_sent_at && (
+                        <span className="text-muted-sm" style={{ display: 'block', fontSize: '11px', marginTop: '2px' }}>
+                          Sent: {new Date(booking.sms_sent_at).toLocaleString()}
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="detail-field-row">
                     <span className="field-label">Customer Send Count:</span>
                     <span className="field-value">{booking.email_send_count || 0} of 3 maximum</span>
                   </div>
@@ -763,6 +1115,17 @@ export default function BookingDetailModal({
             >
               Print Voucher
             </button>
+            {booking.ticket_number && (
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={handleDownloadTicketPdf}
+                disabled={isDownloadingPdf}
+                style={{ borderColor: '#059669', color: '#047857' }}
+              >
+                {isDownloadingPdf ? 'Downloading...' : 'Download Ticket PDF'}
+              </button>
+            )}
           </div>
           <div className="modal-footer-right">
             {canEditStatus && (
@@ -783,6 +1146,129 @@ export default function BookingDetailModal({
           </div>
         </div>
       </div>
+
+      {/* Explicit Confirmation Popup Dialog */}
+      {showConfirmPopup && (
+        <div
+          className="modal-backdrop"
+          style={{ zIndex: 9999, background: 'rgba(15, 23, 42, 0.75)' }}
+          onClick={() => setShowConfirmPopup(false)}
+        >
+          <div
+            className="modal-container modal-medium"
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '580px', borderRadius: '16px', overflow: 'hidden' }}
+          >
+            <div className="modal-header" style={{ background: '#059669', color: '#ffffff' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <CheckIcon size={20} color="#ffffff" />
+                <h3 className="modal-title" style={{ color: '#ffffff', margin: 0, fontSize: '18px' }}>
+                  Confirm Tour Booking &amp; Issue Ticket
+                </h3>
+              </div>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setShowConfirmPopup(false)}
+                style={{ color: '#ffffff' }}
+              >
+                <XIcon size={16} />
+              </button>
+            </div>
+
+            <form onSubmit={handleExplicitConfirm}>
+              <div className="modal-body" style={{ padding: '24px' }}>
+                <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '8px', padding: '12px 16px', marginBottom: '18px' }}>
+                  <p style={{ margin: 0, fontSize: '13px', color: '#065f46', lineHeight: 1.5 }}>
+                    Please verify the finalized customer details and payment agreement below. Once confirmed, an <strong>official unique Ticket Number</strong> will be assigned, a <strong>Confirmed Tour Ticket PDF</strong> will be generated, and confirmation emails &amp; SMS will be dispatched to the customer and admin.
+                  </p>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '13px', marginBottom: '16px', background: '#f8fafc', padding: '14px', borderRadius: '8px' }}>
+                  <div>
+                    <span style={{ color: '#64748b', fontSize: '11px', textTransform: 'uppercase' }}>Customer Name</span>
+                    <div style={{ fontWeight: '700', color: '#0f172a' }}>{booking.customer?.name || `${booking.customer?.first_name || ''} ${booking.customer?.last_name || ''}`}</div>
+                  </div>
+                  <div>
+                    <span style={{ color: '#64748b', fontSize: '11px', textTransform: 'uppercase' }}>Customer Contact</span>
+                    <div style={{ fontWeight: '600', color: '#0f172a' }}>{booking.customer?.phone || booking.phone || 'N/A'}</div>
+                    <div style={{ fontSize: '11px', color: '#64748b' }}>{booking.customer?.email}</div>
+                  </div>
+                  <div>
+                    <span style={{ color: '#64748b', fontSize: '11px', textTransform: 'uppercase' }}>Tour Package</span>
+                    <div style={{ fontWeight: '700', color: '#0f172a' }}>{booking.tour?.title || 'Tour'}</div>
+                  </div>
+                  <div>
+                    <span style={{ color: '#64748b', fontSize: '11px', textTransform: 'uppercase' }}>Travel Date &amp; Guests</span>
+                    <div style={{ fontWeight: '700', color: '#0f172a' }}>{booking.arrival_date || booking.booking_date} ({booking.tickets_count} Pax)</div>
+                  </div>
+                  <div>
+                    <span style={{ color: '#64748b', fontSize: '11px', textTransform: 'uppercase' }}>Confirmed Tour Price</span>
+                    <div style={{ fontWeight: '800', fontSize: '16px', color: '#059669' }}>
+                      {currency} {Number(discussionAgreedPrice || agreedPrice).toFixed(2)}
+                    </div>
+                  </div>
+                  <div>
+                    <span style={{ color: '#64748b', fontSize: '11px', textTransform: 'uppercase' }}>Advance Received / Required</span>
+                    <div style={{ fontWeight: '700', color: '#0284c7' }}>
+                      {currency} {Number(discussionAdvance || advanceAmount).toFixed(2)}
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#b91c1c' }}>
+                      Balance Due: {currency} {Math.max(0, Number(discussionAgreedPrice || agreedPrice) - Number(discussionAdvance || advanceAmount)).toFixed(2)}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-group mb-3">
+                  <label className="form-label font-semibold" style={{ fontSize: '12px' }}>
+                    Confirmation Notes / Remarks
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control form-control-sm"
+                    placeholder="e.g. Terms finalized with customer via telephone. 50% advance confirmed."
+                    value={confirmNotes}
+                    onChange={(e) => setConfirmNotes(e.target.value)}
+                  />
+                </div>
+
+                <div className="form-group mb-2">
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', cursor: 'pointer', fontSize: '12.5px', color: '#1e293b' }}>
+                    <input
+                      type="checkbox"
+                      checked={confirmAcknowledged}
+                      onChange={(e) => setConfirmAcknowledged(e.target.checked)}
+                      style={{ marginTop: '3px' }}
+                      required
+                    />
+                    <span>
+                      I have communicated with the customer and verified travel dates, pricing, and payment terms. I authorize generating the <strong>Confirmed Ticket</strong> and sending notification emails &amp; SMS.
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="modal-footer" style={{ background: '#f8fafc', padding: '14px 24px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => setShowConfirmPopup(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={isConfirming || !confirmAcknowledged}
+                  style={{ background: '#059669', borderColor: '#059669', padding: '8px 20px', fontWeight: '700' }}
+                >
+                  {isConfirming ? 'Confirming & Issuing Ticket...' : 'Confirm Booking & Issue Ticket'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\AuditService;
 use App\Services\MailService;
 use App\Services\PdfService;
+use App\Services\SmsService;
 use App\Utils\Env;
 use App\Utils\JWT;
 use App\Utils\Request;
@@ -275,6 +276,16 @@ class BookingController extends BaseController
                 Booking::recordEmailDispatchResult($bookingId, false, $e->getMessage(), false, $e->getMessage());
             }
 
+            // Dispatch Initial Booking Request SMS (Status PENDING notification)
+            try {
+                [$custSmsSent, $custSmsError] = SmsService::sendCustomerBookingRequestSms($createdBooking);
+                SmsService::sendAdminBookingRequestSms($createdBooking);
+                Booking::recordSmsDispatchResult($bookingId, $custSmsSent, $custSmsError);
+            } catch (Throwable $e) {
+                error_log('[Wanderer SMS] Booking request SMS dispatch error for booking ' . $bookingId . ': ' . $e->getMessage());
+                Booking::recordSmsDispatchResult($bookingId, false, $e->getMessage());
+            }
+
             $this->success($createdBooking, 'Booking placed successfully', 201);
         } catch (Throwable $e) {
             if ($e->getCode() === 409) {
@@ -407,15 +418,17 @@ class BookingController extends BaseController
 
         $userId = Request::getUserId();
         $body = Request::getBody();
-        $notes = $body['notes'] ?? 'Booking approved by administrator';
+        $notes = $body['notes'] ?? 'Booking confirmed by administrator';
 
         try {
-            $result = Booking::approveBooking($id, $userId, $notes);
+            $result = Booking::approveBooking($id, $userId, $body);
             $updatedBooking = $result['booking'];
 
             if ($userId) {
                 AuditService::log($userId, 'booking_approve', 'booking', $id, null, [
                     'order_number' => $updatedBooking['order_number'],
+                    'ticket_number' => $updatedBooking['ticket_number'] ?? null,
+                    'agreed_price' => $updatedBooking['agreed_price'] ?? null,
                     'notes' => $notes,
                 ]);
             }
@@ -423,6 +436,10 @@ class BookingController extends BaseController
             // Generate official ticket PDF & dispatch customer ticket + admin copy
             try {
                 $pdfPath = PdfService::generateBookingReceipt($updatedBooking);
+                if ($pdfPath) {
+                    Booking::update($id, ['ticket_pdf_path' => $pdfPath]);
+                    $updatedBooking['ticket_pdf_path'] = $pdfPath;
+                }
                 $receiptUrl = $this->buildReceiptUrl($id, $updatedBooking['order_number']);
 
                 [$custSent, $custError] = MailService::sendCustomerTicket($updatedBooking, $pdfPath, $receiptUrl);
@@ -434,10 +451,19 @@ class BookingController extends BaseController
                 Booking::recordEmailDispatchResult($id, false, $e->getMessage(), false, $e->getMessage());
             }
 
+            // Dispatch Customer & Admin Confirmed Ticket SMS
+            try {
+                [$custSms, $errSms] = SmsService::sendCustomerConfirmationSms($updatedBooking);
+                SmsService::sendAdminConfirmationSms($updatedBooking);
+                Booking::recordSmsDispatchResult($id, $custSms, $errSms);
+            } catch (Throwable $e) {
+                error_log('[Wanderer SMS] Confirmation SMS dispatch error: ' . $e->getMessage());
+            }
+
             $refreshed = Booking::findById($id);
-            $this->success($refreshed, 'Booking approved and confirmed ticket issued successfully');
+            $this->success($refreshed, 'Booking confirmed and ticket issued successfully');
         } catch (Throwable $e) {
-            $this->error('Failed to approve booking: ' . $e->getMessage(), 500, null, 'APPROVAL_FAILED');
+            $this->error('Failed to confirm booking: ' . $e->getMessage(), 500, null, 'CONFIRMATION_FAILED');
         }
     }
 
@@ -472,10 +498,74 @@ class BookingController extends BaseController
                 ]);
             }
 
+            // Customer rejection SMS
+            try {
+                SmsService::sendCustomerRejectionSms($updatedBooking);
+            } catch (Throwable $e) {
+                error_log('[Wanderer SMS] Rejection SMS dispatch error: ' . $e->getMessage());
+            }
+
             $this->success($updatedBooking, 'Booking has been rejected');
         } catch (Throwable $e) {
             $this->error('Failed to reject booking: ' . $e->getMessage(), 500, null, 'REJECT_FAILED');
         }
+    }
+
+    /**
+     * Record payment terms discussion and update status.
+     * POST /api/v1/bookings/{id}/payment-discussion
+     *
+     * @param string $id
+     * @return void
+     */
+    public function recordPaymentDiscussion(string $id): void
+    {
+        $id = (int) $id;
+        $booking = Booking::findById($id);
+
+        if (!$booking) {
+            $this->error('Booking not found.', 404, null, 'BOOKING_NOT_FOUND');
+        }
+
+        $userId = Request::getUserId();
+        $body = Request::getBody();
+
+        try {
+            $updatedBooking = Booking::recordPaymentDiscussion($id, $body, $userId);
+
+            if ($userId) {
+                AuditService::log($userId, 'booking_payment_discussion', 'booking', $id, null, [
+                    'order_number' => $updatedBooking['order_number'],
+                    'agreed_price' => $updatedBooking['agreed_price'] ?? null,
+                    'advance_amount' => $updatedBooking['advance_amount'] ?? null,
+                    'balance_amount' => $updatedBooking['balance_amount'] ?? null,
+                    'payment_method' => $updatedBooking['payment_method'] ?? null,
+                ]);
+            }
+
+            $this->success($updatedBooking, 'Payment terms and discussion saved successfully');
+        } catch (Throwable $e) {
+            $this->error('Failed to record payment terms: ' . $e->getMessage(), 500, null, 'PAYMENT_DISCUSSION_FAILED');
+        }
+    }
+
+    /**
+     * Get booking status timeline history.
+     * GET /api/v1/bookings/{id}/status-history
+     *
+     * @param string $id
+     * @return void
+     */
+    public function statusHistory(string $id): void
+    {
+        $id = (int) $id;
+        $booking = Booking::findById($id);
+
+        if (!$booking) {
+            $this->error('Booking not found.', 404, null, 'BOOKING_NOT_FOUND');
+        }
+
+        $this->success($booking['status_history'] ?? [], 'Status history retrieved successfully');
     }
 
     /**
@@ -636,6 +726,15 @@ class BookingController extends BaseController
         }
 
         $updatedBooking = Booking::findById($id);
+
+        if ($status === 'cancelled') {
+            try {
+                SmsService::sendCustomerCancellationSms($updatedBooking);
+            } catch (Throwable $e) {
+                error_log('[Wanderer SMS] Cancellation SMS dispatch error: ' . $e->getMessage());
+            }
+        }
+
         $this->success($updatedBooking, "Booking has been {$status} successfully");
     }
 

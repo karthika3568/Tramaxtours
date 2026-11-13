@@ -396,8 +396,8 @@ export default function TourBookingCard({ tour }) {
 
         {/* Trust Badges */}
         <div className="booking-trust-badges">
-          <div className="trust-badge-line" style={{ display: "flex", alignItems: "center", gap: "6px" }}><CheckIcon size={13} color="#01aa90" /> Instant Confirmation & Voucher</div>
-          <div className="trust-badge-line" style={{ display: "flex", alignItems: "center", gap: "6px" }}><CheckIcon size={13} color="#01aa90" /> Private AC Vehicle & Chauffeur Guide</div>
+          <div className="trust-badge-line" style={{ display: "flex", alignItems: "center", gap: "6px" }}><CheckIcon size={13} color="#01aa90" /> Personalized Admin Support &amp; Discussion</div>
+          <div className="trust-badge-line" style={{ display: "flex", alignItems: "center", gap: "6px" }}><CheckIcon size={13} color="#01aa90" /> Private AC Vehicle &amp; Chauffeur Guide</div>
           <div className="trust-badge-line" style={{ display: "flex", alignItems: "center", gap: "6px" }}><CheckIcon size={13} color="#01aa90" /> Free Cancellation up to 48 Hours</div>
         </div>
       </div>

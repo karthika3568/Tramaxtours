@@ -63,9 +63,10 @@ class PdfService
         $currency = $booking['currency'] ?? 'INR';
         $money = fn($amount) => $currency . ' ' . number_format((float) $amount, 2);
 
-        $totalPrice = (float) ($booking['total_price'] ?? 0.0);
+        $totalPrice = (float) ($booking['agreed_price'] ?? ($booking['total_price'] ?? 0.0));
         $advanceAmount = (float) ($booking['advance_amount'] ?? 0.0);
         $balanceAmount = (float) ($booking['balance_amount'] ?? max(0.0, $totalPrice - $advanceAmount));
+        $ticketNumber = !empty($booking['ticket_number']) ? $booking['ticket_number'] : ('TKT-' . date('Ymd') . '-' . substr(strtoupper(bin2hex(random_bytes(2))), 0, 4));
 
         $billingLine = trim(implode(', ', array_filter([
             $billing['address_line1'] ?? '',
@@ -84,12 +85,12 @@ class PdfService
         $travelDate = $booking['arrival_date'] ?? $booking['booking_date'] ?? date('Y-m-d');
         $duration = $booking['duration_days'] ?? $tour['duration_days'] ?? ($tour['duration_text'] ?? '1 Day');
 
-        $approvedText = !empty($booking['approved_at']) 
-            ? date('d M Y, h:i A', strtotime($booking['approved_at'])) 
-            : date('d M Y, h:i A');
+        $approvedText = !empty($booking['confirmed_at']) 
+            ? date('d M Y, h:i A', strtotime($booking['confirmed_at'])) 
+            : (!empty($booking['approved_at']) ? date('d M Y, h:i A', strtotime($booking['approved_at'])) : date('d M Y, h:i A'));
 
         $balanceBadge = ($balanceAmount <= 0.001)
-            ? '<span class="badge badge-paid">FULLY PAID ✓</span>'
+            ? '<span class="badge badge-paid">FULLY SETTLED ✓</span>'
             : '<span class="badge badge-balance">BALANCE PAYABLE: ' . $e($money($balanceAmount)) . '</span>';
 
         return <<<HTML
@@ -104,8 +105,9 @@ class PdfService
     .brand { font-size: 20px; font-weight: bold; color: #01AA90; }
     .company-sub { font-size: 10px; color: #64748b; font-weight: normal; margin-top: 2px; }
     .doc-type { text-align: right; vertical-align: top; }
-    .doc-title { font-size: 16px; font-weight: bold; color: #0B1329; text-transform: uppercase; letter-spacing: 1px; }
-    .doc-ref { font-size: 13px; font-weight: bold; color: #01AA90; margin-top: 3px; }
+    .doc-title { font-size: 15px; font-weight: bold; color: #0B1329; text-transform: uppercase; letter-spacing: 0.5px; }
+    .ticket-badge { display: inline-block; background: #01AA90; color: #ffffff; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-top: 3px; }
+    .doc-ref { font-size: 12px; font-weight: bold; color: #475569; margin-top: 2px; }
     
     .status-banner { background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 6px; padding: 10px 14px; margin-bottom: 16px; }
     .status-banner td { padding: 2px 4px; }
@@ -144,11 +146,15 @@ class PdfService
                     {$logoTag}
                     <div class="brand">Wanderer South India</div>
                     <div class="company-sub">Operated by Tramax Tours • South India Tour &amp; Experience Specialists</div>
+                    <div style="font-size: 9.5px; color: #64748b; margin-top: 3px;">
+                        Phone/WhatsApp: +91 9840291110 • Email: welcome@yourbestdayinindia.com
+                    </div>
                 </td>
                 <td class="doc-type" style="width: 45%; padding: 0;">
-                    <div class="doc-title">Official Tour Voucher</div>
-                    <div class="doc-ref">#{$e($booking['order_number'])}</div>
-                    <div style="color: #64748b; font-size: 10px; margin-top: 3px;">Approved On: {$e($approvedText)}</div>
+                    <div class="doc-title">Confirmed Tour Ticket</div>
+                    <div class="ticket-badge">Ticket #: {$e($ticketNumber)}</div>
+                    <div class="doc-ref">Booking Ref: #{$e($booking['order_number'])}</div>
+                    <div style="color: #64748b; font-size: 10px; margin-top: 3px;">Confirmed On: {$e($approvedText)}</div>
                 </td>
             </tr>
         </table>
@@ -159,7 +165,7 @@ class PdfService
         <tr>
             <td style="width: 50%;">
                 <span class="label">Booking Confirmation Status:</span><br>
-                <span class="badge badge-confirmed">{$e(strtoupper($booking['booking_status']))} ✓</span>
+                <span class="badge badge-confirmed">CONFIRMED ✓</span>
             </td>
             <td style="width: 50%; text-align: right;">
                 <span class="label">Payment Settlement Status:</span><br>
@@ -172,15 +178,15 @@ class PdfService
     <div class="section-title">1. Traveler Information</div>
     <table class="box-table">
         <tr>
-            <td class="label">Guest Full Name</td>
+            <td class="label">Customer Full Name</td>
             <td class="value">{$e($customer['name'] ?? trim(($booking['first_name'] ?? '') . ' ' . ($booking['last_name'] ?? '')))}</td>
-            <td class="label">Primary Phone</td>
+            <td class="label">Primary Mobile Number</td>
             <td class="value">{$e($customer['phone'] ?? $booking['phone'] ?? 'N/A')}</td>
         </tr>
         <tr>
             <td class="label">Email Address</td>
             <td class="value">{$e($customer['email'] ?? $booking['email'] ?? 'N/A')}</td>
-            <td class="label">Country of Origin</td>
+            <td class="label">Country of Residence</td>
             <td class="value">{$e($customer['country'] ?? $booking['country'] ?? 'India')}</td>
         </tr>
         <tr>
@@ -189,7 +195,7 @@ class PdfService
         </tr>
         {if:billingLine}
         <tr>
-            <td class="label">Billing Address</td>
+            <td class="label">Billing / Contact Address</td>
             <td class="value" colspan="3">{$e($billingLine ?: 'On File')}</td>
         </tr>
     </table>
@@ -204,28 +210,28 @@ class PdfService
             </td>
         </tr>
         <tr>
-            <td class="label">Destination / Region</td>
-            <td class="value">{$e($tour['destination_name'] ?? $booking['destination_name'] ?? 'South India')}</td>
+            <td class="label">Tour Type / Category</td>
+            <td class="value">{$e($tour['tour_type'] ?? 'Curated Tour')}</td>
             <td class="label">Scheduled Travel Date</td>
             <td class="value">{$e($travelDate)}</td>
         </tr>
         <tr>
             <td class="label">Tour Duration</td>
             <td class="value">{$e($duration)}</td>
-            <td class="label">Guests Count</td>
-            <td class="value">{$e($booking['tickets_count'])} Pax ({$e($booking['adults_count'] ?? 1)} Adults, {$e($booking['children_count'] ?? 0)} Children)</td>
+            <td class="label">Travellers Count</td>
+            <td class="value">{$e($booking['tickets_count'])} Travellers ({$e($booking['adults_count'] ?? 1)} Adults, {$e($booking['children_count'] ?? 0)} Children)</td>
         </tr>
         {if:vehicle}
         <tr>
             <td class="label">Vehicle Preference</td>
             <td class="value">{$e($booking['vehicle_preference'] ?? 'Air-Conditioned Private Transport')}</td>
-            <td class="label">Special Requests</td>
+            <td class="label">Special Instructions</td>
             <td class="value">{$e($booking['special_requests'] ?? ($booking['customer_notes'] ?? 'None'))}</td>
         </tr>
     </table>
 
     <!-- Financial & Payment Summary -->
-    <div class="section-title">3. Payment Summary &amp; Balance Due</div>
+    <div class="section-title">3. Payment &amp; Confirmation Summary</div>
     <table class="payment-table">
         <thead>
             <tr>
@@ -235,29 +241,15 @@ class PdfService
         </thead>
         <tbody>
             <tr>
-                <td>Subtotal ({$e($booking['tickets_count'])} Guests)</td>
-                <td style="text-align: right;">{$e($money($booking['subtotal']))}</td>
-            </tr>
-            {if:taxes}
-            <tr>
-                <td>Taxes &amp; Applicable Service Fees</td>
-                <td style="text-align: right;">{$e($money($booking['tax_amount']))}</td>
-            </tr>
-            {if:discount}
-            <tr>
-                <td>Discounts Applied</td>
-                <td style="text-align: right; color: #15803d;">-{$e($money($booking['discount_amount']))}</td>
-            </tr>
-            <tr class="highlight-total">
-                <td><strong>Total Package Price</strong></td>
-                <td style="text-align: right;"><strong>{$e($money($totalPrice))}</strong></td>
+                <td>Agreed / Confirmed Tour Package Price</td>
+                <td style="text-align: right; font-weight: bold; font-size: 12px;">{$e($money($totalPrice))}</td>
             </tr>
             <tr>
-                <td>Payment Method Agreed</td>
+                <td>Agreed Payment Method</td>
                 <td style="text-align: right; font-weight: bold;">{$e($paymentMethodFormatted)}</td>
             </tr>
             <tr>
-                <td>Advance / Amount Paid to Date</td>
+                <td>Advance Payment Received</td>
                 <td style="text-align: right; color: #15803d; font-weight: bold;">{$e($money($advanceAmount))}</td>
             </tr>
             <tr class="highlight-balance">
@@ -269,21 +261,22 @@ class PdfService
 
     <!-- Contact & Emergency Notice -->
     <div class="contact-box">
-        <strong>Important Instructions:</strong>
+        <strong>Important Tour Instructions:</strong>
         <ul style="margin: 4px 0 0; padding-left: 18px;">
-            <li>Please present this confirmed digital ticket or printed voucher to your tour guide / driver at pickup.</li>
-            <li>Any outstanding balance of <strong>{$e($money($balanceAmount))}</strong> must be settled via {$e($paymentMethodFormatted)} upon arrival.</li>
-            <li>For any itinerary adjustments, date changes, or pickup emergencies, reach our 24/7 hotline: <strong>+91 9840291110 / +91 8072566010</strong>.</li>
+            <li>Please present this confirmed digital ticket or printed voucher to your tour guide / chauffeur at pickup.</li>
+            <li>Any remaining balance of <strong>{$e($money($balanceAmount))}</strong> will be settled via <strong>{$e($paymentMethodFormatted)}</strong> as discussed.</li>
+            <li>Our local coordinator is available 24/7 for any assistance, flight updates, or pickup timing changes: <strong>+91 9840291110 / +91 8072566010</strong>.</li>
         </ul>
     </div>
 
     <div class="footer">
         <strong>Wanderer South India (Tramax Tours)</strong> • Authentic Tours, Heritage Journeys &amp; Local Guidance<br>
         Email: welcome@yourbestdayinindia.com • Phone/WhatsApp: +91 9840291110 • Website: www.yourbestdayinindia.com<br>
-        This is a computer-generated official confirmation voucher issued under authorized administrator approval.
+        Official Confirmed Tour Ticket • Generated under authorized administrator approval.
     </div>
 </body>
 </html>
+HTML;
 HTML;
     }
 }
