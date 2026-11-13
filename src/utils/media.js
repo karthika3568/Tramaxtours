@@ -25,6 +25,20 @@ export function getMediaUrl(mediaOrPath, fallback = defaultHeroFallback) {
 
   if (!path) return fallback;
 
+  // Derive backend origin
+  const apiBase = import.meta.env.VITE_API_BASE_URL || 'https://tour.ethiodeploy.app/api/v1';
+  const backendOrigin = apiBase.replace(/\/api\/v1\/?$/, '');
+
+  // If path contains localhost or 127.0.0.1 (e.g. from local APP_URL in DB), strip origin to use backendOrigin
+  if (path.includes('localhost') || path.includes('127.0.0.1')) {
+    try {
+      const parsed = new URL(path);
+      path = parsed.pathname;
+    } catch {
+      path = path.replace(/^https?:\/\/[^/]+/, '');
+    }
+  }
+
   // If already absolute or data URI
   if (
     path.startsWith('http://') ||
@@ -32,12 +46,11 @@ export function getMediaUrl(mediaOrPath, fallback = defaultHeroFallback) {
     path.startsWith('data:') ||
     path.startsWith('blob:')
   ) {
+    if (typeof window !== 'undefined' && window.location.protocol === 'https:' && path.startsWith('http://')) {
+      return path.replace(/^http:\/\//, 'https://');
+    }
     return path;
   }
-
-  // Derive backend origin
-  const apiBase = import.meta.env.VITE_API_BASE_URL || 'https://tour.ethiodeploy.app/api/v1';
-  const backendOrigin = apiBase.replace(/\/api\/v1\/?$/, '');
 
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   return `${backendOrigin}${cleanPath}`;

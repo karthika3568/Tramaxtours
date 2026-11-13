@@ -40,6 +40,8 @@ $router->group('/api/v1', function (Router $router) {
     // Health & System Status Endpoints
     $router->get('/health', [HealthController::class, 'health']);
     $router->get('/health/database', [HealthController::class, 'databaseHealth']);
+    $router->post('/health/sync-catalog', [HealthController::class, 'syncCatalog']);
+    $router->post('/system/sync-catalog', [HealthController::class, 'syncCatalog']);
 
     // Authentication & RBAC Routes
     $router->group('/auth', function (Router $router) {
