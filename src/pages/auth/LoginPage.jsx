@@ -209,7 +209,7 @@ export default function LoginPage() {
         <div className="admin-login-form-card">
           <div className="form-card-header text-center">
             <Link to="/" className="login-brand-header-link" aria-label="Wonderer South India Home">
-              <img src="/logo.png" alt="Wonderer South India" className="login-brand-logo-img" style={{ maxHeight: '64px', objectFit: 'contain' }} />
+              <img src="/logo.png" alt="Wonderer South India" className="login-brand-logo-img" style={{ maxHeight: '40px', objectFit: 'contain' }} />
             </Link>
             <h1 className="form-portal-title">Sign In</h1>
             <p className="form-portal-subtitle">
@@ -218,9 +218,9 @@ export default function LoginPage() {
           </div>
 
           {generalError && (
-            <div className="auth-alert" role="alert">
+            <div className="auth-alert" role="alert" style={{ marginBottom: '10px', padding: '8px 12px' }}>
               <div className="auth-alert-icon" aria-hidden="true">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
                   <path
                     fillRule="evenodd"
                     d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
@@ -228,12 +228,12 @@ export default function LoginPage() {
                   />
                 </svg>
               </div>
-              <div className="auth-alert-text">{generalError}</div>
+              <div className="auth-alert-text" style={{ fontSize: '13px' }}>{generalError}</div>
             </div>
           )}
 
           <form onSubmit={handleSubmit} noValidate className="login-form">
-            <div className="form-group">
+            <div className="form-group" style={{ marginBottom: '10px' }}>
               <label htmlFor="email" className="form-label">
                 Email Address <span className="text-danger">*</span>
               </label>
@@ -260,8 +260,8 @@ export default function LoginPage() {
               )}
             </div>
 
-            <div className="form-group">
-              <div className="label-with-hint" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="form-group" style={{ marginBottom: '10px' }}>
+              <div className="label-with-hint" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                 <label htmlFor="password" className="form-label" style={{ marginBottom: 0 }}>
                   Password <span className="text-danger">*</span>
                 </label>
@@ -274,8 +274,9 @@ export default function LoginPage() {
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: '#0d9488',
-                    fontSize: '0.825rem',
+                    color: '#01806c',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
                     cursor: 'pointer',
                     padding: 0,
                     textDecoration: 'underline',
@@ -316,14 +317,15 @@ export default function LoginPage() {
               )}
             </div>
 
-            <div className="form-actions">
+            <div className="form-actions" style={{ marginTop: '12px' }}>
               <Button
                 type="submit"
                 variant="primary"
-                size="lg"
+                size="md"
                 loading={isSubmitting}
                 disabled={isSubmitting}
                 className="btn-full btn-login-submit"
+                style={{ height: '42px', fontSize: '14.5px' }}
               >
                 Sign In
               </Button>
@@ -331,11 +333,11 @@ export default function LoginPage() {
           </form>
 
           {/* Registration Option */}
-          <div style={{ marginTop: '1.25rem', padding: '1rem', background: '#f8fafc', borderRadius: '8px', textAlign: 'center', fontSize: '0.9rem' }}>
-            <span style={{ color: '#64748b' }}>New to Wonderer South India? </span>
+          <div style={{ marginTop: '0.85rem', padding: '8px 12px', background: '#f1f5f9', borderRadius: '8px', textAlign: 'center', fontSize: '0.85rem' }}>
+            <span style={{ color: '#000000', fontWeight: 600 }}>New to Wonderer South India? </span>
             <Link
               to={`/register${redirectParam ? `?redirect=${encodeURIComponent(redirectParam)}` : ''}`}
-              style={{ color: '#0d9488', fontWeight: 600, textDecoration: 'none' }}
+              style={{ color: '#01806c', fontWeight: 700, textDecoration: 'none' }}
             >
               Create an Account
             </Link>
