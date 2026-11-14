@@ -301,12 +301,12 @@
                     "title": "Flexible Tours Across All Seasons",
                     "subtitle": null,
                     "content": "Goa offers versatile travel opportunities throughout the year, from vibrant winter beach holidays and heritage sightseeing to peaceful off-season wellness retreats and spice plantation excursions.",
-                    "media_id": 498,
+                    "media_id": 282,
                     "display_order": 5,
                     "status": "active",
                     "created_at": "2026-09-29 13:37:58",
-                    "updated_at": "2026-09-29 15:40:56",
-                    "media_path": "uploads/media/demo_goa_culture_view_1.jpg"
+                    "updated_at": "2026-11-14 09:17:37",
+                    "media_path": "uploads/media/demo_goa_culture.jpg"
                 }
             ],
             "faqs": [
@@ -657,7 +657,7 @@
             "intro_heading": "History of the Land of Temples & Timeless Culture",
             "intro_label": "Tamil Nadu is ancient, Tamil Nadu is eternal",
             "intro_content": "Tamil Nadu is one of the world’s oldest living civilizations, with a history that stretches back over 5,000 years. Renowned for its classical heritage, the region flourished under powerful dynasties such as the Cholas, Cheras, Pandyas, Pallavas, and Vijayanagara rulers, who shaped South India through monumental architecture, literature, trade, and spiritual traditions.\n\nThe state is celebrated as the Land of Temples, home to magnificent Dravidian marvels like Brihadeeswarar Temple, Meenakshi Amman Temple, Shore Temple, and Ekambareswarar Temple. Beyond architecture, Tamil Nadu is the birthplace of Tamil language, one of the oldest classical languages in the world, and a vibrant center for Bharatanatyam, Carnatic music, silk weaving, bronze sculptures, and spiritual philosophy. Today, Tamil Nadu seamlessly blends ancient traditions with modern life, offering travelers a deeply enriching cultural journey.",
-            "intro_media_id": 413,
+            "intro_media_id": 282,
             "language": "English / Tamil",
             "currency": "Indian Rupee (INR)",
             "religion": "Hinduism / Christianity / Islam",
@@ -665,7 +665,7 @@
             "timezone": "GMT +5:30",
             "latitude": null,
             "longitude": null,
-            "featured_image_id": 324,
+            "featured_image_id": 427,
             "seo_title": null,
             "seo_description": null,
             "og_image_id": null,
@@ -673,11 +673,11 @@
             "display_order": 1,
             "status": "published",
             "created_at": "2026-09-26 11:43:02",
-            "updated_at": "2026-09-29 15:40:56",
+            "updated_at": "2026-11-14 09:17:38",
             "deleted_at": null,
             "deleted_by": null,
-            "featured_image_path": "uploads/media/demo_home_tamilnadu.jpg",
-            "intro_media_path": "uploads/media/demo_tamilnadu_culture.jpg",
+            "featured_image_path": "uploads/media/demo_tamilnadu_mahabalipuram.jpg",
+            "intro_media_path": "uploads/media/demo_goa_culture.jpg",
             "sections": [
                 {
                     "id": 1,
@@ -1378,29 +1378,29 @@
                 {
                     "id": 4,
                     "tour_id": 150,
-                    "media_id": 248,
+                    "media_id": 427,
                     "is_cover": 1,
                     "display_order": 0,
                     "created_at": "2026-09-26 12:33:29",
-                    "media_path": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=1200&auto=format&fit=crop&q=80"
+                    "media_path": "uploads/media/demo_tamilnadu_mahabalipuram.jpg"
                 },
                 {
                     "id": 5,
                     "tour_id": 150,
-                    "media_id": 249,
+                    "media_id": 423,
                     "is_cover": 0,
                     "display_order": 1,
                     "created_at": "2026-09-26 12:33:29",
-                    "media_path": "https://images.unsplash.com/photo-1600100397608-f010e47f2597?w=800&auto=format&fit=crop&q=80"
+                    "media_path": "uploads/media/demo_tamilnadu_mahabalipuram_view_1.jpg"
                 },
                 {
                     "id": 6,
                     "tour_id": 150,
-                    "media_id": 250,
+                    "media_id": 424,
                     "is_cover": 0,
                     "display_order": 2,
                     "created_at": "2026-09-26 12:33:29",
-                    "media_path": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80"
+                    "media_path": "uploads/media/demo_tamilnadu_mahabalipuram_view_2.jpg"
                 }
             ],
             "featured_image_path": "uploads/media/demo_tamilnadu_mahabalipuram.jpg"
@@ -2270,195 +2270,6 @@
     ],
     "media": [
         {
-            "id": 31,
-            "filename": "media_20260925_052532_ef9d87a7b6842b53.png",
-            "original_name": "dest_cover.png",
-            "file_path": "uploads/media/media_20260925_052532_ef9d87a7b6842b53.png",
-            "file_size": 70,
-            "mime_type": "image/png",
-            "alt_text": "Ooty Cover"
-        },
-        {
-            "id": 229,
-            "filename": "goa_dest.jpg",
-            "original_name": "Goa_cover.jpg",
-            "file_path": "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=900&auto=format&fit=crop&q=80",
-            "file_size": 500000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Goa destination landscape"
-        },
-        {
-            "id": 230,
-            "filename": "karnataka_dest.jpg",
-            "original_name": "Karnataka_cover.jpg",
-            "file_path": "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=900&auto=format&fit=crop&q=80",
-            "file_size": 500000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Karnataka destination landscape"
-        },
-        {
-            "id": 231,
-            "filename": "kerala_dest.jpg",
-            "original_name": "Kerala_cover.jpg",
-            "file_path": "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=900&auto=format&fit=crop&q=80",
-            "file_size": 500000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Kerala destination landscape"
-        },
-        {
-            "id": 232,
-            "filename": "tamil-nadu_dest.jpg",
-            "original_name": "Tamil Nadu_cover.jpg",
-            "file_path": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=900&auto=format&fit=crop&q=80",
-            "file_size": 500000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Tamil Nadu destination landscape"
-        },
-        {
-            "id": 233,
-            "filename": "sri-lanka_dest.jpg",
-            "original_name": "Sri Lanka_cover.jpg",
-            "file_path": "https://images.unsplash.com/photo-1586861635167-e5223aadc9fe?w=900&auto=format&fit=crop&q=80",
-            "file_size": 500000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Sri Lanka destination landscape"
-        },
-        {
-            "id": 234,
-            "filename": "andhra-pradesh_dest.jpg",
-            "original_name": "Andhra Pradesh_cover.jpg",
-            "file_path": "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=900&auto=format&fit=crop&q=80",
-            "file_size": 500000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Andhra Pradesh destination landscape"
-        },
-        {
-            "id": 235,
-            "filename": "mahabalipuram_cover.jpg",
-            "original_name": "Mahabalipuram_cover.jpg",
-            "file_path": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=900&auto=format&fit=crop&q=80",
-            "file_size": 450000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Mahabalipuram scenic heritage"
-        },
-        {
-            "id": 236,
-            "filename": "kanchipuram_cover.jpg",
-            "original_name": "Kanchipuram_cover.jpg",
-            "file_path": "https://images.unsplash.com/photo-1600100397608-f010e47f2597?w=900&auto=format&fit=crop&q=80",
-            "file_size": 450000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Kanchipuram scenic heritage"
-        },
-        {
-            "id": 237,
-            "filename": "pondicherry_cover.jpg",
-            "original_name": "Pondicherry (Puducherry)_cover.jpg",
-            "file_path": "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?w=900&auto=format&fit=crop&q=80",
-            "file_size": 450000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Pondicherry (Puducherry) scenic heritage"
-        },
-        {
-            "id": 238,
-            "filename": "chennai_cover.jpg",
-            "original_name": "Chennai_cover.jpg",
-            "file_path": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=900&auto=format&fit=crop&q=80",
-            "file_size": 450000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Chennai scenic heritage"
-        },
-        {
-            "id": 239,
-            "filename": "mahabalipuram-day-tour_img.jpg",
-            "original_name": "Mahabalipuram Day Tour.jpg",
-            "file_path": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=900&auto=format&fit=crop&q=80",
-            "file_size": 500000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Mahabalipuram Day Tour"
-        },
-        {
-            "id": 240,
-            "filename": "kanchipuram-day-tour_img.jpg",
-            "original_name": "Kanchipuram Day Tour.jpg",
-            "file_path": "https://images.unsplash.com/photo-1600100397608-f010e47f2597?w=900&auto=format&fit=crop&q=80",
-            "file_size": 500000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Kanchipuram Day Tour"
-        },
-        {
-            "id": 241,
-            "filename": "pondicherry-day-tour_img.jpg",
-            "original_name": "PONDICHERRY DAY TOUR.jpg",
-            "file_path": "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?w=900&auto=format&fit=crop&q=80",
-            "file_size": 500000,
-            "mime_type": "image/jpeg",
-            "alt_text": "PONDICHERRY DAY TOUR"
-        },
-        {
-            "id": 242,
-            "filename": "chennai-day-tour_img.jpg",
-            "original_name": "Chennai Day Tour.jpg",
-            "file_path": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=900&auto=format&fit=crop&q=80",
-            "file_size": 500000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Chennai Day Tour"
-        },
-        {
-            "id": 245,
-            "filename": "shore_temple_main.jpg",
-            "original_name": "Shore-Temple-UNESCO-World-Heritage-Site.jpeg",
-            "file_path": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=1200&auto=format&fit=crop&q=80",
-            "file_size": 600000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Shore Temple UNESCO World Heritage Site Mahabalipuram"
-        },
-        {
-            "id": 246,
-            "filename": "temple_lit.jpg",
-            "original_name": "Mahabalipuram Temple Illuminated.jpeg",
-            "file_path": "https://images.unsplash.com/photo-1600100397608-f010e47f2597?w=800&auto=format&fit=crop&q=80",
-            "file_size": 600000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Mahabalipuram Temple architecture"
-        },
-        {
-            "id": 247,
-            "filename": "sunrise_beach.jpg",
-            "original_name": "Bay of Bengal Sunrise Mahabalipuram.jpeg",
-            "file_path": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80",
-            "file_size": 600000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Bay of Bengal coastal view Mahabalipuram"
-        },
-        {
-            "id": 248,
-            "filename": "shore_temple_main.jpg",
-            "original_name": "Shore-Temple-UNESCO-World-Heritage-Site.jpeg",
-            "file_path": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=1200&auto=format&fit=crop&q=80",
-            "file_size": 600000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Shore Temple UNESCO World Heritage Site Mahabalipuram"
-        },
-        {
-            "id": 249,
-            "filename": "temple_lit.jpg",
-            "original_name": "Mahabalipuram Temple Illuminated.jpeg",
-            "file_path": "https://images.unsplash.com/photo-1600100397608-f010e47f2597?w=800&auto=format&fit=crop&q=80",
-            "file_size": 600000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Mahabalipuram Temple architecture"
-        },
-        {
-            "id": 250,
-            "filename": "sunrise_beach.jpg",
-            "original_name": "Bay of Bengal Sunrise Mahabalipuram.jpeg",
-            "file_path": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80",
-            "file_size": 600000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Bay of Bengal coastal view Mahabalipuram"
-        },
-        {
             "id": 261,
             "filename": "demo_aboutus.jpg",
             "original_name": "AboutUs.jpg",
@@ -2554,7 +2365,7 @@
             "original_name": "favicon.ico",
             "file_path": "uploads/media/demo_favicon.ico",
             "file_size": 1150,
-            "mime_type": "image/x-icon",
+            "mime_type": "image/jpeg",
             "alt_text": "favicon"
         },
         {
@@ -2574,15 +2385,6 @@
             "file_size": 90437,
             "mime_type": "image/jpeg",
             "alt_text": "View_1"
-        },
-        {
-            "id": 274,
-            "filename": "demo_goa_beaches_view_2.jpg",
-            "original_name": "View_2.jpg",
-            "file_path": "uploads/media/demo_goa_beaches_view_2.jpg",
-            "file_size": 60824,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_2"
         },
         {
             "id": 275,
@@ -2612,15 +2414,6 @@
             "alt_text": "Beaches"
         },
         {
-            "id": 278,
-            "filename": "demo_goa_beach_1.jpg",
-            "original_name": "Beach_1.jpg",
-            "file_path": "uploads/media/demo_goa_beach_1.jpg",
-            "file_size": 90437,
-            "mime_type": "image/jpeg",
-            "alt_text": "Beach_1"
-        },
-        {
             "id": 279,
             "filename": "demo_goa_beach_2.jpg",
             "original_name": "Beach_2.jpg",
@@ -2628,24 +2421,6 @@
             "file_size": 60824,
             "mime_type": "image/jpeg",
             "alt_text": "Beach_2"
-        },
-        {
-            "id": 280,
-            "filename": "demo_goa_beach_3.jpg",
-            "original_name": "Beach_3.jpg",
-            "file_path": "uploads/media/demo_goa_beach_3.jpg",
-            "file_size": 62758,
-            "mime_type": "image/jpeg",
-            "alt_text": "Beach_3"
-        },
-        {
-            "id": 281,
-            "filename": "demo_goa_beach_4.jpg",
-            "original_name": "Beach_4.jpg",
-            "file_path": "uploads/media/demo_goa_beach_4.jpg",
-            "file_size": 88182,
-            "mime_type": "image/jpeg",
-            "alt_text": "Beach_4"
         },
         {
             "id": 282,
@@ -2747,15 +2522,6 @@
             "alt_text": "View_4"
         },
         {
-            "id": 293,
-            "filename": "demo_goa_nationalparks_view_5.jpg",
-            "original_name": "View_5.jpg",
-            "file_path": "uploads/media/demo_goa_nationalparks_view_5.jpg",
-            "file_size": 91554,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_5"
-        },
-        {
             "id": 294,
             "filename": "demo_goa_nationalparks.jpg",
             "original_name": "NationalParks.jpg",
@@ -2853,15 +2619,6 @@
             "file_size": 68974,
             "mime_type": "image/jpeg",
             "alt_text": "View_4"
-        },
-        {
-            "id": 305,
-            "filename": "demo_goa_sanctuaries_view_5.jpg",
-            "original_name": "View_5.jpg",
-            "file_path": "uploads/media/demo_goa_sanctuaries_view_5.jpg",
-            "file_size": 68974,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_5"
         },
         {
             "id": 306,
@@ -2990,24 +2747,6 @@
             "alt_text": "Kerala"
         },
         {
-            "id": 320,
-            "filename": "demo_home_kerala1.jpg",
-            "original_name": "Kerala1.jpg",
-            "file_path": "uploads/media/demo_home_kerala1.jpg",
-            "file_size": 204675,
-            "mime_type": "image/jpeg",
-            "alt_text": "Kerala1"
-        },
-        {
-            "id": 321,
-            "filename": "demo_home_pondicherry.jpg",
-            "original_name": "Pondicherry.jpg",
-            "file_path": "uploads/media/demo_home_pondicherry.jpg",
-            "file_size": 206223,
-            "mime_type": "image/jpeg",
-            "alt_text": "Pondicherry"
-        },
-        {
             "id": 322,
             "filename": "demo_home_rajasthan.jpg",
             "original_name": "Rajasthan.jpg",
@@ -3024,15 +2763,6 @@
             "file_size": 372804,
             "mime_type": "image/jpeg",
             "alt_text": "TajMahal"
-        },
-        {
-            "id": 324,
-            "filename": "demo_home_tamilnadu.jpg",
-            "original_name": "TamilNadu.jpg",
-            "file_path": "uploads/media/demo_home_tamilnadu.jpg",
-            "file_size": 324742,
-            "mime_type": "image/jpeg",
-            "alt_text": "TamilNadu"
         },
         {
             "id": 325,
@@ -3103,7 +2833,7 @@
             "original_name": "icongif1.gif",
             "file_path": "uploads/media/demo_icons_icongif1.gif",
             "file_size": 300,
-            "mime_type": "image/gif",
+            "mime_type": "image/jpeg",
             "alt_text": "icongif1"
         },
         {
@@ -3123,24 +2853,6 @@
             "file_size": 404116,
             "mime_type": "image/jpeg",
             "alt_text": "View_2"
-        },
-        {
-            "id": 335,
-            "filename": "demo_karnataka_bangalore_view_3.jpg",
-            "original_name": "View_3.jpg",
-            "file_path": "uploads/media/demo_karnataka_bangalore_view_3.jpg",
-            "file_size": 91554,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_3"
-        },
-        {
-            "id": 336,
-            "filename": "demo_karnataka_bangalore_view_4.jpg",
-            "original_name": "View_4.jpg",
-            "file_path": "uploads/media/demo_karnataka_bangalore_view_4.jpg",
-            "file_size": 115774,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_4"
         },
         {
             "id": 337,
@@ -3179,15 +2891,6 @@
             "alt_text": "View_3"
         },
         {
-            "id": 341,
-            "filename": "demo_karnataka_coorg_view_4.jpg",
-            "original_name": "View_4.jpg",
-            "file_path": "uploads/media/demo_karnataka_coorg_view_4.jpg",
-            "file_size": 115774,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_4"
-        },
-        {
             "id": 342,
             "filename": "demo_karnataka_coorg.jpg",
             "original_name": "Coorg.jpg",
@@ -3195,15 +2898,6 @@
             "file_size": 122848,
             "mime_type": "image/jpeg",
             "alt_text": "Coorg"
-        },
-        {
-            "id": 343,
-            "filename": "demo_karnataka_culture.jpg",
-            "original_name": "Culture.jpg",
-            "file_path": "uploads/media/demo_karnataka_culture.jpg",
-            "file_size": 326736,
-            "mime_type": "image/jpeg",
-            "alt_text": "Culture"
         },
         {
             "id": 344,
@@ -3222,24 +2916,6 @@
             "file_size": 63332,
             "mime_type": "image/jpeg",
             "alt_text": "View_2"
-        },
-        {
-            "id": 346,
-            "filename": "demo_karnataka_hampi_view_3.jpg",
-            "original_name": "View_3.jpg",
-            "file_path": "uploads/media/demo_karnataka_hampi_view_3.jpg",
-            "file_size": 91554,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_3"
-        },
-        {
-            "id": 347,
-            "filename": "demo_karnataka_hampi_view_4.jpg",
-            "original_name": "View_4.jpg",
-            "file_path": "uploads/media/demo_karnataka_hampi_view_4.jpg",
-            "file_size": 115774,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_4"
         },
         {
             "id": 348,
@@ -3278,24 +2954,6 @@
             "alt_text": "View_2"
         },
         {
-            "id": 352,
-            "filename": "demo_karnataka_mangalore_view_3.jpg",
-            "original_name": "View_3.jpg",
-            "file_path": "uploads/media/demo_karnataka_mangalore_view_3.jpg",
-            "file_size": 91554,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_3"
-        },
-        {
-            "id": 353,
-            "filename": "demo_karnataka_mangalore_view_4.jpg",
-            "original_name": "View_4.jpg",
-            "file_path": "uploads/media/demo_karnataka_mangalore_view_4.jpg",
-            "file_size": 115774,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_4"
-        },
-        {
             "id": 354,
             "filename": "demo_karnataka_mangalore.jpg",
             "original_name": "Mangalore.jpg",
@@ -3321,24 +2979,6 @@
             "file_size": 179551,
             "mime_type": "image/jpeg",
             "alt_text": "View_2"
-        },
-        {
-            "id": 357,
-            "filename": "demo_karnataka_mysore_view_3.jpg",
-            "original_name": "View_3.jpg",
-            "file_path": "uploads/media/demo_karnataka_mysore_view_3.jpg",
-            "file_size": 91554,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_3"
-        },
-        {
-            "id": 358,
-            "filename": "demo_karnataka_mysore_view_4.jpg",
-            "original_name": "View_4.jpg",
-            "file_path": "uploads/media/demo_karnataka_mysore_view_4.jpg",
-            "file_size": 115774,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_4"
         },
         {
             "id": 359,
@@ -3368,24 +3008,6 @@
             "alt_text": "View_2"
         },
         {
-            "id": 362,
-            "filename": "demo_karnataka_nationalparks_view_3.jpg",
-            "original_name": "View_3.jpg",
-            "file_path": "uploads/media/demo_karnataka_nationalparks_view_3.jpg",
-            "file_size": 91554,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_3"
-        },
-        {
-            "id": 363,
-            "filename": "demo_karnataka_nationalparks_view_4.jpg",
-            "original_name": "View_4.jpg",
-            "file_path": "uploads/media/demo_karnataka_nationalparks_view_4.jpg",
-            "file_size": 115774,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_4"
-        },
-        {
             "id": 364,
             "filename": "demo_karnataka_nationalparks.jpg",
             "original_name": "NationalParks.jpg",
@@ -3411,24 +3033,6 @@
             "file_size": 106467,
             "mime_type": "image/jpeg",
             "alt_text": "View_2"
-        },
-        {
-            "id": 367,
-            "filename": "demo_kerala_alappuzha_view_3.jpg",
-            "original_name": "View_3.jpg",
-            "file_path": "uploads/media/demo_kerala_alappuzha_view_3.jpg",
-            "file_size": 91554,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_3"
-        },
-        {
-            "id": 368,
-            "filename": "demo_kerala_alappuzha_view_4.jpg",
-            "original_name": "View_4.jpg",
-            "file_path": "uploads/media/demo_kerala_alappuzha_view_4.jpg",
-            "file_size": 115774,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_4"
         },
         {
             "id": 369,
@@ -3458,24 +3062,6 @@
             "alt_text": "View_2"
         },
         {
-            "id": 372,
-            "filename": "demo_kerala_cochin_view_3.jpg",
-            "original_name": "View_3.jpg",
-            "file_path": "uploads/media/demo_kerala_cochin_view_3.jpg",
-            "file_size": 91554,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_3"
-        },
-        {
-            "id": 373,
-            "filename": "demo_kerala_cochin_view_4.jpg",
-            "original_name": "View_4.jpg",
-            "file_path": "uploads/media/demo_kerala_cochin_view_4.jpg",
-            "file_size": 115774,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_4"
-        },
-        {
             "id": 374,
             "filename": "demo_kerala_cochin.jpg",
             "original_name": "Cochin.jpg",
@@ -3483,15 +3069,6 @@
             "file_size": 106866,
             "mime_type": "image/jpeg",
             "alt_text": "Cochin"
-        },
-        {
-            "id": 375,
-            "filename": "demo_kerala_culture.jpg",
-            "original_name": "Culture.jpg",
-            "file_path": "uploads/media/demo_kerala_culture.jpg",
-            "file_size": 326736,
-            "mime_type": "image/jpeg",
-            "alt_text": "Culture"
         },
         {
             "id": 376,
@@ -3521,24 +3098,6 @@
             "alt_text": "View_2"
         },
         {
-            "id": 379,
-            "filename": "demo_kerala_munnar_view_3.jpg",
-            "original_name": "View_3.jpg",
-            "file_path": "uploads/media/demo_kerala_munnar_view_3.jpg",
-            "file_size": 91554,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_3"
-        },
-        {
-            "id": 380,
-            "filename": "demo_kerala_munnar_view_4.jpg",
-            "original_name": "View_4.jpg",
-            "file_path": "uploads/media/demo_kerala_munnar_view_4.jpg",
-            "file_size": 115774,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_4"
-        },
-        {
             "id": 381,
             "filename": "demo_kerala_munnar.jpg",
             "original_name": "Munnar.jpg",
@@ -3564,24 +3123,6 @@
             "file_size": 1089353,
             "mime_type": "image/jpeg",
             "alt_text": "View_2"
-        },
-        {
-            "id": 384,
-            "filename": "demo_kerala_nationalparks_view_3.jpg",
-            "original_name": "View_3.jpg",
-            "file_path": "uploads/media/demo_kerala_nationalparks_view_3.jpg",
-            "file_size": 91554,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_3"
-        },
-        {
-            "id": 385,
-            "filename": "demo_kerala_nationalparks_view_4.jpg",
-            "original_name": "View_4.jpg",
-            "file_path": "uploads/media/demo_kerala_nationalparks_view_4.jpg",
-            "file_size": 115774,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_4"
         },
         {
             "id": 386,
@@ -3611,24 +3152,6 @@
             "alt_text": "View_2"
         },
         {
-            "id": 389,
-            "filename": "demo_kerala_trivandrum_view_3.jpg",
-            "original_name": "View_3.jpg",
-            "file_path": "uploads/media/demo_kerala_trivandrum_view_3.jpg",
-            "file_size": 91554,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_3"
-        },
-        {
-            "id": 390,
-            "filename": "demo_kerala_trivandrum_view_4.jpg",
-            "original_name": "View_4.jpg",
-            "file_path": "uploads/media/demo_kerala_trivandrum_view_4.jpg",
-            "file_size": 115774,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_4"
-        },
-        {
             "id": 391,
             "filename": "demo_kerala_trivandrum.jpg",
             "original_name": "Trivandrum.jpg",
@@ -3654,24 +3177,6 @@
             "file_size": 760106,
             "mime_type": "image/jpeg",
             "alt_text": "View_2"
-        },
-        {
-            "id": 394,
-            "filename": "demo_kerala_varkala_view_3.jpg",
-            "original_name": "View_3.jpg",
-            "file_path": "uploads/media/demo_kerala_varkala_view_3.jpg",
-            "file_size": 91554,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_3"
-        },
-        {
-            "id": 395,
-            "filename": "demo_kerala_varkala_view_4.jpg",
-            "original_name": "View_4.jpg",
-            "file_path": "uploads/media/demo_kerala_varkala_view_4.jpg",
-            "file_size": 115774,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_4"
         },
         {
             "id": 396,
@@ -3800,24 +3305,6 @@
             "alt_text": "View_2"
         },
         {
-            "id": 410,
-            "filename": "demo_tamilnadu_chennai_view_3.jpg",
-            "original_name": "View_3.jpg",
-            "file_path": "uploads/media/demo_tamilnadu_chennai_view_3.jpg",
-            "file_size": 91554,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_3"
-        },
-        {
-            "id": 411,
-            "filename": "demo_tamilnadu_chennai_view_4.jpg",
-            "original_name": "View_4.jpg",
-            "file_path": "uploads/media/demo_tamilnadu_chennai_view_4.jpg",
-            "file_size": 115774,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_4"
-        },
-        {
             "id": 412,
             "filename": "demo_tamilnadu_chennai.jpg",
             "original_name": "Chennai.jpg",
@@ -3825,15 +3312,6 @@
             "file_size": 368374,
             "mime_type": "image/jpeg",
             "alt_text": "Chennai"
-        },
-        {
-            "id": 413,
-            "filename": "demo_tamilnadu_culture.jpg",
-            "original_name": "Culture.jpg",
-            "file_path": "uploads/media/demo_tamilnadu_culture.jpg",
-            "file_size": 326736,
-            "mime_type": "image/jpeg",
-            "alt_text": "Culture"
         },
         {
             "id": 414,
@@ -3890,24 +3368,6 @@
             "alt_text": "View_2"
         },
         {
-            "id": 420,
-            "filename": "demo_tamilnadu_madurai_view_3.jpg",
-            "original_name": "View_3.jpg",
-            "file_path": "uploads/media/demo_tamilnadu_madurai_view_3.jpg",
-            "file_size": 91554,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_3"
-        },
-        {
-            "id": 421,
-            "filename": "demo_tamilnadu_madurai_view_4.jpg",
-            "original_name": "View_4.jpg",
-            "file_path": "uploads/media/demo_tamilnadu_madurai_view_4.jpg",
-            "file_size": 115774,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_4"
-        },
-        {
             "id": 422,
             "filename": "demo_tamilnadu_madurai.jpg",
             "original_name": "Madurai.jpg",
@@ -3933,24 +3393,6 @@
             "file_size": 190490,
             "mime_type": "image/jpeg",
             "alt_text": "View_2"
-        },
-        {
-            "id": 425,
-            "filename": "demo_tamilnadu_mahabalipuram_view_3.jpg",
-            "original_name": "View_3.jpg",
-            "file_path": "uploads/media/demo_tamilnadu_mahabalipuram_view_3.jpg",
-            "file_size": 91554,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_3"
-        },
-        {
-            "id": 426,
-            "filename": "demo_tamilnadu_mahabalipuram_view_4.jpg",
-            "original_name": "View_4.jpg",
-            "file_path": "uploads/media/demo_tamilnadu_mahabalipuram_view_4.jpg",
-            "file_size": 115774,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_4"
         },
         {
             "id": 427,
@@ -3980,24 +3422,6 @@
             "alt_text": "View_2"
         },
         {
-            "id": 430,
-            "filename": "demo_tamilnadu_pondicherry_view_3.jpg",
-            "original_name": "View_3.jpg",
-            "file_path": "uploads/media/demo_tamilnadu_pondicherry_view_3.jpg",
-            "file_size": 91554,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_3"
-        },
-        {
-            "id": 431,
-            "filename": "demo_tamilnadu_pondicherry_view_4.jpg",
-            "original_name": "View_4.jpg",
-            "file_path": "uploads/media/demo_tamilnadu_pondicherry_view_4.jpg",
-            "file_size": 115774,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_4"
-        },
-        {
             "id": 432,
             "filename": "demo_tamilnadu_pondicherry.jpg",
             "original_name": "Pondicherry.jpg",
@@ -4023,24 +3447,6 @@
             "file_size": 169002,
             "mime_type": "image/jpeg",
             "alt_text": "View_2"
-        },
-        {
-            "id": 435,
-            "filename": "demo_tamilnadu_thanjavur_view_3.jpg",
-            "original_name": "View_3.jpg",
-            "file_path": "uploads/media/demo_tamilnadu_thanjavur_view_3.jpg",
-            "file_size": 91554,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_3"
-        },
-        {
-            "id": 436,
-            "filename": "demo_tamilnadu_thanjavur_view_4.jpg",
-            "original_name": "View_4.jpg",
-            "file_path": "uploads/media/demo_tamilnadu_thanjavur_view_4.jpg",
-            "file_size": 115774,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_4"
         },
         {
             "id": 437,
@@ -4070,24 +3476,6 @@
             "alt_text": "View_2"
         },
         {
-            "id": 440,
-            "filename": "demo_tamilnadu_thiruvannamalai_view_3.jpg",
-            "original_name": "View_3.jpg",
-            "file_path": "uploads/media/demo_tamilnadu_thiruvannamalai_view_3.jpg",
-            "file_size": 91554,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_3"
-        },
-        {
-            "id": 441,
-            "filename": "demo_tamilnadu_thiruvannamalai_view_4.jpg",
-            "original_name": "View_4.jpg",
-            "file_path": "uploads/media/demo_tamilnadu_thiruvannamalai_view_4.jpg",
-            "file_size": 115774,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_4"
-        },
-        {
             "id": 442,
             "filename": "demo_tamilnadu_thiruvannamalai.jpg",
             "original_name": "Thiruvannamalai.jpg",
@@ -4106,33 +3494,6 @@
             "alt_text": "View_1"
         },
         {
-            "id": 444,
-            "filename": "demo_tamilnadu_trichy_view_2.jpg",
-            "original_name": "View_2.jpg",
-            "file_path": "uploads/media/demo_tamilnadu_trichy_view_2.jpg",
-            "file_size": 100796,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_2"
-        },
-        {
-            "id": 445,
-            "filename": "demo_tamilnadu_trichy_view_3.jpg",
-            "original_name": "View_3.jpg",
-            "file_path": "uploads/media/demo_tamilnadu_trichy_view_3.jpg",
-            "file_size": 91554,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_3"
-        },
-        {
-            "id": 446,
-            "filename": "demo_tamilnadu_trichy_view_4.jpg",
-            "original_name": "View_4.jpg",
-            "file_path": "uploads/media/demo_tamilnadu_trichy_view_4.jpg",
-            "file_size": 115774,
-            "mime_type": "image/jpeg",
-            "alt_text": "View_4"
-        },
-        {
             "id": 447,
             "filename": "demo_tamilnadu_trichy.jpg",
             "original_name": "Trichy.jpg",
@@ -4140,15 +3501,6 @@
             "file_size": 166897,
             "mime_type": "image/jpeg",
             "alt_text": "Trichy"
-        },
-        {
-            "id": 448,
-            "filename": "demo_thingstodo_art.jpg",
-            "original_name": "Art.jpg",
-            "file_path": "uploads/media/demo_thingstodo_art.jpg",
-            "file_size": 326736,
-            "mime_type": "image/jpeg",
-            "alt_text": "Art"
         },
         {
             "id": 449,
@@ -4173,33 +3525,6 @@
             "filename": "demo_thingstodo_drinks.jpg",
             "original_name": "Drinks.jpg",
             "file_path": "uploads/media/demo_thingstodo_drinks.jpg",
-            "file_size": 134027,
-            "mime_type": "image/jpeg",
-            "alt_text": "Drinks"
-        },
-        {
-            "id": 452,
-            "filename": "demo_thingstodo_goa_art.jpg",
-            "original_name": "Art.jpg",
-            "file_path": "uploads/media/demo_thingstodo_goa_art.jpg",
-            "file_size": 326736,
-            "mime_type": "image/jpeg",
-            "alt_text": "Art"
-        },
-        {
-            "id": 453,
-            "filename": "demo_thingstodo_goa_citytour.jpg",
-            "original_name": "CityTour.jpg",
-            "file_path": "uploads/media/demo_thingstodo_goa_citytour.jpg",
-            "file_size": 198052,
-            "mime_type": "image/jpeg",
-            "alt_text": "CityTour"
-        },
-        {
-            "id": 454,
-            "filename": "demo_thingstodo_goa_drinks.jpg",
-            "original_name": "Drinks.jpg",
-            "file_path": "uploads/media/demo_thingstodo_goa_drinks.jpg",
             "file_size": 134027,
             "mime_type": "image/jpeg",
             "alt_text": "Drinks"
@@ -4232,249 +3557,6 @@
             "alt_text": "WildLife"
         },
         {
-            "id": 458,
-            "filename": "demo_thingstodo_karnataka_art.jpg",
-            "original_name": "Art.jpg",
-            "file_path": "uploads/media/demo_thingstodo_karnataka_art.jpg",
-            "file_size": 326736,
-            "mime_type": "image/jpeg",
-            "alt_text": "Art"
-        },
-        {
-            "id": 459,
-            "filename": "demo_thingstodo_karnataka_citytour.jpg",
-            "original_name": "CityTour.jpg",
-            "file_path": "uploads/media/demo_thingstodo_karnataka_citytour.jpg",
-            "file_size": 198052,
-            "mime_type": "image/jpeg",
-            "alt_text": "CityTour"
-        },
-        {
-            "id": 460,
-            "filename": "demo_thingstodo_karnataka_drinks.jpg",
-            "original_name": "Drinks.jpg",
-            "file_path": "uploads/media/demo_thingstodo_karnataka_drinks.jpg",
-            "file_size": 134027,
-            "mime_type": "image/jpeg",
-            "alt_text": "Drinks"
-        },
-        {
-            "id": 461,
-            "filename": "demo_thingstodo_karnataka_restaurants.jpg",
-            "original_name": "Restaurants.jpg",
-            "file_path": "uploads/media/demo_thingstodo_karnataka_restaurants.jpg",
-            "file_size": 215728,
-            "mime_type": "image/jpeg",
-            "alt_text": "Restaurants"
-        },
-        {
-            "id": 462,
-            "filename": "demo_thingstodo_karnataka_shopping.jpg",
-            "original_name": "Shopping.jpg",
-            "file_path": "uploads/media/demo_thingstodo_karnataka_shopping.jpg",
-            "file_size": 202078,
-            "mime_type": "image/jpeg",
-            "alt_text": "Shopping"
-        },
-        {
-            "id": 463,
-            "filename": "demo_thingstodo_karnataka_wildlife.jpg",
-            "original_name": "WildLife.jpg",
-            "file_path": "uploads/media/demo_thingstodo_karnataka_wildlife.jpg",
-            "file_size": 333593,
-            "mime_type": "image/jpeg",
-            "alt_text": "WildLife"
-        },
-        {
-            "id": 464,
-            "filename": "demo_thingstodo_kerala_art.jpg",
-            "original_name": "Art.jpg",
-            "file_path": "uploads/media/demo_thingstodo_kerala_art.jpg",
-            "file_size": 326736,
-            "mime_type": "image/jpeg",
-            "alt_text": "Art"
-        },
-        {
-            "id": 465,
-            "filename": "demo_thingstodo_kerala_citytour.jpg",
-            "original_name": "CityTour.jpg",
-            "file_path": "uploads/media/demo_thingstodo_kerala_citytour.jpg",
-            "file_size": 198052,
-            "mime_type": "image/jpeg",
-            "alt_text": "CityTour"
-        },
-        {
-            "id": 466,
-            "filename": "demo_thingstodo_kerala_drinks.jpg",
-            "original_name": "Drinks.jpg",
-            "file_path": "uploads/media/demo_thingstodo_kerala_drinks.jpg",
-            "file_size": 134027,
-            "mime_type": "image/jpeg",
-            "alt_text": "Drinks"
-        },
-        {
-            "id": 467,
-            "filename": "demo_thingstodo_kerala_restaurants.jpg",
-            "original_name": "Restaurants.jpg",
-            "file_path": "uploads/media/demo_thingstodo_kerala_restaurants.jpg",
-            "file_size": 215728,
-            "mime_type": "image/jpeg",
-            "alt_text": "Restaurants"
-        },
-        {
-            "id": 468,
-            "filename": "demo_thingstodo_kerala_shopping.jpg",
-            "original_name": "Shopping.jpg",
-            "file_path": "uploads/media/demo_thingstodo_kerala_shopping.jpg",
-            "file_size": 202078,
-            "mime_type": "image/jpeg",
-            "alt_text": "Shopping"
-        },
-        {
-            "id": 469,
-            "filename": "demo_thingstodo_kerala_wildlife.jpg",
-            "original_name": "WildLife.jpg",
-            "file_path": "uploads/media/demo_thingstodo_kerala_wildlife.jpg",
-            "file_size": 333593,
-            "mime_type": "image/jpeg",
-            "alt_text": "WildLife"
-        },
-        {
-            "id": 470,
-            "filename": "demo_thingstodo_pondicherry_art.jpg",
-            "original_name": "Art.jpg",
-            "file_path": "uploads/media/demo_thingstodo_pondicherry_art.jpg",
-            "file_size": 326736,
-            "mime_type": "image/jpeg",
-            "alt_text": "Art"
-        },
-        {
-            "id": 471,
-            "filename": "demo_thingstodo_pondicherry_citytour.jpg",
-            "original_name": "CityTour.jpg",
-            "file_path": "uploads/media/demo_thingstodo_pondicherry_citytour.jpg",
-            "file_size": 198052,
-            "mime_type": "image/jpeg",
-            "alt_text": "CityTour"
-        },
-        {
-            "id": 472,
-            "filename": "demo_thingstodo_pondicherry_drinks.jpg",
-            "original_name": "Drinks.jpg",
-            "file_path": "uploads/media/demo_thingstodo_pondicherry_drinks.jpg",
-            "file_size": 134027,
-            "mime_type": "image/jpeg",
-            "alt_text": "Drinks"
-        },
-        {
-            "id": 473,
-            "filename": "demo_thingstodo_pondicherry_restaurants.jpg",
-            "original_name": "Restaurants.jpg",
-            "file_path": "uploads/media/demo_thingstodo_pondicherry_restaurants.jpg",
-            "file_size": 215728,
-            "mime_type": "image/jpeg",
-            "alt_text": "Restaurants"
-        },
-        {
-            "id": 474,
-            "filename": "demo_thingstodo_pondicherry_shopping.jpg",
-            "original_name": "Shopping.jpg",
-            "file_path": "uploads/media/demo_thingstodo_pondicherry_shopping.jpg",
-            "file_size": 202078,
-            "mime_type": "image/jpeg",
-            "alt_text": "Shopping"
-        },
-        {
-            "id": 475,
-            "filename": "demo_thingstodo_pondicherry_wildlife.jpg",
-            "original_name": "WildLife.jpg",
-            "file_path": "uploads/media/demo_thingstodo_pondicherry_wildlife.jpg",
-            "file_size": 333593,
-            "mime_type": "image/jpeg",
-            "alt_text": "WildLife"
-        },
-        {
-            "id": 476,
-            "filename": "demo_thingstodo_restaurants.jpg",
-            "original_name": "Restaurants.jpg",
-            "file_path": "uploads/media/demo_thingstodo_restaurants.jpg",
-            "file_size": 215728,
-            "mime_type": "image/jpeg",
-            "alt_text": "Restaurants"
-        },
-        {
-            "id": 477,
-            "filename": "demo_thingstodo_shopping.jpg",
-            "original_name": "Shopping.jpg",
-            "file_path": "uploads/media/demo_thingstodo_shopping.jpg",
-            "file_size": 202078,
-            "mime_type": "image/jpeg",
-            "alt_text": "Shopping"
-        },
-        {
-            "id": 478,
-            "filename": "demo_thingstodo_tamilnadu_art.jpg",
-            "original_name": "Art.jpg",
-            "file_path": "uploads/media/demo_thingstodo_tamilnadu_art.jpg",
-            "file_size": 326736,
-            "mime_type": "image/jpeg",
-            "alt_text": "Art"
-        },
-        {
-            "id": 479,
-            "filename": "demo_thingstodo_tamilnadu_citytour.jpg",
-            "original_name": "CityTour.jpg",
-            "file_path": "uploads/media/demo_thingstodo_tamilnadu_citytour.jpg",
-            "file_size": 198052,
-            "mime_type": "image/jpeg",
-            "alt_text": "CityTour"
-        },
-        {
-            "id": 480,
-            "filename": "demo_thingstodo_tamilnadu_drinks.jpg",
-            "original_name": "Drinks.jpg",
-            "file_path": "uploads/media/demo_thingstodo_tamilnadu_drinks.jpg",
-            "file_size": 134027,
-            "mime_type": "image/jpeg",
-            "alt_text": "Drinks"
-        },
-        {
-            "id": 481,
-            "filename": "demo_thingstodo_tamilnadu_restaurants.jpg",
-            "original_name": "Restaurants.jpg",
-            "file_path": "uploads/media/demo_thingstodo_tamilnadu_restaurants.jpg",
-            "file_size": 215728,
-            "mime_type": "image/jpeg",
-            "alt_text": "Restaurants"
-        },
-        {
-            "id": 482,
-            "filename": "demo_thingstodo_tamilnadu_shopping.jpg",
-            "original_name": "Shopping.jpg",
-            "file_path": "uploads/media/demo_thingstodo_tamilnadu_shopping.jpg",
-            "file_size": 202078,
-            "mime_type": "image/jpeg",
-            "alt_text": "Shopping"
-        },
-        {
-            "id": 483,
-            "filename": "demo_thingstodo_tamilnadu_wildlife.jpg",
-            "original_name": "WildLife.jpg",
-            "file_path": "uploads/media/demo_thingstodo_tamilnadu_wildlife.jpg",
-            "file_size": 333593,
-            "mime_type": "image/jpeg",
-            "alt_text": "WildLife"
-        },
-        {
-            "id": 484,
-            "filename": "demo_thingstodo_wildlife.jpg",
-            "original_name": "WildLife.jpg",
-            "file_path": "uploads/media/demo_thingstodo_wildlife.jpg",
-            "file_size": 333593,
-            "mime_type": "image/jpeg",
-            "alt_text": "WildLife"
-        },
-        {
             "id": 485,
             "filename": "demo_landingpage.jpg",
             "original_name": "LandingPage.jpg",
@@ -4482,87 +3564,6 @@
             "file_size": 407878,
             "mime_type": "image/jpeg",
             "alt_text": "Wander South India"
-        },
-        {
-            "id": 490,
-            "filename": "mahabalipuram-day-tour_img.jpg",
-            "original_name": "Mahabalipuram Day Tour.jpg",
-            "file_path": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=900&auto=format&fit=crop&q=80",
-            "file_size": 500000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Mahabalipuram Day Tour"
-        },
-        {
-            "id": 491,
-            "filename": "kanchipuram-day-tour_img.jpg",
-            "original_name": "Kanchipuram Day Tour.jpg",
-            "file_path": "https://images.unsplash.com/photo-1600100397608-f010e47f2597?w=900&auto=format&fit=crop&q=80",
-            "file_size": 500000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Kanchipuram Day Tour"
-        },
-        {
-            "id": 492,
-            "filename": "pondicherry-day-tour_img.jpg",
-            "original_name": "PONDICHERRY DAY TOUR.jpg",
-            "file_path": "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?w=900&auto=format&fit=crop&q=80",
-            "file_size": 500000,
-            "mime_type": "image/jpeg",
-            "alt_text": "PONDICHERRY DAY TOUR"
-        },
-        {
-            "id": 493,
-            "filename": "chennai-day-tour_img.jpg",
-            "original_name": "Chennai Day Tour.jpg",
-            "file_path": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=900&auto=format&fit=crop&q=80",
-            "file_size": 500000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Chennai Day Tour"
-        },
-        {
-            "id": 494,
-            "filename": "mahabalipuram-day-tour_img.jpg",
-            "original_name": "Mahabalipuram Day Tour.jpg",
-            "file_path": "uploads/media/demo_tamilnadu_mahabalipuram.jpg",
-            "file_size": 500000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Mahabalipuram Day Tour"
-        },
-        {
-            "id": 495,
-            "filename": "kanchipuram-day-tour_img.jpg",
-            "original_name": "Kanchipuram Day Tour.jpg",
-            "file_path": "uploads/media/demo_tamilnadu_kanchipuram.jpg",
-            "file_size": 500000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Kanchipuram Day Tour"
-        },
-        {
-            "id": 496,
-            "filename": "pondicherry-day-tour_img.jpg",
-            "original_name": "PONDICHERRY DAY TOUR.jpg",
-            "file_path": "uploads/media/demo_tamilnadu_pondicherry.jpg",
-            "file_size": 500000,
-            "mime_type": "image/jpeg",
-            "alt_text": "PONDICHERRY DAY TOUR"
-        },
-        {
-            "id": 497,
-            "filename": "chennai-day-tour_img.jpg",
-            "original_name": "Chennai Day Tour.jpg",
-            "file_path": "uploads/media/demo_tamilnadu_chennai.jpg",
-            "file_size": 500000,
-            "mime_type": "image/jpeg",
-            "alt_text": "Chennai Day Tour"
-        },
-        {
-            "id": 498,
-            "filename": "demo_goa_culture_view_1.jpg",
-            "original_name": "demo_goa_culture_view_1.jpg",
-            "file_path": "uploads/media/demo_goa_culture_view_1.jpg",
-            "file_size": 102400,
-            "mime_type": "image/jpeg",
-            "alt_text": null
         },
         {
             "id": 501,
@@ -4596,7 +3597,7 @@
             "filename": "surfing_tour_banner.jpg",
             "original_name": "Covelong Point Ocean Surfing Expedition Banner",
             "file_path": "uploads/media/surfing_tour_banner.jpg",
-            "file_size": 250000,
+            "file_size": 181067,
             "mime_type": "image/jpeg",
             "alt_text": "Surfing Tour at Covelong Point & Mahabalipuram Coastal Waves"
         },
@@ -4605,7 +3606,7 @@
             "filename": "surfing_action_waves.jpg",
             "original_name": "Surfer Carving Green Ocean Wave",
             "file_path": "uploads/media/surfing_action_waves.jpg",
-            "file_size": 250000,
+            "file_size": 279213,
             "mime_type": "image/jpeg",
             "alt_text": "Surfing Action in Bay of Bengal Swell"
         },
@@ -4614,7 +3615,7 @@
             "filename": "surfing_beach_coaching.jpg",
             "original_name": "Beachside Surf Safety and Pop-up Technique Training",
             "file_path": "uploads/media/surfing_beach_coaching.jpg",
-            "file_size": 250000,
+            "file_size": 132435,
             "mime_type": "image/jpeg",
             "alt_text": "Beginner Surf Coaching on Sand"
         },
@@ -4623,7 +3624,7 @@
             "filename": "surfing_covelong_point.jpg",
             "original_name": "Scenic Covelong Point Beach and Sunset Surf Coast",
             "file_path": "uploads/media/surfing_covelong_point.jpg",
-            "file_size": 250000,
+            "file_size": 84717,
             "mime_type": "image/jpeg",
             "alt_text": "Covelong Point Surf Village & Beach Coast"
         },
@@ -4635,6 +3636,177 @@
             "file_size": 886850,
             "mime_type": "image/jpeg",
             "alt_text": "Majestic Vaitheeswaran Kovil Temple Reflecting in Siddhamirtham Tank"
+        },
+        {
+            "id": 509,
+            "filename": "medical_banner_doctor.svg",
+            "original_name": "medical_banner_doctor.svg",
+            "file_path": "uploads/media/medical_banner_doctor.svg",
+            "file_size": 2068,
+            "mime_type": "image/svg+xml",
+            "alt_text": "Medical Banner Doctor"
+        },
+        {
+            "id": 510,
+            "filename": "medical_blood_pro.jpg",
+            "original_name": "medical_blood_pro.jpg",
+            "file_path": "uploads/media/medical_blood_pro.jpg",
+            "file_size": 286575,
+            "mime_type": "image/jpeg",
+            "alt_text": "Medical Blood Pro"
+        },
+        {
+            "id": 511,
+            "filename": "medical_blood_pro.svg",
+            "original_name": "medical_blood_pro.svg",
+            "file_path": "uploads/media/medical_blood_pro.svg",
+            "file_size": 2053,
+            "mime_type": "image/svg+xml",
+            "alt_text": "Medical Blood Pro"
+        },
+        {
+            "id": 512,
+            "filename": "medical_dexa_scan.jpg",
+            "original_name": "medical_dexa_scan.jpg",
+            "file_path": "uploads/media/medical_dexa_scan.jpg",
+            "file_size": 260758,
+            "mime_type": "image/jpeg",
+            "alt_text": "Medical Dexa Scan"
+        },
+        {
+            "id": 513,
+            "filename": "medical_dexa_scan.svg",
+            "original_name": "medical_dexa_scan.svg",
+            "file_path": "uploads/media/medical_dexa_scan.svg",
+            "file_size": 2038,
+            "mime_type": "image/svg+xml",
+            "alt_text": "Medical Dexa Scan"
+        },
+        {
+            "id": 514,
+            "filename": "medical_full_body_mri.jpg",
+            "original_name": "medical_full_body_mri.jpg",
+            "file_path": "uploads/media/medical_full_body_mri.jpg",
+            "file_size": 284003,
+            "mime_type": "image/jpeg",
+            "alt_text": "Medical Full Body Mri"
+        },
+        {
+            "id": 515,
+            "filename": "medical_mri_scanner.svg",
+            "original_name": "medical_mri_scanner.svg",
+            "file_path": "uploads/media/medical_mri_scanner.svg",
+            "file_size": 2067,
+            "mime_type": "image/svg+xml",
+            "alt_text": "Medical Mri Scanner"
+        },
+        {
+            "id": 516,
+            "filename": "medical_package_banner.jpg",
+            "original_name": "medical_package_banner.jpg",
+            "file_path": "uploads/media/medical_package_banner.jpg",
+            "file_size": 260677,
+            "mime_type": "image/jpeg",
+            "alt_text": "Medical Package Banner"
+        },
+        {
+            "id": 517,
+            "filename": "medical_rmr_metabolic.jpg",
+            "original_name": "medical_rmr_metabolic.jpg",
+            "file_path": "uploads/media/medical_rmr_metabolic.jpg",
+            "file_size": 277094,
+            "mime_type": "image/jpeg",
+            "alt_text": "Medical Rmr Metabolic"
+        },
+        {
+            "id": 518,
+            "filename": "medical_rmr_metabolic.svg",
+            "original_name": "medical_rmr_metabolic.svg",
+            "file_path": "uploads/media/medical_rmr_metabolic.svg",
+            "file_size": 2213,
+            "mime_type": "image/svg+xml",
+            "alt_text": "Medical Rmr Metabolic"
+        },
+        {
+            "id": 519,
+            "filename": "medical_strength_pro.jpg",
+            "original_name": "medical_strength_pro.jpg",
+            "file_path": "uploads/media/medical_strength_pro.jpg",
+            "file_size": 301976,
+            "mime_type": "image/jpeg",
+            "alt_text": "Medical Strength Pro"
+        },
+        {
+            "id": 520,
+            "filename": "medical_strength_pro.svg",
+            "original_name": "medical_strength_pro.svg",
+            "file_path": "uploads/media/medical_strength_pro.svg",
+            "file_size": 2090,
+            "mime_type": "image/svg+xml",
+            "alt_text": "Medical Strength Pro"
+        },
+        {
+            "id": 521,
+            "filename": "medical_vo2_max.jpg",
+            "original_name": "medical_vo2_max.jpg",
+            "file_path": "uploads/media/medical_vo2_max.jpg",
+            "file_size": 289990,
+            "mime_type": "image/jpeg",
+            "alt_text": "Medical Vo2 Max"
+        },
+        {
+            "id": 522,
+            "filename": "medical_vo2_max.svg",
+            "original_name": "medical_vo2_max.svg",
+            "file_path": "uploads/media/medical_vo2_max.svg",
+            "file_size": 2041,
+            "mime_type": "image/svg+xml",
+            "alt_text": "Medical Vo2 Max"
+        },
+        {
+            "id": 523,
+            "filename": "palmleaf_reading_session.jpg",
+            "original_name": "palmleaf_reading_session.jpg",
+            "file_path": "uploads/media/palmleaf_reading_session.jpg",
+            "file_size": 336718,
+            "mime_type": "image/jpeg",
+            "alt_text": "Palmleaf Reading Session"
+        },
+        {
+            "id": 524,
+            "filename": "palmleaf_vaitheeswaran_temple.jpg",
+            "original_name": "palmleaf_vaitheeswaran_temple.jpg",
+            "file_path": "uploads/media/palmleaf_vaitheeswaran_temple.jpg",
+            "file_size": 524784,
+            "mime_type": "image/jpeg",
+            "alt_text": "Palmleaf Vaitheeswaran Temple"
+        },
+        {
+            "id": 525,
+            "filename": "tramax_logo.png",
+            "original_name": "tramax_logo.png",
+            "file_path": "uploads/media/tramax_logo.png",
+            "file_size": 640378,
+            "mime_type": "image/png",
+            "alt_text": "Tramax Logo"
+        },
+        {
+            "id": 526,
+            "filename": "media_20261002_095838_27dcaf0ac70d3f3e.jpeg",
+            "original_name": "media_20261002_095838_27dcaf0ac70d3f3e.jpeg",
+            "file_path": "uploads/media/media_20261002_095838_27dcaf0ac70d3f3e.jpeg",
+            "file_size": 37340,
+            "mime_type": "image/jpeg",
+            "alt_text": "20261002 095838 27dcaf0ac70d3f3e"
+        },
+        {
+            "id": 527,
+            "filename": "media_20261005_083802_ee9a786cd3520dd0.png",
+            "original_name": "media_20261005_083802_ee9a786cd3520dd0.png",
+            "file_path": "uploads/media/media_20261005_083802_ee9a786cd3520dd0.png",
+            "file_size": 1395613,
+            "mime_type": "image/png",
+            "alt_text": "20261005 083802 Ee9a786cd3520dd0"
         }
     ],
     "home_hero_slides": [
@@ -4693,8 +3865,8 @@
             "id": 57,
             "title": "TamilNadu",
             "subtitle": null,
-            "desktop_media_id": 494,
-            "mobile_media_id": 494,
+            "desktop_media_id": 427,
+            "mobile_media_id": 427,
             "cta_label": "Explore Tours",
             "cta_url": "/tours",
             "display_order": 4,
@@ -4704,7 +3876,7 @@
             "deleted_at": null,
             "deleted_by": null,
             "created_at": "2026-09-29 15:52:22",
-            "updated_at": "2026-11-03 12:38:23"
+            "updated_at": "2026-11-14 09:17:38"
         },
         {
             "id": 58,
@@ -4727,7 +3899,7 @@
             "id": 59,
             "title": "Hero Slide 6",
             "subtitle": null,
-            "desktop_media_id": 496,
+            "desktop_media_id": 432,
             "mobile_media_id": null,
             "cta_label": null,
             "cta_url": null,
@@ -4738,7 +3910,7 @@
             "deleted_at": null,
             "deleted_by": null,
             "created_at": "2026-11-06 15:41:55",
-            "updated_at": "2026-11-06 15:41:55"
+            "updated_at": "2026-11-14 09:17:38"
         }
     ],
     "home_benefits": [
@@ -5262,7 +4434,7 @@
             "destination_id": 123,
             "state_region": "Tamil Nadu",
             "category_id": 4,
-            "hero_media_id": 324,
+            "hero_media_id": 427,
             "short_description": "Ride the historic UNESCO steam toy train traversing steep mountain bridges, lush tea slopes, and misty ravines.",
             "full_description": "<p>Built by the British in 1908, the Nilgiri Mountain Railway is an engineering marvel utilizing a unique rack-and-pinion system. The charming blue-and-cream toy train ascends from Mettupalayam up to Ooty through 16 tunnels, 250 bridges, and emerald eucalyptus forests.</p>",
             "duration": "4 - 5 Hours",
@@ -5274,7 +4446,7 @@
             "display_order": 2,
             "status": "published",
             "created_at": "2026-09-28 15:55:17",
-            "updated_at": "2026-09-28 15:56:01"
+            "updated_at": "2026-11-14 09:17:38"
         },
         {
             "id": 3,
