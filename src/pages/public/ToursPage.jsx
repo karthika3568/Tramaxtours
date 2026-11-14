@@ -53,20 +53,6 @@ export const getTourCategoryTokens = (tour) => {
   return Array.from(tokens);
 };
 
-const DEFAULT_CATEGORIES = [
-  { id: 11, name: 'City Sightseeing Tours', slug: 'city-sightseeing-tours' },
-  { id: 12, name: 'Cultural & Heritage Tours', slug: 'cultural-heritage-tours' },
-  { id: 13, name: 'Family Tours', slug: 'family-tours' },
-  { id: 14, name: 'Guided Tours', slug: 'guided-tours' },
-  { id: 15, name: 'Historical Tours', slug: 'historical-tours' },
-  { id: 16, name: 'One Day Tours', slug: 'one-day-tours' },
-  { id: 17, name: 'Pilgrimage / Temple Tours', slug: 'pilgrimage-temple-tours' },
-  { id: 18, name: 'Private Tours', slug: 'private-tours' },
-  { id: 8, name: 'Surfing Tours', slug: 'surfing-tour' },
-  { id: 9, name: 'Medical Tourism & Health Checks', slug: 'medical-tourism' },
-  { id: 10, name: 'Palmleaf Horoscope Tours', slug: 'palmleaf-horoscope' },
-];
-
 const DEFAULT_FAQS = [
   {
     id: 1,
@@ -106,7 +92,7 @@ export default function ToursPage() {
   const [tours, setTours] = useState([]);
   const [medicalTrips, setMedicalTrips] = useState([]);
   const [destinations, setDestinations] = useState([]);
-  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+  const [categories, setCategories] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, total_pages: 1, total: 0 });
 
   // Filter state

@@ -4,23 +4,12 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import tourService from '../../services/tourService';
 
-const DEFAULT_TOUR_CATEGORIES = [
-  { id: 11, name: 'City Sightseeing Tours', slug: 'city-sightseeing-tours', icon: 'building' },
-  { id: 12, name: 'Cultural & Heritage Tours', slug: 'cultural-heritage-tours', icon: 'culture' },
-  { id: 13, name: 'Family Tours', slug: 'family-tours', icon: 'guests' },
-  { id: 14, name: 'Guided Tours', slug: 'guided-tours', icon: 'compass' },
-  { id: 15, name: 'Historical Tours', slug: 'historical-tours', icon: 'book' },
-  { id: 16, name: 'One Day Tours', slug: 'one-day-tours', icon: 'sun' },
-  { id: 17, name: 'Pilgrimage / Temple Tours', slug: 'pilgrimage-temple-tours', icon: 'temple' },
-  { id: 18, name: 'Private Tours', slug: 'private-tours', icon: 'car' },
-];
-
 export default function Navbar({ onLinkClick, className = '', isMobile = false }) {
   const { t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [categories, setCategories] = useState(DEFAULT_TOUR_CATEGORIES);
+  const [categories, setCategories] = useState([]);
   const [isToursDropdownOpen, setIsToursDropdownOpen] = useState(false);
   const toursDropdownRef = useRef(null);
   const closeTimeoutRef = useRef(null);
@@ -52,8 +41,8 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
             setCategories(nonMed);
           }
         }
-      } catch {
-        // Fallback to defaults
+      } catch (err) {
+        console.warn('Failed to load dynamic tour categories for navbar:', err);
       }
     }
     loadCategories();
