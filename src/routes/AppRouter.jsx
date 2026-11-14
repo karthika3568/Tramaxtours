@@ -26,6 +26,10 @@ import {
   ContentPage,
   UserProfilePage,
   LoginPage,
+  RegisterPage,
+  CustomerProfilePage,
+  CustomerBookingsPage,
+  CustomerBookingDetailPage,
   NotFoundPage,
 } from './PublicRoutes';
 
@@ -100,13 +104,44 @@ export default function AppRouter() {
           <Route path="refund-policy" element={<ContentPage defaultSlug="refund-policy" />} />
           <Route path="cancellation-policy" element={<ContentPage defaultSlug="refund-policy" />} />
           <Route path="pages/:slug" element={<ContentPage />} />
-          <Route path="my-bookings" element={<UserProfilePage />} />
-          <Route path="profile" element={<UserProfilePage />} />
+          <Route path="my-bookings" element={<Navigate to="/customer/bookings" replace />} />
+          <Route path="profile" element={<Navigate to="/customer/profile" replace />} />
+
+          {/* Customer Portal Protected Routes */}
+          <Route
+            path="customer/profile"
+            element={
+              <ProtectedRoute>
+                <CustomerProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="customer/dashboard"
+            element={<Navigate to="/customer/profile" replace />}
+          />
+          <Route
+            path="customer/bookings"
+            element={
+              <ProtectedRoute>
+                <CustomerBookingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="customer/bookings/:id"
+            element={
+              <ProtectedRoute>
+                <CustomerBookingDetailPage />
+              </ProtectedRoute>
+            }
+          />
         </Route>
 
         {/* Authentication Routes */}
         <Route path="/admin/login" element={<LoginPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
         {/* Access Denied / 403 Forbidden Route */}
         <Route path="/403" element={<ForbiddenPage />} />

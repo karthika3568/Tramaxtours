@@ -18,7 +18,11 @@ export const TripRequestSuccessPage = lazy(() => import('../pages/public/TripReq
 export const ContentPage = lazy(() => import('../pages/public/ContentPage'));
 
 export const LoginPage = lazy(() => import('../pages/auth/LoginPage'));
-export const UserProfilePage = lazy(() => import('../pages/public/UserProfilePage'));
+export const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'));
+export const CustomerProfilePage = lazy(() => import('../pages/customer/CustomerProfilePage'));
+export const CustomerBookingsPage = lazy(() => import('../pages/customer/CustomerBookingsPage'));
+export const CustomerBookingDetailPage = lazy(() => import('../pages/customer/CustomerBookingDetailPage'));
+export const UserProfilePage = lazy(() => import('../pages/customer/CustomerProfilePage'));
 
 export function NotFoundPage() {
   useEffect(() => {

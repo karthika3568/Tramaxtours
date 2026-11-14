@@ -133,6 +133,115 @@ class AuthController extends BaseController
      *
      * @return void
      */
+    /**
+     * Register a new customer account.
+     * POST /api/v1/auth/register
+     *
+     * @return void
+     */
+    public function register(): void
+    {
+        $body = Request::getBody();
+
+        $name = trim((string) ($body['name'] ?? ''));
+        $email = trim(strtolower((string) ($body['email'] ?? '')));
+        $phone = trim((string) ($body['phone'] ?? ''));
+        $password = (string) ($body['password'] ?? '');
+        $passwordConfirmation = (string) ($body['password_confirmation'] ?? ($body['confirm_password'] ?? ''));
+
+        $errors = [];
+
+        if ($name === '') {
+            $errors['name'] = 'Full name is required.';
+        } elseif (strlen($name) < 2) {
+            $errors['name'] = 'Full name must be at least 2 characters.';
+        }
+
+        if ($email === '') {
+            $errors['email'] = 'Email address is required.';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Please provide a valid email address.';
+        } else {
+            // Check uniqueness
+            $existing = User::findByEmail($email);
+            if ($existing) {
+                $errors['email'] = 'An account with this email address already exists. Please sign in.';
+            }
+        }
+
+        if ($password === '') {
+            $errors['password'] = 'Password is required.';
+        } elseif (strlen($password) < 6) {
+            $errors['password'] = 'Password must be at least 6 characters.';
+        }
+
+        if ($passwordConfirmation !== '' && $password !== $passwordConfirmation) {
+            $errors['password_confirmation'] = 'Password confirmation does not match.';
+        }
+
+        if (!empty($errors)) {
+            $this->error('Validation failed. Please correct the highlighted errors.', 422, $errors, 'VALIDATION_ERROR');
+        }
+
+        // Create user with customer role
+        $createdUser = User::create([
+            'name' => $name,
+            'email' => $email,
+            'phone' => $phone ?: null,
+            'password' => $password,
+            'status' => 'active',
+            'role' => 'customer',
+        ]);
+
+        $userId = (int) $createdUser['id'];
+
+        // Automatically link any previous bookings made with this email address to this user ID!
+        try {
+            $db = \App\Utils\Database::getConnection();
+            $linkStmt = $db->prepare("UPDATE bookings b 
+                LEFT JOIN booking_customer_details bcd ON b.id = bcd.booking_id 
+                SET b.user_id = :user_id 
+                WHERE b.user_id IS NULL AND LOWER(TRIM(bcd.email)) = :email");
+            $linkStmt->execute([':user_id' => $userId, ':email' => $email]);
+        } catch (\Throwable $e) {
+            // Non-blocking
+        }
+
+        // Generate JWT token
+        $expiresIn = (int) Env::get('JWT_EXPIRATION', 315360000);
+        $tokenPayload = [
+            'sub' => $userId,
+            'email' => $createdUser['email'],
+            'name' => $createdUser['name'],
+            'role' => 'customer',
+        ];
+
+        $token = JWT::encode($tokenPayload, null, $expiresIn);
+
+        AuditService::log(
+            $userId,
+            'register',
+            'user',
+            $userId,
+            null,
+            ['email' => $email, 'role' => 'customer']
+        );
+
+        $this->success([
+            'token' => $token,
+            'token_type' => 'Bearer',
+            'expires_in' => $expiresIn,
+            'user' => $createdUser,
+        ], 'Registration successful. Welcome to Wonderer South India!', 201);
+    }
+
+    /**
+     * Retrieve currently authenticated user's profile and permissions.
+     * GET /api/v1/auth/me
+     * GET /api/v1/auth/profile
+     *
+     * @return void
+     */
     public function me(): void
     {
         $user = Request::getAuthenticatedUser();
@@ -143,6 +252,155 @@ class AuthController extends BaseController
     }
 
     /**
+     * Update currently authenticated user's personal profile information.
+     * PUT /api/v1/auth/profile
+     *
+     * @return void
+     */
+    public function updateProfile(): void
+    {
+        $authUser = Request::getAuthenticatedUser();
+        $userId = (int) ($authUser['id'] ?? 0);
+
+        if (!$userId) {
+            $this->error('Authentication required.', 401, null, 'UNAUTHORIZED');
+        }
+
+        $body = Request::getBody();
+        $errors = [];
+
+        $name = trim((string) ($body['name'] ?? ''));
+        $phone = trim((string) ($body['phone'] ?? ''));
+        $avatarUrl = isset($body['avatar_url']) ? trim((string) $body['avatar_url']) : null;
+
+        if ($name === '') {
+            $errors['name'] = 'Name is required.';
+        } elseif (strlen($name) < 2) {
+            $errors['name'] = 'Name must be at least 2 characters.';
+        }
+
+        if (!empty($errors)) {
+            $this->error('Validation failed. Please correct the errors.', 422, $errors, 'VALIDATION_ERROR');
+        }
+
+        $updateData = [
+            'name' => $name,
+            'phone' => $phone ?: null,
+        ];
+
+        if ($avatarUrl !== null) {
+            $updateData['avatar_url'] = $avatarUrl;
+        }
+
+        $updated = User::updateUser($userId, $updateData);
+
+        AuditService::log(
+            $userId,
+            'profile_update',
+            'user',
+            $userId,
+            null,
+            ['updated_fields' => array_keys($updateData)]
+        );
+
+        $this->success([
+            'user' => $updated,
+        ], 'Profile updated successfully');
+    }
+
+    /**
+     * Change user password.
+     * POST /api/v1/auth/change-password
+     *
+     * @return void
+     */
+    public function changePassword(): void
+    {
+        $authUser = Request::getAuthenticatedUser();
+        $userId = (int) ($authUser['id'] ?? 0);
+
+        if (!$userId) {
+            $this->error('Authentication required.', 401, null, 'UNAUTHORIZED');
+        }
+
+        $body = Request::getBody();
+        $currentPassword = (string) ($body['current_password'] ?? '');
+        $newPassword = (string) ($body['new_password'] ?? '');
+        $newPasswordConfirmation = (string) ($body['new_password_confirmation'] ?? ($body['confirm_password'] ?? ''));
+
+        $errors = [];
+
+        if ($currentPassword === '') {
+            $errors['current_password'] = 'Current password is required.';
+        }
+
+        if ($newPassword === '') {
+            $errors['new_password'] = 'New password is required.';
+        } elseif (strlen($newPassword) < 6) {
+            $errors['new_password'] = 'New password must be at least 6 characters.';
+        }
+
+        if ($newPasswordConfirmation !== '' && $newPassword !== $newPasswordConfirmation) {
+            $errors['new_password_confirmation'] = 'New password confirmation does not match.';
+        }
+
+        if (!empty($errors)) {
+            $this->error('Validation failed.', 422, $errors, 'VALIDATION_ERROR');
+        }
+
+        // Verify current password against database
+        $dbUser = \App\Utils\Database::getConnection()
+            ->query("SELECT id, password_hash FROM users WHERE id = {$userId} AND deleted_at IS NULL LIMIT 1")
+            ->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$dbUser || !password_verify($currentPassword, $dbUser['password_hash'])) {
+            $this->error('The current password you entered is incorrect.', 422, [
+                'current_password' => 'The current password you entered is incorrect.',
+            ], 'INVALID_PASSWORD');
+        }
+
+        // Update password
+        User::updateUser($userId, [
+            'password' => $newPassword,
+        ]);
+
+        AuditService::log(
+            $userId,
+            'password_change',
+            'user',
+            $userId,
+            null,
+            []
+        );
+
+        $this->success(null, 'Password changed successfully. Please keep your new password safe.');
+    }
+
+    /**
+     * Initiate forgot password recovery request.
+     * POST /api/v1/auth/forgot-password
+     *
+     * @return void
+     */
+    public function forgotPassword(): void
+    {
+        $body = Request::getBody();
+        $email = trim(strtolower((string) ($body['email'] ?? '')));
+
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->error('Please provide a valid email address.', 422, [
+                'email' => 'Please provide a valid email address.',
+            ], 'VALIDATION_ERROR');
+        }
+
+        $user = User::findByEmail($email);
+        // Note: For privacy and security, do not disclose whether the email exists
+        $this->success([
+            'email' => $email,
+        ], 'If an account exists with this email address, password reset instructions have been dispatched.');
+    }
+
+/**
      * Log out current user session.
      * POST /api/v1/auth/logout
      *

@@ -18,26 +18,12 @@ export function getMediaUrl(mediaOrPath, fallback = defaultHeroFallback) {
 
   let path = '';
   if (typeof mediaOrPath === 'string') {
-    path = mediaOrPath;
+    path = mediaOrPath.trim();
   } else if (typeof mediaOrPath === 'object') {
-    path = mediaOrPath.url || mediaOrPath.file_path || '';
+    path = (mediaOrPath.url || mediaOrPath.file_path || '').trim();
   }
 
   if (!path) return fallback;
-
-  // Derive backend origin
-  const apiBase = import.meta.env.VITE_API_BASE_URL || 'https://tour.ethiodeploy.app/api/v1';
-  const backendOrigin = apiBase.replace(/\/api\/v1\/?$/, '');
-
-  // If path contains localhost or 127.0.0.1 (e.g. from local APP_URL in DB), strip origin to use backendOrigin
-  if (path.includes('localhost') || path.includes('127.0.0.1')) {
-    try {
-      const parsed = new URL(path);
-      path = parsed.pathname;
-    } catch {
-      path = path.replace(/^https?:\/\/[^/]+/, '');
-    }
-  }
 
   // If already absolute or data URI
   if (
@@ -46,13 +32,39 @@ export function getMediaUrl(mediaOrPath, fallback = defaultHeroFallback) {
     path.startsWith('data:') ||
     path.startsWith('blob:')
   ) {
-    if (typeof window !== 'undefined' && window.location.protocol === 'https:' && path.startsWith('http://')) {
-      return path.replace(/^http:\/\//, 'https://');
+    // If it points to local development port (e.g., localhost:8000), strip origin to point to active backend
+    if (path.includes('localhost') || path.includes('127.0.0.1')) {
+      try {
+        const parsed = new URL(path);
+        path = parsed.pathname;
+      } catch {
+        path = path.replace(/^https?:\/\/[^/]+/, '');
+      }
+    } else {
+      if (typeof window !== 'undefined' && window.location.protocol === 'https:' && path.startsWith('http://')) {
+        return path.replace(/^http:\/\//, 'https://');
+      }
+      return path;
     }
-    return path;
   }
 
+  // Frontend public/asset static files should remain relative
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  if (
+    cleanPath.startsWith('/assets/') ||
+    cleanPath.startsWith('/images/') ||
+    cleanPath.startsWith('/brand-') ||
+    cleanPath === '/logo.png' ||
+    cleanPath === '/favicon.ico' ||
+    cleanPath.startsWith('/@')
+  ) {
+    return cleanPath;
+  }
+
+  // Derive active backend origin (e.g. https://tour.ethiodeploy.app or http://localhost:8000)
+  const apiBase = import.meta.env.VITE_API_BASE_URL || 'https://tour.ethiodeploy.app/api/v1';
+  const backendOrigin = apiBase.replace(/\/api\/v1\/?$/, '');
+
   return `${backendOrigin}${cleanPath}`;
 }
 

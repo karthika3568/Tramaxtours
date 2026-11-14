@@ -22,11 +22,60 @@ export const authService = {
   },
 
   /**
+   * Register a new customer account
+   * @param {Object} data
+   * @param {string} data.name
+   * @param {string} data.email
+   * @param {string} [data.phone]
+   * @param {string} data.password
+   * @param {string} [data.password_confirmation]
+   * @returns {Promise<{token: string, token_type: string, expires_in: number, user: Object}>}
+   */
+  register: async (data) => {
+    const response = await client.post('/auth/register', data, { requiresAuth: false });
+    return response.data;
+  },
+
+  /**
    * Fetch current authenticated user and permissions
    * @returns {Promise<{user: Object}>}
    */
   getCurrentUser: async () => {
     const response = await client.get('/auth/me');
+    return response.data;
+  },
+
+  /**
+   * Update personal profile details
+   * @param {Object} data
+   * @returns {Promise<{user: Object}>}
+   */
+  updateProfile: async (data) => {
+    const response = await client.put('/auth/profile', data);
+    return response.data;
+  },
+
+  /**
+   * Change user account password
+   * @param {Object} data
+   * @param {string} data.current_password
+   * @param {string} data.new_password
+   * @param {string} data.new_password_confirmation
+   * @returns {Promise<any>}
+   */
+  changePassword: async (data) => {
+    const response = await client.post('/auth/change-password', data);
+    return response.data;
+  },
+
+  /**
+   * Request password reset instructions
+   * @param {Object} data
+   * @param {string} data.email
+   * @returns {Promise<any>}
+   */
+  forgotPassword: async (data) => {
+    const response = await client.post('/auth/forgot-password', data, { requiresAuth: false });
     return response.data;
   },
 

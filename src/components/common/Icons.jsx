@@ -47,6 +47,27 @@ export function EyeOffIcon(props) {
   );
 }
 
+export function TicketIcon(props) {
+  return (
+    <SvgBase {...props}>
+      <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
+      <path d="M13 5v2" />
+      <path d="M13 17v2" />
+      <path d="M13 11v2" />
+    </SvgBase>
+  );
+}
+
+export function LogOutIcon(props) {
+  return (
+    <SvgBase {...props}>
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" y1="12" x2="9" y2="12" />
+    </SvgBase>
+  );
+}
+
 export function EditIcon(props) {
   return (
     <SvgBase {...props}>

@@ -2,6 +2,7 @@
 
 use App\Controllers\AuthController;
 use App\Controllers\BookingController;
+use App\Controllers\CustomerBookingController;
 use App\Controllers\CmsSectionController;
 use App\Controllers\DashboardController;
 use App\Controllers\DestinationController;
@@ -47,9 +48,14 @@ $router->group('/api/v1', function (Router $router) {
     $router->group('/auth', function (Router $router) {
         // Public Endpoints
         $router->post('/login', [AuthController::class, 'login']);
+        $router->post('/register', [AuthController::class, 'register']);
+        $router->post('/forgot-password', [AuthController::class, 'forgotPassword']);
 
         // Protected Endpoints (Bearer Token required)
         $router->get('/me', [AuthController::class, 'me'], [AuthMiddleware::class]);
+        $router->get('/profile', [AuthController::class, 'me'], [AuthMiddleware::class]);
+        $router->put('/profile', [AuthController::class, 'updateProfile'], [AuthMiddleware::class]);
+        $router->post('/change-password', [AuthController::class, 'changePassword'], [AuthMiddleware::class]);
         $router->post('/logout', [AuthController::class, 'logout'], [AuthMiddleware::class]);
 
         // Authorization Verification Test Endpoints
@@ -57,6 +63,14 @@ $router->group('/api/v1', function (Router $router) {
         $router->get('/test/admin', [AuthController::class, 'testAdmin'], [new RoleMiddleware(['super_admin', 'admin'])]);
         $router->get('/test/permission', [AuthController::class, 'testPermission'], [new PermissionMiddleware('users.view')]);
     });
+
+    // Customer Scoped Portal Routes (Bearer Token required)
+    $router->group('/customer', function (Router $router) {
+        $router->get('/bookings', [CustomerBookingController::class, 'index']);
+        $router->get('/bookings/stats', [CustomerBookingController::class, 'stats']);
+        $router->get('/bookings/{id}', [CustomerBookingController::class, 'show']);
+        $router->get('/bookings/{id}/receipt', [CustomerBookingController::class, 'receipt']);
+    }, [AuthMiddleware::class]);
 
     // Dashboard & Operations Statistics Route (Permission: dashboard.view)
     $router->group('/dashboard', function (Router $router) {

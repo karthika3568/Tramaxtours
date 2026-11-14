@@ -50,6 +50,20 @@ export default function TourBookingCard({ tour }) {
     return () => clearInterval(timer);
   }, [cooldownRemaining]);
 
+  // Restore and auto-open booking modal if redirected back after login/registration
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get('openBooking') === 'true' && isAuthenticated) {
+      const paramDate = searchParams.get('date');
+      const paramAdults = searchParams.get('adults');
+      const paramChildren = searchParams.get('children');
+      if (paramDate) setSelectedDate(paramDate);
+      if (paramAdults) setAdults(Math.max(1, Number(paramAdults) || 1));
+      if (paramChildren) setChildren(Math.max(0, Number(paramChildren) || 0));
+      setShowBookingModal(true);
+    }
+  }, [location.search, isAuthenticated]);
+
   if (!tour) return null;
 
   const usesDateAvailability = Boolean(tour.uses_date_availability);
@@ -89,6 +103,19 @@ export default function TourBookingCard({ tour }) {
       );
       return;
     }
+
+    if (!isAuthenticated) {
+      toast.info('Please sign in to proceed with your booking.', 'Sign In Required');
+      const searchParams = new URLSearchParams(location.search);
+      searchParams.set('openBooking', 'true');
+      if (selectedDate) searchParams.set('date', selectedDate);
+      if (adults) searchParams.set('adults', adults);
+      if (children) searchParams.set('children', children);
+      const redirectUrl = `${location.pathname}?${searchParams.toString()}`;
+      navigate(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
+      return;
+    }
+
     setShowBookingModal(true);
   };
 

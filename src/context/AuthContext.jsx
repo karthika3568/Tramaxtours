@@ -55,6 +55,28 @@ export function AuthProvider({ children }) {
     return data;
   }, []);
 
+  const register = useCallback(async (formData) => {
+    const data = await authService.register(formData);
+    if (data && data.token) {
+      setAccessToken(data.token);
+      setUser(data.user);
+    }
+    return data;
+  }, []);
+
+  const updateProfile = useCallback(async (profileData) => {
+    const data = await authService.updateProfile(profileData);
+    if (data && data.user) {
+      setUser(data.user);
+    }
+    return data;
+  }, []);
+
+  const changePassword = useCallback(async (passwordData) => {
+    const data = await authService.changePassword(passwordData);
+    return data;
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await authService.logout();
@@ -120,12 +142,15 @@ export function AuthProvider({ children }) {
       isAuthenticated: Boolean(user),
       isLoading,
       login,
+      register,
+      updateProfile,
+      changePassword,
       logout,
       refreshUser,
       hasPermission,
       hasRole,
     }),
-    [user, isLoading, login, logout, refreshUser, hasPermission, hasRole]
+    [user, isLoading, login, register, updateProfile, changePassword, logout, refreshUser, hasPermission, hasRole]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

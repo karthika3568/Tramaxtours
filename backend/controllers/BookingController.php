@@ -173,6 +173,32 @@ class BookingController extends BaseController
             $currency = !empty($body['currency']) ? (string) $body['currency'] : ($tour['currency'] ?? 'INR');
 
             $userId = Request::getUserId();
+            if (!$userId) {
+                // If not pre-extracted by AuthMiddleware, check Authorization header directly
+                $authHeader = Request::getHeader('Authorization');
+                if ($authHeader && preg_match('/^Bearer\s+(.*?)$/i', trim($authHeader), $matches)) {
+                    try {
+                        $payload = \App\Utils\JWT::decode($matches[1]);
+                        $sub = $payload['sub'] ?? $payload['user_id'] ?? null;
+                        if ($sub) {
+                            $u = \App\Models\User::findById((int) $sub);
+                            if ($u && $u['status'] === 'active') {
+                                $userId = (int) $u['id'];
+                            }
+                        }
+                    } catch (\Throwable $e) {
+                        // ignore invalid token
+                    }
+                }
+            }
+
+            // Fallback: If still not set, link to registered user matching this customer email
+            if (!$userId && !empty($email)) {
+                $matchedUser = \App\Models\User::findByEmail($email);
+                if ($matchedUser && $matchedUser['status'] === 'active') {
+                    $userId = (int) $matchedUser['id'];
+                }
+            }
 
             $bookingData = [
                 'order_number' => $body['order_number'] ?? null,

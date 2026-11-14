@@ -12,7 +12,7 @@ class User extends BaseModel
      */
     public static function findByEmail(string $email): ?array
     {
-        $sql = 'SELECT `id`, `name`, `email`, `password_hash`, `phone`, `status`, `email_verified_at`, `last_login_at`, `created_at`, `updated_at`
+        $sql = 'SELECT `id`, `name`, `email`, `password_hash`, `phone`, `avatar_url`, `status`, `email_verified_at`, `last_login_at`, `created_at`, `updated_at`
                 FROM `users`
                 WHERE LOWER(TRIM(`email`)) = LOWER(TRIM(:email)) AND `deleted_at` IS NULL
                 LIMIT 1';
@@ -28,7 +28,7 @@ class User extends BaseModel
      */
     public static function findById(int $id): ?array
     {
-        $sql = 'SELECT `id`, `name`, `email`, `phone`, `status`, `email_verified_at`, `last_login_at`, `created_at`, `updated_at`
+        $sql = 'SELECT `id`, `name`, `email`, `phone`, `avatar_url`, `status`, `email_verified_at`, `last_login_at`, `created_at`, `updated_at`
                 FROM `users`
                 WHERE `id` = :id AND `deleted_at` IS NULL
                 LIMIT 1';
@@ -159,6 +159,7 @@ class User extends BaseModel
             'name' => $user['name'],
             'email' => $user['email'],
             'phone' => $user['phone'] ?? null,
+            'avatar_url' => $user['avatar_url'] ?? null,
             'status' => $user['status'],
             'email_verified_at' => $user['email_verified_at'] ?? null,
             'last_login_at' => $user['last_login_at'] ?? null,
@@ -325,17 +326,19 @@ class User extends BaseModel
         $name = trim($data['name']);
         $email = trim(strtolower($data['email']));
         $phone = !empty($data['phone']) ? trim($data['phone']) : null;
+        $avatarUrl = !empty($data['avatar_url']) ? trim($data['avatar_url']) : null;
         $status = in_array($data['status'] ?? 'active', ['active', 'inactive', 'suspended'], true) ? $data['status'] : 'active';
         $passwordHash = password_hash($data['password'], PASSWORD_BCRYPT);
 
         // 1. Insert user
-        $stmt = $pdo->prepare('INSERT INTO `users` (`name`, `email`, `password_hash`, `phone`, `status`, `created_at`, `updated_at`)
-                               VALUES (:name, :email, :password_hash, :phone, :status, NOW(), NOW())');
+        $stmt = $pdo->prepare('INSERT INTO `users` (`name`, `email`, `password_hash`, `phone`, `avatar_url`, `status`, `created_at`, `updated_at`)
+                               VALUES (:name, :email, :password_hash, :phone, :avatar_url, :status, NOW(), NOW())');
         $stmt->execute([
             ':name' => $name,
             ':email' => $email,
             ':password_hash' => $passwordHash,
             ':phone' => $phone,
+            ':avatar_url' => $avatarUrl,
             ':status' => $status,
         ]);
 
@@ -385,6 +388,11 @@ class User extends BaseModel
         if (array_key_exists('phone', $data)) {
             $updates[] = '`phone` = :phone';
             $params[':phone'] = !empty($data['phone']) ? trim($data['phone']) : null;
+        }
+
+        if (array_key_exists('avatar_url', $data)) {
+            $updates[] = '`avatar_url` = :avatar_url';
+            $params[':avatar_url'] = !empty($data['avatar_url']) ? trim($data['avatar_url']) : null;
         }
 
         if (isset($data['status']) && in_array($data['status'], ['active', 'inactive', 'suspended'], true)) {

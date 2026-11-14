@@ -90,16 +90,40 @@ export default function MobileMenu({ isOpen, onClose }) {
                   className="btn btn-outline btn-full"
                   onClick={onClose}
                 >
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}><SettingsIcon size={16} /> {t('nav_admin_console', 'Admin Console')}</span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                    <SettingsIcon size={16} /> {t('nav_admin_console', 'Admin Console')}
+                  </span>
                 </Link>
               ) : (
-                <Link
-                  to="/my-bookings"
-                  className="btn btn-outline btn-full"
-                  onClick={onClose}
-                >
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}><UserIcon size={16} /> {t('nav_my_bookings', 'My Bookings')}</span>
-                </Link>
+                <>
+                  <Link
+                    to="/customer/profile"
+                    className="btn btn-outline btn-full"
+                    onClick={onClose}
+                  >
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                      <UserIcon size={16} /> My Profile
+                    </span>
+                  </Link>
+                  <Link
+                    to="/customer/bookings"
+                    className="btn btn-outline btn-full"
+                    onClick={onClose}
+                  >
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                      📅 My Bookings
+                    </span>
+                  </Link>
+                  <Link
+                    to="/customer/bookings?status=confirmed"
+                    className="btn btn-outline btn-full"
+                    onClick={onClose}
+                  >
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                      🎟️ My Tickets
+                    </span>
+                  </Link>
+                </>
               )}
               <button
                 type="button"
@@ -108,18 +132,28 @@ export default function MobileMenu({ isOpen, onClose }) {
                   onClose();
                 }}
                 className="btn btn-ghost btn-full"
+                style={{ color: '#ef4444' }}
               >
                 {t('nav_sign_out', 'Sign Out')}
               </button>
             </>
           ) : (
-            <Link
-              to="/login"
-              className="btn btn-outline btn-full"
-              onClick={onClose}
-            >
-              {t('nav_sign_in', 'Sign In')}
-            </Link>
+            <>
+              <Link
+                to="/login"
+                className="btn btn-outline btn-full"
+                onClick={onClose}
+              >
+                {t('nav_sign_in', 'Sign In')}
+              </Link>
+              <Link
+                to="/register"
+                className="btn btn-primary btn-full"
+                onClick={onClose}
+              >
+                Sign Up / Register
+              </Link>
+            </>
           )}
         </div>
 
