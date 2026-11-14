@@ -3,19 +3,6 @@ import { Link } from 'react-router-dom';
 import cmsSectionService from '../../../services/cmsSectionService';
 import { getMediaUrl } from '../../../utils/media';
 
-const DEFAULT_CMS_SECTIONS = [
-  {
-    id: 1,
-    section_key: 'custom_expeditions',
-    title: 'Bespoke Travel Crafted Around Your Desires',
-    subtitle: 'Private Chauffeurs, Heritage Homestays & Elite Guides',
-    content: 'Whether you wish to explore centuries-old Dravidian temple architecture, cruise tranquil backwaters on an exclusive houseboat, or embark on a misty hill-station plantation retreat, our travel designers curate every hour to your exact expectations.',
-    media: null,
-    cta_label: 'Plan Your Bespoke Safari',
-    cta_url: '/contact',
-  },
-];
-
 export default function CmsSections() {
   const [sections, setSections] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,12 +17,13 @@ export default function CmsSections() {
           if (Array.isArray(data) && data.length > 0) {
             setSections(data);
           } else {
-            setSections(DEFAULT_CMS_SECTIONS);
+            setSections([]);
           }
         }
-      } catch {
+      } catch (err) {
+        console.warn('Failed to load dynamic CMS sections:', err);
         if (isMounted) {
-          setSections(DEFAULT_CMS_SECTIONS);
+          setSections([]);
         }
       } finally {
         if (isMounted) {

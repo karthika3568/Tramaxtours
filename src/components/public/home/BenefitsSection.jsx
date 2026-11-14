@@ -69,48 +69,30 @@ function BenefitVectorIcon({ iconName = '' }) {
   );
 }
 
-const DEFAULT_BENEFITS = [
-  {
-    id: 1,
-    title: 'Discover the possibilities',
-    description: 'With nearly half a million attractions, hotels & more, you’re sure to find joy.',
-    icon: 'globe',
-  },
-  {
-    id: 2,
-    title: 'Enjoy deals & delights',
-    description: 'Quality activities. Great prices. Plus, earn credits to save more.',
-    icon: 'tag',
-  },
-  {
-    id: 3,
-    title: 'Exploring made easy',
-    description: 'Book last minute, skip lines & get free cancellation for easier exploring.',
-    icon: 'umbrella',
-  },
-  {
-    id: 4,
-    title: 'Travel you can trust',
-    description: "Read reviews & get reliable customer support. We're with you at every step.",
-    icon: 'award',
-  },
-];
-
 export default function BenefitsSection() {
-  const [benefits, setBenefits] = useState(DEFAULT_BENEFITS);
+  const [benefits, setBenefits] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
 
     async function loadBenefits() {
       try {
+        setLoading(true);
         const data = await homeBenefitsService.getBenefits();
         const items = data.items || (Array.isArray(data) ? data : []);
-        if (isMounted && items.length > 0) {
+        if (isMounted) {
           setBenefits(items);
         }
-      } catch {
-        // Fallback
+      } catch (err) {
+        console.warn('Failed to load dynamic home benefits:', err);
+        if (isMounted) {
+          setBenefits([]);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
 
@@ -120,6 +102,10 @@ export default function BenefitsSection() {
       isMounted = false;
     };
   }, []);
+
+  if (!loading && benefits.length === 0) {
+    return null;
+  }
 
   return (
     <section className="benefits-section-v2" aria-label="Why Travel With Us">

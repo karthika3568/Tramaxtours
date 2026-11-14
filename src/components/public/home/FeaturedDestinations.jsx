@@ -3,39 +3,9 @@ import { Link } from 'react-router-dom';
 import destinationService from '../../../services/destinationService';
 import { getMediaUrl } from '../../../utils/media';
 
-const FALLBACK_DESTINATIONS = [
-  {
-    id: 'f-tamil-nadu',
-    name: 'Tamil Nadu',
-    slug: 'tamil-nadu',
-    short_description: 'Discover Tamil Nadu with our tours.',
-    image: '/uploads/media/demo_home_tamilnadu.jpg',
-  },
-  {
-    id: 'f-kerala',
-    name: 'Kerala',
-    slug: 'kerala',
-    short_description: 'Discover Kerala with our tours.',
-    image: '/uploads/media/demo_home_kerala.jpg',
-  },
-  {
-    id: 'f-karnataka',
-    name: 'Karnataka',
-    slug: 'karnataka',
-    short_description: 'Discover Karnataka with our tours.',
-    image: '/uploads/media/demo_home_karnataka.jpg',
-  },
-  {
-    id: 'f-goa',
-    name: 'Goa',
-    slug: 'goa',
-    short_description: 'Discover Goa with our tours.',
-    image: '/uploads/media/demo_home_goa.jpg',
-  },
-];
-
 export default function FeaturedDestinations() {
-  const [destinations, setDestinations] = useState(FALLBACK_DESTINATIONS);
+  const [destinations, setDestinations] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
   const [hoveredId, setHoveredId] = useState(null);
   const sliderRef = useRef(null);
@@ -46,13 +16,16 @@ export default function FeaturedDestinations() {
 
     async function loadDestinations() {
       try {
+        setLoading(true);
         const res = await destinationService.getDestinations({ limit: 12, status: 'published' });
         const items = res?.items || res?.data || (Array.isArray(res) ? res : []);
-        if (isMounted && items.length > 0) {
-          setDestinations(items);
+        if (isMounted) {
+          setDestinations(items || []);
         }
-      } catch {
-        // Retain fallback list
+      } catch (err) {
+        console.error('Failed to load destinations dynamically:', err);
+      } finally {
+        if (isMounted) setLoading(false);
       }
     }
 
@@ -132,6 +105,10 @@ export default function FeaturedDestinations() {
       isInteractingRef.current = false;
     }, 450);
   }, [repeatCount]);
+
+  if (!loading && destinations.length === 0) {
+    return null;
+  }
 
   return (
     <section className="top-destinations-section" aria-label="Top Destinations">

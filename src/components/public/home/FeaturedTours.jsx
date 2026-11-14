@@ -4,77 +4,8 @@ import tourService from '../../../services/tourService';
 import TourCard from '../tours/TourCard';
 import Loading from '../../ui/Loading';
 
-const FALLBACK_POPULAR_TOURS = [
-  {
-    id: 'fb-maha',
-    title: 'Mahabalipuram Day Tour',
-    slug: 'mahabalipuram-day-tour',
-    destination: { name: 'Mahabalipuram' },
-    featured_image: '/uploads/media/demo_tamilnadu_mahabalipuram.jpg',
-    rating: 0.0,
-    reviews_count: 0,
-    categories: [
-      { name: 'City Sightseeing Tours' },
-      { name: 'Cultural & Heritage Tours' },
-      { name: 'Guided Tours' },
-      { name: 'Historical Tours' },
-      { name: 'One Day Tours' },
-      { name: 'Private Tours' },
-    ],
-  },
-  {
-    id: 'fb-kanchi',
-    title: 'Kanchipuram Day Tour',
-    slug: 'kanchipuram-day-tour',
-    destination: { name: 'Kanchipuram' },
-    featured_image: '/uploads/media/demo_tamilnadu_kanchipuram.jpg',
-    rating: 0.0,
-    reviews_count: 0,
-    categories: [
-      { name: 'Cultural & Heritage Tours' },
-      { name: 'Guided Tours' },
-      { name: 'One Day Tours' },
-      { name: 'Pilgrimage / Temple Tours' },
-      { name: 'Private Tours' },
-    ],
-  },
-  {
-    id: 'fb-pondy',
-    title: 'PONDICHERRY DAY TOUR',
-    slug: 'pondicherry-day-tour',
-    destination: { name: 'Pondicherry (Puducherry)' },
-    featured_image: '/uploads/media/demo_tamilnadu_pondicherry.jpg',
-    rating: 0.0,
-    reviews_count: 0,
-    categories: [
-      { name: 'City Sightseeing Tours' },
-      { name: 'Cultural & Heritage Tours' },
-      { name: 'Guided Tours' },
-      { name: 'One Day Tours' },
-      { name: 'Private Tours' },
-    ],
-  },
-  {
-    id: 'fb-chennai',
-    title: 'Chennai Day Tour',
-    slug: 'chennai-day-tour',
-    destination: { name: 'Chennai' },
-    featured_image: '/uploads/media/demo_tamilnadu_chennai.jpg',
-    rating: 5.0,
-    reviews_count: 1,
-    categories: [
-      { name: 'City Sightseeing Tours' },
-      { name: 'Cultural & Heritage Tours' },
-      { name: 'Family Tours' },
-      { name: 'Guided Tours' },
-      { name: 'One Day Tours' },
-      { name: 'Private Tours' },
-    ],
-  },
-];
-
 export default function FeaturedTours() {
-  const [tours, setTours] = useState(FALLBACK_POPULAR_TOURS);
+  const [tours, setTours] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -85,11 +16,14 @@ export default function FeaturedTours() {
         setIsLoading(true);
         const res = await tourService.getTours({ limit: 12, status: 'published', sort_by: 'display_order', order: 'ASC' });
         const list = res?.items || res?.data || (Array.isArray(res) ? res : []);
-        if (isMounted && list.length > 0) {
+        if (isMounted) {
           setTours(list);
         }
-      } catch {
-        // Retain fallback list
+      } catch (err) {
+        console.warn('Failed to load dynamic tours:', err);
+        if (isMounted) {
+          setTours([]);
+        }
       } finally {
         if (isMounted) {
           setIsLoading(false);
@@ -103,6 +37,10 @@ export default function FeaturedTours() {
       isMounted = false;
     };
   }, []);
+
+  if (!isLoading && tours.length === 0) {
+    return null;
+  }
 
   return (
     <section className="popular-activities-section" aria-label="Popular Activities">

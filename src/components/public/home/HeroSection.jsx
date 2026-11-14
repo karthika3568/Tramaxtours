@@ -2,31 +2,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import homeHeroService from '../../../services/homeHeroService';
 import { getMediaUrl } from '../../../utils/media';
 
-const FALLBACK_HERO_SLIDES = [
-  {
-    id: 1,
-    image: getMediaUrl('/uploads/media/demo_carousel_tamilnadu.jpg'),
-  },
-  {
-    id: 2,
-    image: getMediaUrl('/uploads/media/demo_carousel_kerala.jpg'),
-  },
-  {
-    id: 3,
-    image: getMediaUrl('/uploads/media/demo_carousel_karnataka.jpg'),
-  },
-  {
-    id: 4,
-    image: getMediaUrl('/uploads/media/demo_carousel_goa.jpg'),
-  },
-  {
-    id: 5,
-    image: getMediaUrl('/uploads/media/demo_carousel_pondicherry.jpg'),
-  },
-];
-
 export default function HeroSection() {
-  const [slides, setSlides] = useState(FALLBACK_HERO_SLIDES);
+  const [slides, setSlides] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef(null);
@@ -39,17 +16,19 @@ export default function HeroSection() {
         const res = await homeHeroService.getSlides({ status: 'active', sort_by: 'display_order', sort_order: 'ASC' });
         const slideList = res?.data?.slides || res?.data || (Array.isArray(res) ? res : []);
         if (isMounted && slideList.length > 0) {
-          const mapped = slideList.map((s, idx) => {
-            const mediaUrl = getMediaUrl(s.desktop_media || s.desktop_media?.file_path || s.desktop_media?.url || s.media);
-            return {
-              id: s.id || `slide-${idx}`,
-              image: mediaUrl || FALLBACK_HERO_SLIDES[idx % FALLBACK_HERO_SLIDES.length].image,
-            };
-          });
+          const mapped = slideList
+            .map((s, idx) => {
+              const mediaUrl = getMediaUrl(s.desktop_media || s.desktop_media?.file_path || s.desktop_media?.url || s.media || s.image_url);
+              return {
+                id: s.id || `slide-${idx}`,
+                image: mediaUrl,
+              };
+            })
+            .filter((s) => Boolean(s.image));
           setSlides(mapped);
         }
-      } catch {
-        // Retain fallback slides seamlessly
+      } catch (err) {
+        console.warn('Failed to load dynamic hero slides:', err);
       }
     }
     loadSlides();
@@ -70,7 +49,7 @@ export default function HeroSection() {
 
   // Auto-advance continuous carousel timer (5 seconds per slide)
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || totalSlides <= 1) return;
 
     timerRef.current = setInterval(() => {
       nextSlide();
@@ -81,7 +60,11 @@ export default function HeroSection() {
         clearInterval(timerRef.current);
       }
     };
-  }, [isPaused, nextSlide]);
+  }, [isPaused, nextSlide, totalSlides]);
+
+  if (totalSlides === 0) {
+    return null;
+  }
 
   return (
     <section

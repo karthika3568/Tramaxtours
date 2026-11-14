@@ -146,10 +146,14 @@ export default function AdminInquiriesPage() {
         if (mounted) {
           setInquiries(res.items || []);
           setPagination(res.pagination || { total: 0, page: 1, limit: 15, pages: 1 });
+          if (res.error && (!res.items || res.items.length === 0)) {
+            setError(res.error);
+          }
         }
       } catch (err) {
         if (mounted) {
-          setError(err?.message || 'Failed to load trip requests. Please check your connection.');
+          setError(err?.message || 'Failed to load trip requests.');
+          setInquiries([]);
         }
       } finally {
         if (mounted) setLoadingInquiries(false);
@@ -444,13 +448,25 @@ export default function AdminInquiriesPage() {
 
       {/* 3. Modern Inquiries Table Card matching mockup */}
       <div className="admin-modern-table-card">
+        {error && (
+          <div style={{ padding: '12px 18px', margin: '16px 20px 0 20px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '14px', fontWeight: '600', color: '#991b1b' }}>Server Sync Notice:</span>
+              <span style={{ fontSize: '13px', color: '#b91c1c' }}>{error}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setReloadTrigger((p) => p + 1)}
+              style={{ fontSize: '12.5px', fontWeight: '600', background: '#dc2626', color: '#ffffff', border: 'none', borderRadius: '6px', padding: '6px 14px', cursor: 'pointer', flexShrink: 0 }}
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
         {loadingInquiries ? (
           <div style={{ padding: '64px 20px', textAlign: 'center' }}>
             <Loading message="Loading customer inquiries..." />
-          </div>
-        ) : error ? (
-          <div style={{ padding: '32px 20px' }}>
-            <ErrorState title="Error Loading Inquiries" message={error} onRetry={() => setReloadTrigger((p) => p + 1)} />
           </div>
         ) : inquiries.length === 0 ? (
           <div style={{ padding: '64px 20px', textAlign: 'center' }}>
@@ -459,7 +475,7 @@ export default function AdminInquiriesPage() {
             <p style={{ fontSize: '13.5px', color: '#64748b', marginTop: '4px' }}>
               {debouncedSearch || statusFilter !== 'all' || destFilter !== 'all' || dateFrom || dateTo
                 ? 'No trip requests match your filter criteria. Try resetting the filters.'
-                : 'No customer trip requests have been submitted yet.'}
+                : 'No customer trip requests have been submitted yet. New customer bookings and custom quotes will appear here.'}
             </p>
           </div>
         ) : (

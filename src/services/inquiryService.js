@@ -36,18 +36,36 @@ export const inquiryService = {
    * @returns {Promise<{items: Array, pagination: Object}>}
    */
   getTripRequests: async (params = {}) => {
-    const res = await client.get('/trip-requests', params);
-    return {
-      items: res.data || [],
-      pagination: res.pagination || { total: 0, page: 1, limit: 20, pages: 1 },
-    };
+    try {
+      const res = await client.get('/trip-requests', params);
+      return {
+        items: res.data || [],
+        pagination: res.pagination || { total: 0, page: 1, limit: 20, pages: 1 },
+      };
+    } catch (err) {
+      console.warn('Trip requests fetch error (falling back to empty list):', err?.message || err);
+      return {
+        items: [],
+        pagination: { total: 0, page: 1, limit: 20, pages: 1 },
+        error: err?.message || 'Failed to load trip requests from server.',
+      };
+    }
   },
   getInquiries: async (params = {}) => {
-    const res = await client.get('/trip-requests', params);
-    return {
-      items: res.data || [],
-      pagination: res.pagination || { total: 0, page: 1, limit: 20, pages: 1 },
-    };
+    try {
+      const res = await client.get('/trip-requests', params);
+      return {
+        items: res.data || [],
+        pagination: res.pagination || { total: 0, page: 1, limit: 20, pages: 1 },
+      };
+    } catch (err) {
+      console.warn('Inquiries fetch error (falling back to empty list):', err?.message || err);
+      return {
+        items: [],
+        pagination: { total: 0, page: 1, limit: 20, pages: 1 },
+        error: err?.message || 'Failed to load inquiries from server.',
+      };
+    }
   },
 
   /**
@@ -55,12 +73,22 @@ export const inquiryService = {
    * @returns {Promise<Object>}
    */
   getTripRequestStats: async () => {
-    const res = await client.get('/trip-requests/stats');
-    return res.data || { total: 0, new: 0, contacted: 0, converted: 0, closed: 0 };
+    try {
+      const res = await client.get('/trip-requests/stats');
+      return res.data || { total: 0, new: 0, contacted: 0, converted: 0, closed: 0 };
+    } catch (err) {
+      console.warn('Trip request stats fetch error:', err?.message || err);
+      return { total: 0, new: 0, contacted: 0, converted: 0, closed: 0, planning: 0, quotation_sent: 0, confirmed: 0, cancelled: 0 };
+    }
   },
   getInquiryStats: async () => {
-    const res = await client.get('/trip-requests/stats');
-    return res.data || { total: 0, new: 0, contacted: 0, converted: 0, closed: 0 };
+    try {
+      const res = await client.get('/trip-requests/stats');
+      return res.data || { total: 0, new: 0, contacted: 0, converted: 0, closed: 0 };
+    } catch (err) {
+      console.warn('Inquiry stats fetch error:', err?.message || err);
+      return { total: 0, new: 0, contacted: 0, converted: 0, closed: 0, planning: 0, quotation_sent: 0, confirmed: 0, cancelled: 0 };
+    }
   },
 
   /**

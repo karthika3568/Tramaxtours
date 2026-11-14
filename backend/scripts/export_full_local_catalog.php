@@ -18,8 +18,8 @@ $export = [
     'site_settings' => [],
     'pages' => [],
     'cms_sections' => [],
-    'things_to_do' => [],
     'medical_trips' => [],
+    'reviews' => [],
     'footer_links' => [],
     'social_links' => [],
 ];
@@ -154,15 +154,15 @@ $export['pages'] = $pdo->query("SELECT * FROM pages $pWhere ORDER BY id ASC")->f
 // 7. CMS Sections
 $export['cms_sections'] = $pdo->query("SELECT * FROM cms_sections ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
 
-// 8. Things to do
-$export['things_to_do'] = $pdo->query("SELECT * FROM things_to_do ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
-
-// 9. Medical trips
+// 8. Medical trips
 $export['medical_trips'] = $pdo->query("SELECT * FROM medical_trips ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
 
 // 10. Footer links & social links
 $export['footer_links'] = $pdo->query("SELECT * FROM footer_links ORDER BY display_order ASC")->fetchAll(PDO::FETCH_ASSOC);
 $export['social_links'] = $pdo->query("SELECT * FROM social_links ORDER BY display_order ASC")->fetchAll(PDO::FETCH_ASSOC);
+
+// 11. Customer Reviews / Testimonials
+$export['reviews'] = $pdo->query("SELECT * FROM reviews WHERE status = 'approved' ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
 
 @mkdir(__DIR__ . '/../storage', 0777, true);
 file_put_contents(__DIR__ . '/../storage/production_catalog_seed.json', json_encode($export, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
