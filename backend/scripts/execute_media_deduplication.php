@@ -293,3 +293,4 @@ foreach ($refTables as $tbl => $cols) {
 }
 echo "Broken foreign references in website tables: {$brokenRefs} (Expected: 0)\n";
 echo "\nMEDIA CLEANUP AND DEDUPLICATION COMPLETED SUCCESSFULLY!\n";
+

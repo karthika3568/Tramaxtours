@@ -77,59 +77,64 @@ class Tour extends BaseModel
      */
     public static function create(array $data, array $categoryIds = []): int
     {
-        $sql = 'INSERT INTO `tours` (
-            `destination_id`, `title`, `slug`, `short_description`, `overview`,
-            `tour_type`, `duration_text`, `duration_hours`, `duration_days`,
-            `languages`, `featured_image_id`, `base_price`, `currency`,
-            `min_persons`, `max_persons`, `available_seats`, `total_seats`,
-            `booking_deadline_days`, `travel_days`, `map_title`, `latitude`, `longitude`,
-            `map_zoom`, `seo_title`, `seo_description`, `canonical_url`,
-            `og_image_id`, `is_featured`, `display_order`, `status`, `metadata`,
-            `created_at`, `updated_at`
-        ) VALUES (
-            :destination_id, :title, :slug, :short_description, :overview,
-            :tour_type, :duration_text, :duration_hours, :duration_days,
-            :languages, :featured_image_id, :base_price, :currency,
-            :min_persons, :max_persons, :available_seats, :total_seats,
-            :booking_deadline_days, :travel_days, :map_title, :latitude, :longitude,
-            :map_zoom, :seo_title, :seo_description, :canonical_url,
-            :og_image_id, :is_featured, :display_order, :status, :metadata,
-            NOW(), NOW()
-        )';
+        $tableCols = self::getTableColumns('tours');
+        $possibleFields = [
+            'destination_id' => (int) $data['destination_id'],
+            'title' => $data['title'],
+            'slug' => $data['slug'],
+            'short_description' => $data['short_description'] ?? null,
+            'overview' => $data['overview'] ?? null,
+            'tour_type' => $data['tour_type'] ?? null,
+            'duration_text' => $data['duration_text'] ?? null,
+            'duration_hours' => isset($data['duration_hours']) && $data['duration_hours'] !== '' && $data['duration_hours'] !== null ? (float) $data['duration_hours'] : null,
+            'duration_days' => isset($data['duration_days']) ? max(1, (int) $data['duration_days']) : 1,
+            'languages' => $data['languages'] ?? null,
+            'featured_image_id' => !empty($data['featured_image_id']) ? (int) $data['featured_image_id'] : null,
+            'base_price' => isset($data['base_price']) ? (float) $data['base_price'] : 0.00,
+            'currency' => !empty($data['currency']) ? trim((string) $data['currency']) : 'EUR',
+            'min_persons' => isset($data['min_persons']) ? max(1, (int) $data['min_persons']) : 1,
+            'max_persons' => !empty($data['max_persons']) ? (int) $data['max_persons'] : null,
+            'available_seats' => isset($data['available_seats']) ? (int) $data['available_seats'] : 20,
+            'total_seats' => isset($data['total_seats']) ? (int) $data['total_seats'] : 20,
+            'booking_deadline_days' => isset($data['booking_deadline_days']) ? (int) $data['booking_deadline_days'] : 1,
+            'travel_days' => !empty($data['travel_days']) ? trim((string) $data['travel_days']) : 'Daily',
+            'map_title' => $data['map_title'] ?? null,
+            'latitude' => isset($data['latitude']) && $data['latitude'] !== '' && $data['latitude'] !== null ? (float) $data['latitude'] : null,
+            'longitude' => isset($data['longitude']) && $data['longitude'] !== '' && $data['longitude'] !== null ? (float) $data['longitude'] : null,
+            'map_zoom' => isset($data['map_zoom']) ? (int) $data['map_zoom'] : 13,
+            'seo_title' => $data['seo_title'] ?? null,
+            'seo_description' => $data['seo_description'] ?? null,
+            'canonical_url' => $data['canonical_url'] ?? null,
+            'og_image_id' => !empty($data['og_image_id']) ? (int) $data['og_image_id'] : null,
+            'is_featured' => !empty($data['is_featured']) ? 1 : 0,
+            'display_order' => isset($data['display_order']) ? (int) $data['display_order'] : 0,
+            'status' => in_array($data['status'] ?? '', self::ALLOWED_STATUSES, true) ? $data['status'] : 'draft',
+            'metadata' => !empty($data['metadata']) ? (is_array($data['metadata']) ? json_encode($data['metadata']) : (string) $data['metadata']) : null,
+        ];
 
-        self::execute($sql, [
-            ':destination_id' => (int) $data['destination_id'],
-            ':title' => $data['title'],
-            ':slug' => $data['slug'],
-            ':short_description' => $data['short_description'] ?? null,
-            ':overview' => $data['overview'] ?? null,
-            ':tour_type' => $data['tour_type'] ?? null,
-            ':duration_text' => $data['duration_text'] ?? null,
-            ':duration_hours' => isset($data['duration_hours']) && $data['duration_hours'] !== '' && $data['duration_hours'] !== null ? (float) $data['duration_hours'] : null,
-            ':duration_days' => isset($data['duration_days']) ? max(1, (int) $data['duration_days']) : 1,
-            ':languages' => $data['languages'] ?? null,
-            ':featured_image_id' => !empty($data['featured_image_id']) ? (int) $data['featured_image_id'] : null,
-            ':base_price' => isset($data['base_price']) ? (float) $data['base_price'] : 0.00,
-            ':currency' => !empty($data['currency']) ? trim((string) $data['currency']) : 'EUR',
-            ':min_persons' => isset($data['min_persons']) ? max(1, (int) $data['min_persons']) : 1,
-            ':max_persons' => !empty($data['max_persons']) ? (int) $data['max_persons'] : null,
-            ':available_seats' => isset($data['available_seats']) ? (int) $data['available_seats'] : 20,
-            ':total_seats' => isset($data['total_seats']) ? (int) $data['total_seats'] : 20,
-            ':booking_deadline_days' => isset($data['booking_deadline_days']) ? (int) $data['booking_deadline_days'] : 1,
-            ':travel_days' => !empty($data['travel_days']) ? trim((string) $data['travel_days']) : 'Daily',
-            ':map_title' => $data['map_title'] ?? null,
-            ':latitude' => isset($data['latitude']) && $data['latitude'] !== '' && $data['latitude'] !== null ? (float) $data['latitude'] : null,
-            ':longitude' => isset($data['longitude']) && $data['longitude'] !== '' && $data['longitude'] !== null ? (float) $data['longitude'] : null,
-            ':map_zoom' => isset($data['map_zoom']) ? (int) $data['map_zoom'] : 13,
-            ':seo_title' => $data['seo_title'] ?? null,
-            ':seo_description' => $data['seo_description'] ?? null,
-            ':canonical_url' => $data['canonical_url'] ?? null,
-            ':og_image_id' => !empty($data['og_image_id']) ? (int) $data['og_image_id'] : null,
-            ':is_featured' => !empty($data['is_featured']) ? 1 : 0,
-            ':display_order' => isset($data['display_order']) ? (int) $data['display_order'] : 0,
-            ':status' => in_array($data['status'] ?? '', self::ALLOWED_STATUSES, true) ? $data['status'] : 'draft',
-            ':metadata' => !empty($data['metadata']) ? (is_array($data['metadata']) ? json_encode($data['metadata']) : (string) $data['metadata']) : null,
-        ]);
+        $insertCols = [];
+        $insertPlaceholders = [];
+        $params = [];
+
+        foreach ($possibleFields as $col => $val) {
+            if (empty($tableCols) || in_array($col, $tableCols, true)) {
+                $insertCols[] = "`{$col}`";
+                $insertPlaceholders[] = ":{$col}";
+                $params[":{$col}"] = $val;
+            }
+        }
+
+        if (empty($tableCols) || in_array('created_at', $tableCols, true)) {
+            $insertCols[] = '`created_at`';
+            $insertPlaceholders[] = 'NOW()';
+        }
+        if (empty($tableCols) || in_array('updated_at', $tableCols, true)) {
+            $insertCols[] = '`updated_at`';
+            $insertPlaceholders[] = 'NOW()';
+        }
+
+        $sql = 'INSERT INTO `tours` (' . implode(', ', $insertCols) . ') VALUES (' . implode(', ', $insertPlaceholders) . ')';
+        self::execute($sql, $params);
 
         $tourId = (int) self::lastInsertId();
 
@@ -534,8 +539,9 @@ class Tour extends BaseModel
             'og_image_id', 'is_featured', 'display_order', 'status', 'metadata'
         ];
 
+        $tableCols = self::getTableColumns('tours');
         foreach ($allowedColumns as $col) {
-            if (array_key_exists($col, $data)) {
+            if (array_key_exists($col, $data) && (empty($tableCols) || in_array($col, $tableCols, true))) {
                 $fields[] = "`{$col}` = :{$col}";
 
                 if (in_array($col, ['destination_id', 'featured_image_id', 'og_image_id', 'min_persons', 'max_persons', 'available_seats', 'total_seats', 'booking_deadline_days', 'duration_days', 'map_zoom', 'display_order'], true)) {

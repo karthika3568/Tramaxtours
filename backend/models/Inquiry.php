@@ -111,55 +111,77 @@ class Inquiry extends BaseModel
         $tourTypes = !empty($data['tour_types']) ? (is_array($data['tour_types']) ? json_encode($data['tour_types']) : trim((string)$data['tour_types'])) : null;
         $contactMethods = !empty($data['preferred_contact_methods']) ? (is_array($data['preferred_contact_methods']) ? json_encode($data['preferred_contact_methods']) : trim((string)$data['preferred_contact_methods'])) : null;
 
-        self::execute($sql, [
-            ':public_token' => $publicToken,
-            ':type' => $type,
-            ':first_name' => $firstName ?: null,
-            ':middle_name' => $middleName ?: null,
-            ':last_name' => $lastName ?: null,
-            ':dial_code' => $dialCode,
-            ':name' => $computedName ?: 'Guest Traveler',
-            ':email' => !empty($data['email']) ? trim((string)$data['email']) : 'guest@wonderersouthindia.in',
-            ':phone' => !empty($data['phone']) ? trim((string)$data['phone']) : (!empty($data['whatsapp_number']) ? trim((string)$data['whatsapp_number']) : null),
-            ':whatsapp_number' => !empty($data['whatsapp_number']) ? trim((string)$data['whatsapp_number']) : (!empty($data['phone']) ? trim((string)$data['phone']) : null),
-            ':country' => !empty($data['country']) ? trim((string)$data['country']) : (!empty($data['nationality']) ? trim((string)$data['nationality']) : null),
-            ':subject' => !empty($data['subject']) ? trim((string)$data['subject']) : 'Custom Vacation Itinerary & Quotation Request',
-            ':message' => trim((string)($data['message'] ?? $data['special_requests'] ?? '')),
-            ':tour_id' => $tourId,
-            ':destination_id' => $destId,
-            ':destination_name' => $destName,
-            ':pickup_location' => !empty($data['pickup_location']) ? trim((string)$data['pickup_location']) : null,
-            ':tour_title' => $tourTitle,
-            ':travel_date' => !empty($data['travel_date']) ? trim((string)$data['travel_date']) : (!empty($data['arrival_date']) ? trim((string)$data['arrival_date']) : null),
-            ':arrival_date' => !empty($data['arrival_date']) ? trim((string)$data['arrival_date']) : null,
-            ':departure_date' => !empty($data['departure_date']) ? trim((string)$data['departure_date']) : null,
-            ':duration_days' => !empty($data['duration_days']) ? trim((string)$data['duration_days']) : (!empty($data['number_of_days']) ? trim((string)$data['number_of_days']) : null),
-            ':travelers' => max(1, $totalTravelers),
-            ':adults_count' => $adults,
-            ':children_count' => $children,
-            ':infants_count' => $infants,
-            ':vehicle_preference' => !empty($data['vehicle_preference']) ? trim((string)$data['vehicle_preference']) : null,
-            ':airport_pickup' => !empty($data['airport_pickup']) ? 1 : 0,
-            ':airport_drop' => !empty($data['airport_drop']) ? 1 : 0,
-            ':hotel_category' => !empty($data['hotel_category']) ? trim((string)$data['hotel_category']) : null,
-            ':rooms_count' => !empty($data['rooms_count']) ? (int)$data['rooms_count'] : 1,
-            ':room_type' => !empty($data['room_type']) ? trim((string)$data['room_type']) : null,
-            ':tour_types' => $tourTypes,
-            ':tour_guide_required' => !empty($data['tour_guide_required']) ? 1 : 0,
-            ':preferred_language' => !empty($data['preferred_language']) ? trim((string)$data['preferred_language']) : 'English',
-            ':arrival_flight_train_number' => !empty($data['arrival_flight_train_number']) ? trim((string)$data['arrival_flight_train_number']) : null,
-            ':arrival_time' => !empty($data['arrival_time']) ? trim((string)$data['arrival_time']) : null,
-            ':departure_flight_train_number' => !empty($data['departure_flight_train_number']) ? trim((string)$data['departure_flight_train_number']) : null,
-            ':departure_time' => !empty($data['departure_time']) ? trim((string)$data['departure_time']) : null,
-            ':approximate_budget' => !empty($data['approximate_budget']) ? trim((string)$data['approximate_budget']) : null,
-            ':budget_currency' => !empty($data['budget_currency']) ? trim((string)$data['budget_currency']) : 'INR',
-            ':passport_file_url' => !empty($data['passport_file_url']) ? trim((string)$data['passport_file_url']) : null,
-            ':flight_ticket_url' => !empty($data['flight_ticket_url']) ? trim((string)$data['flight_ticket_url']) : null,
-            ':preferred_contact_methods' => $contactMethods,
-            ':status' => $status,
-            ':admin_notes' => !empty($data['admin_notes']) ? trim((string)$data['admin_notes']) : null,
-            ':quotation_amount' => !empty($data['quotation_amount']) ? (float)$data['quotation_amount'] : null,
-        ]);
+        $allVals = [
+            'public_token' => $publicToken,
+            'type' => $type,
+            'first_name' => $firstName ?: null,
+            'middle_name' => $middleName ?: null,
+            'last_name' => $lastName ?: null,
+            'dial_code' => $dialCode,
+            'name' => $computedName ?: 'Guest Traveler',
+            'email' => !empty($data['email']) ? trim((string)$data['email']) : 'guest@wonderersouthindia.in',
+            'phone' => !empty($data['phone']) ? trim((string)$data['phone']) : (!empty($data['whatsapp_number']) ? trim((string)$data['whatsapp_number']) : null),
+            'whatsapp_number' => !empty($data['whatsapp_number']) ? trim((string)$data['whatsapp_number']) : (!empty($data['phone']) ? trim((string)$data['phone']) : null),
+            'country' => !empty($data['country']) ? trim((string)$data['country']) : (!empty($data['nationality']) ? trim((string)$data['nationality']) : null),
+            'subject' => !empty($data['subject']) ? trim((string)$data['subject']) : 'Custom Vacation Itinerary & Quotation Request',
+            'message' => trim((string)($data['message'] ?? $data['special_requests'] ?? '')),
+            'tour_id' => $tourId,
+            'destination_id' => $destId,
+            'destination_name' => $destName,
+            'pickup_location' => !empty($data['pickup_location']) ? trim((string)$data['pickup_location']) : null,
+            'tour_title' => $tourTitle,
+            'travel_date' => !empty($data['travel_date']) ? trim((string)$data['travel_date']) : (!empty($data['arrival_date']) ? trim((string)$data['arrival_date']) : null),
+            'arrival_date' => !empty($data['arrival_date']) ? trim((string)$data['arrival_date']) : null,
+            'departure_date' => !empty($data['departure_date']) ? trim((string)$data['departure_date']) : null,
+            'duration_days' => !empty($data['duration_days']) ? trim((string)$data['duration_days']) : (!empty($data['number_of_days']) ? trim((string)$data['number_of_days']) : null),
+            'travelers' => max(1, $totalTravelers),
+            'adults_count' => $adults,
+            'children_count' => $children,
+            'infants_count' => $infants,
+            'vehicle_preference' => !empty($data['vehicle_preference']) ? trim((string)$data['vehicle_preference']) : null,
+            'airport_pickup' => !empty($data['airport_pickup']) ? 1 : 0,
+            'airport_drop' => !empty($data['airport_drop']) ? 1 : 0,
+            'hotel_category' => !empty($data['hotel_category']) ? trim((string)$data['hotel_category']) : null,
+            'rooms_count' => !empty($data['rooms_count']) ? (int)$data['rooms_count'] : 1,
+            'room_type' => !empty($data['room_type']) ? trim((string)$data['room_type']) : null,
+            'tour_types' => $tourTypes,
+            'tour_guide_required' => !empty($data['tour_guide_required']) ? 1 : 0,
+            'preferred_language' => !empty($data['preferred_language']) ? trim((string)$data['preferred_language']) : 'English',
+            'arrival_flight_train_number' => !empty($data['arrival_flight_train_number']) ? trim((string)$data['arrival_flight_train_number']) : null,
+            'arrival_time' => !empty($data['arrival_time']) ? trim((string)$data['arrival_time']) : null,
+            'departure_flight_train_number' => !empty($data['departure_flight_train_number']) ? trim((string)$data['departure_flight_train_number']) : null,
+            'departure_time' => !empty($data['departure_time']) ? trim((string)$data['departure_time']) : null,
+            'approximate_budget' => !empty($data['approximate_budget']) ? trim((string)$data['approximate_budget']) : null,
+            'budget_currency' => !empty($data['budget_currency']) ? trim((string)$data['budget_currency']) : 'INR',
+            'passport_file_url' => !empty($data['passport_file_url']) ? trim((string)$data['passport_file_url']) : null,
+            'flight_ticket_url' => !empty($data['flight_ticket_url']) ? trim((string)$data['flight_ticket_url']) : null,
+            'preferred_contact_methods' => $contactMethods,
+            'status' => $status,
+            'admin_notes' => !empty($data['admin_notes']) ? trim((string)$data['admin_notes']) : null,
+            'quotation_amount' => !empty($data['quotation_amount']) ? (float)$data['quotation_amount'] : null,
+        ];
+
+        $insCols = [];
+        $insPh = [];
+        $insParams = [];
+        $tCols = self::getTableColumns('contact_messages');
+        foreach ($allVals as $c => $v) {
+            if (empty($tCols) || in_array($c, $tCols, true)) {
+                $insCols[] = "`{$c}`";
+                $insPh[] = ":{$c}";
+                $insParams[":{$c}"] = $v;
+            }
+        }
+        if (empty($tCols) || in_array('created_at', $tCols, true)) {
+            $insCols[] = '`created_at`';
+            $insPh[] = 'NOW()';
+        }
+        if (empty($tCols) || in_array('updated_at', $tCols, true)) {
+            $insCols[] = '`updated_at`';
+            $insPh[] = 'NOW()';
+        }
+        $dynSql = "INSERT INTO `contact_messages` (" . implode(', ', $insCols) . ") VALUES (" . implode(', ', $insPh) . ")";
+        self::execute($dynSql, $insParams);
 
         $id = (int) self::lastInsertId();
         if ($id > 0) {
@@ -233,6 +255,7 @@ class Inquiry extends BaseModel
      */
     public static function paginate(int $page = 1, int $limit = 20, array $filters = []): array
     {
+        $tableCols = self::getTableColumns('contact_messages');
         $page = max(1, $page);
         $limit = max(1, min(100, $limit));
         $offset = ($page - 1) * $limit;
@@ -240,7 +263,7 @@ class Inquiry extends BaseModel
         $where = ['1=1'];
         $params = [];
 
-        if (!empty($filters['type'])) {
+        if (!empty($filters['type']) && (empty($tableCols) || in_array('type', $tableCols, true))) {
             $where[] = 'cm.type = :type';
             $params[':type'] = $filters['type'];
         }
@@ -372,8 +395,10 @@ class Inquiry extends BaseModel
     public static function stats(?string $type = 'trip_request'): array
     {
         $pdo = self::db();
-        $typeClause = $type ? "WHERE type = " . $pdo->quote($type) : "";
-        $whereAnd = $type ? "AND type = " . $pdo->quote($type) : "";
+        $tableCols = self::getTableColumns('contact_messages');
+        $hasType = in_array('type', $tableCols, true);
+        $typeClause = ($type && $hasType) ? "WHERE type = " . $pdo->quote($type) : "";
+        $whereAnd = ($type && $hasType) ? "AND type = " . $pdo->quote($type) : "";
 
         $total = (int) $pdo->query("SELECT COUNT(*) FROM contact_messages $typeClause")->fetchColumn();
         $new = (int) $pdo->query("SELECT COUNT(*) FROM contact_messages WHERE status = 'new' $whereAnd")->fetchColumn();

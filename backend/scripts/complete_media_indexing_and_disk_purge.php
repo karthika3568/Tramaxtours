@@ -147,3 +147,4 @@ foreach ($allFinalMedia as $m) {
 }
 echo "Broken / Missing on Disk: {$brokenCount} (Expected: 0)\n";
 echo "All images are 100% verified, valid, usable, and stored properly!\n";
+

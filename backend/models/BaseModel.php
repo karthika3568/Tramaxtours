@@ -94,4 +94,49 @@ abstract class BaseModel
     {
         return self::db()->lastInsertId();
     }
+
+    /**
+     * Cache for database table columns.
+     *
+     * @var array<string, array<string>>
+     */
+    private static array $tableColumnsCache = [];
+
+    /**
+     * Get all column names of a database table.
+     *
+     * @param string $table
+     * @return array<string>
+     */
+    public static function getTableColumns(string $table): array
+    {
+        if (isset(self::$tableColumnsCache[$table])) {
+            return self::$tableColumnsCache[$table];
+        }
+
+        try {
+            $stmt = self::db()->query("SHOW COLUMNS FROM `{$table}`");
+            $columns = [];
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $columns[] = $row['Field'] ?? $row['field'] ?? '';
+            }
+            self::$tableColumnsCache[$table] = array_filter($columns);
+            return self::$tableColumnsCache[$table];
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Check if a specific column exists in a table.
+     *
+     * @param string $table
+     * @param string $column
+     * @return bool
+     */
+    public static function hasColumn(string $table, string $column): bool
+    {
+        $cols = self::getTableColumns($table);
+        return in_array($column, $cols, true);
+    }
 }
