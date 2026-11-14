@@ -129,6 +129,13 @@ class HealthController extends BaseController
             "ALTER TABLE `contact_messages` ADD COLUMN `whatsapp_number` VARCHAR(30) NULL",
             "ALTER TABLE `reviews` ADD COLUMN `rating` INT NOT NULL DEFAULT 5",
             "ALTER TABLE `reviews` ADD COLUMN `image` VARCHAR(255) NULL",
+            "ALTER TABLE `users` ADD COLUMN `avatar_url` VARCHAR(500) NULL AFTER `phone`",
+            "CREATE TABLE IF NOT EXISTS `password_resets` (
+                `email` VARCHAR(191) NOT NULL,
+                `token` VARCHAR(255) NOT NULL,
+                `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (`email`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
         ];
 
         foreach ($schemaUpdates as $sql) {
@@ -590,10 +597,201 @@ class HealthController extends BaseController
             }
         }
 
+        // 8. Pages (About Us, Terms, Privacy, Refund)
+        $pagesSynced = 0;
+        if (!empty($catalog['pages'])) {
+            $pIns = $pdo->prepare("
+                INSERT INTO pages (
+                    slug, title, subtitle, hero_media_id, content,
+                    seo_title, seo_description, status, created_at, updated_at
+                ) VALUES (
+                    :slug, :title, :subtitle, :hero_media_id, :content,
+                    :seo_title, :seo_description, :status, NOW(), NOW()
+                ) ON DUPLICATE KEY UPDATE
+                    title = VALUES(title),
+                    subtitle = VALUES(subtitle),
+                    hero_media_id = VALUES(hero_media_id),
+                    content = VALUES(content),
+                    seo_title = VALUES(seo_title),
+                    seo_description = VALUES(seo_description),
+                    status = VALUES(status),
+                    deleted_at = NULL,
+                    updated_at = NOW()
+            ");
+            foreach ($catalog['pages'] as $p) {
+                $pIns->execute([
+                    ':slug' => $p['slug'],
+                    ':title' => $p['title'],
+                    ':subtitle' => $p['subtitle'] ?? '',
+                    ':hero_media_id' => $p['hero_media_id'] ?? null,
+                    ':content' => $p['content'] ?? '',
+                    ':seo_title' => $p['seo_title'] ?? null,
+                    ':seo_description' => $p['seo_description'] ?? null,
+                    ':status' => $p['status'] ?? 'published',
+                ]);
+                $pagesSynced++;
+            }
+        }
+
+        // 9. CMS Sections
+        $cmsSynced = 0;
+        if (!empty($catalog['cms_sections'])) {
+            $cIns = $pdo->prepare("
+                INSERT INTO cms_sections (
+                    section_key, title, subtitle, content, media_id,
+                    display_order, status, created_at, updated_at
+                ) VALUES (
+                    :section_key, :title, :subtitle, :content, :media_id,
+                    :display_order, :status, NOW(), NOW()
+                ) ON DUPLICATE KEY UPDATE
+                    title = VALUES(title),
+                    subtitle = VALUES(subtitle),
+                    content = VALUES(content),
+                    media_id = VALUES(media_id),
+                    display_order = VALUES(display_order),
+                    status = VALUES(status),
+                    deleted_at = NULL,
+                    updated_at = NOW()
+            ");
+            foreach ($catalog['cms_sections'] as $cs) {
+                $cIns->execute([
+                    ':section_key' => $cs['section_key'],
+                    ':title' => $cs['title'] ?? '',
+                    ':subtitle' => $cs['subtitle'] ?? null,
+                    ':content' => $cs['content'] ?? '',
+                    ':media_id' => $cs['media_id'] ?? null,
+                    ':display_order' => $cs['display_order'] ?? 0,
+                    ':status' => $cs['status'] ?? 'published',
+                ]);
+                $cmsSynced++;
+            }
+        }
+
+        // 10. Home Hero Slides
+        if (!empty($catalog['home_hero_slides'])) {
+            $hIns = $pdo->prepare("
+                INSERT INTO home_hero_slides (
+                    id, title, subtitle, desktop_media_id, mobile_media_id,
+                    cta_label, cta_url, display_order, status, created_at, updated_at
+                ) VALUES (
+                    :id, :title, :subtitle, :desktop_media_id, :mobile_media_id,
+                    :cta_label, :cta_url, :display_order, :status, NOW(), NOW()
+                ) ON DUPLICATE KEY UPDATE
+                    title = VALUES(title),
+                    subtitle = VALUES(subtitle),
+                    desktop_media_id = VALUES(desktop_media_id),
+                    mobile_media_id = VALUES(mobile_media_id),
+                    cta_label = VALUES(cta_label),
+                    cta_url = VALUES(cta_url),
+                    display_order = VALUES(display_order),
+                    status = VALUES(status),
+                    deleted_at = NULL,
+                    updated_at = NOW()
+            ");
+            foreach ($catalog['home_hero_slides'] as $hs) {
+                $hIns->execute([
+                    ':id' => $hs['id'],
+                    ':title' => $hs['title'] ?? '',
+                    ':subtitle' => $hs['subtitle'] ?? null,
+                    ':desktop_media_id' => $hs['desktop_media_id'] ?? null,
+                    ':mobile_media_id' => $hs['mobile_media_id'] ?? null,
+                    ':cta_label' => $hs['cta_label'] ?? null,
+                    ':cta_url' => $hs['cta_url'] ?? null,
+                    ':display_order' => $hs['display_order'] ?? 0,
+                    ':status' => $hs['status'] ?? 'active',
+                ]);
+            }
+        }
+
+        // 11. Home Benefits
+        if (!empty($catalog['home_benefits'])) {
+            $bIns = $pdo->prepare("
+                INSERT INTO home_benefits (
+                    id, title, description, icon, media_id,
+                    display_order, status, created_at, updated_at
+                ) VALUES (
+                    :id, :title, :description, :icon, :media_id,
+                    :display_order, :status, NOW(), NOW()
+                ) ON DUPLICATE KEY UPDATE
+                    title = VALUES(title),
+                    description = VALUES(description),
+                    icon = VALUES(icon),
+                    media_id = VALUES(media_id),
+                    display_order = VALUES(display_order),
+                    status = VALUES(status),
+                    deleted_at = NULL,
+                    updated_at = NOW()
+            ");
+            foreach ($catalog['home_benefits'] as $hb) {
+                $bIns->execute([
+                    ':id' => $hb['id'],
+                    ':title' => $hb['title'] ?? '',
+                    ':description' => $hb['description'] ?? '',
+                    ':icon' => $hb['icon'] ?? 'award',
+                    ':media_id' => $hb['media_id'] ?? null,
+                    ':display_order' => $hb['display_order'] ?? 0,
+                    ':status' => $hb['status'] ?? 'active',
+                ]);
+            }
+        }
+
+        // 12. Things To Do
+        if (!empty($catalog['things_to_do'])) {
+            $ttdIns = $pdo->prepare("
+                INSERT INTO things_to_do (
+                    title, slug, destination_id, state_region, hero_media_id,
+                    short_description, full_description, duration, best_time,
+                    location, suitable_for, adventure_level, is_featured,
+                    display_order, status, created_at, updated_at
+                ) VALUES (
+                    :title, :slug, :destination_id, :state_region, :hero_media_id,
+                    :short_description, :full_description, :duration, :best_time,
+                    :location, :suitable_for, :adventure_level, :is_featured,
+                    :display_order, :status, NOW(), NOW()
+                ) ON DUPLICATE KEY UPDATE
+                    title = VALUES(title),
+                    destination_id = VALUES(destination_id),
+                    state_region = VALUES(state_region),
+                    hero_media_id = VALUES(hero_media_id),
+                    short_description = VALUES(short_description),
+                    full_description = VALUES(full_description),
+                    duration = VALUES(duration),
+                    best_time = VALUES(best_time),
+                    location = VALUES(location),
+                    suitable_for = VALUES(suitable_for),
+                    adventure_level = VALUES(adventure_level),
+                    is_featured = VALUES(is_featured),
+                    display_order = VALUES(display_order),
+                    status = VALUES(status),
+                    updated_at = NOW()
+            ");
+            foreach ($catalog['things_to_do'] as $ttd) {
+                $ttdIns->execute([
+                    ':title' => $ttd['title'],
+                    ':slug' => $ttd['slug'],
+                    ':destination_id' => $ttd['destination_id'] ?? null,
+                    ':state_region' => $ttd['state_region'] ?? null,
+                    ':hero_media_id' => $ttd['hero_media_id'] ?? null,
+                    ':short_description' => $ttd['short_description'] ?? '',
+                    ':full_description' => $ttd['full_description'] ?? '',
+                    ':duration' => $ttd['duration'] ?? '',
+                    ':best_time' => $ttd['best_time'] ?? '',
+                    ':location' => $ttd['location'] ?? '',
+                    ':suitable_for' => $ttd['suitable_for'] ?? '',
+                    ':adventure_level' => $ttd['adventure_level'] ?? 'Easy',
+                    ':is_featured' => $ttd['is_featured'] ?? 0,
+                    ':display_order' => $ttd['display_order'] ?? 0,
+                    ':status' => $ttd['status'] ?? 'published',
+                ]);
+            }
+        }
+
         $this->success([
             'destinations_synced' => $destSynced,
             'tours_synced' => $toursSynced,
             'media_synced' => $mediaSynced,
+            'pages_synced' => $pagesSynced,
+            'cms_synced' => $cmsSynced,
             'schema_logs' => $logs,
         ], 'Catalog and schema successfully synchronized');
     }

@@ -69,13 +69,27 @@ export const authService = {
   },
 
   /**
-   * Request password reset instructions
+   * Request password reset code
    * @param {Object} data
    * @param {string} data.email
    * @returns {Promise<any>}
    */
   forgotPassword: async (data) => {
     const response = await client.post('/auth/forgot-password', data, { requiresAuth: false });
+    return response.data;
+  },
+
+  /**
+   * Complete password reset using verification code
+   * @param {Object} data
+   * @param {string} data.email
+   * @param {string} data.code
+   * @param {string} data.password
+   * @param {string} [data.password_confirmation]
+   * @returns {Promise<any>}
+   */
+  resetPassword: async (data) => {
+    const response = await client.post('/auth/reset-password', data, { requiresAuth: false });
     return response.data;
   },
 

@@ -378,6 +378,7 @@ class AuthController extends BaseController
 
     /**
      * Initiate forgot password recovery request.
+     * Generates a secure verification code and stores in password_resets.
      * POST /api/v1/auth/forgot-password
      *
      * @return void
@@ -394,10 +395,117 @@ class AuthController extends BaseController
         }
 
         $user = User::findByEmail($email);
-        // Note: For privacy and security, do not disclose whether the email exists
+        if (!$user) {
+            $this->error('No registered account was found with this email address. Please check your email or create a new account.', 404, [
+                'email' => 'No account found with this email address.',
+            ], 'USER_NOT_FOUND');
+        }
+
+        // Generate 6-digit verification code
+        $code = str_pad((string) random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+
+        try {
+            $db = \App\Utils\Database::getConnection();
+            $stmt = $db->prepare("REPLACE INTO `password_resets` (`email`, `token`, `created_at`) VALUES (:email, :token, NOW())");
+            $stmt->execute([
+                ':email' => $email,
+                ':token' => $code,
+            ]);
+        } catch (\Throwable $e) {
+            $this->error('Failed to initiate password reset. Please try again.', 500);
+        }
+
+        AuditService::log(
+            (int) $user['id'],
+            'forgot_password_requested',
+            'user',
+            (int) $user['id'],
+            null,
+            ['email' => $email]
+        );
+
         $this->success([
             'email' => $email,
-        ], 'If an account exists with this email address, password reset instructions have been dispatched.');
+            'code' => $code,
+        ], "Verification code generated successfully. Please enter the 6-digit code ({$code}) and your new password.");
+    }
+
+    /**
+     * Reset user password using the verification code.
+     * POST /api/v1/auth/reset-password
+     *
+     * @return void
+     */
+    public function resetPassword(): void
+    {
+        $body = Request::getBody();
+        $email = trim(strtolower((string) ($body['email'] ?? '')));
+        $code = trim((string) ($body['code'] ?? ($body['token'] ?? '')));
+        $password = (string) ($body['password'] ?? ($body['new_password'] ?? ''));
+        $passwordConfirmation = (string) ($body['password_confirmation'] ?? ($body['confirm_password'] ?? ''));
+
+        $errors = [];
+
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Valid email address is required.';
+        }
+
+        if ($code === '') {
+            $errors['code'] = '6-digit verification code is required.';
+        } elseif (strlen($code) !== 6) {
+            $errors['code'] = 'Verification code must be 6 digits.';
+        }
+
+        if ($password === '') {
+            $errors['password'] = 'New password is required.';
+        } elseif (strlen($password) < 6) {
+            $errors['password'] = 'Password must be at least 6 characters.';
+        }
+
+        if ($passwordConfirmation !== '' && $password !== $passwordConfirmation) {
+            $errors['password_confirmation'] = 'Password confirmation does not match.';
+        }
+
+        if (!empty($errors)) {
+            $this->error('Validation failed. Please correct the errors.', 422, $errors, 'VALIDATION_ERROR');
+        }
+
+        $db = \App\Utils\Database::getConnection();
+        $stmt = $db->prepare("SELECT `token`, `created_at` FROM `password_resets` WHERE `email` = :email LIMIT 1");
+        $stmt->execute([':email' => $email]);
+        $resetRecord = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$resetRecord || trim($resetRecord['token']) !== $code) {
+            $this->error('The verification code you entered is invalid or has expired. Please request a new code.', 422, [
+                'code' => 'Invalid or expired verification code.',
+            ], 'INVALID_CODE');
+        }
+
+        // Verify user exists
+        $user = User::findByEmail($email);
+        if (!$user) {
+            $this->error('Account not found.', 404, null, 'USER_NOT_FOUND');
+        }
+
+        // Update password
+        User::updateUser((int) $user['id'], [
+            'password' => $password,
+        ]);
+
+        // Clean up reset token
+        $delStmt = $db->prepare("DELETE FROM `password_resets` WHERE `email` = :email");
+        $delStmt->execute([':email' => $email]);
+
+        AuditService::log(
+            (int) $user['id'],
+            'password_reset_completed',
+            'user',
+            (int) $user['id'],
+            null,
+            ['email' => $email]
+        );
+
+        $this->success(null, 'Your password has been reset successfully! You can now sign in with your new password.');
     }
 
 /**

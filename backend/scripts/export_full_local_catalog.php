@@ -9,17 +9,27 @@ function hasColumn(PDO $pdo, string $table, string $column): bool {
 }
 
 $export = [
+    'tour_categories' => [],
     'destinations' => [],
     'tours' => [],
     'media' => [],
     'home_hero_slides' => [],
     'home_benefits' => [],
     'site_settings' => [],
+    'pages' => [],
+    'cms_sections' => [],
+    'things_to_do' => [],
+    'medical_trips' => [],
+    'footer_links' => [],
+    'social_links' => [],
 ];
+
+// 0. Export Tour Categories
+$export['tour_categories'] = $pdo->query("SELECT * FROM tour_categories ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
 
 // 1. Export Destinations
 $dWhere = hasColumn($pdo, 'destinations', 'deleted_at') ? 'WHERE deleted_at IS NULL' : '';
-$dests = $pdo->query("SELECT * FROM destinations $dWhere")->fetchAll(PDO::FETCH_ASSOC);
+$dests = $pdo->query("SELECT * FROM destinations $dWhere ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
 foreach ($dests as $d) {
     $dId = (int)$d['id'];
     
@@ -68,11 +78,11 @@ foreach ($dests as $d) {
     $export['destinations'][] = $d;
 }
 
-// 2. Export Tours (all 18 tours as published)
-$tours = $pdo->query("SELECT * FROM tours ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
+// 2. Export Tours (all tours with relationships)
+$tWhere = hasColumn($pdo, 'tours', 'deleted_at') ? 'WHERE deleted_at IS NULL' : '';
+$tours = $pdo->query("SELECT * FROM tours $tWhere ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
 foreach ($tours as $t) {
     $tId = (int)$t['id'];
-    $t['deleted_at'] = null;
     $t['status'] = 'published';
     
     // Category slugs
@@ -133,10 +143,34 @@ $export['home_hero_slides'] = $pdo->query("SELECT * FROM home_hero_slides $hWher
 $bWhere = hasColumn($pdo, 'home_benefits', 'deleted_at') ? 'WHERE deleted_at IS NULL' : '';
 $export['home_benefits'] = $pdo->query("SELECT * FROM home_benefits $bWhere ORDER BY display_order ASC")->fetchAll(PDO::FETCH_ASSOC);
 
+// 5. Site settings
 $sWhere = hasColumn($pdo, 'site_settings', 'deleted_at') ? 'WHERE deleted_at IS NULL' : '';
 $export['site_settings'] = $pdo->query("SELECT * FROM site_settings $sWhere")->fetchAll(PDO::FETCH_ASSOC);
+
+// 6. Pages
+$pWhere = hasColumn($pdo, 'pages', 'deleted_at') ? 'WHERE deleted_at IS NULL' : '';
+$export['pages'] = $pdo->query("SELECT * FROM pages $pWhere ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
+
+// 7. CMS Sections
+$export['cms_sections'] = $pdo->query("SELECT * FROM cms_sections ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
+
+// 8. Things to do
+$export['things_to_do'] = $pdo->query("SELECT * FROM things_to_do ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
+
+// 9. Medical trips
+$export['medical_trips'] = $pdo->query("SELECT * FROM medical_trips ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
+
+// 10. Footer links & social links
+$export['footer_links'] = $pdo->query("SELECT * FROM footer_links ORDER BY display_order ASC")->fetchAll(PDO::FETCH_ASSOC);
+$export['social_links'] = $pdo->query("SELECT * FROM social_links ORDER BY display_order ASC")->fetchAll(PDO::FETCH_ASSOC);
 
 @mkdir(__DIR__ . '/../storage', 0777, true);
 file_put_contents(__DIR__ . '/../storage/production_catalog_seed.json', json_encode($export, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
-echo "Successfully exported: " . count($export['destinations']) . " destinations, " . count($export['tours']) . " tours, " . count($export['media']) . " media rows.\n";
+echo "Successfully exported:\n";
+echo "- " . count($export['tour_categories']) . " tour categories\n";
+echo "- " . count($export['destinations']) . " destinations\n";
+echo "- " . count($export['tours']) . " tours\n";
+echo "- " . count($export['media']) . " media rows\n";
+echo "- " . count($export['pages']) . " pages\n";
+echo "- " . count($export['cms_sections']) . " cms sections\n";

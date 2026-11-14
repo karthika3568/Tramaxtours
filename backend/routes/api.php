@@ -50,6 +50,7 @@ $router->group('/api/v1', function (Router $router) {
         $router->post('/login', [AuthController::class, 'login']);
         $router->post('/register', [AuthController::class, 'register']);
         $router->post('/forgot-password', [AuthController::class, 'forgotPassword']);
+        $router->post('/reset-password', [AuthController::class, 'resetPassword']);
 
         // Protected Endpoints (Bearer Token required)
         $router->get('/me', [AuthController::class, 'me'], [AuthMiddleware::class]);

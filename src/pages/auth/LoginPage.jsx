@@ -76,31 +76,89 @@ export default function LoginPage() {
   const searchParams = new URLSearchParams(location.search);
   const redirectParam = searchParams.get('redirect');
 
+  // Interactive Forgot Password & Reset state
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotStep, setForgotStep] = useState(1); // 1: Email, 2: Code & New Password, 3: Success
   const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotCode, setForgotCode] = useState('');
+  const [forgotNewPassword, setForgotNewPassword] = useState('');
+  const [forgotConfirmPassword, setForgotConfirmPassword] = useState('');
   const [isForgotSubmitting, setIsForgotSubmitting] = useState(false);
+  const [forgotError, setForgotError] = useState('');
   const [forgotSuccessMsg, setForgotSuccessMsg] = useState('');
 
-  const handleForgotPasswordSubmit = async (e) => {
+  const handleRequestResetCode = async (e) => {
     e.preventDefault();
+    setForgotError('');
     if (!forgotEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(forgotEmail.trim())) {
-      toast.error('Please enter a valid email address.');
+      setForgotError('Please enter a valid registered email address.');
       return;
     }
     setIsForgotSubmitting(true);
     try {
-      await authService.forgotPassword({ email: forgotEmail.trim().toLowerCase() });
-      setForgotSuccessMsg('If an account exists with this email address, password reset instructions have been sent.');
-      toast.success('Password reset instructions dispatched.', 'Email Sent');
-    } catch {
-      toast.error('Unable to send password reset instructions. Please try again.');
+      const res = await authService.forgotPassword({ email: forgotEmail.trim().toLowerCase() });
+      const code = res?.data?.code || res?.code || '';
+      if (code) {
+        setForgotCode(code);
+      }
+      setForgotStep(2);
+      toast.success('Verification code generated. Please enter your new password.', 'Code Sent');
+    } catch (err) {
+      setForgotError(err.message || 'No registered account found with this email. Please check your address.');
+      toast.error(err.message || 'Email lookup failed.');
     } finally {
       setIsForgotSubmitting(false);
     }
   };
 
-  const handleGoogleSignIn = () => {
-    toast.info('Google Sign-In is configured. Please continue with your registered email or create an account below.', 'Google Sign In');
+  const handleResetPasswordSubmit = async (e) => {
+    e.preventDefault();
+    setForgotError('');
+    if (!forgotCode.trim() || forgotCode.trim().length !== 6) {
+      setForgotError('Please enter the 6-digit verification code.');
+      return;
+    }
+    if (!forgotNewPassword || forgotNewPassword.length < 6) {
+      setForgotError('New password must be at least 6 characters.');
+      return;
+    }
+    if (forgotNewPassword !== forgotConfirmPassword) {
+      setForgotError('Password confirmation does not match.');
+      return;
+    }
+
+    setIsForgotSubmitting(true);
+    try {
+      await authService.resetPassword({
+        email: forgotEmail.trim().toLowerCase(),
+        code: forgotCode.trim(),
+        password: forgotNewPassword,
+        password_confirmation: forgotConfirmPassword,
+      });
+      setForgotSuccessMsg('Your password has been successfully reset! You can now sign in.');
+      setForgotStep(3);
+      setFormData((prev) => ({
+        ...prev,
+        email: forgotEmail.trim().toLowerCase(),
+        password: forgotNewPassword,
+      }));
+      toast.success('Password reset successfully!', 'Success');
+    } catch (err) {
+      setForgotError(err.message || 'Invalid or expired verification code. Please try again.');
+      toast.error(err.message || 'Password reset failed.');
+    } finally {
+      setIsForgotSubmitting(false);
+    }
+  };
+
+  const handleCloseForgotModal = () => {
+    setShowForgotPassword(false);
+    setForgotStep(1);
+    setForgotError('');
+    setForgotSuccessMsg('');
+    setForgotCode('');
+    setForgotNewPassword('');
+    setForgotConfirmPassword('');
   };
 
   const handleSubmit = async (e) => {
@@ -173,54 +231,6 @@ export default function LoginPage() {
               <div className="auth-alert-text">{generalError}</div>
             </div>
           )}
-
-          {/* Social Sign-In option */}
-          <div style={{ marginBottom: '1.25rem' }}>
-            <button
-              type="button"
-              onClick={handleGoogleSignIn}
-              className="btn btn-outline btn-full"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px',
-                padding: '0.65rem 1rem',
-                border: '1px solid #d1d5db',
-                borderRadius: '8px',
-                background: '#ffffff',
-                fontWeight: 500,
-                color: '#374151',
-                cursor: 'pointer',
-              }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                />
-              </svg>
-              <span>Continue with Google</span>
-            </button>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', margin: '1rem 0', color: '#9ca3af', fontSize: '0.85rem' }}>
-            <div style={{ flex: 1, height: '1px', background: '#e5e7eb' }} />
-            <span style={{ padding: '0 0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>or sign in with email</span>
-            <div style={{ flex: 1, height: '1px', background: '#e5e7eb' }} />
-          </div>
 
           <form onSubmit={handleSubmit} noValidate className="login-form">
             <div className="form-group">
@@ -339,7 +349,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Forgot Password Modal */}
+      {/* Interactive Forgot Password & Reset Modal */}
       {showForgotPassword && (
         <div
           role="dialog"
@@ -359,40 +369,40 @@ export default function LoginPage() {
             style={{
               background: '#ffffff',
               borderRadius: '12px',
-              maxWidth: '440px',
+              maxWidth: '460px',
               width: '100%',
               padding: '1.75rem',
               boxShadow: '0 20px 25px -5px rgba(0,0,0,0.2)',
             }}
           >
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem', color: '#1e293b' }}>
-              Reset Your Password
-            </h3>
-            <p style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1.25rem' }}>
-              Enter your registered email address and we will send you password reset instructions.
-            </p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: '#1e293b' }}>
+                {forgotStep === 1 ? 'Forgot Password' : forgotStep === 2 ? 'Reset Your Password' : 'Password Reset Complete'}
+              </h3>
+              <button
+                type="button"
+                onClick={handleCloseForgotModal}
+                style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#94a3b8', lineHeight: 1 }}
+              >
+                &times;
+              </button>
+            </div>
 
-            {forgotSuccessMsg ? (
-              <div>
-                <div style={{ padding: '1rem', background: '#ecfdf5', color: '#065f46', borderRadius: '8px', fontSize: '0.875rem', marginBottom: '1rem' }}>
-                  {forgotSuccessMsg}
-                </div>
-                <button
-                  type="button"
-                  className="btn btn-primary btn-full"
-                  onClick={() => {
-                    setShowForgotPassword(false);
-                    setForgotSuccessMsg('');
-                  }}
-                >
-                  Back to Sign In
-                </button>
+            {forgotError && (
+              <div style={{ padding: '0.75rem 1rem', background: '#fee2e2', color: '#b91c1c', borderRadius: '8px', fontSize: '0.85rem', marginBottom: '1rem' }}>
+                {forgotError}
               </div>
-            ) : (
-              <form onSubmit={handleForgotPasswordSubmit}>
-                <div className="form-group" style={{ marginBottom: '1rem' }}>
+            )}
+
+            {forgotStep === 1 && (
+              <form onSubmit={handleRequestResetCode}>
+                <p style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1.25rem' }}>
+                  Enter your registered account email address. We will generate a verification code to reset your password.
+                </p>
+
+                <div className="form-group" style={{ marginBottom: '1.25rem' }}>
                   <label htmlFor="forgot-email" className="form-label">
-                    Email Address
+                    Registered Email Address <span className="text-danger">*</span>
                   </label>
                   <input
                     id="forgot-email"
@@ -401,14 +411,16 @@ export default function LoginPage() {
                     onChange={(e) => setForgotEmail(e.target.value)}
                     className="form-input"
                     placeholder="you@example.com"
+                    autoFocus
                     required
                   />
                 </div>
+
                 <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
                   <button
                     type="button"
                     className="btn btn-outline"
-                    onClick={() => setShowForgotPassword(false)}
+                    onClick={handleCloseForgotModal}
                     disabled={isForgotSubmitting}
                   >
                     Cancel
@@ -419,10 +431,99 @@ export default function LoginPage() {
                     loading={isForgotSubmitting}
                     disabled={isForgotSubmitting}
                   >
-                    Send Reset Link
+                    Get Verification Code
                   </Button>
                 </div>
               </form>
+            )}
+
+            {forgotStep === 2 && (
+              <form onSubmit={handleResetPasswordSubmit}>
+                <div style={{ padding: '0.75rem 1rem', background: '#f0fdfa', color: '#0f766e', borderRadius: '8px', fontSize: '0.85rem', marginBottom: '1rem', border: '1px solid #ccfbf1' }}>
+                  Verification code generated for <strong>{forgotEmail}</strong>. {forgotCode ? <span>Your code is: <strong>{forgotCode}</strong></span> : ''}
+                </div>
+
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label htmlFor="reset-code" className="form-label">
+                    6-Digit Verification Code <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    id="reset-code"
+                    type="text"
+                    maxLength={6}
+                    value={forgotCode}
+                    onChange={(e) => setForgotCode(e.target.value)}
+                    className="form-input"
+                    placeholder="e.g. 123456"
+                    style={{ letterSpacing: '2px', fontWeight: 700 }}
+                    required
+                  />
+                </div>
+
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label htmlFor="reset-new-password" className="form-label">
+                    New Password <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    id="reset-new-password"
+                    type="password"
+                    value={forgotNewPassword}
+                    onChange={(e) => setForgotNewPassword(e.target.value)}
+                    className="form-input"
+                    placeholder="At least 6 characters"
+                    required
+                  />
+                </div>
+
+                <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                  <label htmlFor="reset-confirm-password" className="form-label">
+                    Confirm New Password <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    id="reset-confirm-password"
+                    type="password"
+                    value={forgotConfirmPassword}
+                    onChange={(e) => setForgotConfirmPassword(e.target.value)}
+                    className="form-input"
+                    placeholder="Confirm new password"
+                    required
+                  />
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    onClick={() => setForgotStep(1)}
+                    disabled={isForgotSubmitting}
+                  >
+                    Back
+                  </button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    loading={isForgotSubmitting}
+                    disabled={isForgotSubmitting}
+                  >
+                    Reset Password
+                  </Button>
+                </div>
+              </form>
+            )}
+
+            {forgotStep === 3 && (
+              <div>
+                <div style={{ padding: '1rem', background: '#ecfdf5', color: '#065f46', borderRadius: '8px', fontSize: '0.9rem', marginBottom: '1.25rem' }}>
+                  {forgotSuccessMsg}
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-full"
+                  onClick={handleCloseForgotModal}
+                >
+                  Sign In With New Password
+                </button>
+              </div>
             )}
           </div>
         </div>

@@ -42,3 +42,12 @@ SET @sql_stmt2 = IF(@idx_exists = 0,
 PREPARE stmt2 FROM @sql_stmt2;
 EXECUTE stmt2;
 DEALLOCATE PREPARE stmt2;
+
+-- 4. Create password_resets table for reliable password recovery
+CREATE TABLE IF NOT EXISTS `password_resets` (
+    `email` VARCHAR(191) NOT NULL,
+    `token` VARCHAR(255) NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`email`),
+    INDEX `idx_pwd_reset_token` (`token`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
