@@ -84,7 +84,7 @@ export default function AppRouter() {
           <Route path="medical-trips/:slug" element={<MedicalTripDetailPage />} />
           <Route path="medical-trip/:slug" element={<MedicalTripDetailPage />} />
           <Route path="about" element={<AboutPage />} />
-          <Route path="testimonials" element={<Navigate to="/#testimonials" replace />} />
+          <Route path="testimonials" element={<TestimonialsPage />} />
           <Route path="request-my-trip" element={<RequestMyTripPage />} />
           <Route path="trip-request" element={<RequestMyTripPage />} />
           <Route path="trip-requests" element={<RequestMyTripPage />} />

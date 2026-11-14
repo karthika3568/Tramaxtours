@@ -186,26 +186,27 @@ class HealthController extends BaseController
      */
     public function syncCatalog(): void
     {
-        $syncKey = \App\Utils\Request::getHeader('X-Sync-Key') ?: (\App\Utils\Request::getQueryParams()['key'] ?? null);
-        $expectedKey = Env::get('JWT_SECRET', 'wanderer_tours_jwt_secret_key_2026_super_secure_9b78c1d3f4e5a6b7c8d9e0f1a2b3c4d5');
+        try {
+            $syncKey = \App\Utils\Request::getHeader('X-Sync-Key') ?: (\App\Utils\Request::getQueryParams()['key'] ?? null);
+            $expectedKey = Env::get('JWT_SECRET', 'wanderer_tours_jwt_secret_key_2026_super_secure_9b78c1d3f4e5a6b7c8d9e0f1a2b3c4d5');
 
-        // Check auth header for super_admin or admin
-        $authHeader = \App\Utils\Request::getHeader('Authorization');
-        $isAdmin = false;
-        if ($authHeader && preg_match('/^Bearer\s+(.*?)$/i', trim($authHeader), $matches)) {
-            try {
-                $payload = \App\Utils\JWT::decode($matches[1]);
-                $roles = $payload['roles'] ?? [];
-                if (in_array('super_admin', $roles) || in_array('admin', $roles)) {
-                    $isAdmin = true;
-                }
-            } catch (\Throwable $t) {}
-        }
+            // Check auth header for super_admin or admin
+            $authHeader = \App\Utils\Request::getHeader('Authorization');
+            $isAdmin = false;
+            if ($authHeader && preg_match('/^Bearer\s+(.*?)$/i', trim($authHeader), $matches)) {
+                try {
+                    $payload = \App\Utils\JWT::decode($matches[1]);
+                    $roles = $payload['roles'] ?? [];
+                    if (in_array('super_admin', $roles) || in_array('admin', $roles)) {
+                        $isAdmin = true;
+                    }
+                } catch (\Throwable $t) {}
+            }
 
-        if (!$isAdmin && (!$syncKey || !hash_equals($expectedKey, (string)$syncKey))) {
-            $this->error('Unauthorized access to system sync endpoint.', 403, null, 'FORBIDDEN');
-            return;
-        }
+            if (!$isAdmin && (!$syncKey || !hash_equals($expectedKey, (string)$syncKey))) {
+                $this->error('Unauthorized access to system sync endpoint.', 403, null, 'FORBIDDEN');
+                return;
+            }
 
         $pdo = Database::getConnection();
         $logs = self::runSchemaUpdates($pdo);
@@ -855,5 +856,12 @@ class HealthController extends BaseController
             'cms_synced' => $cmsSynced,
             'schema_logs' => $logs,
         ], 'Catalog and schema successfully synchronized');
+        } catch (\Throwable $err) {
+            $this->error('Sync failed: ' . $err->getMessage(), 500, [
+                'file' => $err->getFile(),
+                'line' => $err->getLine(),
+                'trace' => $err->getTraceAsString(),
+            ], 'SYNC_EXCEPTION');
+        }
     }
 }
