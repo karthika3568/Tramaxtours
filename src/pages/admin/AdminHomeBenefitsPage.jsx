@@ -1,4 +1,4 @@
-import { AwardIcon, CompassIcon, EditIcon, GlobeIcon, ShieldCheckIcon, StarIcon, TrashIcon } from '../../components/common/Icons';
+import Icon, { AwardIcon, CompassIcon, EditIcon, GlobeIcon, ShieldCheckIcon, StarIcon, TrashIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import homeBenefitsService from '../../services/homeBenefitsService';
@@ -325,8 +325,10 @@ export default function AdminHomeBenefitsPage() {
                   type="button"
                   className={`icon-picker-btn ${formData.icon === ico ? 'is-selected' : ''}`}
                   onClick={() => setFormData({ ...formData, icon: ico })}
+                  title={ico}
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
                 >
-                  {ico}
+                  <Icon name={ico} size={18} color={formData.icon === ico ? '#ffffff' : '#01aa90'} />
                 </button>
               ))}
             </div>

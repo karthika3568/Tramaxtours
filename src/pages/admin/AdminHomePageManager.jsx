@@ -1,4 +1,4 @@
-import { CalendarIcon, CheckIcon, ClockIcon, CompassIcon, CopyIcon, EditIcon, EyeIcon, EyeOffIcon, ImageIcon, InfoIcon, LayersIcon, LockIcon, LuggageIcon, MailIcon, MapPinIcon, MonitorIcon, PhoneIcon, RocketIcon, SearchIcon, SmartphoneIcon, StarIcon, TabletIcon, TrashIcon, WhatsAppIcon } from '../../components/common/Icons';
+import Icon, { CalendarIcon, CheckIcon, ClockIcon, CompassIcon, CopyIcon, EditIcon, EyeIcon, EyeOffIcon, ImageIcon, InfoIcon, LayersIcon, LockIcon, LuggageIcon, MailIcon, MapPinIcon, MonitorIcon, PhoneIcon, RocketIcon, SearchIcon, SmartphoneIcon, StarIcon, TabletIcon, TrashIcon, WhatsAppIcon } from '../../components/common/Icons';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
@@ -793,7 +793,7 @@ export default function AdminHomePageManager() {
                       onClick={() => handleSelectSection(sec.id)}
                     >
                       <span className="sec-num-badge">{String(idx + 1).padStart(2, '0')}</span>
-                      <span className="sec-icon">{sec.icon}</span>
+                      <span className="sec-icon"><Icon name={sec.icon} size={15} color="#01aa90" /></span>
                       <div className="sec-info">
                         <strong className="sec-title">{sec.name}</strong>
                         <small className="sec-desc">

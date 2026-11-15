@@ -164,25 +164,25 @@ export default function AdminNavigationPage() {
       </div>
 
       {/* Live Interactive Navbar Preview */}
-      <div className="visual-navbar-preview-card" style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', marginBottom: '28px' }}>
-        <div className="preview-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 20px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+      <div className="visual-navbar-preview-card" style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', marginBottom: '28px', maxWidth: '100%', boxSizing: 'border-box' }}>
+        <div className="preview-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 20px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', flexWrap: 'wrap', gap: '8px' }}>
           <span className="preview-card-tag" style={{ fontWeight: 800, fontSize: '12px', letterSpacing: '0.05em', color: '#01aa90' }}>LIVE NAVBAR VISUAL PREVIEW</span>
           <span className="preview-badge-status" style={{ fontSize: '12px', color: '#64748b' }}>● Live Site Navbar Simulation</span>
         </div>
 
         {/* Main Navbar */}
-        <div className="mock-main-navbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', background: '#ffffff' }}>
-          <div className="mock-brand-box" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className="mock-main-navbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', background: '#ffffff', flexWrap: 'wrap', gap: '14px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <div className="mock-brand-box" style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
             {settings.logo_url ? (
-              <img src={settings.logo_url} alt="Logo" className="mock-logo-img" style={{ maxHeight: '40px' }} />
+              <img src={settings.logo_url} alt="Logo" className="mock-logo-img" style={{ maxHeight: '36px', width: 'auto', objectFit: 'contain' }} />
             ) : (
-              <div className="mock-logo-symbol" style={{ fontWeight: 900, color: '#01aa90', fontSize: '20px' }}>
+              <div className="mock-logo-symbol" style={{ fontWeight: 900, color: '#01aa90', fontSize: '17px', lineHeight: 1.2 }}>
                 {settings.site_name}
               </div>
             )}
           </div>
 
-          <div className="mock-nav-links" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div className="mock-nav-links" style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
             {menuItems.filter((i) => i.is_active).map((item) => (
               item.is_cta ? (
                 <span
@@ -191,25 +191,26 @@ export default function AdminNavigationPage() {
                   style={{
                     background: 'linear-gradient(135deg, #01aa90 0%, #01806c 100%)',
                     color: '#ffffff',
-                    padding: '8px 18px',
+                    padding: '6px 14px',
                     borderRadius: '9999px',
                     fontWeight: 700,
-                    fontSize: '13px',
+                    fontSize: '12px',
                     boxShadow: '0 4px 14px rgba(1, 170, 144, 0.25)',
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   {item.label}
                 </span>
               ) : (
-                <span key={item.id} className="mock-nav-link" style={{ fontSize: '14px', fontWeight: 600, color: '#334155' }}>
+                <span key={item.id} className="mock-nav-link" style={{ fontSize: '13px', fontWeight: 600, color: '#334155', whiteSpace: 'nowrap' }}>
                   {item.label}
                 </span>
               )
             ))}
           </div>
 
-          <div className="mock-nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '13px', padding: '6px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', color: '#475569', fontWeight: 600 }}>
+          <div className="mock-nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+            <span style={{ fontSize: '12px', padding: '5px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', color: '#475569', fontWeight: 600 }}>
               Sign In
             </span>
           </div>

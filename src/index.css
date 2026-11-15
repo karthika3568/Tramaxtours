@@ -28449,4 +28449,183 @@ font[color], font[style] {
   box-shadow: none !important;
 }
 
+/* ==========================================================================
+   Comprehensive Mobile & Tablet Responsive Enhancements (All Admin & CMS Pages)
+   ========================================================================== */
+
+/* 1. Admin Page Form Tabs & Action Bar */
+.admin-form-tabs {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  padding: 8px !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  margin-bottom: 20px !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+}
+
+.admin-form-tab-btn {
+  padding: 8px 16px !important;
+  border-radius: 10px !important;
+  border: none !important;
+  background: #f8fafc !important;
+  color: #334155 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.admin-form-tab-btn:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+.admin-form-tab-btn.active {
+  background: linear-gradient(135deg, #01aa90 0%, #01806c 100%) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 12px rgba(1, 170, 144, 0.25) !important;
+}
+
+.admin-form-actions-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 12px !important;
+  margin-top: 24px !important;
+  padding-top: 20px !important;
+  border-top: 1px solid #e2e8f0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 640px) {
+  .admin-form-actions-bar {
+    flex-direction: column-reverse !important;
+    gap: 10px !important;
+  }
+  .admin-form-actions-bar .btn,
+  .admin-form-actions-bar button,
+  .admin-form-actions-bar .form-submit-group {
+    width: 100% !important;
+  }
+}
+
+/* 2. Quick Actions Cards (Admin Dashboard) */
+.action-card-icon-box {
+  color: #01aa90 !important;
+}
+.accent-teal .action-card-icon-box { color: #01aa90 !important; }
+.accent-gold .action-card-icon-box { color: #d97706 !important; }
+.accent-purple .action-card-icon-box { color: #7c3aed !important; }
+
+/* 3. Live Website Editor Toolbar Responsive Wrapping */
+@media (max-width: 992px) {
+  .builder-top-bar {
+    flex-wrap: wrap !important;
+    padding: 10px 14px !important;
+    gap: 10px !important;
+    height: auto !important;
+  }
+  .builder-toolbar-left,
+  .builder-toolbar-center,
+  .builder-toolbar-right {
+    flex: 1 1 auto !important;
+    justify-content: center !important;
+  }
+  .builder-toolbar-left {
+    justify-content: flex-start !important;
+  }
+}
+
+/* 4. Modal Dialogs on Mobile (Zero overflow, proper padding, scrolling body) */
+@media (max-width: 640px) {
+  .modal-dialog {
+    margin: 10px auto !important;
+    width: 94vw !important;
+    max-width: 94vw !important;
+    max-height: 90dvh !important;
+    border-radius: 16px !important;
+  }
+  .modal-header {
+    padding: 14px 16px !important;
+  }
+  .modal-title {
+    font-size: 16px !important;
+  }
+  .modal-body {
+    padding: 16px !important;
+  }
+  .modal-footer {
+    padding: 12px 16px !important;
+    flex-wrap: wrap !important;
+  }
+  .modal-footer .btn {
+    flex: 1 1 auto !important;
+  }
+}
+
+/* 5. Benefit / Highlight Icon Grid */
+.icon-selector-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)) !important;
+  gap: 8px !important;
+  max-height: 160px !important;
+  overflow-y: auto !important;
+  padding: 6px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 10px !important;
+  background: #f8fafc !important;
+}
+
+.icon-picker-btn {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 6. Medical Trips / Modern Page Hero Headers on Mobile */
+@media (max-width: 768px) {
+  .admin-page-hero-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 16px !important;
+  }
+  .admin-page-hero-header > div:last-child {
+    display: flex !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+  .admin-page-hero-header > div:last-child .btn,
+  .admin-page-hero-header > div:last-child button,
+  .admin-page-hero-header > div:last-child a {
+    flex: 1 1 auto !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+  .admin-modern-filter-card {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .admin-modern-filter-card select,
+  .admin-modern-filter-card input,
+  .admin-modern-filter-card .admin-modern-select {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+
 

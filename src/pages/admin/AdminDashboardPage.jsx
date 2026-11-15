@@ -1,4 +1,4 @@
-import { CalendarIcon, ClockIcon, CompassIcon, FileTextIcon, MapPinIcon, MessageSquareIcon, RefreshIcon, StarIcon } from '../../components/common/Icons';
+import Icon, { CalendarIcon, ClockIcon, CompassIcon, FileTextIcon, MapPinIcon, MessageSquareIcon, RefreshIcon, StarIcon } from '../../components/common/Icons';
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -808,7 +808,7 @@ export default function AdminDashboardPage() {
                 {accessibleActions.map((act) => (
                   <Link key={act.path} to={act.path} className={`action-card accent-${act.accent}`}>
                     <div className="action-card-icon-box">
-                      <span>{act.icon}</span>
+                      <Icon name={act.icon} size={20} color="currentColor" />
                     </div>
                     <div className="action-card-text">
                       <h4 className="action-card-title">{act.label}</h4>
