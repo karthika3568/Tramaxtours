@@ -510,11 +510,11 @@ class User extends BaseModel
     public static function syncAdminFromEnv(): void
     {
         $adminEmail = trim((string) \App\Utils\Env::get('ADMIN_EMAIL', ''));
-        $adminPassword = (string) \App\Utils\Env::get('ADMIN_PASSWORD', 'Admin@12345');
+        $adminPassword = (string) \App\Utils\Env::get('ADMIN_PASSWORD', 'Admin@123');
         $adminName = trim((string) \App\Utils\Env::get('ADMIN_NAME', 'Super Admin'));
 
         if ($adminPassword === '') {
-            $adminPassword = 'Admin@12345';
+            $adminPassword = 'Admin@123';
         }
 
         try {
