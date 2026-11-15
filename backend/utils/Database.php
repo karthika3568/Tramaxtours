@@ -79,18 +79,27 @@ class Database
 
         $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset={$charset}";
 
-        try {
-            self::$instance = new PDO($dsn, $username, $password, $options);
-            return self::$instance;
-        } catch (PDOException $e) {
-            // Sanitize message to ensure password/credentials are never leaked in traces/messages
-            $maskedMessage = "Database connection failed for database '{$dbname}' on {$host}:{$port}.";
-            
-            // Log full technical error internally if needed (without raw password)
-            error_log("[Wanderer Database Error] Code " . $e->getCode() . ": " . $e->getMessage());
+        // Resilience Retry Loop (e.g. When Cloud MySQL Container wakes up from sleep)
+        $maxRetries = 3;
+        $retryDelaySeconds = 2;
 
-            throw new RuntimeException($maskedMessage, (int) $e->getCode(), $e);
+        for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+            try {
+                self::$instance = new PDO($dsn, $username, $password, $options);
+                return self::$instance;
+            } catch (PDOException $e) {
+                if ($attempt === $maxRetries) {
+                    // Sanitize message to ensure password/credentials are never leaked in traces/messages
+                    $maskedMessage = "Database connection failed for database '{$dbname}' on {$host}:{$port}.";
+                    error_log("[Wanderer Database Error] Attempt {$attempt} failed. Code " . $e->getCode() . ": " . $e->getMessage());
+                    throw new RuntimeException($maskedMessage, (int) $e->getCode(), $e);
+                }
+                // Sleep briefly to give container time to spin up
+                sleep($retryDelaySeconds);
+            }
         }
+
+        return self::$instance;
     }
 
     /**

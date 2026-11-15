@@ -98,60 +98,78 @@ export async function request(endpoint, options = {}) {
     ...customConfig,
   };
 
-  try {
-    const response = await fetch(url, config);
-    const contentType = response.headers.get('content-type') || '';
+  // Safe Auto-Retry logic for idempotent GET requests when server wakes up
+  const isGetRequest = method.toUpperCase() === 'GET';
+  const maxAttempts = isGetRequest ? 3 : 1;
 
-    let data = null;
-    if (contentType.includes('application/json')) {
-      data = await response.json();
-    } else {
-      const text = await response.text();
-      data = text ? { message: text } : null;
-    }
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const response = await fetch(url, config);
+      const contentType = response.headers.get('content-type') || '';
 
-    if (!response.ok) {
-      let errorMessage =
-        (data && data.message) ||
-        (data && data.error);
-
-      if (!errorMessage) {
-        if (response.status === 401) {
-          errorMessage = 'Invalid email or password.';
-        } else if (response.status === 403) {
-          errorMessage = 'You do not have permission to perform this action.';
-        } else if (response.status >= 500) {
-          errorMessage = 'Unable to sign in right now. Please try again.';
-        } else {
-          errorMessage = `Request failed with status ${response.status}`;
-        }
+      let data = null;
+      if (contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        data = text ? { message: text } : null;
       }
 
-      const validationErrors = (data && data.errors) || null;
+      if (!response.ok) {
+        // If 500 error or 503 error on GET, retry after delay before giving up
+        if (response.status >= 500 && attempt < maxAttempts) {
+          await new Promise((resolve) => setTimeout(resolve, 1500 * attempt));
+          continue;
+        }
 
+        let errorMessage =
+          (data && data.message) ||
+          (data && data.error);
+
+        if (!errorMessage) {
+          if (response.status === 401) {
+            errorMessage = 'Invalid email or password.';
+          } else if (response.status === 403) {
+            errorMessage = 'You do not have permission to perform this action.';
+          } else if (response.status >= 500) {
+            errorMessage = 'The service is initializing. Please refresh in a moment.';
+          } else {
+            errorMessage = `Request failed with status ${response.status}`;
+          }
+        }
+
+        const validationErrors = (data && data.errors) || null;
+
+        throw new ApiError(
+          errorMessage,
+          response.status,
+          validationErrors,
+          data,
+          false
+        );
+      }
+
+      return data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+
+      // If network glitch or timeout on GET, retry before failing
+      if (isGetRequest && attempt < maxAttempts) {
+        await new Promise((resolve) => setTimeout(resolve, 1500 * attempt));
+        continue;
+      }
+
+      // Network / fetch execution error
       throw new ApiError(
-        errorMessage,
-        response.status,
-        validationErrors,
-        data,
-        false
+        'Unable to connect to the server. Please check your internet connection and try again.',
+        0,
+        null,
+        null,
+        true
       );
     }
-
-    return data;
-  } catch (error) {
-    if (error instanceof ApiError) {
-      throw error;
-    }
-
-    // Network / fetch execution error
-    throw new ApiError(
-      'Unable to connect to the management server. Please make sure the backend service is running.',
-      0,
-      null,
-      null,
-      true
-    );
   }
 }
 
