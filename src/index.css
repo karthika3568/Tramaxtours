@@ -5922,9 +5922,11 @@ button {
 .admin-content {
   padding: 32px 36px 64px;
   flex: 1;
-  max-width: 1500px;
   width: 100%;
-  margin: 0 auto;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  margin: 0;
 }
 
 /* ==========================================================================
@@ -27813,6 +27815,7 @@ button {
 .dest-table-responsive-container,
 .tour-table-responsive-container,
 .users-table-container,
+.users-table-section,
 .admin-table-container {
   background: #ffffff !important;
   border: 1px solid #e2e8f0 !important;
@@ -27822,8 +27825,10 @@ button {
   margin-bottom: 24px !important;
   width: 100% !important;
   max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
+.table-responsive,
 .admin-desktop-table-wrapper {
   width: 100% !important;
   max-width: 100% !important;
