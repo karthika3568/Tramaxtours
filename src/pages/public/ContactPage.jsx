@@ -126,11 +126,11 @@ export default function ContactPage() {
       </div>
 
       {/* Main Content Workspace */}
-      <div className="container" style={{ padding: '32px 20px 80px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '40px', alignItems: 'start' }}>
+      <div className="container contact-main-container" style={{ padding: '32px 20px 80px' }}>
+        <div className="contact-grid-layout" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '40px', alignItems: 'start' }}>
           
           {/* Left Column: Contact Information */}
-          <div style={{ position: 'sticky', top: '100px' }}>
+          <div className="contact-info-column">
             <span
               style={{
                 fontSize: '12px',

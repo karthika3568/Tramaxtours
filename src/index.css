@@ -28597,7 +28597,22 @@ font[color], font[style] {
   justify-content: center !important;
 }
 
-/* 6. Medical Trips / Modern Page Hero Headers on Mobile */
+/* Contact Page Responsive Fix (Prevent Sticky Overlap on Mobile) */
+.contact-info-column {
+  position: sticky;
+  top: 100px;
+}
+
+@media (max-width: 900px) {
+  .contact-info-column {
+    position: static !important;
+    top: auto !important;
+  }
+  .contact-grid-layout {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+}
 @media (max-width: 768px) {
   .admin-page-hero-header {
     flex-direction: column !important;
