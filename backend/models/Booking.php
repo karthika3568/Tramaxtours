@@ -20,6 +20,39 @@ class Booking extends BaseModel
     public const ALLOWED_PAYMENT_STATUSES = ['pending', 'paid', 'not_required', 'failed', 'refunded'];
 
     /**
+     * Statuses that represent the end of a booking's lifecycle. Once a booking
+     * reaches one of these, no further status transition is permitted — a
+     * completed/cancelled/rejected booking cannot be silently reopened or
+     * flipped into another terminal state.
+     */
+    private const TERMINAL_STATUSES = ['completed', 'cancelled', 'rejected'];
+
+    /**
+     * Guard against transitioning a booking out of a terminal status.
+     * Throws a 409 RuntimeException (same convention as the date-availability
+     * conflict in create()) when the booking is already completed, cancelled,
+     * or rejected and the caller is attempting a different status.
+     *
+     * @param string $currentStatus
+     * @param string $newStatus
+     * @return void
+     * @throws \RuntimeException
+     */
+    private static function guardStatusTransition(string $currentStatus, string $newStatus): void
+    {
+        if ($currentStatus === $newStatus) {
+            return;
+        }
+
+        if (in_array($currentStatus, self::TERMINAL_STATUSES, true)) {
+            throw new \RuntimeException(
+                "This booking is already '{$currentStatus}' and cannot be changed to '{$newStatus}'.",
+                409
+            );
+        }
+    }
+
+    /**
      * Generate a unique confirmed ticket number (e.g. TKT-20261113-A8F2).
      *
      * @return string
@@ -441,6 +474,10 @@ class Booking extends BaseModel
         );
         $prevStatus = (string) ($existing['booking_status'] ?? '');
 
+        if ($existing) {
+            self::guardStatusTransition($prevStatus, $newStatus);
+        }
+
         $updateSql = 'UPDATE `bookings` SET `booking_status` = :status, `updated_at` = NOW() WHERE `id` = :id AND `deleted_at` IS NULL';
         $affected = self::execute($updateSql, [':id' => $id, ':status' => $newStatus]);
 
@@ -792,6 +829,10 @@ class Booking extends BaseModel
         $prevStatus = $booking['booking_status'];
         $alreadyApproved = ($prevStatus === 'confirmed' && !empty($booking['confirmed_at']));
 
+        if (!$alreadyApproved) {
+            self::guardStatusTransition($prevStatus, 'confirmed');
+        }
+
         $notes = is_string($notesOrData) ? $notesOrData : ($notesOrData['notes'] ?? 'Booking confirmed by administrator');
         $ticketNumber = !empty($booking['ticket_number']) ? $booking['ticket_number'] : self::generateTicketNumber();
 
@@ -906,10 +947,11 @@ class Booking extends BaseModel
         }
 
         $prevStatus = $booking['booking_status'];
+        self::guardStatusTransition($prevStatus, 'rejected');
 
         Database::beginTransaction();
         try {
-            $sql = 'UPDATE `bookings` SET 
+            $sql = 'UPDATE `bookings` SET
                 `booking_status` = "rejected",
                 `updated_at` = NOW()
                 WHERE `id` = :id AND `deleted_at` IS NULL';

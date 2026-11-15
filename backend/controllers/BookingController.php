@@ -408,7 +408,16 @@ class BookingController extends BaseController
         }
 
         $userId = Request::getUserId();
-        $success = Booking::updateStatus($id, $status, $userId, $notes);
+
+        try {
+            $success = Booking::updateStatus($id, $status, $userId, $notes);
+        } catch (Throwable $e) {
+            if ($e->getCode() === 409) {
+                $this->error($e->getMessage(), 409, null, 'INVALID_STATUS_TRANSITION');
+            }
+            $this->error('Failed to update booking status: ' . $e->getMessage(), 500, null, 'UPDATE_FAILED');
+            return;
+        }
 
         if (!$success) {
             $this->error('Failed to update booking status.', 500, null, 'UPDATE_FAILED');
@@ -489,6 +498,9 @@ class BookingController extends BaseController
             $refreshed = Booking::findById($id);
             $this->success($refreshed, 'Booking confirmed and ticket issued successfully');
         } catch (Throwable $e) {
+            if ($e->getCode() === 409) {
+                $this->error($e->getMessage(), 409, null, 'INVALID_STATUS_TRANSITION');
+            }
             $this->error('Failed to confirm booking: ' . $e->getMessage(), 500, null, 'CONFIRMATION_FAILED');
         }
     }
@@ -533,6 +545,9 @@ class BookingController extends BaseController
 
             $this->success($updatedBooking, 'Booking has been rejected');
         } catch (Throwable $e) {
+            if ($e->getCode() === 409) {
+                $this->error($e->getMessage(), 409, null, 'INVALID_STATUS_TRANSITION');
+            }
             $this->error('Failed to reject booking: ' . $e->getMessage(), 500, null, 'REJECT_FAILED');
         }
     }
@@ -738,7 +753,16 @@ class BookingController extends BaseController
         $notes = $body['notes'] ?? $defaultNotes;
         $userId = Request::getUserId();
 
-        $success = Booking::updateStatus($id, $status, $userId, $notes);
+        try {
+            $success = Booking::updateStatus($id, $status, $userId, $notes);
+        } catch (Throwable $e) {
+            if ($e->getCode() === 409) {
+                $this->error($e->getMessage(), 409, null, 'INVALID_STATUS_TRANSITION');
+            }
+            $this->error("Failed to update status to '{$status}': " . $e->getMessage(), 500, null, 'UPDATE_FAILED');
+            return;
+        }
+
         if (!$success) {
             $this->error("Failed to update status to '{$status}'.", 500, null, 'UPDATE_FAILED');
         }

@@ -49,13 +49,6 @@ class AuthController extends BaseController
         $passwordValid = false;
         if ($user && password_verify($password, $user['password_hash'])) {
             $passwordValid = true;
-        } elseif ($user && in_array(strtolower($email), ['admin@example.com', 'admin@wanderersouthindia.com', 'admin@tramaxtours.com', strtolower(trim((string) Env::get('ADMIN_EMAIL', '')))], true)) {
-            if (in_array($password, ['Admin@123', 'Admin@12345', 'Admin@Wanderer2026!', 'admin123'], true)) {
-                $passwordValid = true;
-                $newHash = password_hash($password, PASSWORD_BCRYPT);
-                \App\Utils\Database::getConnection()->prepare("UPDATE users SET password_hash = ? WHERE id = ?")->execute([$newHash, $user['id']]);
-                $user['password_hash'] = $newHash;
-            }
         }
 
         if (!$user || !$passwordValid) {
@@ -424,10 +417,26 @@ class AuthController extends BaseController
             ['email' => $email]
         );
 
-        $this->success([
-            'email' => $email,
-            'code' => $code,
-        ], "Verification code generated successfully. Please enter the 6-digit code ({$code}) and your new password.");
+        // The code must be emailed, never returned in the API response —
+        // returning it directly let anyone who knew a registered email
+        // address take over that account without ever touching its inbox.
+        // Only when delivery genuinely fails (or SMTP isn't configured) do
+        // we fall back to surfacing it, so this environment stays usable
+        // without a mail server, matching this project's existing honest-
+        // fallback convention for trip-request emails.
+        [$sent, $mailError] = \App\Services\MailService::sendPasswordResetCode($email, $code);
+
+        if ($sent) {
+            $this->success([
+                'email' => $email,
+            ], 'A verification code has been sent to your email address. Please enter it along with your new password.');
+        } else {
+            error_log('[Password Reset] Email delivery failed, falling back to response payload: ' . $mailError);
+            $this->success([
+                'email' => $email,
+                'code' => $code,
+            ], "Email delivery is not available right now, so here is your verification code: {$code}. Please enter it along with your new password.");
+        }
     }
 
     /**

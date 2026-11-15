@@ -107,6 +107,50 @@ class MailService
     }
 
     /**
+     * Send a password-reset verification code to the account's registered email.
+     * The code must never be returned in an API response when this succeeds —
+     * only a failed/not-configured send justifies falling back to displaying it.
+     *
+     * @param string $toEmail
+     * @param string $code
+     * @return array [bool $success, ?string $errorMessage]
+     */
+    public static function sendPasswordResetCode(string $toEmail, string $code): array
+    {
+        if ($toEmail === '' || !filter_var($toEmail, FILTER_VALIDATE_EMAIL)) {
+            return [false, 'A valid recipient email address is required.'];
+        }
+
+        [$isConfigured, $missing] = self::checkSmtpConfiguration();
+        if (!$isConfigured) {
+            $missingStr = implode(', ', $missing);
+            $msg = "SMTP is not configured on the server. Missing: {$missingStr} in backend/.env.";
+            error_log('[Wanderer Mail Notice] ' . $msg);
+            return [false, $msg];
+        }
+
+        try {
+            $cleanToEmail = self::sanitizeHeader($toEmail);
+            $cleanCode = self::sanitizeHeader($code);
+
+            $mailer = self::createMailer();
+            $mailer->addAddress($cleanToEmail);
+
+            $mailer->isHTML(true);
+            $mailer->Subject = 'Your Password Reset Code | Wanderer South India';
+            $mailer->Body = "<p>Your password reset verification code is:</p><h2 style=\"letter-spacing:4px;\">{$cleanCode}</h2><p>This code expires shortly. If you did not request this, you can safely ignore this email.</p>";
+            $mailer->AltBody = "Your password reset verification code is: {$cleanCode}\n\nThis code expires shortly. If you did not request this, you can safely ignore this email.";
+
+            $mailer->send();
+            return [true, null];
+        } catch (PHPMailerException|Throwable $e) {
+            $errorMsg = $e->getMessage();
+            error_log("[Wanderer Mail Error] Failed password reset code dispatch to {$toEmail}: {$errorMsg}");
+            return [false, "SMTP delivery failed: {$errorMsg}"];
+        }
+    }
+
+    /**
      * Send the initial Booking Request Received acknowledgement email to the customer.
      * Strictly NO PDF ticket attached — ticket is only issued upon admin approval.
      *

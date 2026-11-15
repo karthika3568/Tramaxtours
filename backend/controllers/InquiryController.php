@@ -11,8 +11,10 @@ class InquiryController extends BaseController
     /**
      * Gmail enforcement rule (toggleable).
      * When true, only @gmail.com email addresses are accepted for trip inquiries.
+     * Disabled: blocked every real customer using a non-Gmail address (Outlook,
+     * Yahoo, work email, etc.) from submitting any inquiry or trip request.
      */
-    public const REQUIRE_GMAIL = true;
+    public const REQUIRE_GMAIL = false;
 
     /**
      * Public Submission Endpoint: Store customer inquiry.
@@ -253,8 +255,15 @@ class InquiryController extends BaseController
             $page = max(1, (int) ($queryParams['page'] ?? 1));
             $limit = max(1, min(100, (int) ($queryParams['limit'] ?? 20)));
 
+            // The same controller serves /inquiries, /trip-requests, and
+            // /contact-messages. Without an explicit ?type= filter, the
+            // default must match the route that was actually called —
+            // otherwise /contact-messages silently returned trip_request
+            // rows instead of general inquiries.
+            $defaultType = str_contains(Request::getPath(), '/contact-messages') ? 'general_inquiry' : 'trip_request';
+
             $filters = [
-                'type' => !empty($queryParams['type']) ? trim((string) $queryParams['type']) : 'trip_request',
+                'type' => !empty($queryParams['type']) ? trim((string) $queryParams['type']) : $defaultType,
                 'search' => trim((string) ($queryParams['search'] ?? '')),
                 'status' => trim((string) ($queryParams['status'] ?? '')),
                 'destination_id' => isset($queryParams['destination_id']) && is_numeric($queryParams['destination_id']) ? (int) $queryParams['destination_id'] : null,

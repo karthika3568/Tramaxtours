@@ -83,13 +83,14 @@ class CustomerBookingController extends BaseController
         $dataSql = "SELECT b.*,
                            t.title as tour_title,
                            t.slug as tour_slug,
-                           t.featured_image,
+                           fi.file_path AS tour_image_path,
                            bcd.first_name,
                            bcd.last_name,
                            bcd.email as customer_email,
                            bcd.phone as customer_phone
                     FROM bookings b
                     LEFT JOIN tours t ON b.tour_id = t.id
+                    LEFT JOIN media fi ON t.featured_image_id = fi.id
                     LEFT JOIN booking_customer_details bcd ON b.id = bcd.booking_id
                     WHERE {$whereSql}
                     GROUP BY b.id
