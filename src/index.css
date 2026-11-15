@@ -27770,6 +27770,8 @@ button {
 .users-table,
 .admin-data-table {
   width: 100% !important;
+  max-width: 100% !important;
+  table-layout: auto !important;
   border-collapse: collapse !important;
   text-align: left !important;
 }
@@ -27781,11 +27783,11 @@ button {
 .admin-data-table th {
   background-color: #f8fafc !important;
   color: #64748b !important;
-  font-size: 11.5px !important;
+  font-size: 11px !important;
   font-weight: 700 !important;
   text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
-  padding: 14px 18px !important;
+  letter-spacing: 0.04em !important;
+  padding: 10px 10px !important;
   border-bottom: 1px solid #e2e8f0 !important;
   white-space: nowrap !important;
 }
@@ -27795,11 +27797,59 @@ button {
 .editorial-tour-table td,
 .users-table td,
 .admin-data-table td {
-  padding: 15px 18px !important;
+  padding: 11px 10px !important;
   vertical-align: middle !important;
   border-bottom: 1px solid #f1f5f9 !important;
-  font-size: 13.5px !important;
+  font-size: 12px !important;
   color: #334155 !important;
+}
+
+.booking-admin-table .customer-meta-cell,
+.booking-admin-table .tour-meta-cell {
+  min-width: 0 !important;
+  max-width: 170px !important;
+}
+
+.booking-admin-table .customer-name-txt,
+.booking-admin-table .tour-title-txt {
+  font-size: 12.5px !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+}
+
+.booking-admin-table .customer-sub-txt,
+.booking-admin-table .tour-sub-txt {
+  font-size: 11px !important;
+  white-space: normal !important;
+  word-break: break-all !important;
+}
+
+.booking-admin-table .order-number-tag {
+  font-size: 11px !important;
+  padding: 2px 6px !important;
+}
+
+.booking-admin-table .booking-price-amount {
+  font-size: 12.5px !important;
+}
+
+.booking-admin-table .payment-cell {
+  min-width: 0 !important;
+  gap: 2px !important;
+}
+
+.booking-admin-table .payment-method-pill {
+  font-size: 9.5px !important;
+}
+
+.booking-admin-table .booking-status-badge {
+  font-size: 10.5px !important;
+  padding: 2px 8px !important;
+}
+
+.booking-admin-table .btn-xs {
+  font-size: 11px !important;
+  padding: 3px 6px !important;
 }
 
 .booking-admin-table tbody tr:hover,
