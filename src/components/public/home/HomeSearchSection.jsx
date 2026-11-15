@@ -15,7 +15,19 @@ export default function HomeSearchSection() {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     const params = new URLSearchParams();
-    if (searchDestination) params.set('destination', searchDestination);
+    if (searchDestination) {
+      params.set('destination', searchDestination);
+      // If it's a specific city / location under Tamil Nadu, also add search keyword so ToursPage filters properly
+      const cityKeywords = {
+        'chennai': 'chennai',
+        'mahabalipuram': 'mahabalipuram',
+        'kanchipuram': 'kanchipuram',
+        'pondicherry': 'pondicherry',
+      };
+      if (cityKeywords[searchDestination]) {
+        params.set('search', cityKeywords[searchDestination]);
+      }
+    }
     if (searchCategory) params.set('category', searchCategory);
     if (searchDuration) params.set('duration', searchDuration);
     if (searchDate) params.set('date', searchDate);

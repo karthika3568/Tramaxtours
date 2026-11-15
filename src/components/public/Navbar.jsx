@@ -182,10 +182,10 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                   style={{
                     background: 'linear-gradient(135deg, #01aa90 0%, #01806c 100%)',
                     color: '#ffffff',
-                    padding: isMobile ? '12px 20px' : '8px 18px',
+                    padding: isMobile ? '12px 20px' : '7px 15px',
                     borderRadius: '9999px',
                     fontWeight: 700,
-                    fontSize: isMobile ? '16px' : '14.5px',
+                    fontSize: isMobile ? '16px' : '13.5px',
                     textDecoration: 'none',
                     display: 'inline-flex',
                     alignItems: 'center',

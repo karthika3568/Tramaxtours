@@ -1068,7 +1068,7 @@ button {
   align-items: center;
   justify-content: space-between;
   height: 84px;
-  gap: 24px;
+  gap: 16px;
   transition: height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1126,12 +1126,12 @@ button {
   display: inline-flex;
 }
 
-/* Desktop Links (16.5px Font Size) */
+/* Desktop Links (15px Font Size) */
 .navbar-desktop .primary-nav-link {
-  font-size: 16.5px;
+  font-size: 15px;
   font-weight: 700;
   color: #334155;
-  padding: 9px 18px;
+  padding: 8px 15px;
   border-radius: 9999px;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
@@ -1139,6 +1139,7 @@ button {
   letter-spacing: -0.01em;
   display: inline-flex;
   align-items: center;
+  white-space: nowrap;
 }
 
 .navbar-desktop .primary-nav-link:hover {
@@ -1417,7 +1418,8 @@ button {
 .header-actions-wrapper {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .header-cta-btn {

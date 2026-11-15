@@ -97,6 +97,7 @@ export default function ToursPage() {
 
   // Filter state
   const [destinationFilter, setDestinationFilter] = useState(searchParams.get('destination') || '');
+  const [searchKeyword, setSearchKeyword] = useState(searchParams.get('search') || '');
   const [selectedDate, setSelectedDate] = useState(searchParams.get('date') || '');
   const [selectedDurations, setSelectedDurations] = useState(() => {
     const dur = searchParams.get('duration');
@@ -124,6 +125,7 @@ export default function ToursPage() {
   // Synchronize state when URL searchParams change (from Navbar dropdown, back/forward navigation, etc.)
   useEffect(() => {
     const dest = searchParams.get('destination') || '';
+    const search = searchParams.get('search') || '';
     const date = searchParams.get('date') || '';
     const dur = searchParams.get('duration');
     const cat = searchParams.get('category');
@@ -132,6 +134,7 @@ export default function ToursPage() {
     const page = parseInt(searchParams.get('page') || '1', 10);
 
     setDestinationFilter(dest);
+    setSearchKeyword(search);
     setSelectedDate(date);
     setSelectedDurations(dur ? dur.split(',') : []);
     setSelectedCategories(cat ? cat.split(',') : []);
@@ -186,14 +189,33 @@ export default function ToursPage() {
 
         // Map destination slug or ID
         let matchedDestId = undefined;
-        if (destinationFilter && destinations.length > 0) {
+        let effectiveSearch = searchKeyword;
+
+        // Supported City/Region keywords that map to parent State destinations
+        const cityToDestMap = {
+          'chennai': { destSlug: 'tamil-nadu', keyword: 'chennai' },
+          'mahabalipuram': { destSlug: 'tamil-nadu', keyword: 'mahabalipuram' },
+          'kanchipuram': { destSlug: 'tamil-nadu', keyword: 'kanchipuram' },
+          'pondicherry': { destSlug: 'tamil-nadu', keyword: 'pondicherry' },
+        };
+
+        let activeDestSlug = destinationFilter;
+        if (destinationFilter && cityToDestMap[destinationFilter.toLowerCase()]) {
+          const mapping = cityToDestMap[destinationFilter.toLowerCase()];
+          activeDestSlug = mapping.destSlug;
+          if (!effectiveSearch) {
+            effectiveSearch = mapping.keyword;
+          }
+        }
+
+        if (activeDestSlug && destinations.length > 0) {
           const found = destinations.find(
-            (d) => String(d.id) === String(destinationFilter) || d.slug === destinationFilter
+            (d) => String(d.id) === String(activeDestSlug) || d.slug === activeDestSlug
           );
           if (found) {
             matchedDestId = found.id;
-          } else if (!isNaN(destinationFilter)) {
-            matchedDestId = destinationFilter;
+          } else if (!isNaN(activeDestSlug)) {
+            matchedDestId = activeDestSlug;
           }
         }
 
@@ -201,6 +223,7 @@ export default function ToursPage() {
           page: currentPage,
           limit: 48,
           destination_id: matchedDestId || undefined,
+          search: effectiveSearch || undefined,
           status: 'published',
         };
 
@@ -262,7 +285,7 @@ export default function ToursPage() {
     return () => {
       isMounted = false;
     };
-  }, [currentPage, destinationFilter, sortBy, destinations, reloadTrigger]);
+  }, [currentPage, destinationFilter, searchKeyword, sortBy, destinations, reloadTrigger]);
 
   // Extract normalized category tokens for fast & exact matching
   const selectedCategoryTokens = useMemo(() => {
@@ -429,6 +452,7 @@ export default function ToursPage() {
 
   const handleClearFilters = () => {
     setDestinationFilter('');
+    setSearchKeyword('');
     setSelectedDate('');
     setSelectedDurations([]);
     setSelectedCategories([]);
@@ -441,12 +465,35 @@ export default function ToursPage() {
   const handleFindTours = (e) => {
     if (e) e.preventDefault();
     setCurrentPage(1);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (destinationFilter) next.set('destination', destinationFilter);
+      else next.delete('destination');
+      if (searchKeyword) next.set('search', searchKeyword);
+      else next.delete('search');
+      if (selectedDate) next.set('date', selectedDate);
+      else next.delete('date');
+      next.set('page', '1');
+      return next;
+    });
     window.scrollTo({ top: 180, behavior: 'smooth' });
+  };
+
+  // Supported City / Region mapping
+  const cityLabels = {
+    'chennai': 'Chennai (Tamil Nadu)',
+    'mahabalipuram': 'Mahabalipuram (Tamil Nadu)',
+    'kanchipuram': 'Kanchipuram (Tamil Nadu)',
+    'pondicherry': 'Pondicherry (Tamil Nadu)',
   };
 
   const selectedDestinationObj = destinations.find(
     (d) => d.slug === destinationFilter || String(d.id) === String(destinationFilter)
   );
+
+  const selectedDestinationDisplay = selectedDestinationObj
+    ? selectedDestinationObj.name
+    : cityLabels[destinationFilter?.toLowerCase()] || (destinationFilter ? destinationFilter : 'All destination');
 
   const filteredDestList = destinations.filter((d) =>
     d.name.toLowerCase().includes(destSearchQuery.toLowerCase())
@@ -454,6 +501,7 @@ export default function ToursPage() {
 
   const hasActiveFilters = Boolean(
     destinationFilter ||
+      searchKeyword ||
       selectedDate ||
       selectedDurations.length > 0 ||
       selectedCategories.length > 0 ||
@@ -485,16 +533,24 @@ export default function ToursPage() {
                 tabIndex={0}
               >
                 <span className="input-icon"><MapPinIcon size={16} color="var(--color-primary, #01aa90)" /></span>
-                <span className={`input-val ${!selectedDestinationObj ? 'placeholder' : ''}`}>
-                  {selectedDestinationObj ? selectedDestinationObj.name : 'All destination'}
+                <span className={`input-val ${!destinationFilter ? 'placeholder' : ''}`}>
+                  {selectedDestinationDisplay}
                 </span>
-                {selectedDestinationObj ? (
+                {destinationFilter ? (
                   <button
                     type="button"
                     className="input-clear-btn"
                     onClick={(e) => {
                       e.stopPropagation();
                       setDestinationFilter('');
+                      setSearchKeyword('');
+                      setSearchParams((prev) => {
+                        const next = new URLSearchParams(prev);
+                        next.delete('destination');
+                        next.delete('search');
+                        next.set('page', '1');
+                        return next;
+                      });
                     }}
                   >
                     <XIcon size={12} />
@@ -521,6 +577,7 @@ export default function ToursPage() {
                       className={`dest-option-item ${!destinationFilter ? 'active' : ''}`}
                       onClick={() => {
                         setDestinationFilter('');
+                        setSearchKeyword('');
                         setIsDestDropdownOpen(false);
                       }}
                     >
@@ -537,6 +594,7 @@ export default function ToursPage() {
                         }`}
                         onClick={() => {
                           setDestinationFilter(dest.slug);
+                          setSearchKeyword('');
                           setIsDestDropdownOpen(false);
                         }}
                       >
@@ -594,10 +652,25 @@ export default function ToursPage() {
 
             {hasActiveFilters && (
               <div className="sidebar-active-chips">
-                {selectedDestinationObj && (
+                {destinationFilter && (
                   <span className="active-chip">
-                    {selectedDestinationObj.name}
-                    <button type="button" onClick={() => setDestinationFilter('')}><XIcon size={10} /></button>
+                    {selectedDestinationDisplay}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDestinationFilter('');
+                        setSearchKeyword('');
+                        setSearchParams((prev) => {
+                          const next = new URLSearchParams(prev);
+                          next.delete('destination');
+                          next.delete('search');
+                          next.set('page', '1');
+                          return next;
+                        });
+                      }}
+                    >
+                      <XIcon size={10} />
+                    </button>
                   </span>
                 )}
                 {selectedDurations.map((d) => (

@@ -619,7 +619,13 @@ function walkAndTranslateDOM(root) {
         if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT' || tag === 'CODE' || tag === 'PRE') {
           return NodeFilter.FILTER_REJECT;
         }
-        if (parent.classList?.contains('notranslate') || parent.isContentEditable) {
+        if (
+          parent.classList?.contains('notranslate') ||
+          parent.classList?.contains('language-switcher-wrapper') ||
+          parent.classList?.contains('btn-language-trigger') ||
+          parent.closest?.('.language-switcher-wrapper') ||
+          parent.isContentEditable
+        ) {
           return NodeFilter.FILTER_REJECT;
         }
         const val = node.nodeValue;
@@ -743,6 +749,11 @@ export function LanguageProvider({ children }) {
 
   const changeLanguage = (langCode) => {
     if (langCode === 'en' || langCode === 'de') {
+      if (langCode === 'de') {
+        walkAndTranslateDOM(document.body);
+      } else {
+        restoreOriginalDOM(document.body);
+      }
       setLanguageState(langCode);
     }
   };
