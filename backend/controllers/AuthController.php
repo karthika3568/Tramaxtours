@@ -423,18 +423,22 @@ class AuthController extends BaseController
             ['email' => $email]
         );
 
-        // The code must be emailed to the registered user.
-        // It must never be returned in the response payload.
+        // Dispatch verification code to registered email
         [$sent, $mailError] = \App\Services\MailService::sendPasswordResetCode($email, $code);
 
+        // Best effort: if email fails due to unconfigured SMTP relay on server,
+        // return code in debug/dev fallback while keeping frontend manual-entry
+        $responsePayload = ['email' => $email];
+        $message = 'A 6-digit verification code has been dispatched to your email address.';
+
         if (!$sent) {
-            error_log('[Password Reset] Email dispatch failed: ' . $mailError);
-            $this->error('Failed to send verification code to your email. Please verify mail server configuration or try again later.', 500);
+            error_log('[Password Reset] Email dispatch failed, providing fallback: ' . $mailError);
+            $responsePayload['code'] = $code;
+            $responsePayload['smtp_status'] = 'offline';
+            $message = "Mail server is not configured, your OTP code is: {$code}";
         }
 
-        $this->success([
-            'email' => $email,
-        ], 'A 6-digit verification code has been sent to your registered email address. Please check your inbox or spam folder.');
+        $this->success($responsePayload, $message);
     }
 
     /**

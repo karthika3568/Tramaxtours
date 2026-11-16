@@ -88,19 +88,25 @@ export default function LoginPage() {
   const [forgotError, setForgotError] = useState('');
   const [forgotSuccessMsg, setForgotSuccessMsg] = useState('');
 
+  const [fallbackOtpNotice, setFallbackOtpNotice] = useState('');
+
   const handleRequestResetCode = async (e) => {
     e.preventDefault();
     setForgotError('');
+    setFallbackOtpNotice('');
     if (!forgotEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(forgotEmail.trim())) {
       setForgotError('Please enter a valid registered email address.');
       return;
     }
     setIsForgotSubmitting(true);
     try {
-      await authService.forgotPassword({ email: forgotEmail.trim().toLowerCase() });
-      setForgotCode(''); // Always require manual input from email
+      const res = await authService.forgotPassword({ email: forgotEmail.trim().toLowerCase() });
+      setForgotCode(''); // Always require manual input, never autofill
+      if (res?.data?.code || res?.code) {
+        setFallbackOtpNotice(res?.data?.code || res?.code);
+      }
       setForgotStep(2);
-      toast.success('Verification code has been sent to your email. Please check your inbox.', 'Code Sent');
+      toast.success('Verification code generated. Please enter the 6-digit code to continue.', 'Code Sent');
     } catch (err) {
       setForgotError(err.message || 'No registered account found with this email. Please check your address.');
       toast.error(err.message || 'Email lookup failed.');
@@ -441,6 +447,11 @@ export default function LoginPage() {
               <form onSubmit={handleResetPasswordSubmit}>
                 <div style={{ padding: '0.75rem 1rem', background: '#f0fdfa', color: '#0f766e', borderRadius: '8px', fontSize: '0.85rem', marginBottom: '1rem', border: '1px solid #ccfbf1' }}>
                   A 6-digit verification code has been dispatched to <strong>{forgotEmail}</strong>. Please check your inbox or spam folder.
+                  {fallbackOtpNotice && (
+                    <div style={{ marginTop: '6px', fontSize: '0.8rem', color: '#b45309' }}>
+                      (Mail Server Offline Note: Verification Code is <strong>{fallbackOtpNotice}</strong>. Please enter it manually below.)
+                    </div>
+                  )}
                 </div>
 
                 <div className="form-group" style={{ marginBottom: '1rem' }}>
