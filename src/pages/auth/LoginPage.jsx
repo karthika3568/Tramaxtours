@@ -97,13 +97,10 @@ export default function LoginPage() {
     }
     setIsForgotSubmitting(true);
     try {
-      const res = await authService.forgotPassword({ email: forgotEmail.trim().toLowerCase() });
-      const code = res?.data?.code || res?.code || '';
-      if (code) {
-        setForgotCode(code);
-      }
+      await authService.forgotPassword({ email: forgotEmail.trim().toLowerCase() });
+      setForgotCode(''); // Always require manual input from email
       setForgotStep(2);
-      toast.success('Verification code generated. Please enter your new password.', 'Code Sent');
+      toast.success('Verification code has been sent to your email. Please check your inbox.', 'Code Sent');
     } catch (err) {
       setForgotError(err.message || 'No registered account found with this email. Please check your address.');
       toast.error(err.message || 'Email lookup failed.');
@@ -443,7 +440,7 @@ export default function LoginPage() {
             {forgotStep === 2 && (
               <form onSubmit={handleResetPasswordSubmit}>
                 <div style={{ padding: '0.75rem 1rem', background: '#f0fdfa', color: '#0f766e', borderRadius: '8px', fontSize: '0.85rem', marginBottom: '1rem', border: '1px solid #ccfbf1' }}>
-                  Verification code generated for <strong>{forgotEmail}</strong>. {forgotCode ? <span>Your code is: <strong>{forgotCode}</strong></span> : ''}
+                  A 6-digit verification code has been dispatched to <strong>{forgotEmail}</strong>. Please check your inbox or spam folder.
                 </div>
 
                 <div className="form-group" style={{ marginBottom: '1rem' }}>

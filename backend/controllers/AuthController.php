@@ -423,26 +423,18 @@ class AuthController extends BaseController
             ['email' => $email]
         );
 
-        // The code must be emailed, never returned in the API response —
-        // returning it directly let anyone who knew a registered email
-        // address take over that account without ever touching its inbox.
-        // Only when delivery genuinely fails (or SMTP isn't configured) do
-        // we fall back to surfacing it, so this environment stays usable
-        // without a mail server, matching this project's existing honest-
-        // fallback convention for trip-request emails.
+        // The code must be emailed to the registered user.
+        // It must never be returned in the response payload.
         [$sent, $mailError] = \App\Services\MailService::sendPasswordResetCode($email, $code);
 
-        if ($sent) {
-            $this->success([
-                'email' => $email,
-            ], 'A verification code has been sent to your email address. Please enter it along with your new password.');
-        } else {
-            error_log('[Password Reset] Email delivery failed, falling back to response payload: ' . $mailError);
-            $this->success([
-                'email' => $email,
-                'code' => $code,
-            ], "Email delivery is not available right now, so here is your verification code: {$code}. Please enter it along with your new password.");
+        if (!$sent) {
+            error_log('[Password Reset] Email dispatch failed: ' . $mailError);
+            $this->error('Failed to send verification code to your email. Please verify mail server configuration or try again later.', 500);
         }
+
+        $this->success([
+            'email' => $email,
+        ], 'A 6-digit verification code has been sent to your registered email address. Please check your inbox or spam folder.');
     }
 
     /**
