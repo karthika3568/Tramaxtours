@@ -360,6 +360,63 @@ HTML;
     }
 
     /**
+     * Send customer acknowledgement email for Custom Trip Request / Inquiry.
+     *
+     * @param array $inquiry
+     * @return array [bool $success, ?string $errorMessage]
+     */
+    public static function sendInquiryCustomerAcknowledgement(array $inquiry): array
+    {
+        $toEmail = trim((string) ($inquiry['email'] ?? ''));
+        if ($toEmail === '' || !filter_var($toEmail, FILTER_VALIDATE_EMAIL)) {
+            return [false, 'A valid customer email is required.'];
+        }
+
+        [$isConfigured, $missing] = self::checkSmtpConfiguration();
+        if (!$isConfigured) {
+            return [false, 'SMTP is not configured on the server.'];
+        }
+
+        try {
+            $cleanToEmail = self::sanitizeHeader($toEmail);
+            $cleanName = self::sanitizeHeader((string) ($inquiry['name'] ?? 'Valued Traveler'));
+            $destination = self::sanitizeHeader((string) ($inquiry['destination_name'] ?? ($inquiry['destination'] ?? 'South India')));
+
+            $mailer = self::createMailer();
+            $mailer->addAddress($cleanToEmail, $cleanName);
+
+            $mailer->isHTML(true);
+            $mailer->Subject = "Custom Trip Request Received — {$destination} | Wanderer South India";
+            $mailer->Body = <<<HTML
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial, sans-serif; background-color: #f8fafc; padding: 20px; color: #0B1329;">
+    <div style="max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 12px; padding: 24px; border: 1px solid #e2e8f0;">
+        <h2 style="color: #01aa90; margin: 0 0 12px; font-size: 20px;">Trip Request Received 🌴</h2>
+        <p style="font-size: 14px; line-height: 1.6; margin: 0 0 16px;">
+            Dear <strong>{$cleanName}</strong>,<br>
+            Thank you for reaching out to <strong>Wanderer South India</strong>! We have received your custom tour itinerary request for <strong>{$destination}</strong>.
+        </p>
+        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid #16a34a; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px; font-size: 13.5px; color: #166534;">
+            Our South India tour specialist will review your preferences and share a personalized quote &amp; plan with you shortly via Email and WhatsApp.
+        </div>
+        <p style="font-size: 13px; color: #64748b; margin: 0;">Need immediate assistance? Call/WhatsApp: <strong>+91 9840291110</strong></p>
+    </div>
+</body>
+</html>
+HTML;
+            $mailer->AltBody = "Dear {$cleanName},\n\nWe have received your custom trip request for {$destination}. Our tour expert will contact you shortly with a personalized plan and quote.\n\nThank you for choosing Wanderer South India!";
+
+            $mailer->send();
+            return [true, null];
+        } catch (PHPMailerException|Throwable $e) {
+            $errorMsg = $e->getMessage();
+            error_log("[Wanderer Mail Error] Failed trip request acknowledgement dispatch: {$errorMsg}");
+            return [false, "SMTP delivery failed: {$errorMsg}"];
+        }
+    }
+
+    /**
      * Render Customer Request Received Acknowledgement Email HTML (NO PDF).
      */
     private static function renderCustomerAcknowledgementHtml(array $booking): string

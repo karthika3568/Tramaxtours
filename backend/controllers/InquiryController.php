@@ -234,6 +234,13 @@ class InquiryController extends BaseController
 
         $created = Inquiry::find($inquiryId);
 
+        // Best-effort customer acknowledgement email to dynamically submitted email
+        try {
+            \App\Services\MailService::sendInquiryCustomerAcknowledgement($created ?: $body);
+        } catch (\Throwable $e) {
+            error_log('[Wanderer Inquiry] Customer acknowledgement mail failed: ' . $e->getMessage());
+        }
+
         $this->success(
             $created,
             'Thank you! Your custom travel plan request has been received. Our South India holiday expert will send your tailored itinerary & quote promptly.',
