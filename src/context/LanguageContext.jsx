@@ -557,6 +557,120 @@ export const GERMAN_DICTIONARY = {
   'Please enter your Email Id': 'Bitte geben Sie Ihre E-Mail-Adresse ein',
   'Please enter a valid email address': 'Bitte geben Sie eine gültige E-Mail-Adresse ein',
   'Please enter your Query': 'Bitte geben Sie Ihre Anfrage ein',
+
+  // Footer & Legal Additions
+  'Follow Us': 'Folgen Sie uns',
+  'Terms & Conditions': 'Allgemeine Geschäftsbedingungen',
+  'Privacy Policy': 'Datenschutzrichtlinie',
+  'Admin Access': 'Admin-Zugang',
+  'Let’s work with a family travel expert to book the vacation of your dreams, complete with all the best travel amenities for a seamless experience in vacation planning!': 'Planen Sie Ihren Traumurlaub gemeinsam mit unseren erfahrenen Reiseexperten – inklusive erstklassigem Reisekomfort für die ganze Familie!',
+  '...check if your specific vacation is one we can assist with, including travel amenities for the whole family? We’d love to hear from you during your vacation planning journey!': '...möchten Sie wissen, wie wir Ihre individuelle Urlaubsreise unterstützen können? Wir freuen uns darauf, Sie bei Ihrer Reiseplanung zu begleiten!',
+
+  // Tour Details & Itinerary Additions
+  'Package Price': 'Paketpreis & Tarife',
+  'Why Choose This Tour?': 'Warum diese Tour wählen?',
+  'What To Expect': 'Was Sie auf dieser Tour erwartet',
+  'Morning': 'Vormittag',
+  'Late Morning': 'Später Vormittag',
+  'Afternoon': 'Nachmittag',
+  'Evening': 'Abend',
+  'Night': 'Nacht',
+  'Tour Route & Location Map': 'Routenverlauf & Standortkarte',
+  'Guest Reviews & Photos': 'Gästebewertungen & Fotos',
+  'You May Also Like Other Excursions': 'Weitere Touren, die Ihnen gefallen könnten',
+  'Write a Review': 'Bewertung schreiben',
+  'Write a Review for': 'Bewertung verfassen für',
+  'Complete Your Booking': 'Buchung abschließen',
+  'Traveler Details': 'Reiseteilnehmer & Kontaktdaten',
+  'Confirm & Reserve Now': 'Jetzt verbindlich reservieren',
+  'Booking Confirmed!': 'Buchung erfolgreich bestätigt!',
+  'Instant Online Booking': 'Sofortige Online-Buchung',
+  'Selected Date Unavailable': 'Ausgewähltes Reisedatum nicht verfügbar',
+  'Fully Booked / Closed': 'Ausgebucht / Buchung geschlossen',
+  'No dates open for booking': 'Keine Termine zur Buchung verfügbar',
+  'seats left': 'Plätze frei',
+  'Seats left': 'Plätze frei',
+  'Seats Left': 'Plätze frei',
+  'Select Time Slot:': 'Zeitfenster wählen:',
+  'Select Time Slot': 'Zeitfenster wählen',
+  'Estimated Total:': 'Voraussichtlicher Gesamtpreis:',
+  'Age 12+': 'Ab 12 Jahren',
+  'Age 3-11': '3–11 Jahre',
+  '(Early Sunrise)': '(Früher Sonnenaufgang)',
+  '(Morning Tour)': '(Morgendliche Tour)',
+  '(Standard Departure)': '(Standard-Abfahrt)',
+  '(Midday Excursion)': '(Mittagsausflug)',
+  '(Afternoon Safari)': '(Nachmittags-Safari)',
+
+  // Customer Portal & Bookings Additions
+  'Dashboard / Bookings': 'Übersicht / Buchungen',
+  'My Tour Bookings': 'Meine gebuchten Touren',
+  'Explore More Tours': 'Weitere Touren entdecken',
+  'All Bookings': 'Alle Buchungen',
+  'Pending / In Review': 'Ausstehend / In Prüfung',
+  'Confirmed Tours': 'Bestätigte Touren',
+  'Payment Discussion': 'Zahlungsbesprechung',
+  'Awaiting Confirmation': 'Wartet auf Bestätigung',
+  'In Review': 'In Prüfung',
+  'Order #': 'Auftrag #',
+  'Booked on': 'Gebucht am',
+  'Upcoming Tours & Tickets': 'Kommende Touren & Tickets',
+  'Booking History': 'Buchungshistorie',
+  'Account Settings': 'Kontoeinstellungen',
+  'Personal Profile': 'Persönliches Profil',
+  'Update your account information and contact preferences.': 'Aktualisieren Sie Ihre persönlichen Daten und Kontoeinstellungen.',
+  'Email Address (Read-only)': 'E-Mail-Adresse (schreibgeschützt)',
+  'Mobile / WhatsApp Number': 'Mobilfunk- / WhatsApp-Nummer',
+  'Avatar Image URL': 'Profilbild-URL',
+  'Change Password': 'Passwort ändern',
+  'Update your password to keep your account secure.': 'Aktualisieren Sie Ihr Passwort für optimale Kontosicherheit.',
+  'Current Password': 'Aktuelles Passwort',
+  'New Password': 'Neues Passwort',
+  'Confirm New Password': 'Neues Passwort bestätigen',
+  'Download PDF Ticket': 'PDF-Ticket herunterladen',
+  'Resend Confirmation Email': 'Bestätigungs-E-Mail erneut senden',
+  'Member since': 'Mitglied seit',
+  'Recent Member': 'Neues Mitglied',
+  'View all bookings →': 'Alle Buchungen ansehen →',
+  'Review pending requests →': 'Ausstehende Anfragen prüfen →',
+  'Tickets & confirmation →': 'Tickets & Bestätigungen →',
+  'Booking history →': 'Buchungshistorie →',
+
+  // Registration & Login Form Additions
+  'Create an Account': 'Konto erstellen',
+  'Create Account': 'Konto erstellen',
+  'Join Wonderer South India to book and manage your tours.': 'Werden Sie Mitglied bei Wonderer South India, um Touren zu buchen und zu verwalten.',
+  'Already have an account?': 'Haben Sie bereits ein Konto?',
+  'New to Wonderer South India?': 'Neu bei Wonderer South India?',
+  'Return to Public Website': 'Zurück zur Website',
+  'Full name is required.': 'Vollständiger Name ist erforderlich.',
+  'Full name must be at least 2 characters.': 'Der Name muss mindestens 2 Zeichen lang sein.',
+  'Full name cannot exceed 100 characters.': 'Der Name darf höchstens 100 Zeichen lang sein.',
+  'Full name may only contain letters, spaces, hyphens, and periods.': 'Der Name darf nur Buchstaben, Leerzeichen, Bindestriche und Punkte enthalten.',
+  'Phone number is required.': 'Telefonnummer ist erforderlich.',
+  'Phone number must contain digits only (no letters or special characters).': 'Die Telefonnummer darf nur Ziffern enthalten (keine Buchstaben oder Sonderzeichen).',
+  'Phone number must be exactly 10 digits.': 'Die Telefonnummer muss genau 10 Ziffern lang sein.',
+  'First digit of phone number must be 6, 7, 8, or 9.': 'Die Telefonnummer muss mit 6, 7, 8 oder 9 beginnen.',
+  'Email address is required.': 'E-Mail-Adresse ist erforderlich.',
+  'Please enter a valid email address.': 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
+  'An account with this email address already exists. Please sign in.': 'Ein Konto mit dieser E-Mail-Adresse existiert bereits. Bitte melden Sie sich an.',
+  'Password is required.': 'Passwort ist erforderlich.',
+  'Password must be at least 8 characters long.': 'Das Passwort muss mindestens 8 Zeichen lang sein.',
+  'Password must contain at least one letter and one number.': 'Das Passwort muss mindestens einen Buchstaben und eine Zahl enthalten.',
+  'Please confirm your password.': 'Bitte bestätigen Sie Ihr Passwort.',
+  'Passwords do not match.': 'Passwörter stimmen nicht überein.',
+  'Invalid email or password.': 'Ungültige E-Mail-Adresse oder falsches Passwort.',
+  'Welcome back! Please enter your email and password.': 'Willkommen zurück! Bitte geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein.',
+  'Forgot password?': 'Passwort vergessen?',
+
+  // Floating WhatsApp Concierge Additions
+  'Vacation Planning Specialist': 'Urlaubsplanungs-Spezialist',
+  'Online now': 'Jetzt online',
+  'Hi there! Looking for private chauffeur tours, luxury temple expeditions, or custom family vacations across South India?': 'Guten Tag! Suchen Sie private Chauffeur-Touren, Tempelreisen oder maßgeschneiderte Familienurlaube in Südindien?',
+  'Just now': 'Gerade eben',
+  'Close Chat': 'Chat schließen',
+  'Close chat': 'Chat schließen',
+  'Open WhatsApp Planning Support': 'WhatsApp-Reiseberatung öffnen',
 };
 
 // Pre-sorted keys by descending length for longest-match-first replacement
@@ -570,7 +684,7 @@ function escapeRegex(string) {
 }
 
 /**
- * Translates an English text string into German using exact and boundary-safe replacements
+ * Translates an English text string into German using exact, pattern, and boundary-safe replacements
  */
 export function translateTextToGerman(text) {
   if (!text || typeof text !== 'string') return text;
@@ -581,13 +695,42 @@ export function translateTextToGerman(text) {
     return text.replace(trimmed, GERMAN_DICTIONARY[trimmed]);
   }
 
-  // 2. Safe phrase and word boundary replacements
+  // 2. High-priority dynamic regex patterns
   let translated = text;
+
+  // Duration patterns
+  translated = translated
+    .replace(/\b(\d+)\s+Days?\s*\/\s*(\d+)\s+Nights?\b/gi, '$1 Tage / $2 Nächte')
+    .replace(/\bDuration:\s*(\d+)\s+Days?\b/gi, 'Dauer: $1 Tage')
+    .replace(/\bDuration:\s*(\d+)\s+Hours?\b/gi, 'Dauer: $1 Stunden')
+    .replace(/\b(\d+)\s+Days?\b/g, (m, d) => `${d} ${d === '1' ? 'Tag' : 'Tage'}`)
+    .replace(/\b(\d+)\s+Nights?\b/g, (m, n) => `${n} ${n === '1' ? 'Nacht' : 'Nächte'}`)
+    .replace(/\b(\d+)\s+Hours?\b/g, (m, h) => `${h} ${h === '1' ? 'Stunde' : 'Stunden'}`);
+
+  // Pricing & Counts patterns
+  translated = translated
+    .replace(/\bStarting\s+From\s+([₹$€£\d,.]+)\s*\/\s*adult\b/gi, 'Ab $1 / Erwachsener')
+    .replace(/\bStarting\s+From\s+([₹$€£\d,.]+)\s*\/\s*person\b/gi, 'Ab $1 / Person')
+    .replace(/\bFrom\s+([₹$€£\d,.]+)\s*\/\s*person\b/gi, 'Ab $1 / Person')
+    .replace(/\b(\d+)\s+Adult\(s\)\b/gi, '$1 Erwachsene')
+    .replace(/\b(\d+)\s+Child\(ren\)\b/gi, '$1 Kinder')
+    .replace(/\b(\d+)\s+seats?\s+left\b/gi, 'Noch $1 Plätze frei')
+    .replace(/\b(\d+)\s+booked\b/gi, '$1 Buchungen')
+    .replace(/\b(\d+)\s+tours?\s+available\b/gi, '$1 Touren verfügbar')
+    .replace(/\b(\d+)\s+destinations?\s+available\b/gi, '$1 Reiseziele verfügbar')
+    .replace(/\bShowing\s+(\d+)\s*-\s*(\d+)\s+of\s+(\d+)\s+tours\b/gi, 'Zeige $1 – $2 von $3 Touren')
+    .replace(/\bShowing\s+(\d+)\s+of\s+(\d+)\s+entries\b/gi, 'Zeige $1 von $2 Einträgen')
+    .replace(/\b(\d+)\s+reviews?\b/gi, (m, c) => `${c} ${c === '1' ? 'Bewertung' : 'Bewertungen'}`)
+    .replace(/\bOrder\s*#(\d+)\b/gi, 'Auftrag #$1')
+    .replace(/\bBooking\s*(?:ID|Reference)?\s*:?\s*#?([A-Za-z0-9-_]+)\b/gi, 'Buchungs-ID: #$1')
+    .replace(/\bTicket\s*(?:Number)?\s*:?\s*#?([A-Za-z0-9-_]+)\b/gi, 'Ticket-Nr.: $1')
+    .replace(/\bMember\s+since\s+([A-Za-z]+\s+\d{4})\b/gi, 'Mitglied seit $1');
+
+  // 3. Safe phrase and word boundary replacements for catalog & UI dictionaries
   for (const k of SORTED_DE_KEYS) {
-    if (k.length > 5 && translated.includes(k)) {
+    if (k.length > 4 && translated.includes(k)) {
       translated = translated.split(k).join(GERMAN_DICTIONARY[k]);
-    } else if (k.length <= 5) {
-      // Use word boundary for short tokens to avoid corrupting substrings (e.g., "Day" inside "Holiday")
+    } else if (k.length <= 4) {
       const regex = new RegExp(`\\b${escapeRegex(k)}\\b`, 'g');
       if (regex.test(translated)) {
         translated = translated.replace(regex, GERMAN_DICTIONARY[k]);
@@ -601,71 +744,114 @@ export function translateTextToGerman(text) {
 // Memory map to store original node values for pristine English restoration
 const originalTextMap = new WeakMap();
 const originalAttrMap = new WeakMap();
+let isTranslatingDOM = false;
+
+/**
+ * Checks if a node is inside an administrative management interface
+ */
+function isAdminNode(node) {
+  if (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')) {
+    return true;
+  }
+  const el = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
+  if (!el) return false;
+  return Boolean(
+    el.closest?.('.admin-layout') ||
+    el.closest?.('.admin-portal-wrapper') ||
+    el.closest?.('.admin-dashboard-container') ||
+    el.closest?.('#admin-root')
+  );
+}
 
 /**
  * Walks and translates all visible text nodes and placeholder attributes in the DOM
  */
 function walkAndTranslateDOM(root) {
-  if (!root) return;
-
-  const walker = document.createTreeWalker(
-    root,
-    NodeFilter.SHOW_TEXT,
-    {
-      acceptNode(node) {
-        const parent = node.parentElement;
-        if (!parent) return NodeFilter.FILTER_REJECT;
-        const tag = parent.tagName;
-        if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT' || tag === 'CODE' || tag === 'PRE') {
-          return NodeFilter.FILTER_REJECT;
-        }
-        if (
-          parent.classList?.contains('notranslate') ||
-          parent.classList?.contains('language-switcher-wrapper') ||
-          parent.classList?.contains('btn-language-trigger') ||
-          parent.closest?.('.language-switcher-wrapper') ||
-          parent.isContentEditable
-        ) {
-          return NodeFilter.FILTER_REJECT;
-        }
-        const val = node.nodeValue;
-        if (!val || !val.trim()) return NodeFilter.FILTER_REJECT;
-        return NodeFilter.FILTER_ACCEPT;
-      },
-    }
-  );
-
-  let node;
-  while ((node = walker.nextNode())) {
-    const current = node.nodeValue;
-    if (!originalTextMap.has(node)) {
-      originalTextMap.set(node, current);
-    }
-    const orig = originalTextMap.get(node);
-    const translated = translateTextToGerman(orig);
-    if (translated !== current) {
-      node.nodeValue = translated;
-    }
+  if (!root || isTranslatingDOM) return;
+  if (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')) {
+    return;
   }
 
-  // Also translate input placeholders, textarea placeholders, button titles, and aria-labels
-  const elements = root.querySelectorAll ? root.querySelectorAll('input[placeholder], textarea[placeholder], button[title], [aria-label]') : [];
-  elements.forEach((el) => {
-    if (el.placeholder) {
-      if (!originalAttrMap.has(el)) originalAttrMap.set(el, {});
-      const stored = originalAttrMap.get(el);
-      if (!stored.placeholder) stored.placeholder = el.placeholder;
-      const trans = translateTextToGerman(stored.placeholder);
-      if (el.placeholder !== trans) el.placeholder = trans;
+  isTranslatingDOM = true;
+
+  try {
+    const walker = document.createTreeWalker(
+      root,
+      NodeFilter.SHOW_TEXT,
+      {
+        acceptNode(node) {
+          const parent = node.parentElement;
+          if (!parent) return NodeFilter.FILTER_REJECT;
+          const tag = parent.tagName;
+          if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT' || tag === 'CODE' || tag === 'PRE') {
+            return NodeFilter.FILTER_REJECT;
+          }
+          if (
+            parent.classList?.contains('notranslate') ||
+            parent.classList?.contains('language-switcher-wrapper') ||
+            parent.classList?.contains('btn-language-trigger') ||
+            parent.closest?.('.language-switcher-wrapper') ||
+            parent.isContentEditable ||
+            isAdminNode(parent)
+          ) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          const val = node.nodeValue;
+          if (!val || !val.trim()) return NodeFilter.FILTER_REJECT;
+          return NodeFilter.FILTER_ACCEPT;
+        },
+      }
+    );
+
+    let node;
+    while ((node = walker.nextNode())) {
+      const current = node.nodeValue;
+      if (!originalTextMap.has(node)) {
+        originalTextMap.set(node, current);
+      }
+      const orig = originalTextMap.get(node);
+      const translated = translateTextToGerman(orig);
+      if (translated !== current) {
+        node.nodeValue = translated;
+      }
     }
-    if (el.title) {
-      if (!originalAttrMap.has(el)) originalAttrMap.set(el, {});
-      const stored = originalAttrMap.get(el);
-      if (!stored.title) stored.title = el.title;
-      const trans = translateTextToGerman(stored.title);
-      if (el.title !== trans) el.title = trans;
-    }
-  });
+
+    // Also translate input placeholders, textarea placeholders, button titles, and aria-labels
+    const elements = root.querySelectorAll
+      ? root.querySelectorAll('input[placeholder], textarea[placeholder], button[title], [aria-label]')
+      : [];
+
+    elements.forEach((el) => {
+      if (isAdminNode(el)) return;
+
+      if (el.placeholder) {
+        if (!originalAttrMap.has(el)) originalAttrMap.set(el, {});
+        const stored = originalAttrMap.get(el);
+        if (!stored.placeholder) stored.placeholder = el.placeholder;
+        const trans = translateTextToGerman(stored.placeholder);
+        if (el.placeholder !== trans) el.placeholder = trans;
+      }
+
+      if (el.title) {
+        if (!originalAttrMap.has(el)) originalAttrMap.set(el, {});
+        const stored = originalAttrMap.get(el);
+        if (!stored.title) stored.title = el.title;
+        const trans = translateTextToGerman(stored.title);
+        if (el.title !== trans) el.title = trans;
+      }
+
+      const ariaLabel = el.getAttribute('aria-label');
+      if (ariaLabel && !el.classList?.contains('btn-language-trigger')) {
+        if (!originalAttrMap.has(el)) originalAttrMap.set(el, {});
+        const stored = originalAttrMap.get(el);
+        if (!stored.ariaLabel) stored.ariaLabel = ariaLabel;
+        const trans = translateTextToGerman(stored.ariaLabel);
+        if (ariaLabel !== trans) el.setAttribute('aria-label', trans);
+      }
+    });
+  } finally {
+    isTranslatingDOM = false;
+  }
 }
 
 /**
@@ -688,6 +874,7 @@ function restoreOriginalDOM(root) {
       const stored = originalAttrMap.get(el);
       if (stored.placeholder) el.placeholder = stored.placeholder;
       if (stored.title) el.title = stored.title;
+      if (stored.ariaLabel) el.setAttribute('aria-label', stored.ariaLabel);
     }
   });
 }
@@ -703,7 +890,7 @@ export function LanguageProvider({ children }) {
     document.documentElement.lang = language;
   }, [language]);
 
-  // Live Automatic DOM Translation Engine: Guarantees 100% zero-English coverage
+  // Live Automatic DOM Translation Engine: Guarantees 100% coverage
   useEffect(() => {
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
 
@@ -714,7 +901,7 @@ export function LanguageProvider({ children }) {
       // 2. Observe all future DOM modifications (navigation, modals, toasts, tabs, tables)
       let timeoutId = null;
       const observer = new MutationObserver(() => {
-        // Debounce slightly for optimal 60fps performance during rapid virtual DOM reconciliation
+        if (isTranslatingDOM) return;
         if (timeoutId) clearTimeout(timeoutId);
         timeoutId = setTimeout(() => {
           walkAndTranslateDOM(document.body);
@@ -727,9 +914,21 @@ export function LanguageProvider({ children }) {
         characterData: true,
       });
 
+      // 3. React to SPA route navigation events immediately
+      const handleRouteChange = () => {
+        setTimeout(() => {
+          walkAndTranslateDOM(document.body);
+        }, 50);
+      };
+
+      window.addEventListener('popstate', handleRouteChange);
+      window.addEventListener('hashchange', handleRouteChange);
+
       return () => {
         if (timeoutId) clearTimeout(timeoutId);
         observer.disconnect();
+        window.removeEventListener('popstate', handleRouteChange);
+        window.removeEventListener('hashchange', handleRouteChange);
       };
     } else {
       // Restore English pristine state

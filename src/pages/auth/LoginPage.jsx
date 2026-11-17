@@ -16,6 +16,7 @@ export default function LoginPage() {
   const location = useLocation();
 
   const [formData, setFormData] = useState({ email: '', password: '' });
+  const [touched, setTouched] = useState({ email: false, password: false });
   const [showPassword, setShowPassword] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
   const [generalError, setGeneralError] = useState('');
@@ -47,28 +48,59 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, isAuthLoading, navigate, location.state, location.search, role, roles]);
 
-  const validate = () => {
+  const validateField = (name, value) => {
+    switch (name) {
+      case 'email': {
+        const trimmed = (value || '').trim();
+        if (!trimmed) {
+          return 'Email address is required.';
+        }
+        if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(trimmed)) {
+          return 'Please enter a valid email address.';
+        }
+        return '';
+      }
+      case 'password': {
+        if (!value) {
+          return 'Password is required.';
+        }
+        return '';
+      }
+      default:
+        return '';
+    }
+  };
+
+  const validateForm = (dataToValidate = formData) => {
     const errors = {};
-    if (!formData.email.trim()) {
-      errors.email = 'Email address is required.';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
-      errors.email = 'Please enter a valid email address.';
-    }
-
-    if (!formData.password) {
-      errors.password = 'Password is required.';
-    }
-
+    ['email', 'password'].forEach((field) => {
+      const err = validateField(field, dataToValidate[field]);
+      if (err) {
+        errors[field] = err;
+      }
+    });
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    const errorMsg = validateField(name, value);
+    setFieldErrors((prev) => ({ ...prev, [name]: errorMsg }));
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (fieldErrors[name]) {
-      setFieldErrors((prev) => ({ ...prev, [name]: '' }));
+    const updatedData = { ...formData, [name]: value };
+    setFormData(updatedData);
+
+    // If the field has been touched or currently has an error, re-validate immediately to clear/update error
+    if (touched[name] || fieldErrors[name]) {
+      const errorMsg = validateField(name, value);
+      setFieldErrors((prev) => ({ ...prev, [name]: errorMsg }));
     }
+
     if (generalError) {
       setGeneralError('');
     }
@@ -167,7 +199,14 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
+
+    // Prevent duplicate submissions
+    if (isSubmitting) return;
+
+    // Mark all fields touched
+    setTouched({ email: true, password: true });
+
+    if (!validateForm()) return;
 
     setIsSubmitting(true);
     setGeneralError('');
@@ -198,7 +237,7 @@ export default function LoginPage() {
       setGeneralError(errorMsg);
 
       if (err.errors && typeof err.errors === 'object') {
-        setFieldErrors(err.errors);
+        setFieldErrors((prev) => ({ ...prev, ...err.errors }));
       }
 
       toast.error(errorMsg, 'Authentication Failed');
@@ -250,6 +289,7 @@ export default function LoginPage() {
                   autoComplete="email"
                   value={formData.email}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   disabled={isSubmitting}
                   className={`form-input has-icon ${fieldErrors.email ? 'input-error' : ''}`}
                   aria-invalid={Boolean(fieldErrors.email)}
@@ -298,6 +338,7 @@ export default function LoginPage() {
                   autoComplete="current-password"
                   value={formData.password}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   disabled={isSubmitting}
                   className={`form-input has-icon has-trailing ${fieldErrors.password ? 'input-error' : ''}`}
                   aria-invalid={Boolean(fieldErrors.password)}

@@ -52,15 +52,17 @@ class MailService
     /**
      * Build and configure a PHPMailer instance using current environment settings.
      *
+     * @param bool $keepAlive Whether to maintain connection across multiple sends
      * @return PHPMailer
      * @throws PHPMailerException
      */
-    private static function createMailer(): PHPMailer
+    public static function createMailer(bool $keepAlive = false): PHPMailer
     {
         $mailer = new PHPMailer(true);
         $mailer->isSMTP();
         $mailer->CharSet = 'UTF-8';
-        $mailer->Timeout = 12; // Prevent hanging on dead SMTP servers
+        $mailer->Timeout = (int) Env::get('MAIL_TIMEOUT', 6);
+        $mailer->SMTPKeepAlive = $keepAlive;
 
         $host = (string) Env::get('MAIL_HOST', '127.0.0.1');
         $port = (int) Env::get('MAIL_PORT', 587);
@@ -91,6 +93,14 @@ class MailService
             $mailer->SMTPAutoTLS = false;
         }
 
+        $mailer->SMTPOptions = [
+            'ssl' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true,
+            ],
+        ];
+
         // Sender configuration
         $fromEmail = (string) (Env::get('MAIL_FROM_ADDRESS') ?: Env::get('FROM_EMAIL', 'welcome@yourbestdayinindia.com'));
         $fromName = (string) (Env::get('MAIL_FROM_NAME') ?: Env::get('FROM_NAME', 'Wanderer South India'));
@@ -104,6 +114,383 @@ class MailService
         $mailer->SMTPDebug = 0;
 
         return $mailer;
+    }
+
+    /**
+     * Check if a specific email has already been sent or is actively queued for this booking (duplicate prevention).
+     */
+    public static function hasAlreadySent(int $bookingId, string $emailType): bool
+    {
+        try {
+            $pdo = \App\Utils\Database::getConnection();
+            $stmt = $pdo->prepare('SELECT COUNT(*) FROM `email_queue` WHERE `booking_id` = :id AND `email_type` = :type AND `status` IN ("sent", "pending", "processing")');
+            $stmt->execute([':id' => $bookingId, ':type' => $emailType]);
+            if ((int) $stmt->fetchColumn() > 0) {
+                return true;
+            }
+
+            // Also check booking record customer_email_status
+            if ($emailType === 'customer_ticket' || $emailType === 'customer_acknowledgement') {
+                $bStmt = $pdo->prepare('SELECT `customer_email_status`, `customer_email_sent_at` FROM `bookings` WHERE `id` = :id');
+                $bStmt->execute([':id' => $bookingId]);
+                $row = $bStmt->fetch(\PDO::FETCH_ASSOC);
+                if ($row && $row['customer_email_status'] === 'sent' && !empty($row['customer_email_sent_at'])) {
+                    return true;
+                }
+            }
+
+            return false;
+        } catch (Throwable $e) {
+            error_log('[MailService hasAlreadySent] Error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Enqueue an email job into the database queue.
+     */
+    public static function enqueue(
+        ?int $bookingId,
+        string $emailType,
+        string $recipientEmail,
+        ?string $recipientName,
+        string $subject,
+        string $bodyHtml,
+        ?string $bodyText = null,
+        ?string $attachmentPath = null,
+        ?string $attachmentName = null
+    ): ?int {
+        try {
+            $cleanRecipient = self::sanitizeHeader($recipientEmail);
+            if (!filter_var($cleanRecipient, FILTER_VALIDATE_EMAIL)) {
+                return null;
+            }
+
+            $pdo = \App\Utils\Database::getConnection();
+
+            // Prevent duplicate pending or processing jobs
+            if ($bookingId !== null) {
+                $check = $pdo->prepare('SELECT `id` FROM `email_queue` WHERE `booking_id` = :bid AND `email_type` = :type AND `status` IN ("pending", "processing", "sent") LIMIT 1');
+                $check->execute([':bid' => $bookingId, ':type' => $emailType]);
+                if ($check->fetch()) {
+                    return null; // Already queued or sent
+                }
+            }
+
+            $stmt = $pdo->prepare('INSERT INTO `email_queue`
+                (`booking_id`, `email_type`, `recipient_email`, `recipient_name`, `subject`, `body_html`, `body_text`, `attachment_path`, `attachment_name`, `status`, `attempts`, `created_at`, `updated_at`)
+                VALUES (:bid, :type, :to_email, :to_name, :subject, :html, :text, :att_path, :att_name, "pending", 0, NOW(), NOW())');
+
+            $stmt->execute([
+                ':bid' => $bookingId,
+                ':type' => $emailType,
+                ':to_email' => $cleanRecipient,
+                ':to_name' => $recipientName ? self::sanitizeHeader($recipientName) : null,
+                ':subject' => self::sanitizeHeader($subject),
+                ':html' => $bodyHtml,
+                ':text' => $bodyText,
+                ':att_path' => $attachmentPath,
+                ':att_name' => $attachmentName ? self::sanitizeHeader($attachmentName) : null,
+            ]);
+
+            return (int) $pdo->lastInsertId();
+        } catch (Throwable $e) {
+            error_log('[MailService enqueue] Failed: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Enqueue initial booking request acknowledgement and admin notification.
+     */
+    public static function queueBookingRequest(array $booking, bool $force = false): array
+    {
+        $bookingId = (int) ($booking['id'] ?? 0);
+        $customerEmail = trim((string) ($booking['customer']['email'] ?? $booking['customer_email'] ?? $booking['email'] ?? ''));
+        $customerName = trim((string) ($booking['customer']['name'] ?? $booking['customer_name'] ?? $booking['name'] ?? 'Valued Guest'));
+        $orderNumber = (string) ($booking['order_number'] ?? 'Reservation');
+        $adminEmail = trim((string) Env::get('ADMIN_EMAIL', ''));
+
+        $customerAlreadySent = self::hasAlreadySent($bookingId, 'customer_acknowledgement');
+        $adminAlreadySent = self::hasAlreadySent($bookingId, 'admin_notification');
+
+        if (!$force && $customerAlreadySent && $adminAlreadySent) {
+            return [
+                'success' => false,
+                'message' => 'Booking request emails already sent or enqueued for this booking.',
+                'enqueued' => [],
+            ];
+        }
+
+        $enqueued = [];
+
+        // 1. Customer Acknowledgement
+        if ($customerEmail !== '' && filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
+            if ($force || !$customerAlreadySent) {
+                $jobId = self::enqueue(
+                    $bookingId,
+                    'customer_acknowledgement',
+                    $customerEmail,
+                    $customerName,
+                    "Booking Request Received — {$orderNumber} | Wanderer South India",
+                    self::renderCustomerAcknowledgementHtml($booking),
+                    self::renderCustomerAcknowledgementPlainText($booking)
+                );
+                if ($jobId) $enqueued['customer'] = $jobId;
+            }
+        }
+
+        // 2. Admin Notification
+        if ($adminEmail !== '' && filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+            if ($force || !$adminAlreadySent) {
+                $jobId = self::enqueue(
+                    $bookingId,
+                    'admin_notification',
+                    $adminEmail,
+                    'Admin — Wanderer South India',
+                    "🔔 New Booking Request Awaiting Contact — {$orderNumber}",
+                    self::renderAdminEmailHtml($booking),
+                    self::renderAdminEmailPlainText($booking)
+                );
+                if ($jobId) $enqueued['admin'] = $jobId;
+            }
+        }
+
+        return [
+            'success' => !empty($enqueued),
+            'enqueued' => $enqueued,
+            'message' => !empty($enqueued) ? 'Booking request email(s) enqueued successfully.' : 'No new emails to enqueue.',
+        ];
+    }
+
+    /**
+     * Enqueue confirmed booking ticket email to customer and admin copy.
+     */
+    public static function queueBookingConfirmation(
+        array $booking,
+        ?string $pdfPath = null,
+        ?string $receiptUrl = null,
+        bool $force = false
+    ): array {
+        $bookingId = (int) ($booking['id'] ?? 0);
+        $customerEmail = trim((string) ($booking['customer']['email'] ?? $booking['customer_email'] ?? $booking['email'] ?? ''));
+        $customerName = trim((string) ($booking['customer']['name'] ?? $booking['customer_name'] ?? $booking['name'] ?? 'Valued Guest'));
+        $orderNumber = (string) ($booking['order_number'] ?? 'Reservation');
+        $adminEmail = trim((string) Env::get('ADMIN_EMAIL', ''));
+
+        $customerAlreadySent = self::hasAlreadySent($bookingId, 'customer_ticket');
+        $adminAlreadySent = self::hasAlreadySent($bookingId, 'admin_confirmed_copy');
+
+        if (!$force && $customerAlreadySent && $adminAlreadySent) {
+            return [
+                'success' => false,
+                'message' => 'Confirmation ticket emails already sent or enqueued for this booking.',
+                'enqueued' => [],
+            ];
+        }
+
+        $attachmentName = $pdfPath ? ('Official-Tour-Ticket-' . $orderNumber . '.pdf') : null;
+        $enqueued = [];
+
+        // 1. Customer Ticket
+        if ($customerEmail !== '' && filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
+            if ($force || !$customerAlreadySent) {
+                $jobId = self::enqueue(
+                    $bookingId,
+                    'customer_ticket',
+                    $customerEmail,
+                    $customerName,
+                    "Booking Confirmed & Official Ticket — {$orderNumber} | Wanderer South India",
+                    self::renderCustomerEmailHtml($booking, $receiptUrl),
+                    self::renderCustomerEmailPlainText($booking, $receiptUrl),
+                    $pdfPath,
+                    $attachmentName
+                );
+                if ($jobId) $enqueued['customer'] = $jobId;
+            }
+        }
+
+        // 2. Admin Confirmed Copy
+        if ($adminEmail !== '' && filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+            if ($force || !$adminAlreadySent) {
+                $jobId = self::enqueue(
+                    $bookingId,
+                    'admin_confirmed_copy',
+                    $adminEmail,
+                    'Admin — Wanderer South India',
+                    "✓ Booking Approved & Confirmed — {$orderNumber}",
+                    self::renderAdminConfirmedHtml($booking, $orderNumber),
+                    "BOOKING APPROVED — #{$orderNumber}\nCustomer: {$customerName}\nTour: " . ($booking['tour']['title'] ?? ''),
+                    $pdfPath,
+                    $attachmentName
+                );
+                if ($jobId) $enqueued['admin'] = $jobId;
+            }
+        }
+
+        return [
+            'success' => !empty($enqueued),
+            'enqueued' => $enqueued,
+            'message' => !empty($enqueued) ? 'Confirmation email(s) enqueued successfully.' : 'No new emails to enqueue.',
+        ];
+    }
+
+    /**
+     * Process queued emails using persistent SMTP connection for maximum throughput.
+     * Transport confirmation is verified before marking any email sent.
+     */
+    public static function processQueue(int $limit = 20, ?int $specificBookingId = null): array
+    {
+        [$isConfigured, $missing] = self::checkSmtpConfiguration();
+        if (!$isConfigured) {
+            $msg = 'SMTP is not configured. Missing: ' . implode(', ', $missing);
+            error_log('[MailService processQueue] ' . $msg);
+            return ['processed' => 0, 'sent' => 0, 'failed' => 0, 'errors' => [$msg]];
+        }
+
+        $pdo = \App\Utils\Database::getConnection();
+
+        $query = 'SELECT * FROM `email_queue` WHERE `status` = "pending" OR (`status` = "failed" AND `attempts` < `max_attempts`)';
+        $params = [];
+
+        if ($specificBookingId !== null) {
+            $query .= ' AND `booking_id` = :bid';
+            $params[':bid'] = $specificBookingId;
+        }
+
+        $query .= ' ORDER BY `id` ASC LIMIT ' . (int) $limit;
+
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($params);
+        $jobs = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (empty($jobs)) {
+            return ['processed' => 0, 'sent' => 0, 'failed' => 0, 'errors' => []];
+        }
+
+        $processed = 0;
+        $sentCount = 0;
+        $failedCount = 0;
+        $errors = [];
+
+        // Initialize persistent connection across the batch
+        $mailer = null;
+        try {
+            $mailer = self::createMailer(true);
+        } catch (Throwable $e) {
+            error_log('[MailService processQueue] Failed to initialize mailer: ' . $e->getMessage());
+            return ['processed' => 0, 'sent' => 0, 'failed' => count($jobs), 'errors' => [$e->getMessage()]];
+        }
+
+        foreach ($jobs as $job) {
+            $jobId = (int) $job['id'];
+            $bookingId = !empty($job['booking_id']) ? (int) $job['booking_id'] : null;
+            $emailType = $job['email_type'];
+            $processed++;
+
+            // Mark job as processing and increment attempt counter
+            $pdo->prepare('UPDATE `email_queue` SET `status` = "processing", `attempts` = `attempts` + 1 WHERE `id` = :id')
+                ->execute([':id' => $jobId]);
+
+            try {
+                $mailer->clearAddresses();
+                $mailer->clearAttachments();
+                $mailer->clearReplyTos();
+
+                $fromEmail = (string) (Env::get('MAIL_FROM_ADDRESS') ?: Env::get('FROM_EMAIL', 'welcome@yourbestdayinindia.com'));
+                $fromName = (string) (Env::get('MAIL_FROM_NAME') ?: Env::get('FROM_NAME', 'Wanderer South India'));
+                $mailer->addReplyTo(self::sanitizeHeader($fromEmail), self::sanitizeHeader($fromName));
+
+                $mailer->addAddress($job['recipient_email'], $job['recipient_name'] ?: '');
+                $mailer->isHTML(true);
+                $mailer->Subject = $job['subject'];
+                $mailer->Body = $job['body_html'];
+                $mailer->AltBody = $job['body_text'] ?: strip_tags($job['body_html']);
+
+                if (!empty($job['attachment_path']) && file_exists($job['attachment_path'])) {
+                    $attName = !empty($job['attachment_name']) ? $job['attachment_name'] : basename($job['attachment_path']);
+                    $mailer->addAttachment($job['attachment_path'], $attName, 'base64', 'application/pdf');
+                }
+
+                // Strictly verify delivery confirmation from SMTP transport
+                $sent = $mailer->send();
+                if ($sent) {
+                    $pdo->prepare('UPDATE `email_queue` SET `status` = "sent", `sent_at` = NOW(), `last_error` = NULL WHERE `id` = :id')
+                        ->execute([':id' => $jobId]);
+
+                    $sentCount++;
+
+                    // Update booking record delivery status
+                    if ($bookingId) {
+                        if ($emailType === 'customer_acknowledgement' || $emailType === 'customer_ticket') {
+                            \App\Models\Booking::recordEmailDispatchResult($bookingId, true, null, false, null);
+                        } elseif ($emailType === 'admin_notification' || $emailType === 'admin_confirmed_copy') {
+                            \App\Models\Booking::recordEmailDispatchResult($bookingId, false, null, true, null);
+                        }
+                    }
+                } else {
+                    throw new \RuntimeException($mailer->ErrorInfo ?: 'Unknown mail transport failure');
+                }
+            } catch (Throwable $e) {
+                $errorMsg = $e->getMessage();
+                $errors[] = "Job {$jobId} failed: {$errorMsg}";
+                $failedCount++;
+
+                $pdo->prepare('UPDATE `email_queue` SET `status` = "failed", `last_error` = :err WHERE `id` = :id')
+                    ->execute([':id' => $jobId, ':err' => substr($errorMsg, 0, 500)]);
+
+                if ($bookingId) {
+                    if ($emailType === 'customer_acknowledgement' || $emailType === 'customer_ticket') {
+                        \App\Models\Booking::recordEmailDispatchResult($bookingId, false, $errorMsg, false, null);
+                    }
+                }
+            }
+        }
+
+        // Close persistent SMTP connection
+        try {
+            $mailer->smtpClose();
+        } catch (Throwable $e) {
+            // Ignore
+        }
+
+        return [
+            'processed' => $processed,
+            'sent' => $sentCount,
+            'failed' => $failedCount,
+            'errors' => $errors,
+        ];
+    }
+
+    /**
+     * Trigger asynchronous background queue processing to avoid blocking user HTTP responses.
+     */
+    public static function triggerAsyncProcessing(?int $bookingId = null): void
+    {
+        // Strategy 1: FastCGI request finish (PHP-FPM)
+        if (function_exists('fastcgi_finish_request')) {
+            fastcgi_finish_request();
+            self::processQueue(20, $bookingId);
+            return;
+        }
+
+        // Strategy 2: Detached CLI background process
+        $scriptPath = realpath(__DIR__ . '/../scripts/process_email_queue.php');
+        if ($scriptPath && file_exists($scriptPath)) {
+            $arg = $bookingId ? (string) $bookingId : '0';
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                $cmd = "start /B php " . escapeshellarg($scriptPath) . " {$arg} > NUL 2>&1";
+                pclose(popen($cmd, "r"));
+                return;
+            } else {
+                $cmd = "php " . escapeshellarg($scriptPath) . " {$arg} > /dev/null 2>&1 &";
+                exec($cmd);
+                return;
+            }
+        }
+
+        // Strategy 3: Graceful fallback - process inline with persistent connection
+        self::processQueue(20, $bookingId);
     }
 
     /**
@@ -253,9 +640,9 @@ class MailService
      */
     public static function sendAdminNotification(array $booking, ?string $pdfPath = null): array
     {
-        $adminEmail = trim((string) (Env::get('ADMIN_EMAIL') ?: 'mkarthika3568@gmail.com'));
+        $adminEmail = trim((string) Env::get('ADMIN_EMAIL', ''));
         if ($adminEmail === '' || !filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
-            return [false, 'A valid ADMIN_EMAIL address must be configured.'];
+            return [false, 'A valid ADMIN_EMAIL address must be configured in .env.'];
         }
 
         [$isConfigured, $missing] = self::checkSmtpConfiguration();
@@ -299,9 +686,9 @@ class MailService
      */
     public static function sendAdminConfirmedCopy(array $booking, string $pdfPath): array
     {
-        $adminEmail = trim((string) (Env::get('ADMIN_EMAIL') ?: 'mkarthika3568@gmail.com'));
+        $adminEmail = trim((string) Env::get('ADMIN_EMAIL', ''));
         if ($adminEmail === '' || !filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
-            return [false, 'A valid ADMIN_EMAIL address must be configured.'];
+            return [false, 'A valid ADMIN_EMAIL address must be configured in .env.'];
         }
 
         [$isConfigured, $missing] = self::checkSmtpConfiguration();
@@ -357,6 +744,53 @@ HTML;
             error_log("[Wanderer Mail Error] Failed admin confirmed dispatch for {$booking['order_number']}: {$errorMsg}");
             return [false, "SMTP admin dispatch failed: {$errorMsg}"];
         }
+    }
+
+    public static function renderAdminConfirmedHtml(array $booking, string $orderNumber): string
+    {
+        $currency = $booking['currency'] ?? 'INR';
+        $total = $currency . ' ' . number_format((float) ($booking['total_price'] ?? 0), 2);
+        $advance = $currency . ' ' . number_format((float) ($booking['advance_amount'] ?? 0), 2);
+        $balance = $currency . ' ' . number_format((float) ($booking['balance_amount'] ?? 0), 2);
+        $customerName = htmlspecialchars((string) ($booking['customer']['name'] ?? 'Guest'), ENT_QUOTES, 'UTF-8');
+        $customerPhone = htmlspecialchars((string) ($booking['customer']['phone'] ?? ''), ENT_QUOTES, 'UTF-8');
+        $tourTitle = htmlspecialchars((string) ($booking['tour']['title'] ?? ''), ENT_QUOTES, 'UTF-8');
+        $bookingDate = htmlspecialchars((string) ($booking['booking_date'] ?? ''), ENT_QUOTES, 'UTF-8');
+        $paymentMethod = htmlspecialchars((string) ($booking['payment_method'] ?? 'Manual'), ENT_QUOTES, 'UTF-8');
+
+        return <<<HTML
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial, sans-serif; background-color: #f8fafc; padding: 20px; color: #0B1329;">
+    <div style="max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 10px; padding: 24px; border: 1px solid #e2e8f0;">
+        <h2 style="color: #01aa90; margin: 0 0 12px; font-size: 18px;">✓ Booking Approved &amp; Confirmed — #{$orderNumber}</h2>
+        <p style="font-size: 14px; margin: 0 0 16px;">This booking has been approved by the administrator. Official ticket has been emailed to the customer with PDF attached.</p>
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+            <tr><td style="padding: 6px 0; color: #64748b;">Customer:</td><td style="font-weight: bold; text-align: right;">{$customerName} ({$customerPhone})</td></tr>
+            <tr><td style="padding: 6px 0; color: #64748b;">Tour:</td><td style="font-weight: bold; text-align: right;">{$tourTitle}</td></tr>
+            <tr><td style="padding: 6px 0; color: #64748b;">Travel Date:</td><td style="font-weight: bold; text-align: right;">{$bookingDate}</td></tr>
+            <tr><td style="padding: 6px 0; color: #64748b;">Total Amount:</td><td style="font-weight: bold; text-align: right;">{$total}</td></tr>
+            <tr><td style="padding: 6px 0; color: #64748b;">Advance Paid:</td><td style="font-weight: bold; text-align: right; color: #16a34a;">{$advance}</td></tr>
+            <tr><td style="padding: 6px 0; color: #64748b;">Remaining Balance:</td><td style="font-weight: bold; text-align: right; color: #e11d48;">{$balance}</td></tr>
+            <tr><td style="padding: 6px 0; color: #64748b;">Payment Method:</td><td style="font-weight: bold; text-align: right;">{$paymentMethod}</td></tr>
+        </table>
+    </div>
+</body>
+</html>
+HTML;
+    }
+
+    public static function getSupportEmail(): string
+    {
+        $mailFrom = Env::get('MAIL_FROM_ADDRESS');
+        if (!empty($mailFrom)) {
+            return (string) $mailFrom;
+        }
+        $adminEmail = Env::get('ADMIN_EMAIL');
+        if (!empty($adminEmail)) {
+            return (string) $adminEmail;
+        }
+        return 'contact@wonderersouthindia.in';
     }
 
     /**
@@ -428,6 +862,7 @@ HTML;
         $total = $currency . ' ' . number_format((float) $booking['total_price'], 2);
         $travelDate = $booking['arrival_date'] ?? $booking['booking_date'] ?? date('Y-m-d');
         $pickup = $booking['pickup_location'] ?? 'Hotel / Airport Pickup';
+        $supportEmail = self::getSupportEmail();
 
         return <<<HTML
 <!DOCTYPE html>
@@ -503,7 +938,7 @@ HTML;
             <div style="border-top: 1px solid #e2e8f0; padding-top: 18px; margin-top: 24px; font-size: 13px; color: #64748b; line-height: 1.6;">
                 <p style="margin: 0 0 8px;"><strong>Need to speak with us immediately?</strong></p>
                 <p style="margin: 0 0 4px;">📞 Phone &amp; WhatsApp: <strong>+91 9840291110 / +91 8072566010</strong></p>
-                <p style="margin: 0;">✉️ Email: <a href="mailto:welcome@yourbestdayinindia.com" style="color: #01aa90; text-decoration: none;">welcome@yourbestdayinindia.com</a></p>
+                <p style="margin: 0;">✉️ Email: <a href="mailto:{$e($supportEmail)}" style="color: #01aa90; text-decoration: none;">{$e($supportEmail)}</a></p>
             </div>
         </div>
 
@@ -527,6 +962,7 @@ HTML;
         $currency = $booking['currency'] ?? 'INR';
         $total = $currency . ' ' . number_format((float) $booking['total_price'], 2);
         $travelDate = $booking['arrival_date'] ?? $booking['booking_date'] ?? date('Y-m-d');
+        $supportEmail = self::getSupportEmail();
 
         return "🌴 WANDERER SOUTH INDIA (TRAMAX TOURS) — BOOKING REQUEST RECEIVED\n"
             . "=========================================================\n\n"
@@ -542,7 +978,7 @@ HTML;
             . "1. Confirm itinerary & pickup details.\n"
             . "2. Arrange manual payment: Cash, UPI (GPay/PhonePe), Bank Transfer, or Direct Payment.\n"
             . "3. Issue your official confirmed ticket and voucher upon verification.\n\n"
-            . "If you have any questions, call or WhatsApp us at +91 9840291110 or email welcome@yourbestdayinindia.com.\n\n"
+            . "If you have any questions, call or WhatsApp us at +91 9840291110 or email " . $supportEmail . ".\n\n"
             . "Thank you for choosing Wanderer South India!";
     }
 
@@ -565,6 +1001,7 @@ HTML;
         $vehicle = $booking['vehicle_preference'] ?? 'Standard Air-Conditioned Vehicle';
         $hotel = $booking['hotel_category'] ?? 'Standard Selected Accommodation';
         $specialRequests = $booking['special_requests'] ?? ($booking['customer_notes'] ?? 'None');
+        $supportEmail = self::getSupportEmail();
 
         $receiptButtonHtml = '';
         if ($receiptUrl) {
@@ -677,7 +1114,7 @@ HTML;
             <div style="border-top: 1px solid #e2e8f0; padding-top: 18px; margin-top: 24px; font-size: 13px; color: #64748b; line-height: 1.6;">
                 <p style="margin: 0 0 8px;"><strong>Need assistance or modifications?</strong></p>
                 <p style="margin: 0 0 4px;">📞 WhatsApp / Call: <strong>+91 9840291110 / +91 8072566010</strong></p>
-                <p style="margin: 0;">✉️ Email Support: <a href="mailto:welcome@yourbestdayinindia.com" style="color: #01aa90; text-decoration: none;">welcome@yourbestdayinindia.com</a></p>
+                <p style="margin: 0;">✉️ Email Support: <a href="mailto:{$e($supportEmail)}" style="color: #01aa90; text-decoration: none;">{$e($supportEmail)}</a></p>
             </div>
         </div>
 

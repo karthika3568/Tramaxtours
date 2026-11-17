@@ -22,6 +22,13 @@ export default function RegisterPage() {
     password: '',
     password_confirmation: '',
   });
+  const [touched, setTouched] = useState({
+    name: false,
+    email: false,
+    phone: false,
+    password: false,
+    password_confirmation: false,
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -43,40 +50,119 @@ export default function RegisterPage() {
     }
   }, [isAuthenticated, isAuthLoading, navigate, redirectParam]);
 
-  const validate = () => {
+  /**
+   * Validate a single form field
+   */
+  const validateField = (name, value, currentFormData = formData) => {
+    switch (name) {
+      case 'name': {
+        const trimmed = (value || '').trim();
+        if (!trimmed) {
+          return 'Full name is required.';
+        }
+        if (trimmed.length < 2) {
+          return 'Full name must be at least 2 characters.';
+        }
+        if (trimmed.length > 100) {
+          return 'Full name cannot exceed 100 characters.';
+        }
+        if (!/^[\p{L}\s.'-]+$/u.test(trimmed)) {
+          return 'Full name may only contain letters, spaces, hyphens, and periods.';
+        }
+        return '';
+      }
+      case 'phone': {
+        const raw = (value || '').trim();
+        if (!raw) {
+          return 'Phone number is required.';
+        }
+        if (!/^[0-9]+$/.test(raw)) {
+          return 'Phone number must contain digits only (no letters or special characters).';
+        }
+        if (raw.length !== 10) {
+          return 'Phone number must be exactly 10 digits.';
+        }
+        if (!/^[6-9]/.test(raw)) {
+          return 'First digit of phone number must be 6, 7, 8, or 9.';
+        }
+        return '';
+      }
+      case 'email': {
+        const trimmed = (value || '').trim();
+        if (!trimmed) {
+          return 'Email address is required.';
+        }
+        if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(trimmed)) {
+          return 'Please enter a valid email address.';
+        }
+        return '';
+      }
+      case 'password': {
+        if (!value) {
+          return 'Password is required.';
+        }
+        if (value.length < 8) {
+          return 'Password must be at least 8 characters long.';
+        }
+        if (!/[A-Za-z]/.test(value) || !/[0-9]/.test(value)) {
+          return 'Password must contain at least one letter and one number.';
+        }
+        return '';
+      }
+      case 'password_confirmation': {
+        if (!value) {
+          return 'Please confirm your password.';
+        }
+        if (value !== currentFormData.password) {
+          return 'Passwords do not match.';
+        }
+        return '';
+      }
+      default:
+        return '';
+    }
+  };
+
+  /**
+   * Validate all form fields
+   */
+  const validateForm = (dataToValidate = formData) => {
     const errors = {};
-    if (!formData.name.trim()) {
-      errors.name = 'Full name is required.';
-    } else if (formData.name.trim().length < 2) {
-      errors.name = 'Name must be at least 2 characters.';
-    }
-
-    if (!formData.email.trim()) {
-      errors.email = 'Email address is required.';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
-      errors.email = 'Please enter a valid email address.';
-    }
-
-    if (!formData.password) {
-      errors.password = 'Password is required.';
-    } else if (formData.password.length < 6) {
-      errors.password = 'Password must be at least 6 characters.';
-    }
-
-    if (formData.password !== formData.password_confirmation) {
-      errors.password_confirmation = 'Passwords do not match.';
-    }
-
+    const fields = ['name', 'phone', 'email', 'password', 'password_confirmation'];
+    fields.forEach((field) => {
+      const err = validateField(field, dataToValidate[field], dataToValidate);
+      if (err) {
+        errors[field] = err;
+      }
+    });
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    const errorMsg = validateField(name, value, formData);
+    setFieldErrors((prev) => ({ ...prev, [name]: errorMsg }));
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (fieldErrors[name]) {
-      setFieldErrors((prev) => ({ ...prev, [name]: '' }));
+    const updatedData = { ...formData, [name]: value };
+    setFormData(updatedData);
+
+    // If the field has been touched or currently has an error, re-validate immediately to clear/update error
+    if (touched[name] || fieldErrors[name]) {
+      const errorMsg = validateField(name, value, updatedData);
+      setFieldErrors((prev) => ({ ...prev, [name]: errorMsg }));
+
+      // Also re-validate confirmation if password changes and confirmation was touched
+      if (name === 'password' && touched.password_confirmation) {
+        const confirmErr = validateField('password_confirmation', updatedData.password_confirmation, updatedData);
+        setFieldErrors((prev) => ({ ...prev, password_confirmation: confirmErr }));
+      }
     }
+
     if (generalError) {
       setGeneralError('');
     }
@@ -84,7 +170,20 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
+
+    // Prevent duplicate submissions
+    if (isSubmitting) return;
+
+    // Mark all fields touched
+    setTouched({
+      name: true,
+      email: true,
+      phone: true,
+      password: true,
+      password_confirmation: true,
+    });
+
+    if (!validateForm()) return;
 
     setIsSubmitting(true);
     setGeneralError('');
@@ -93,7 +192,7 @@ export default function RegisterPage() {
       const payload = {
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
-        phone: formData.phone.trim() || undefined,
+        phone: formData.phone.trim(),
         password: formData.password,
         password_confirmation: formData.password_confirmation,
       };
@@ -114,7 +213,7 @@ export default function RegisterPage() {
       setGeneralError(errorMsg);
 
       if (err.errors && typeof err.errors === 'object') {
-        setFieldErrors(err.errors);
+        setFieldErrors((prev) => ({ ...prev, ...err.errors }));
       }
       toast.error(errorMsg, 'Registration Error');
     } finally {
@@ -171,19 +270,21 @@ export default function RegisterPage() {
                     autoComplete="name"
                     value={formData.name}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     disabled={isSubmitting}
                     placeholder="e.g. Anand Kumar"
                     className={`form-input has-icon ${fieldErrors.name ? 'input-error' : ''}`}
                     aria-invalid={Boolean(fieldErrors.name)}
+                    aria-describedby={fieldErrors.name ? 'reg-name-error' : undefined}
                     required
                   />
                 </div>
-                {fieldErrors.name && <span className="form-error">{fieldErrors.name}</span>}
+                {fieldErrors.name && <span id="reg-name-error" className="form-error" role="alert">{fieldErrors.name}</span>}
               </div>
 
               <div className="form-group" style={{ marginBottom: '8px' }}>
                 <label htmlFor="reg-phone" className="form-label">
-                  Mobile / WhatsApp
+                  Mobile / WhatsApp <span className="text-danger">*</span>
                 </label>
                 <div className="input-with-icon">
                   <span className="input-leading-icon" aria-hidden="true"><PhoneIcon size={15} /></span>
@@ -191,15 +292,21 @@ export default function RegisterPage() {
                     id="reg-phone"
                     name="phone"
                     type="tel"
+                    inputMode="numeric"
+                    maxLength={10}
                     autoComplete="tel"
                     value={formData.phone}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     disabled={isSubmitting}
-                    placeholder="+91 98402 91110"
+                    placeholder="10-digit number (e.g. 9840291110)"
                     className={`form-input has-icon ${fieldErrors.phone ? 'input-error' : ''}`}
+                    aria-invalid={Boolean(fieldErrors.phone)}
+                    aria-describedby={fieldErrors.phone ? 'reg-phone-error' : undefined}
+                    required
                   />
                 </div>
-                {fieldErrors.phone && <span className="form-error">{fieldErrors.phone}</span>}
+                {fieldErrors.phone && <span id="reg-phone-error" className="form-error" role="alert">{fieldErrors.phone}</span>}
               </div>
             </div>
 
@@ -216,14 +323,16 @@ export default function RegisterPage() {
                   autoComplete="email"
                   value={formData.email}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   disabled={isSubmitting}
                   placeholder="you@example.com"
                   className={`form-input has-icon ${fieldErrors.email ? 'input-error' : ''}`}
                   aria-invalid={Boolean(fieldErrors.email)}
+                  aria-describedby={fieldErrors.email ? 'reg-email-error' : undefined}
                   required
                 />
               </div>
-              {fieldErrors.email && <span className="form-error">{fieldErrors.email}</span>}
+              {fieldErrors.email && <span id="reg-email-error" className="form-error" role="alert">{fieldErrors.email}</span>}
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
@@ -240,9 +349,12 @@ export default function RegisterPage() {
                     autoComplete="new-password"
                     value={formData.password}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     disabled={isSubmitting}
-                    placeholder="Min. 6 chars"
+                    placeholder="Min. 8 chars (letter & number)"
                     className={`form-input has-icon has-trailing ${fieldErrors.password ? 'input-error' : ''}`}
+                    aria-invalid={Boolean(fieldErrors.password)}
+                    aria-describedby={fieldErrors.password ? 'reg-password-error' : undefined}
                     required
                   />
                   <button
@@ -255,7 +367,7 @@ export default function RegisterPage() {
                     {showPassword ? <EyeIcon size={15} /> : <LockIcon size={15} />}
                   </button>
                 </div>
-                {fieldErrors.password && <span className="form-error">{fieldErrors.password}</span>}
+                {fieldErrors.password && <span id="reg-password-error" className="form-error" role="alert">{fieldErrors.password}</span>}
               </div>
 
               <div className="form-group" style={{ marginBottom: '8px' }}>
@@ -271,9 +383,12 @@ export default function RegisterPage() {
                     autoComplete="new-password"
                     value={formData.password_confirmation}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     disabled={isSubmitting}
-                    placeholder="Repeat password"
+                    placeholder="Confirm password"
                     className={`form-input has-icon has-trailing ${fieldErrors.password_confirmation ? 'input-error' : ''}`}
+                    aria-invalid={Boolean(fieldErrors.password_confirmation)}
+                    aria-describedby={fieldErrors.password_confirmation ? 'reg-confirm-password-error' : undefined}
                     required
                   />
                   <button
@@ -287,7 +402,7 @@ export default function RegisterPage() {
                   </button>
                 </div>
                 {fieldErrors.password_confirmation && (
-                  <span className="form-error">{fieldErrors.password_confirmation}</span>
+                  <span id="reg-confirm-password-error" className="form-error" role="alert">{fieldErrors.password_confirmation}</span>
                 )}
               </div>
             </div>

@@ -106,6 +106,19 @@ class User extends BaseModel
     }
 
     /**
+     * Update user password hash directly.
+     *
+     * @param int $userId
+     * @param string $passwordHash
+     * @return bool
+     */
+    public static function updatePassword(int $userId, string $passwordHash): bool
+    {
+        $sql = 'UPDATE `users` SET `password_hash` = :hash, `updated_at` = NOW() WHERE `id` = :id AND `deleted_at` IS NULL';
+        return self::execute($sql, [':id' => $userId, ':hash' => $passwordHash]) > 0;
+    }
+
+    /**
      * Get all roles assigned to a user.
      *
      * @param int $userId
@@ -328,7 +341,9 @@ class User extends BaseModel
         $phone = !empty($data['phone']) ? trim($data['phone']) : null;
         $avatarUrl = !empty($data['avatar_url']) ? trim($data['avatar_url']) : null;
         $status = in_array($data['status'] ?? 'active', ['active', 'inactive', 'suspended'], true) ? $data['status'] : 'active';
-        $passwordHash = password_hash($data['password'], PASSWORD_BCRYPT);
+        $passwordHash = !empty($data['password_hash']) 
+            ? $data['password_hash'] 
+            : password_hash((string) ($data['password'] ?? bin2hex(random_bytes(8))), PASSWORD_BCRYPT);
 
         // 1. Insert user
         $stmt = $pdo->prepare('INSERT INTO `users` (`name`, `email`, `password_hash`, `phone`, `avatar_url`, `status`, `created_at`, `updated_at`)

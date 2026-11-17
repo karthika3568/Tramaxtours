@@ -34,6 +34,7 @@ class BookingController extends BaseController
             'status' => $params['status'] ?? null,
             'payment_status' => $params['payment_status'] ?? null,
             'tour_id' => $params['tour_id'] ?? null,
+            'tour_type' => $params['tour_type'] ?? null,
             'date_from' => $params['date_from'] ?? null,
             'date_to' => $params['date_to'] ?? null,
             'sort_by' => $params['sort_by'] ?? 'created_at',
@@ -192,8 +193,16 @@ class BookingController extends BaseController
                 }
             }
 
-            // Fallback: If still not set, link to registered user matching this customer email
-            if (!$userId && !empty($email)) {
+            // Ensure authenticated customer ID and email association
+            if ($userId) {
+                $authUser = \App\Models\User::findById($userId);
+                if ($authUser && $authUser['status'] === 'active') {
+                    if ($email === '') {
+                        $email = trim((string) $authUser['email']);
+                    }
+                }
+            } elseif (!empty($email)) {
+                // Link to active registered customer if email matches
                 $matchedUser = \App\Models\User::findByEmail($email);
                 if ($matchedUser && $matchedUser['status'] === 'active') {
                     $userId = (int) $matchedUser['id'];
@@ -290,13 +299,11 @@ class BookingController extends BaseController
                 ]);
             }
 
-            // Dispatch Customer Acknowledgement (strictly NO PDF ticket at this stage)
-            // and internal Admin Notification alert. Ticket PDF is generated upon Admin Approval.
-            // Best-effort — a mail failure must never roll back or fail the saved booking.
+            // Dispatch Customer Acknowledgement and internal Admin Notification alert.
+            // Enqueued with duplicate guard and processed asynchronously for ultra-fast response.
             try {
-                [$ackSent, $ackError] = MailService::sendCustomerAcknowledgement($createdBooking);
-                [$adminSent, $adminError] = MailService::sendAdminNotification($createdBooking);
-                Booking::recordEmailDispatchResult($bookingId, $ackSent, $ackError, $adminSent, $adminError);
+                MailService::queueBookingRequest($createdBooking);
+                MailService::triggerAsyncProcessing($bookingId);
             } catch (Throwable $e) {
                 error_log('[Wanderer Booking] Acknowledgement email dispatch failed for booking ' . $bookingId . ': ' . $e->getMessage());
                 Booking::recordEmailDispatchResult($bookingId, false, $e->getMessage(), false, $e->getMessage());
@@ -342,15 +349,25 @@ class BookingController extends BaseController
         try {
             $updateData = [];
             $allowedFields = [
-                'booking_date', 'tickets_count', 'unit_price', 'subtotal',
-                'tax_amount', 'discount_amount', 'total_price', 'currency',
+                'booking_date', 'arrival_date', 'departure_date', 'tickets_count', 'adults_count', 'children_count',
+                'unit_price', 'subtotal', 'tax_amount', 'discount_amount', 'total_price', 'agreed_price',
+                'advance_amount', 'balance_amount', 'currency', 'pickup_location', 'special_requests',
                 'booking_status', 'payment_method', 'payment_status',
-                'customer_notes', 'admin_notes'
+                'payment_discussion_notes', 'customer_notes', 'admin_notes',
+                'first_name', 'middle_name', 'last_name', 'dial_code', 'country', 'email', 'phone'
             ];
 
             foreach ($allowedFields as $field) {
                 if (array_key_exists($field, $body)) {
                     $updateData[$field] = $body[$field];
+                }
+            }
+
+            if (!empty($body['customer']) && is_array($body['customer'])) {
+                foreach (['first_name', 'middle_name', 'last_name', 'dial_code', 'country', 'email', 'phone'] as $cf) {
+                    if (array_key_exists($cf, $body['customer'])) {
+                        $updateData[$cf] = $body['customer'][$cf];
+                    }
                 }
             }
 
@@ -477,10 +494,11 @@ class BookingController extends BaseController
                 }
                 $receiptUrl = $this->buildReceiptUrl($id, $updatedBooking['order_number']);
 
-                [$custSent, $custError] = MailService::sendCustomerTicket($updatedBooking, $pdfPath, $receiptUrl);
-                [$adminSent, $adminError] = MailService::sendAdminConfirmedCopy($updatedBooking, $pdfPath);
-
-                Booking::recordEmailDispatchResult($id, $custSent, $custError, $adminSent, $adminError);
+                // Duplicate prevention: avoid sending duplicate confirmation ticket emails
+                if (!MailService::hasAlreadySent((int) $id, 'customer_ticket')) {
+                    MailService::queueBookingConfirmation($updatedBooking, $pdfPath, $receiptUrl);
+                    MailService::triggerAsyncProcessing((int) $id);
+                }
             } catch (Throwable $e) {
                 error_log('[Wanderer Booking] Approval email/PDF dispatch failed for booking ' . $id . ': ' . $e->getMessage());
                 Booking::recordEmailDispatchResult($id, false, $e->getMessage(), false, $e->getMessage());
@@ -947,14 +965,15 @@ class BookingController extends BaseController
                 $pdfPath = PdfService::generateBookingReceipt($booking);
                 $receiptUrl = $this->buildReceiptUrl($bookingId, $booking['order_number']);
 
-                [$custSent, $custError] = MailService::sendCustomerTicket($booking, $pdfPath, $receiptUrl);
-                [$adminSent, $adminError] = MailService::sendAdminConfirmedCopy($booking, $pdfPath);
+                // Force resend for explicit user/admin request
+                MailService::queueBookingConfirmation($booking, $pdfPath, $receiptUrl, true);
+                MailService::triggerAsyncProcessing($bookingId);
+                $custSent = true;
             } else {
-                [$custSent, $custError] = MailService::sendCustomerAcknowledgement($booking);
-                [$adminSent, $adminError] = MailService::sendAdminNotification($booking);
+                MailService::queueBookingRequest($booking, true);
+                MailService::triggerAsyncProcessing($bookingId);
+                $custSent = true;
             }
-
-            Booking::recordEmailDispatchResult($bookingId, $custSent, $custError, $adminSent, $adminError);
         } catch (Throwable $e) {
             Booking::recordEmailDispatchResult($bookingId, false, $e->getMessage(), false, $e->getMessage());
             $this->error('Failed to generate receipt or connect to mail service: ' . $e->getMessage(), 500, null, 'RESEND_FAILED');

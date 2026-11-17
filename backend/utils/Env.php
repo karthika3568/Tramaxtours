@@ -22,13 +22,17 @@ class Env
      */
     public static function load(string $filePath): bool
     {
-        if (!file_exists($filePath) || !is_readable($filePath)) {
+        if (!file_exists($filePath)) {
             return false;
         }
 
-        $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $lines = @file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         if ($lines === false) {
-            return false;
+            $raw = @file_get_contents($filePath);
+            if ($raw === false) {
+                return false;
+            }
+            $lines = preg_split('/\r\n|\r|\n/', $raw);
         }
 
         foreach ($lines as $line) {

@@ -119,7 +119,7 @@ class Inquiry extends BaseModel
             'last_name' => $lastName ?: null,
             'dial_code' => $dialCode,
             'name' => $computedName ?: 'Guest Traveler',
-            'email' => !empty($data['email']) ? trim((string)$data['email']) : 'guest@wonderersouthindia.in',
+            'email' => !empty($data['email']) ? trim((string)$data['email']) : '',
             'phone' => !empty($data['phone']) ? trim((string)$data['phone']) : (!empty($data['whatsapp_number']) ? trim((string)$data['whatsapp_number']) : null),
             'whatsapp_number' => !empty($data['whatsapp_number']) ? trim((string)$data['whatsapp_number']) : (!empty($data['phone']) ? trim((string)$data['phone']) : null),
             'country' => !empty($data['country']) ? trim((string)$data['country']) : (!empty($data['nationality']) ? trim((string)$data['nationality']) : null),

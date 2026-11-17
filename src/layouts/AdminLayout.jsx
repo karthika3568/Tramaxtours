@@ -1,11 +1,34 @@
-import { BookOpenIcon, ChartBarIcon, CompassIcon, FileTextIcon, HomeIcon, ImageIcon, LayersIcon, LinkIcon, MailIcon, MapPinIcon, MenuIcon, PhoneIcon, PlaneIcon, SettingsIcon, ShieldCheckIcon, SlidersIcon, SparklesIcon, StarIcon, StethoscopeIcon, UsersIcon, XIcon } from '../components/common/Icons';
-import { useState, useEffect, useCallback } from 'react';
+import {
+  BookOpenIcon,
+  ChartBarIcon,
+  ChevronDownIcon,
+  CompassIcon,
+  FileTextIcon,
+  HomeIcon,
+  ImageIcon,
+  LayersIcon,
+  LinkIcon,
+  LogOutIcon,
+  MailIcon,
+  MapPinIcon,
+  MenuIcon,
+  PhoneIcon,
+  PlaneIcon,
+  SettingsIcon,
+  ShieldCheckIcon,
+  SlidersIcon,
+  SparklesIcon,
+  StarIcon,
+  StethoscopeIcon,
+  UsersIcon,
+  XIcon,
+} from '../components/common/Icons';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import { useToast } from '../context/ToastContext';
 import inquiryService from '../services/inquiryService';
 import { getAccessToken } from '../utils/storage';
-
 
 export default function AdminLayout() {
   const location = useLocation();
@@ -15,9 +38,19 @@ export default function AdminLayout() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [newRequestsCount, setNewRequestsCount] = useState(0);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [collapsedGroups, setCollapsedGroups] = useState({});
+  const userDropdownRef = useRef(null);
 
   const closeSidebar = useCallback(() => {
     setSidebarOpen(false);
+  }, []);
+
+  const toggleGroup = useCallback((groupId) => {
+    setCollapsedGroups((prev) => ({
+      ...prev,
+      [groupId]: !prev[groupId],
+    }));
   }, []);
 
   // Fetch live new trip requests count from API
@@ -47,16 +80,29 @@ export default function AdminLayout() {
     };
   }, [user]);
 
-  // Handle escape key to close drawer
+  // Handle escape key to close mobile drawer and user dropdown
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && sidebarOpen) {
-        setSidebarOpen(false);
+      if (e.key === 'Escape') {
+        if (sidebarOpen) setSidebarOpen(false);
+        if (userDropdownOpen) setUserDropdownOpen(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [sidebarOpen]);
+  }, [sidebarOpen, userDropdownOpen]);
+
+  // Close user dropdown on outside click
+  useEffect(() => {
+    if (!userDropdownOpen) return;
+    const handleClickOutside = (e) => {
+      if (userDropdownRef.current && !userDropdownRef.current.contains(e.target)) {
+        setUserDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [userDropdownOpen]);
 
   // Handle body scroll lock when mobile drawer is open
   useEffect(() => {
@@ -70,19 +116,22 @@ export default function AdminLayout() {
     };
   }, [sidebarOpen]);
 
-  // Ensure body scroll is unlocked on route change
+  // Ensure body scroll is unlocked and dropdown closed on route change
   useEffect(() => {
     document.body.style.overflow = '';
+    setUserDropdownOpen(false);
   }, [location.pathname]);
 
   const navGroups = [
     {
+      id: 'overview',
       groupTitle: 'Overview',
       items: [
         { label: 'Dashboard', path: '/admin', exact: true, permission: 'dashboard.view', icon: <ChartBarIcon size={18} /> },
       ],
     },
     {
+      id: 'website',
       groupTitle: 'Website Management',
       items: [
         { label: 'Home Page', path: '/admin/website/home', permission: 'homepage.manage', icon: <HomeIcon size={18} /> },
@@ -96,16 +145,24 @@ export default function AdminLayout() {
       ],
     },
     {
+      id: 'operations',
       groupTitle: 'Operations & Catalog',
       items: [
         {
           label: 'Trip Requests',
           path: '/admin/trip-requests',
-          permission: 'contact.view',
+          permission: 'trip_requests.view',
+          fallbackPermission: 'contact.view',
           icon: <PlaneIcon size={18} />,
           badgeCount: newRequestsCount,
         },
-        { label: 'Inquiries & Leads', path: '/admin/inquiries', permission: 'contact.view', icon: <MailIcon size={18} /> },
+        {
+          label: 'Inquiries & Leads',
+          path: '/admin/inquiries',
+          permission: 'trip_requests.view',
+          fallbackPermission: 'contact.view',
+          icon: <MailIcon size={18} />,
+        },
         { label: 'Bookings & Orders', path: '/admin/bookings', permission: 'bookings.view', icon: <FileTextIcon size={18} /> },
         { label: 'Curated Tours', path: '/admin/tours', permission: 'tours.view', icon: <CompassIcon size={18} /> },
         { label: 'Medical Trips', path: '/admin/medical-trips', permission: 'tours.view', icon: <StethoscopeIcon size={18} /> },
@@ -116,12 +173,15 @@ export default function AdminLayout() {
       ],
     },
     {
-      groupTitle: 'Customer Management',
+      id: 'users',
+      groupTitle: 'Customer & Staff Management',
       items: [
         { label: 'Customers & Bookings', path: '/admin/users', permission: 'users.view', icon: <UsersIcon size={18} /> },
+        { label: 'Staff Roles & Permissions', path: '/admin/roles', permission: 'roles.view', icon: <ShieldCheckIcon size={18} /> },
       ],
     },
     {
+      id: 'settings',
       groupTitle: 'System Settings',
       items: [
         { label: 'Site Settings', path: '/admin/settings', permission: 'settings.view', icon: <SettingsIcon size={18} /> },
@@ -130,6 +190,23 @@ export default function AdminLayout() {
       ],
     },
   ];
+
+  // RBAC check: super_admin and admin roles have full visibility; granular permission check for others
+  const isUserAllowed = useCallback((item) => {
+    if (!item.permission) return true;
+    if (!user) return false;
+    const roles = user.roles || (user.role ? [user.role] : []);
+    if (roles.includes('super_admin') || user.role === 'super_admin' || roles.includes('admin') || user.role === 'admin') {
+      return true;
+    }
+    if (hasPermission(item.permission)) {
+      return true;
+    }
+    if (item.fallbackPermission && hasPermission(item.fallbackPermission)) {
+      return true;
+    }
+    return false;
+  }, [user, hasPermission]);
 
   const handleLogout = useCallback(async () => {
     try {
@@ -178,8 +255,8 @@ export default function AdminLayout() {
         aria-label="Admin Portal Navigation"
       >
         <div className="admin-sidebar-header">
-          <Link to="/admin" className="admin-brand-link" onClick={closeSidebar} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <img src="/logo.png" alt="Wonderer South India" style={{ height: '42px', width: 'auto', objectFit: 'contain' }} />
+          <Link to="/admin" className="admin-brand-link" onClick={closeSidebar}>
+            <img src="/logo.png" alt="Wonderer South India" style={{ height: '40px', width: 'auto', objectFit: 'contain' }} />
             <div className="admin-brand-info">
               <span className="admin-brand-title">WONDERER SOUTH INDIA</span>
               <span className="admin-portal-badge">TRAVEL MANAGEMENT</span>
@@ -199,57 +276,70 @@ export default function AdminLayout() {
 
         <nav className="admin-sidebar-nav">
           {navGroups.map((group) => {
-            const accessibleItems = group.items.filter((item) => {
-              if (!item.permission) return true;
-              return hasPermission(item.permission);
-            });
-
+            const accessibleItems = group.items.filter(isUserAllowed);
             if (accessibleItems.length === 0) return null;
 
-            return (
-              <div key={group.groupTitle} className="admin-nav-group">
-                <span className="admin-nav-group-title">{group.groupTitle}</span>
-                <ul className="admin-nav-list">
-                  {accessibleItems.map((item) => {
-                    const isHomePath = (item.path === '/admin/website/home' || item.path === '/admin/homepage') && (location.pathname === '/admin/website/home' || location.pathname === '/admin/homepage');
-                    const isActive = isHomePath || (item.exact
-                      ? location.pathname === item.path
-                      : location.pathname === item.path || location.pathname.startsWith(`${item.path}/`));
+            // Check if any child item is currently active
+            const hasActiveChild = accessibleItems.some((item) => {
+              if (item.exact) return location.pathname === item.path;
+              const isHomePath = (item.path === '/admin/website/home' || item.path === '/admin/homepage') && (location.pathname === '/admin/website/home' || location.pathname === '/admin/homepage');
+              return isHomePath || location.pathname === item.path || location.pathname.startsWith(`${item.path}/`);
+            });
 
-                    return (
-                      <li key={item.path} className="admin-nav-item">
-                        <Link
-                          to={item.path}
-                          className={`admin-nav-link ${isActive ? 'active' : ''}`}
-                          aria-current={isActive ? 'page' : undefined}
-                          onClick={closeSidebar}
-                        >
-                          <span className="nav-item-icon" aria-hidden="true">
-                            {item.icon}
-                          </span>
-                          <span className="nav-item-label">{item.label}</span>
-                          {item.badgeCount > 0 && (
-                            <span
-                              style={{
-                                marginLeft: 'auto',
-                                background: '#ef4444',
-                                color: '#ffffff',
-                                fontSize: '11px',
-                                fontWeight: 800,
-                                padding: '2px 7px',
-                                borderRadius: '9999px',
-                                boxShadow: '0 2px 6px rgba(239, 68, 68, 0.35)',
-                              }}
-                            >
-                              {item.badgeCount}
+            // Group is collapsed only if explicitly collapsed AND none of its children are currently active
+            const isCollapsed = Boolean(collapsedGroups[group.id]) && !hasActiveChild;
+
+            return (
+              <div key={group.id || group.groupTitle} className="admin-nav-group">
+                <button
+                  type="button"
+                  className="admin-nav-group-header"
+                  onClick={() => toggleGroup(group.id)}
+                  aria-expanded={!isCollapsed}
+                  aria-controls={`nav-group-${group.id}`}
+                  title={`${isCollapsed ? 'Expand' : 'Collapse'} ${group.groupTitle}`}
+                >
+                  <span className="admin-nav-group-title">{group.groupTitle}</span>
+                  <span className="admin-nav-group-meta">
+                    <span className="admin-nav-group-count">{accessibleItems.length}</span>
+                    <span className={`admin-nav-group-chevron ${isCollapsed ? 'is-collapsed' : ''}`} aria-hidden="true">
+                      <ChevronDownIcon size={13} />
+                    </span>
+                  </span>
+                </button>
+
+                {!isCollapsed && (
+                  <ul id={`nav-group-${group.id}`} className="admin-nav-list">
+                    {accessibleItems.map((item) => {
+                      const isHomePath = (item.path === '/admin/website/home' || item.path === '/admin/homepage') && (location.pathname === '/admin/website/home' || location.pathname === '/admin/homepage');
+                      const isActive = isHomePath || (item.exact
+                        ? location.pathname === item.path
+                        : location.pathname === item.path || location.pathname.startsWith(`${item.path}/`));
+
+                      return (
+                        <li key={item.path} className="admin-nav-item">
+                          <Link
+                            to={item.path}
+                            className={`admin-nav-link ${isActive ? 'active' : ''}`}
+                            aria-current={isActive ? 'page' : undefined}
+                            onClick={closeSidebar}
+                          >
+                            <span className="nav-item-icon" aria-hidden="true">
+                              {item.icon}
                             </span>
-                          )}
-                          {isActive && <span className="active-indicator" aria-hidden="true" />}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
+                            <span className="nav-item-label">{item.label}</span>
+                            {item.badgeCount > 0 && (
+                              <span className="admin-nav-badge">
+                                {item.badgeCount}
+                              </span>
+                            )}
+                            {isActive && <span className="active-indicator" aria-hidden="true" />}
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </div>
             );
           })}
@@ -302,22 +392,106 @@ export default function AdminLayout() {
               <span>↗</span> Live Website
             </Link>
 
-            <div className="admin-user-profile-badge">
-              <div className="admin-user-avatar" aria-hidden="true">
-                {userInitial}
-              </div>
-              <div className="admin-user-meta">
-                <span className="admin-user-name">{user?.name || 'Administrator'}</span>
-                <span className="admin-user-role-badge" style={{ display: 'inline-flex', alignItems: 'center' }}>
-                  {isSuperAdmin && <ShieldCheckIcon size={13} color="#f59e0b" style={{ marginRight: '4px' }} title="Super Administrator" />}
-                  <span>{roleDisplay}</span>
+            {/* Interactive User Account Dropdown */}
+            <div className="admin-user-dropdown-container" ref={userDropdownRef}>
+              <button
+                type="button"
+                className={`admin-user-profile-btn ${userDropdownOpen ? 'is-active' : ''}`}
+                onClick={() => setUserDropdownOpen((prev) => !prev)}
+                aria-expanded={userDropdownOpen}
+                aria-haspopup="true"
+                aria-label="Toggle user account menu"
+              >
+                <div className="admin-user-avatar" aria-hidden="true">
+                  {userInitial}
+                </div>
+                <div className="admin-user-meta hide-on-mobile-sm">
+                  <span className="admin-user-name">{user?.name || 'Administrator'}</span>
+                  <span className="admin-user-role-badge">
+                    {isSuperAdmin && <ShieldCheckIcon size={12} color="#f59e0b" title="Super Administrator" />}
+                    <span>{roleDisplay}</span>
+                  </span>
+                </div>
+                <span className={`admin-user-chevron ${userDropdownOpen ? 'is-open' : ''}`} aria-hidden="true">
+                  <ChevronDownIcon size={14} />
                 </span>
-              </div>
+              </button>
+
+              {userDropdownOpen && (
+                <div className="admin-user-dropdown-menu" role="menu" aria-label="User account actions">
+                  <div className="admin-user-dropdown-header">
+                    <div className="admin-dropdown-avatar">{userInitial}</div>
+                    <div className="admin-dropdown-user-details">
+                      <span className="admin-dropdown-name">{user?.name || 'Administrator'}</span>
+                      <span className="admin-dropdown-email">{user?.email || 'admin@tramaxtours.com'}</span>
+                      <span className="admin-dropdown-role-tag">{roleDisplay}</span>
+                    </div>
+                  </div>
+
+                  <div className="admin-dropdown-divider" />
+
+                  <div className="admin-dropdown-section">
+                    <Link
+                      to="/admin"
+                      className="admin-dropdown-link"
+                      role="menuitem"
+                      onClick={() => setUserDropdownOpen(false)}
+                    >
+                      <ChartBarIcon size={15} />
+                      <span>Dashboard Overview</span>
+                    </Link>
+                    <Link
+                      to="/admin/bookings"
+                      className="admin-dropdown-link"
+                      role="menuitem"
+                      onClick={() => setUserDropdownOpen(false)}
+                    >
+                      <FileTextIcon size={15} />
+                      <span>Bookings & Orders</span>
+                    </Link>
+                    <Link
+                      to="/admin/settings"
+                      className="admin-dropdown-link"
+                      role="menuitem"
+                      onClick={() => setUserDropdownOpen(false)}
+                    >
+                      <SettingsIcon size={15} />
+                      <span>Site Settings</span>
+                    </Link>
+                    <Link
+                      to="/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="admin-dropdown-link"
+                      role="menuitem"
+                      onClick={() => setUserDropdownOpen(false)}
+                    >
+                      <CompassIcon size={15} />
+                      <span>Live Public Website ↗</span>
+                    </Link>
+                  </div>
+
+                  <div className="admin-dropdown-divider" />
+
+                  <button
+                    type="button"
+                    className="admin-dropdown-logout-btn"
+                    role="menuitem"
+                    onClick={() => {
+                      setUserDropdownOpen(false);
+                      handleLogout();
+                    }}
+                  >
+                    <LogOutIcon size={15} />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             <button
               type="button"
-              className="btn btn-outline btn-sm btn-logout"
+              className="btn btn-outline btn-sm btn-logout hide-on-mobile-sm"
               onClick={handleLogout}
               aria-label="Sign out of administration portal"
             >

@@ -150,15 +150,37 @@ class AuthController extends BaseController
 
         $errors = [];
 
+        // 1. Full Name Validation
         if ($name === '') {
             $errors['name'] = 'Full name is required.';
-        } elseif (strlen($name) < 2) {
+        } elseif (mb_strlen($name) < 2) {
             $errors['name'] = 'Full name must be at least 2 characters.';
+        } elseif (mb_strlen($name) > 100) {
+            $errors['name'] = 'Full name cannot exceed 100 characters.';
+        } elseif (!preg_match('/^[\p{L}\s.\'-]+$/u', $name)) {
+            $errors['name'] = 'Full name may only contain letters, spaces, hyphens, and periods.';
         }
 
+        // 2. Phone Number Validation (digits only, exactly 10 digits, starts with 6, 7, 8, or 9)
+        if ($phone === '') {
+            $errors['phone'] = 'Phone number is required.';
+        } else {
+            $cleanPhone = preg_replace('/\s+/', '', $phone);
+            if (!preg_match('/^[0-9]+$/', $cleanPhone)) {
+                $errors['phone'] = 'Phone number must contain digits only (no letters or special characters).';
+            } elseif (strlen($cleanPhone) !== 10) {
+                $errors['phone'] = 'Phone number must be exactly 10 digits.';
+            } elseif (!in_array($cleanPhone[0], ['6', '7', '8', '9'], true)) {
+                $errors['phone'] = 'Phone number must start with 6, 7, 8, or 9.';
+            } else {
+                $phone = $cleanPhone;
+            }
+        }
+
+        // 3. Email Validation
         if ($email === '') {
             $errors['email'] = 'Email address is required.';
-        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/', $email)) {
             $errors['email'] = 'Please provide a valid email address.';
         } else {
             // Check uniqueness
@@ -168,14 +190,20 @@ class AuthController extends BaseController
             }
         }
 
+        // 4. Password Validation (minimum 8 characters, at least one letter and one number)
         if ($password === '') {
             $errors['password'] = 'Password is required.';
-        } elseif (strlen($password) < 6) {
-            $errors['password'] = 'Password must be at least 6 characters.';
+        } elseif (strlen($password) < 8) {
+            $errors['password'] = 'Password must be at least 8 characters long.';
+        } elseif (!preg_match('/[A-Za-z]/', $password) || !preg_match('/[0-9]/', $password)) {
+            $errors['password'] = 'Password must contain at least one letter and one number.';
         }
 
-        if ($passwordConfirmation !== '' && $password !== $passwordConfirmation) {
-            $errors['password_confirmation'] = 'Password confirmation does not match.';
+        // 5. Confirm Password Validation
+        if ($passwordConfirmation === '') {
+            $errors['password_confirmation'] = 'Please confirm your password.';
+        } elseif ($password !== $passwordConfirmation) {
+            $errors['password_confirmation'] = 'Passwords do not match.';
         }
 
         if (!empty($errors)) {

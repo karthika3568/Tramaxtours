@@ -50,7 +50,7 @@ class Review extends BaseModel
         }
 
         $customerName = !empty($data['customer_name']) ? $data['customer_name'] : (!empty($data['author_name']) ? $data['author_name'] : 'Guest Traveler');
-        $customerEmail = !empty($data['customer_email']) ? $data['customer_email'] : (!empty($data['email']) ? $data['email'] : 'guest@wanderersouthindia.com');
+        $customerEmail = !empty($data['customer_email']) ? $data['customer_email'] : (!empty($data['email']) ? $data['email'] : null);
         $customerCountry = !empty($data['customer_country']) ? $data['customer_country'] : (!empty($data['location']) ? $data['location'] : null);
 
         self::execute($sql, [

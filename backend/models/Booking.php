@@ -415,9 +415,10 @@ class Booking extends BaseModel
         $params = [':id' => $id];
 
         $allowedColumns = [
-            'booking_date', 'tickets_count', 'unit_price', 'subtotal',
-            'tax_amount', 'discount_amount', 'total_price', 'agreed_price',
-            'advance_amount', 'balance_amount',
+            'booking_date', 'arrival_date', 'departure_date', 'tickets_count', 'adults_count', 'children_count',
+            'unit_price', 'subtotal', 'tax_amount', 'discount_amount', 'total_price', 'agreed_price',
+            'advance_amount', 'balance_amount', 'pickup_location', 'special_requests',
+            'first_name', 'middle_name', 'last_name', 'dial_code', 'country',
             'approved_at', 'approved_by', 'confirmed_at', 'confirmed_by',
             'ticket_number', 'ticket_pdf_path',
             'sms_status', 'sms_sent_at', 'last_sms_error',
@@ -428,7 +429,7 @@ class Booking extends BaseModel
         foreach ($allowedColumns as $col) {
             if (array_key_exists($col, $data)) {
                 $fields[] = "`{$col}` = :{$col}";
-                if (in_array($col, ['tickets_count', 'approved_by', 'confirmed_by'], true)) {
+                if (in_array($col, ['tickets_count', 'adults_count', 'children_count', 'approved_by', 'confirmed_by'], true)) {
                     $params[":{$col}"] = $data[$col] !== null ? (int) $data[$col] : null;
                 } elseif (in_array($col, ['unit_price', 'subtotal', 'tax_amount', 'discount_amount', 'total_price', 'agreed_price', 'advance_amount', 'balance_amount'], true)) {
                     $params[":{$col}"] = $data[$col] !== null ? (float) $data[$col] : null;
@@ -438,6 +439,25 @@ class Booking extends BaseModel
             }
         }
 
+        // Also update booking_customer_details if customer information is provided
+        $custFields = [];
+        $custParams = [':booking_id' => $id];
+        $customerCols = ['first_name', 'middle_name', 'last_name', 'dial_code', 'country', 'email', 'phone'];
+        foreach ($customerCols as $cCol) {
+            if (array_key_exists($cCol, $data)) {
+                $custFields[] = "`{$cCol}` = :c_{$cCol}";
+                $custParams[":c_{$cCol}"] = $data[$cCol] !== null ? (string) $data[$cCol] : null;
+            } elseif (isset($data['customer']) && is_array($data['customer']) && array_key_exists($cCol, $data['customer'])) {
+                $custFields[] = "`{$cCol}` = :c_{$cCol}";
+                $custParams[":c_{$cCol}"] = $data['customer'][$cCol] !== null ? (string) $data['customer'][$cCol] : null;
+            }
+        }
+        if (!empty($custFields)) {
+            $custFields[] = '`updated_at` = NOW()';
+            $custSql = 'UPDATE `booking_customer_details` SET ' . implode(', ', $custFields) . ' WHERE `booking_id` = :booking_id';
+            self::execute($custSql, $custParams);
+        }
+
         if (empty($fields)) {
             return true;
         }
@@ -445,7 +465,7 @@ class Booking extends BaseModel
         $fields[] = '`updated_at` = NOW()';
         $sql = 'UPDATE `bookings` SET ' . implode(', ', $fields) . ' WHERE `id` = :id AND `deleted_at` IS NULL';
 
-        return self::execute($sql, $params) > 0;
+        return self::execute($sql, $params) >= 0;
     }
 
     /**
@@ -1098,18 +1118,22 @@ class Booking extends BaseModel
         $where = ['b.`deleted_at` IS NULL'];
         $params = [];
 
-        // Search query across order number, customer name, email, phone, and tour title
+        // Search query across booking ID, order number, ticket number, customer name, email, phone, tour title & destination
         if (!empty($filters['search'])) {
-            $where[] = '(
-                b.`order_number` LIKE :search1 OR
-                bcd.`first_name` LIKE :search2 OR
-                bcd.`last_name` LIKE :search3 OR
-                CONCAT(bcd.`first_name`, " ", bcd.`last_name`) LIKE :search4 OR
-                bcd.`email` LIKE :search5 OR
-                bcd.`phone` LIKE :search6 OR
-                t.`title` LIKE :search7
-            )';
-            $searchTerm = '%' . trim($filters['search']) . '%';
+            $rawSearch = trim((string) $filters['search']);
+            $cleanSearchId = ltrim($rawSearch, '#');
+            $searchClauses = [
+                'b.`order_number` LIKE :search1',
+                'b.`ticket_number` LIKE :search2',
+                'bcd.`first_name` LIKE :search3',
+                'bcd.`last_name` LIKE :search4',
+                'CONCAT(COALESCE(bcd.`first_name`, ""), " ", COALESCE(bcd.`last_name`, "")) LIKE :search5',
+                'bcd.`email` LIKE :search6',
+                'bcd.`phone` LIKE :search7',
+                't.`title` LIKE :search8',
+                'b.`destination_name` LIKE :search9'
+            ];
+            $searchTerm = '%' . $rawSearch . '%';
             $params[':search1'] = $searchTerm;
             $params[':search2'] = $searchTerm;
             $params[':search3'] = $searchTerm;
@@ -1117,6 +1141,15 @@ class Booking extends BaseModel
             $params[':search5'] = $searchTerm;
             $params[':search6'] = $searchTerm;
             $params[':search7'] = $searchTerm;
+            $params[':search8'] = $searchTerm;
+            $params[':search9'] = $searchTerm;
+
+            if (is_numeric($cleanSearchId)) {
+                $searchClauses[] = 'b.`id` = :exact_search_id';
+                $params[':exact_search_id'] = (int) $cleanSearchId;
+            }
+
+            $where[] = '(' . implode(' OR ', $searchClauses) . ')';
         }
 
         // Filter by booking status
@@ -1132,9 +1165,15 @@ class Booking extends BaseModel
         }
 
         // Filter by tour_id
-        if (!empty($filters['tour_id'])) {
+        if (!empty($filters['tour_id']) && $filters['tour_id'] !== 'all') {
             $where[] = 'b.`tour_id` = :tour_id';
             $params[':tour_id'] = (int) $filters['tour_id'];
+        }
+
+        // Filter by tour_type (Requirement 4)
+        if (!empty($filters['tour_type']) && $filters['tour_type'] !== 'all') {
+            $where[] = 't.`tour_type` = :tour_type';
+            $params[':tour_type'] = trim((string) $filters['tour_type']);
         }
 
         // Filter by date range (booking_date)
@@ -1163,8 +1202,11 @@ class Booking extends BaseModel
             'order_number' => 'b.`order_number`',
             'booking_date' => 'b.`booking_date`',
             'created_at' => 'b.`created_at`',
-            'total_price' => 'b.`total_price`',
+            'total_price' => 'COALESCE(b.`agreed_price`, b.`total_price`)',
             'booking_status' => 'b.`booking_status`',
+            'payment_status' => 'b.`payment_status`',
+            'customer_name' => 'bcd.`first_name`',
+            'tour_title' => 't.`title`',
         ];
 
         $sortBy = isset($allowedSort[$filters['sort_by'] ?? '']) ? $allowedSort[$filters['sort_by']] : 'b.`created_at`';
@@ -1351,6 +1393,27 @@ class Booking extends BaseModel
         $contactLogs = self::getContactLogs($bookingId);
 
         $customerName = trim(($customer['first_name'] ?? '') . ' ' . ($customer['last_name'] ?? ''));
+        if ($customerName === '') {
+            $customerName = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''));
+        }
+        $customerEmail = !empty($customer['email']) ? trim((string)$customer['email']) : (!empty($row['customer_email']) ? trim((string)$row['customer_email']) : (!empty($row['email']) ? trim((string)$row['email']) : ''));
+        $customerPhone = !empty($customer['phone']) ? trim((string)$customer['phone']) : (!empty($row['customer_phone']) ? trim((string)$row['customer_phone']) : (!empty($row['phone']) ? trim((string)$row['phone']) : ''));
+
+        if (($customerEmail === '' || $customerName === '') && !empty($row['user_id'])) {
+            $userRow = self::fetchOne('SELECT email, name, phone FROM `users` WHERE `id` = :uid LIMIT 1', [':uid' => (int)$row['user_id']]);
+            if ($userRow) {
+                if ($customerEmail === '' && !empty($userRow['email'])) {
+                    $customerEmail = trim((string)$userRow['email']);
+                }
+                if ($customerName === '' && !empty($userRow['name'])) {
+                    $customerName = trim((string)$userRow['name']);
+                }
+                if ($customerPhone === '' && !empty($userRow['phone'])) {
+                    $customerPhone = trim((string)$userRow['phone']);
+                }
+            }
+        }
+
         $totalPrice = (float) ($row['total_price'] ?? 0.0);
         $agreedPrice = isset($row['agreed_price']) && is_numeric($row['agreed_price']) ? (float) $row['agreed_price'] : $totalPrice;
         $advanceAmount = (float) ($row['advance_amount'] ?? 0.0);
@@ -1431,14 +1494,14 @@ class Booking extends BaseModel
             'preferred_contact_methods' => !empty($row['preferred_contact_methods']) ? (json_decode($row['preferred_contact_methods'], true) ?: $row['preferred_contact_methods']) : [],
             'special_requests' => $row['special_requests'] ?? null,
             'customer' => [
-                'name' => $customerName ?: (trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? '')) ?: 'Guest Traveler'),
+                'name' => $customerName ?: 'Guest Traveler',
                 'first_name' => $customer['first_name'] ?? ($row['first_name'] ?? null),
                 'middle_name' => $customer['middle_name'] ?? ($row['middle_name'] ?? null),
                 'last_name' => $customer['last_name'] ?? ($row['last_name'] ?? null),
                 'dial_code' => $customer['dial_code'] ?? ($row['dial_code'] ?? '+91'),
                 'country' => $customer['country'] ?? ($row['country'] ?? 'India'),
-                'email' => $customer['email'] ?? ($row['customer_email'] ?? ($row['email'] ?? null)),
-                'phone' => $customer['phone'] ?? ($row['customer_phone'] ?? ($row['phone'] ?? null)),
+                'email' => $customerEmail ?: null,
+                'phone' => $customerPhone ?: null,
             ],
             'billing_address' => $billing ? [
                 'address_line1' => $billing['address_line1'],
