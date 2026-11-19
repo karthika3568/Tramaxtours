@@ -81,15 +81,17 @@ class CustomerBookingController extends BaseController
 
         // Fetch bookings
         $dataSql = "SELECT b.*,
-                           t.title as tour_title,
-                           t.slug as tour_slug,
-                           fi.file_path AS tour_image_path,
+                           COALESCE(t.title, mt.title, b.destination_name, 'Medical Tour') as tour_title,
+                           COALESCE(t.slug, mt.slug) as tour_slug,
+                           COALESCE(t.tour_type, IF(b.is_medical_booking = 1 OR b.medical_trip_id IS NOT NULL, 'Medical Tourism', 'Custom Tour')) as tour_type,
+                           COALESCE(fi.file_path, mt.featured_image) AS tour_image_path,
                            bcd.first_name,
                            bcd.last_name,
                            bcd.email as customer_email,
                            bcd.phone as customer_phone
                     FROM bookings b
                     LEFT JOIN tours t ON b.tour_id = t.id
+                    LEFT JOIN medical_trips mt ON b.medical_trip_id = mt.id
                     LEFT JOIN media fi ON t.featured_image_id = fi.id
                     LEFT JOIN booking_customer_details bcd ON b.id = bcd.booking_id
                     WHERE {$whereSql}

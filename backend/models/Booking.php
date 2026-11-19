@@ -163,7 +163,9 @@ class Booking extends BaseModel
             ? $bookingData['payment_status']
             : 'pending';
 
-        $tourId = (int) $bookingData['tour_id'];
+        $tourId = !empty($bookingData['tour_id']) ? (int) $bookingData['tour_id'] : null;
+        $medicalTripId = !empty($bookingData['medical_trip_id']) ? (int) $bookingData['medical_trip_id'] : null;
+        $isMedicalBooking = !empty($bookingData['is_medical_booking']) || $medicalTripId !== null ? 1 : 0;
         $bookingDate = !empty($bookingData['booking_date']) ? $bookingData['booking_date'] : (!empty($bookingData['arrival_date']) ? $bookingData['arrival_date'] : date('Y-m-d'));
 
         // Generate unguessable random access token for public customer verification
@@ -179,7 +181,7 @@ class Booking extends BaseModel
             // Date-specific seat reservation — only enforced for tours the admin has
             // opted into date-based availability for (see TourAvailability). Tours with
             // no configured dates keep their existing unrestricted booking behaviour.
-            if (TourAvailability::tourUsesDateAvailability($tourId)) {
+            if ($tourId !== null && TourAvailability::tourUsesDateAvailability($tourId)) {
                 if (!TourAvailability::reserveSeats($tourId, $bookingDate, $ticketsCount)) {
                     throw new \RuntimeException(
                         'The selected travel date is fully booked, closed, or past the booking cutoff. Please choose another date.',
@@ -192,6 +194,8 @@ class Booking extends BaseModel
                 'order_number' => $orderNumber,
                 'access_token_hash' => $tokenHash,
                 'tour_id' => $tourId,
+                'medical_trip_id' => $medicalTripId,
+                'is_medical_booking' => $isMedicalBooking,
                 'booking_date' => $bookingDate,
                 'tickets_count' => $ticketsCount,
                 'unit_price' => $unitPrice,
@@ -232,7 +236,9 @@ class Booking extends BaseModel
         ?array $paymentData,
         array $computed
     ): int {
-        ['order_number' => $orderNumber, 'access_token_hash' => $accessTokenHash, 'tour_id' => $tourId, 'booking_date' => $bookingDate,
+        ['order_number' => $orderNumber, 'access_token_hash' => $accessTokenHash, 'tour_id' => $tourId,
+         'medical_trip_id' => $medicalTripId, 'is_medical_booking' => $isMedicalBooking,
+         'booking_date' => $bookingDate,
          'tickets_count' => $ticketsCount, 'unit_price' => $unitPrice, 'subtotal' => $subtotal,
          'tax_amount' => $taxAmount, 'discount_amount' => $discountAmount, 'total_price' => $totalPrice,
          'advance_amount' => $advanceAmount, 'balance_amount' => $balanceAmount,
@@ -247,8 +253,12 @@ class Booking extends BaseModel
             ? (is_array($bookingData['preferred_contact_methods']) ? json_encode($bookingData['preferred_contact_methods']) : (string) $bookingData['preferred_contact_methods'])
             : null;
 
+        $additionalDetails = isset($bookingData['additional_details'])
+            ? (is_array($bookingData['additional_details']) ? json_encode($bookingData['additional_details']) : (string) $bookingData['additional_details'])
+            : null;
+
         $sql = 'INSERT INTO `bookings` (
-            `order_number`, `access_token_hash`, `user_id`, `tour_id`, `pricing_tier_id`,
+            `order_number`, `access_token_hash`, `user_id`, `tour_id`, `medical_trip_id`, `is_medical_booking`, `pricing_tier_id`,
             `first_name`, `middle_name`, `last_name`, `dial_code`, `country`, `destination_name`,
             `pickup_location`, `arrival_date`, `departure_date`, `duration_days`,
             `adults_count`, `children_count`, `infants_count`,
@@ -256,12 +266,12 @@ class Booking extends BaseModel
             `airport_pickup`, `airport_drop`, `hotel_category`, `room_type`, `rooms_count`,
             `arrival_flight_train_number`, `arrival_time`, `departure_flight_train_number`, `departure_time`,
             `approximate_budget`, `budget_currency`, `passport_file_url`, `flight_ticket_url`,
-            `preferred_contact_methods`, `special_requests`,
+            `preferred_contact_methods`, `special_requests`, `additional_details`,
             `booking_date`, `tickets_count`, `unit_price`, `subtotal`, `tax_amount`, `discount_amount`,
             `total_price`, `advance_amount`, `balance_amount`, `currency`, `booking_status`, `payment_method`, `payment_status`,
             `customer_notes`, `admin_notes`, `created_at`, `updated_at`
         ) VALUES (
-            :order_number, :access_token_hash, :user_id, :tour_id, :pricing_tier_id,
+            :order_number, :access_token_hash, :user_id, :tour_id, :medical_trip_id, :is_medical_booking, :pricing_tier_id,
             :first_name, :middle_name, :last_name, :dial_code, :country, :destination_name,
             :pickup_location, :arrival_date, :departure_date, :duration_days,
             :adults_count, :children_count, :infants_count,
@@ -269,7 +279,7 @@ class Booking extends BaseModel
             :airport_pickup, :airport_drop, :hotel_category, :room_type, :rooms_count,
             :arrival_flight_train_number, :arrival_time, :departure_flight_train_number, :departure_time,
             :approximate_budget, :budget_currency, :passport_file_url, :flight_ticket_url,
-            :preferred_contact_methods, :special_requests,
+            :preferred_contact_methods, :special_requests, :additional_details,
             :booking_date, :tickets_count, :unit_price, :subtotal, :tax_amount, :discount_amount,
             :total_price, :advance_amount, :balance_amount, :currency, :booking_status, :payment_method, :payment_status,
             :customer_notes, :admin_notes, NOW(), NOW()
@@ -279,7 +289,9 @@ class Booking extends BaseModel
             ':order_number' => $orderNumber,
             ':access_token_hash' => $accessTokenHash,
             ':user_id' => !empty($bookingData['user_id']) ? (int) $bookingData['user_id'] : null,
-            ':tour_id' => (int) $bookingData['tour_id'],
+            ':tour_id' => !empty($tourId) ? (int) $tourId : null,
+            ':medical_trip_id' => !empty($medicalTripId) ? (int) $medicalTripId : null,
+            ':is_medical_booking' => !empty($isMedicalBooking) ? 1 : 0,
             ':pricing_tier_id' => !empty($bookingData['pricing_tier_id']) ? (int) $bookingData['pricing_tier_id'] : null,
             ':first_name' => !empty($bookingData['first_name']) ? (string) $bookingData['first_name'] : (!empty($customerData['first_name']) ? (string) $customerData['first_name'] : null),
             ':middle_name' => !empty($bookingData['middle_name']) ? (string) $bookingData['middle_name'] : (!empty($customerData['middle_name']) ? (string) $customerData['middle_name'] : null),
@@ -313,6 +325,7 @@ class Booking extends BaseModel
             ':flight_ticket_url' => !empty($bookingData['flight_ticket_url']) ? (string) $bookingData['flight_ticket_url'] : null,
             ':preferred_contact_methods' => $contactMethods,
             ':special_requests' => !empty($bookingData['special_requests']) ? (string) $bookingData['special_requests'] : null,
+            ':additional_details' => $additionalDetails,
             ':booking_date' => $bookingDate,
             ':tickets_count' => $ticketsCount,
             ':unit_price' => $unitPrice,
@@ -1049,13 +1062,19 @@ class Booking extends BaseModel
     public static function findById(int $id, bool $includeDeleted = false): ?array
     {
         $sql = 'SELECT b.*,
-                       t.`title` AS tour_title, t.`slug` AS tour_slug, t.`tour_type`,
-                       t.`duration_days`, t.`duration_text`, t.`featured_image_id`,
-                       fi.`file_path` AS tour_image_path, fi.`original_name` AS tour_image_name,
+                       COALESCE(t.`title`, mt.`title`, b.`destination_name`, "Medical Tour") AS tour_title,
+                       COALESCE(t.`slug`, mt.`slug`) AS tour_slug,
+                       COALESCE(t.`tour_type`, IF(b.`is_medical_booking` = 1 OR b.`medical_trip_id` IS NOT NULL, "Medical Tourism", "Custom Tour")) AS tour_type,
+                       COALESCE(t.`duration_days`, mt.`duration`) AS duration_days,
+                       COALESCE(t.`duration_text`, mt.`duration`) AS duration_text,
+                       t.`featured_image_id`,
+                       COALESCE(fi.`file_path`, mt.`featured_image`) AS tour_image_path,
+                       fi.`original_name` AS tour_image_name,
                        d.`name` AS destination_name, d.`slug` AS destination_slug,
                        pt.`service_option` AS tier_service_option
                 FROM `bookings` b
-                JOIN `tours` t ON b.`tour_id` = t.`id`
+                LEFT JOIN `tours` t ON b.`tour_id` = t.`id`
+                LEFT JOIN `medical_trips` mt ON b.`medical_trip_id` = mt.`id`
                 LEFT JOIN `destinations` d ON t.`destination_id` = d.`id`
                 LEFT JOIN `media` fi ON t.`featured_image_id` = fi.`id`
                 LEFT JOIN `tour_pricing_tiers` pt ON b.`pricing_tier_id` = pt.`id`
@@ -1080,13 +1099,19 @@ class Booking extends BaseModel
     public static function findByOrderNumber(string $orderNumber, bool $includeDeleted = false): ?array
     {
         $sql = 'SELECT b.*,
-                       t.`title` AS tour_title, t.`slug` AS tour_slug, t.`tour_type`,
-                       t.`duration_days`, t.`duration_text`, t.`featured_image_id`,
-                       fi.`file_path` AS tour_image_path, fi.`original_name` AS tour_image_name,
+                       COALESCE(t.`title`, mt.`title`, b.`destination_name`, "Medical Tour") AS tour_title,
+                       COALESCE(t.`slug`, mt.`slug`) AS tour_slug,
+                       COALESCE(t.`tour_type`, IF(b.`is_medical_booking` = 1 OR b.`medical_trip_id` IS NOT NULL, "Medical Tourism", "Custom Tour")) AS tour_type,
+                       COALESCE(t.`duration_days`, mt.`duration`) AS duration_days,
+                       COALESCE(t.`duration_text`, mt.`duration`) AS duration_text,
+                       t.`featured_image_id`,
+                       COALESCE(fi.`file_path`, mt.`featured_image`) AS tour_image_path,
+                       fi.`original_name` AS tour_image_name,
                        d.`name` AS destination_name, d.`slug` AS destination_slug,
                        pt.`service_option` AS tier_service_option
                 FROM `bookings` b
-                JOIN `tours` t ON b.`tour_id` = t.`id`
+                LEFT JOIN `tours` t ON b.`tour_id` = t.`id`
+                LEFT JOIN `medical_trips` mt ON b.`medical_trip_id` = mt.`id`
                 LEFT JOIN `destinations` d ON t.`destination_id` = d.`id`
                 LEFT JOIN `media` fi ON t.`featured_image_id` = fi.`id`
                 LEFT JOIN `tour_pricing_tiers` pt ON b.`pricing_tier_id` = pt.`id`
@@ -1131,7 +1156,8 @@ class Booking extends BaseModel
                 'bcd.`email` LIKE :search6',
                 'bcd.`phone` LIKE :search7',
                 't.`title` LIKE :search8',
-                'b.`destination_name` LIKE :search9'
+                'b.`destination_name` LIKE :search9',
+                'mt.`title` LIKE :search10'
             ];
             $searchTerm = '%' . $rawSearch . '%';
             $params[':search1'] = $searchTerm;
@@ -1143,6 +1169,7 @@ class Booking extends BaseModel
             $params[':search7'] = $searchTerm;
             $params[':search8'] = $searchTerm;
             $params[':search9'] = $searchTerm;
+            $params[':search10'] = $searchTerm;
 
             if (is_numeric($cleanSearchId)) {
                 $searchClauses[] = 'b.`id` = :exact_search_id';
@@ -1172,7 +1199,7 @@ class Booking extends BaseModel
 
         // Filter by tour_type (Requirement 4)
         if (!empty($filters['tour_type']) && $filters['tour_type'] !== 'all') {
-            $where[] = 't.`tour_type` = :tour_type';
+            $where[] = 'IF(b.`is_medical_booking` = 1 OR b.`medical_trip_id` IS NOT NULL, "Medical Tourism", t.`tour_type`) = :tour_type';
             $params[':tour_type'] = trim((string) $filters['tour_type']);
         }
 
@@ -1192,6 +1219,7 @@ class Booking extends BaseModel
         $countSql = "SELECT COUNT(*)
                      FROM `bookings` b
                      LEFT JOIN `tours` t ON b.`tour_id` = t.`id`
+                     LEFT JOIN `medical_trips` mt ON b.`medical_trip_id` = mt.`id`
                      LEFT JOIN `booking_customer_details` bcd ON b.`id` = bcd.`booking_id`
                      WHERE {$whereSql}";
         $total = (int) self::fetchColumn($countSql, $params);
@@ -1206,20 +1234,24 @@ class Booking extends BaseModel
             'booking_status' => 'b.`booking_status`',
             'payment_status' => 'b.`payment_status`',
             'customer_name' => 'bcd.`first_name`',
-            'tour_title' => 't.`title`',
+            'tour_title' => 'COALESCE(t.`title`, mt.`title`)',
         ];
 
         $sortBy = isset($allowedSort[$filters['sort_by'] ?? '']) ? $allowedSort[$filters['sort_by']] : 'b.`created_at`';
         $order = strtolower($filters['order'] ?? '') === 'asc' ? 'ASC' : 'DESC';
 
         $dataSql = "SELECT b.*,
-                           t.`title` AS tour_title, t.`slug` AS tour_slug, t.`tour_type`,
-                           t.`duration_days`, t.`duration_text`,
-                           fi.`file_path` AS tour_image_path,
+                           COALESCE(t.`title`, mt.`title`, b.`destination_name`, 'Medical Tour') AS tour_title,
+                           COALESCE(t.`slug`, mt.`slug`) AS tour_slug,
+                           COALESCE(t.`tour_type`, IF(b.`is_medical_booking` = 1 OR b.`medical_trip_id` IS NOT NULL, 'Medical Tourism', 'Custom Tour')) AS tour_type,
+                           COALESCE(t.`duration_days`, mt.`duration`) AS duration_days,
+                           COALESCE(t.`duration_text`, mt.`duration`) AS duration_text,
+                           COALESCE(fi.`file_path`, mt.`featured_image`) AS tour_image_path,
                            bcd.`first_name`, bcd.`last_name`, bcd.`email` AS customer_email, bcd.`phone` AS customer_phone,
                            bba.`city` AS billing_city, bba.`country` AS billing_country
                     FROM `bookings` b
                     LEFT JOIN `tours` t ON b.`tour_id` = t.`id`
+                    LEFT JOIN `medical_trips` mt ON b.`medical_trip_id` = mt.`id`
                     LEFT JOIN `media` fi ON t.`featured_image_id` = fi.`id`
                     LEFT JOIN `booking_customer_details` bcd ON b.`id` = bcd.`booking_id`
                     LEFT JOIN `booking_billing_addresses` bba ON b.`id` = bba.`booking_id`
@@ -1303,9 +1335,11 @@ class Booking extends BaseModel
             'order_number' => $row['order_number'],
             'ticket_number' => $row['ticket_number'] ?? null,
             'ticket_pdf_path' => $row['ticket_pdf_path'] ?? null,
-            'tour_id' => (int) $row['tour_id'],
+            'tour_id' => !empty($row['tour_id']) ? (int) $row['tour_id'] : null,
+            'medical_trip_id' => !empty($row['medical_trip_id']) ? (int) $row['medical_trip_id'] : null,
+            'is_medical_booking' => !empty($row['is_medical_booking']) || !empty($row['medical_trip_id']),
             'tour' => [
-                'id' => (int) $row['tour_id'],
+                'id' => !empty($row['tour_id']) ? (int) $row['tour_id'] : (!empty($row['medical_trip_id']) ? (int) $row['medical_trip_id'] : null),
                 'title' => $row['tour_title'] ?? null,
                 'slug' => $row['tour_slug'] ?? null,
                 'tour_type' => $row['tour_type'] ?? null,
@@ -1425,9 +1459,14 @@ class Booking extends BaseModel
             'ticket_number' => $row['ticket_number'] ?? null,
             'ticket_pdf_path' => $row['ticket_pdf_path'] ?? null,
             'user_id' => $row['user_id'] ? (int) $row['user_id'] : null,
-            'tour_id' => (int) $row['tour_id'],
+            'tour_id' => !empty($row['tour_id']) ? (int) $row['tour_id'] : null,
+            'medical_trip_id' => !empty($row['medical_trip_id']) ? (int) $row['medical_trip_id'] : null,
+            'is_medical_booking' => !empty($row['is_medical_booking']) || !empty($row['medical_trip_id']),
+            'additional_details' => !empty($row['additional_details'])
+                ? (is_array($row['additional_details']) ? $row['additional_details'] : json_decode($row['additional_details'], true))
+                : null,
             'tour' => [
-                'id' => (int) $row['tour_id'],
+                'id' => !empty($row['tour_id']) ? (int) $row['tour_id'] : (!empty($row['medical_trip_id']) ? (int) $row['medical_trip_id'] : null),
                 'title' => $row['tour_title'] ?? null,
                 'slug' => $row['tour_slug'] ?? null,
                 'tour_type' => $row['tour_type'] ?? null,

@@ -260,8 +260,14 @@ export default function BookingTable({
                       <strong className="tour-title-txt" style={{ color: '#0f172a', fontSize: '13px', lineHeight: 1.3 }} title={b.tour?.title}>
                         {b.tour?.title || b.destination_name || 'Tour Package'}
                       </strong>
-                      <span className="tour-sub-txt" style={{ color: '#64748b', fontSize: '11px' }}>
-                        {b.tour?.tour_type || 'Tour'} {b.tour?.duration_days ? `• ${b.tour.duration_days} Days` : ''}
+                      <span className="tour-sub-txt" style={{ color: '#64748b', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
+                        {(b.is_medical_booking || b.medical_trip_id || b.tour?.tour_type === 'Medical Tourism') ? (
+                          <span style={{ background: '#ccfbf1', color: '#0f766e', borderRadius: '4px', padding: '1px 5px', fontSize: '10px', fontWeight: '700' }}>
+                            🏥 Medical Tourism
+                          </span>
+                        ) : (
+                          b.tour?.tour_type || 'Tour'
+                        )} {b.tour?.duration_days ? `• ${b.tour.duration_days} Days` : ''}
                       </span>
                     </div>
                   </td>

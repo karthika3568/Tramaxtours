@@ -100,6 +100,17 @@ class Request
         return self::getBody();
     }
 
+    /**
+     * Override or set parsed request payload.
+     *
+     * @param array $body
+     * @return void
+     */
+    public static function setBody(array $body): void
+    {
+        self::$body = $body;
+    }
+
     public static function getHeader(string $headerName, mixed $default = null): mixed
     {
         $normalized = 'HTTP_' . strtoupper(str_replace('-', '_', $headerName));

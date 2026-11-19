@@ -101,14 +101,23 @@ class BookingController extends BaseController
         $body = Request::getBody();
         $errors = [];
 
-        // 1. Validate Tour
+        // 1. Validate Tour or Medical Package
         $tourId = !empty($body['tour_id']) ? (int) $body['tour_id'] : null;
-        if (!$tourId) {
-            $errors['tour_id'] = 'Tour selection is required.';
-        } else {
+        $medicalTripId = !empty($body['medical_trip_id']) ? (int) $body['medical_trip_id'] : null;
+        $tour = null;
+        $medicalTrip = null;
+
+        if (!$tourId && !$medicalTripId) {
+            $errors['tour_id'] = 'Tour or Medical Package selection is required.';
+        } elseif ($tourId) {
             $tour = Tour::findById($tourId);
             if (!$tour) {
                 $errors['tour_id'] = "Referenced tour ID [{$tourId}] does not exist or has been deleted.";
+            }
+        } elseif ($medicalTripId) {
+            $medicalTrip = \App\Models\MedicalTrip::findById($medicalTripId, false);
+            if (!$medicalTrip) {
+                $errors['medical_trip_id'] = "Referenced medical package ID [{$medicalTripId}] does not exist.";
             }
         }
 
@@ -166,12 +175,14 @@ class BookingController extends BaseController
 
         try {
             // Determine Pricing
-            $unitPrice = isset($body['unit_price']) ? (float) $body['unit_price'] : (float) ($tour['base_price'] ?? 0.0);
+            $unitPrice = isset($body['unit_price'])
+                ? (float) $body['unit_price']
+                : (float) ($tour['base_price'] ?? ($medicalTrip['price'] ?? 0.0));
             $subtotal = isset($body['subtotal']) ? (float) $body['subtotal'] : ($unitPrice * $ticketsCount);
             $taxAmount = (float) ($body['tax_amount'] ?? 0.0);
             $discountAmount = (float) ($body['discount_amount'] ?? 0.0);
             $totalPrice = isset($body['total_price']) ? (float) $body['total_price'] : ($subtotal + $taxAmount - $discountAmount);
-            $currency = !empty($body['currency']) ? (string) $body['currency'] : ($tour['currency'] ?? 'INR');
+            $currency = !empty($body['currency']) ? (string) $body['currency'] : ($tour['currency'] ?? ($medicalTrip['currency'] ?? 'INR'));
 
             $userId = Request::getUserId();
             if (!$userId) {
@@ -209,27 +220,52 @@ class BookingController extends BaseController
                 }
             }
 
+            // Collect medical-specific additional details
+            $additionalDetails = $body['additional_details'] ?? [];
+            if (!is_array($additionalDetails)) {
+                $additionalDetails = json_decode((string)$additionalDetails, true) ?: [];
+            }
+            if ($medicalTripId || !empty($body['hospital_preference'])) {
+                $additionalDetails['hospital_preference'] = $body['hospital_preference'] ?? ($additionalDetails['hospital_preference'] ?? null);
+                $additionalDetails['pre_existing_conditions'] = $body['pre_existing_conditions'] ?? ($additionalDetails['pre_existing_conditions'] ?? null);
+                $additionalDetails['diagnostic_preferences'] = $body['diagnostic_preferences'] ?? ($additionalDetails['diagnostic_preferences'] ?? null);
+                $additionalDetails['mobility_assistance'] = $body['mobility_assistance'] ?? ($additionalDetails['mobility_assistance'] ?? null);
+                $additionalDetails['medical_interpreter'] = $body['medical_interpreter'] ?? ($additionalDetails['medical_interpreter'] ?? null);
+                $additionalDetails['medical_reports_file_url'] = $body['medical_reports_file_url'] ?? ($body['prescription_file_url'] ?? ($additionalDetails['medical_reports_file_url'] ?? null));
+                $additionalDetails['clinical_notes'] = $body['clinical_notes'] ?? ($body['special_requests'] ?? ($additionalDetails['clinical_notes'] ?? null));
+                if ($medicalTrip) {
+                    $additionalDetails['package_title'] = $medicalTrip['title'] ?? null;
+                    $additionalDetails['package_duration'] = $medicalTrip['duration'] ?? null;
+                    $additionalDetails['package_category'] = $medicalTrip['category'] ?? null;
+                }
+            }
+
+            $destinationName = $body['destination_name'] ?? ($body['destination'] ?? ($tour['title'] ?? ($medicalTrip['title'] ?? 'Medical Tour Package')));
+
             $bookingData = [
                 'order_number' => $body['order_number'] ?? null,
                 'user_id' => $userId,
                 'tour_id' => $tourId,
+                'medical_trip_id' => $medicalTripId,
+                'is_medical_booking' => $medicalTripId ? 1 : 0,
+                'additional_details' => !empty($additionalDetails) ? $additionalDetails : null,
                 'pricing_tier_id' => !empty($body['pricing_tier_id']) ? (int) $body['pricing_tier_id'] : null,
                 'first_name' => $firstName,
                 'middle_name' => $middleName ?: null,
                 'last_name' => $lastName,
                 'dial_code' => $dialCode,
                 'country' => $country,
-                'destination_name' => $body['destination_name'] ?? ($body['destination'] ?? ($tour['title'] ?? null)),
+                'destination_name' => $destinationName,
                 'pickup_location' => $pickupLocation,
                 'arrival_date' => $body['arrival_date'] ?? $bookingDate,
                 'departure_date' => $body['departure_date'] ?? null,
-                'duration_days' => $body['duration_days'] ?? null,
+                'duration_days' => $body['duration_days'] ?? ($medicalTrip['duration'] ?? null),
                 'adults_count' => $adultsCount,
                 'children_count' => $childrenCount,
                 'infants_count' => $infantsCount,
-                'tour_types' => $body['tour_types'] ?? null,
+                'tour_types' => $body['tour_types'] ?? ($medicalTripId ? ['Medical Tourism', 'Health Check'] : null),
                 'tour_guide_required' => !empty($body['tour_guide_required']),
-                'preferred_language' => $body['preferred_language'] ?? null,
+                'preferred_language' => $body['preferred_language'] ?? ($body['medical_interpreter'] ?? null),
                 'vehicle_preference' => $body['vehicle_preference'] ?? null,
                 'airport_pickup' => !empty($body['airport_pickup']),
                 'airport_drop' => !empty($body['airport_drop']),
@@ -243,7 +279,7 @@ class BookingController extends BaseController
                 'approximate_budget' => $body['approximate_budget'] ?? null,
                 'budget_currency' => $body['budget_currency'] ?? 'INR',
                 'passport_file_url' => $body['passport_file_url'] ?? null,
-                'flight_ticket_url' => $body['flight_ticket_url'] ?? null,
+                'flight_ticket_url' => $body['flight_ticket_url'] ?? ($body['medical_reports_file_url'] ?? null),
                 'preferred_contact_methods' => $body['preferred_contact_methods'] ?? null,
                 'special_requests' => $body['special_requests'] ?? ($body['customer_notes'] ?? null),
                 'booking_date' => $bookingDate,
@@ -288,6 +324,33 @@ class BookingController extends BaseController
             $createdBooking = Booking::findById($bookingId);
             if ($accessToken) {
                 $createdBooking['access_token'] = $accessToken;
+            }
+
+            // Also mirror insert into medical_trip_bookings if this is a medical booking
+            if ($medicalTripId) {
+                try {
+                    $ref = $createdBooking['order_number'] ?? ('MED-' . date('Ymd') . '-' . substr(bin2hex(random_bytes(2)), 0, 4));
+                    Database::getConnection()->prepare("
+                        INSERT INTO `medical_trip_bookings` (
+                            `booking_reference`, `medical_trip_id`, `customer_name`, `email`, `phone`,
+                            `preferred_date`, `number_of_persons`, `message`, `status`, `created_at`, `updated_at`
+                        ) VALUES (
+                            :ref, :trip_id, :name, :email, :phone,
+                            :date, :persons, :msg, 'new', NOW(), NOW()
+                        )
+                    ")->execute([
+                        ':ref' => $ref,
+                        ':trip_id' => $medicalTripId,
+                        ':name' => trim("{$firstName} {$lastName}"),
+                        ':email' => $email,
+                        ':phone' => $phone,
+                        ':date' => $bookingDate,
+                        ':persons' => $ticketsCount,
+                        ':msg' => $body['special_requests'] ?? ($body['customer_notes'] ?? "Medical package booking for {$destinationName}"),
+                    ]);
+                } catch (\Throwable $e) {
+                    // Non-blocking mirror
+                }
             }
 
             // Audit log

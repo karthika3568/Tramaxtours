@@ -74,7 +74,7 @@ class MedicalTripController extends BaseController
 
         $tripId = $id ? (int) $id : (int) ($body['medical_trip_id'] ?? 0);
         if ($tripId <= 0) {
-            $this->error('Valid medical trip package ID is required.', 422);
+            $this->error('Valid medical trip package ID is required.', 422, ['medical_trip_id' => 'Valid package ID required']);
             return;
         }
 
@@ -84,60 +84,32 @@ class MedicalTripController extends BaseController
             return;
         }
 
-        // Validation
-        $name = trim($body['full_name'] ?? ($body['customer_name'] ?? ($body['name'] ?? '')));
-        $email = trim($body['email'] ?? ($body['email_address'] ?? ''));
-        $phone = trim($body['phone'] ?? ($body['phone_number'] ?? ''));
-        $preferredDate = trim($body['preferred_date'] ?? ($body['travel_date'] ?? ''));
-        $persons = (int) ($body['number_of_persons'] ?? ($body['travelers'] ?? 1));
-        $message = trim($body['message'] ?? '');
-
-        $errors = [];
-        if ($name === '') {
-            $errors['full_name'] = 'Full Name is required.';
-        }
-        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors['email'] = 'A valid email address is required.';
-        }
-        if ($phone === '') {
-            $errors['phone'] = 'Phone number is required.';
-        }
-        if ($preferredDate === '') {
-            $errors['preferred_date'] = 'Preferred check-up date is required.';
-        } else {
-            $parsedDate = strtotime($preferredDate);
-            if (!$parsedDate || $parsedDate < strtotime('today')) {
-                $errors['preferred_date'] = 'Preferred date must be today or in the future.';
+        // Normalize fields for unified BookingController
+        $body['medical_trip_id'] = $tripId;
+        if (empty($body['first_name'])) {
+            $fullName = trim($body['full_name'] ?? ($body['customer_name'] ?? ($body['name'] ?? '')));
+            if ($fullName !== '') {
+                $parts = explode(' ', $fullName);
+                $body['first_name'] = $parts[0];
+                $body['last_name'] = count($parts) > 1 ? implode(' ', array_slice($parts, 1)) : $parts[0];
             }
         }
-        if ($persons < 1) {
-            $errors['number_of_persons'] = 'Number of persons must be at least 1.';
+        if (empty($body['booking_date']) && !empty($body['preferred_date'])) {
+            $body['booking_date'] = $body['preferred_date'];
+            $body['arrival_date'] = $body['preferred_date'];
+        }
+        if (empty($body['tickets_count']) && !empty($body['number_of_persons'])) {
+            $body['tickets_count'] = (int) $body['number_of_persons'];
+            $body['adults_count'] = (int) $body['number_of_persons'];
+        }
+        if (empty($body['destination_name'])) {
+            $body['destination_name'] = $trip['title'];
         }
 
-        if (!empty($errors)) {
-            $this->error('Please correct the validation errors below.', 422, $errors);
-            return;
-        }
+        Request::setBody($body);
 
-        try {
-            $booking = MedicalTrip::createBooking([
-                'medical_trip_id' => $tripId,
-                'customer_name' => $name,
-                'email' => $email,
-                'phone' => $phone,
-                'preferred_date' => date('Y-m-d', strtotime($preferredDate)),
-                'number_of_persons' => $persons,
-                'message' => $message,
-            ]);
-
-            $this->success(
-                $booking,
-                'Medical trip booking request submitted successfully! Our medical concierge will contact you shortly.',
-                201
-            );
-        } catch (Throwable $e) {
-            $this->error('Failed to save booking request: ' . $e->getMessage(), 500);
-        }
+        $bookingController = new BookingController();
+        $bookingController->store();
     }
 
     /* --------------------------------------------------------------------------

@@ -575,6 +575,87 @@ export default function BookingDetailModal({
                 </div>
               </div>
 
+              {/* Medical Tour & Clinical Assessment Details */}
+              {(booking.is_medical_booking || booking.medical_trip_id || booking.additional_details?.hospital_preference || booking.tour?.tour_type === 'Medical Tourism') && (
+                <div className="detail-card" style={{ border: '1.5px solid #0d9488', background: '#f0fdfa' }}>
+                  <div className="detail-card-header-flex">
+                    <h3 className="detail-card-heading" style={{ color: '#0f766e', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <SparklesIcon size={15} color="#0d9488" />
+                      <span>Medical &amp; Clinical Package Details</span>
+                    </h3>
+                    <span className="badge badge-success" style={{ background: '#0d9488', color: '#fff', fontSize: '11px' }}>
+                      Medical Tourism
+                    </span>
+                  </div>
+                  <div className="detail-fields-list">
+                    <div className="detail-field-row">
+                      <span className="field-label">Medical Package:</span>
+                      <span className="field-value">
+                        <strong>{booking.additional_details?.package_title || booking.destination_name || booking.tour?.title || 'Comprehensive Health Check'}</strong>
+                      </span>
+                    </div>
+                    {booking.additional_details?.hospital_preference && (
+                      <div className="detail-field-row">
+                        <span className="field-label">Hospital Partner:</span>
+                        <span className="field-value font-bold" style={{ color: '#0d9488' }}>
+                          🏥 {booking.additional_details.hospital_preference}
+                        </span>
+                      </div>
+                    )}
+                    {booking.additional_details?.diagnostic_preferences && (
+                      <div className="detail-field-row">
+                        <span className="field-label">Diagnostic Slot:</span>
+                        <span className="field-value">{booking.additional_details.diagnostic_preferences}</span>
+                      </div>
+                    )}
+                    {booking.additional_details?.pre_existing_conditions && (
+                      <div className="detail-field-row">
+                        <span className="field-label">Pre-existing Health:</span>
+                        <span className="field-value">
+                          {Array.isArray(booking.additional_details.pre_existing_conditions)
+                            ? booking.additional_details.pre_existing_conditions.join(', ')
+                            : booking.additional_details.pre_existing_conditions}
+                        </span>
+                      </div>
+                    )}
+                    {booking.additional_details?.mobility_assistance && (
+                      <div className="detail-field-row">
+                        <span className="field-label">Mobility / Assistance:</span>
+                        <span className="field-value">{booking.additional_details.mobility_assistance}</span>
+                      </div>
+                    )}
+                    {booking.additional_details?.medical_interpreter && (
+                      <div className="detail-field-row">
+                        <span className="field-label">Medical Interpreter:</span>
+                        <span className="field-value">{booking.additional_details.medical_interpreter}</span>
+                      </div>
+                    )}
+                    {(booking.additional_details?.medical_reports_file_url || booking.flight_ticket_url) && (
+                      <div className="detail-field-row">
+                        <span className="field-label">Medical Records:</span>
+                        <span className="field-value">
+                          📎 {booking.additional_details?.medical_reports_file_url || booking.flight_ticket_url}
+                        </span>
+                      </div>
+                    )}
+                    {(booking.passport_file_url) && (
+                      <div className="detail-field-row">
+                        <span className="field-label">Passport / ID:</span>
+                        <span className="field-value">
+                          🪪 {booking.passport_file_url}
+                        </span>
+                      </div>
+                    )}
+                    {booking.additional_details?.clinical_notes && (
+                      <div className="detail-field-row">
+                        <span className="field-label">Clinical Notes:</span>
+                        <span className="field-value">{booking.additional_details.clinical_notes}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Customer Contact History */}
               <div className="detail-card">
                 <div className="detail-card-header-flex">
