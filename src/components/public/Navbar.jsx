@@ -1,4 +1,4 @@
-import Icon, { CompassIcon, SparklesIcon, StethoscopeIcon, BookOpenIcon } from '../common/Icons';
+import Icon, { CompassIcon, SparklesIcon, StethoscopeIcon, BookOpenIcon, HeartPulseIcon, HospitalIcon } from '../common/Icons';
 import { useState, useEffect, useRef } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
@@ -13,6 +13,10 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
   const [isToursDropdownOpen, setIsToursDropdownOpen] = useState(false);
   const toursDropdownRef = useRef(null);
   const closeTimeoutRef = useRef(null);
+
+  const [isMedicalDropdownOpen, setIsMedicalDropdownOpen] = useState(false);
+  const medicalDropdownRef = useRef(null);
+  const medicalCloseTimeoutRef = useRef(null);
 
   // Fetch dynamic categories from API
   useEffect(() => {
@@ -49,20 +53,24 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
     return () => {
       isMounted = false;
       if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+      if (medicalCloseTimeoutRef.current) clearTimeout(medicalCloseTimeoutRef.current);
     };
   }, []);
 
-  // Handle outside click to close dropdown
+  // Handle outside click to close dropdowns
   useEffect(() => {
-    if (!isToursDropdownOpen) return;
+    if (!isToursDropdownOpen && !isMedicalDropdownOpen) return;
     const handleOutsideClick = (e) => {
       if (toursDropdownRef.current && !toursDropdownRef.current.contains(e.target)) {
         setIsToursDropdownOpen(false);
       }
+      if (medicalDropdownRef.current && !medicalDropdownRef.current.contains(e.target)) {
+        setIsMedicalDropdownOpen(false);
+      }
     };
     document.addEventListener('mousedown', handleOutsideClick);
     return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, [isToursDropdownOpen]);
+  }, [isToursDropdownOpen, isMedicalDropdownOpen]);
 
   const handleMouseEnter = () => {
     if (isMobile) return;
@@ -74,6 +82,19 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
     if (isMobile) return;
     closeTimeoutRef.current = setTimeout(() => {
       setIsToursDropdownOpen(false);
+    }, 180);
+  };
+
+  const handleMedicalMouseEnter = () => {
+    if (isMobile) return;
+    if (medicalCloseTimeoutRef.current) clearTimeout(medicalCloseTimeoutRef.current);
+    setIsMedicalDropdownOpen(true);
+  };
+
+  const handleMedicalMouseLeave = () => {
+    if (isMobile) return;
+    medicalCloseTimeoutRef.current = setTimeout(() => {
+      setIsMedicalDropdownOpen(false);
     }, 180);
   };
 
@@ -89,6 +110,55 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
       navigate(`/tours?category=${encodeURIComponent(slugOrName)}`);
     }
   };
+
+  const handleSelectMedicalOption = (path) => {
+    setIsMedicalDropdownOpen(false);
+    if (onLinkClick) onLinkClick();
+    navigate(path);
+  };
+
+  const medicalTourOptions = [
+    {
+      id: 'medical-packages',
+      name: 'Medical Tour Packages',
+      path: '/tours?category=medical-tourism&search=Medical%20Tour%20Packages',
+      icon: StethoscopeIcon,
+      iconColor: '#01aa90',
+      badge: 'Packages',
+      badgeBg: '#01aa90',
+      description: 'Comprehensive medical treatments & surgery packages',
+    },
+    {
+      id: 'health-checkup',
+      name: 'Health Checkup Tours',
+      path: '/tours?category=medical-tourism&search=Health%20Checkup',
+      icon: HeartPulseIcon,
+      iconColor: '#0284c7',
+      badge: 'Diagnostics',
+      badgeBg: '#0284c7',
+      description: 'Master health checks, MRI scans & diagnostics',
+    },
+    {
+      id: 'hospital-booking',
+      name: 'Hospital Booking Tours',
+      path: '/tours?category=medical-tourism&search=Hospital%20Booking',
+      icon: HospitalIcon,
+      iconColor: '#2563eb',
+      badge: 'Hospitals',
+      badgeBg: '#2563eb',
+      description: 'NABH & JCI accredited top hospital appointments',
+    },
+    {
+      id: 'wellness-travel',
+      name: 'Wellness Travel',
+      path: '/tours?category=medical-tourism&search=Wellness',
+      icon: SparklesIcon,
+      iconColor: '#d97706',
+      badge: 'Ayurveda',
+      badgeBg: '#d97706',
+      description: 'Ayurveda, yoga retreats & holistic rejuvenation',
+    },
+  ];
 
   const handleTestimonialsClick = (e) => {
     if (e && e.preventDefault) e.preventDefault();
@@ -123,6 +193,11 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
     { label: t('nav_home', 'Home'), path: '/', end: true },
     { label: t('nav_destinations', 'Destinations'), path: '/destinations' },
     { label: t('nav_tours', 'Tours'), path: '/tours', isTours: true },
+    { 
+      label: t('nav_medical_tour', 'Medical Tour'), 
+      path: '/tours?category=medical-tourism', 
+      isMedicalTour: true 
+    },
     { label: t('nav_testimonials', 'Testimonials'), path: '/#testimonials', isTestimonials: true },
     { label: t('nav_about', 'About'), path: '/about' },
     { label: t('nav_contact', 'Contact'), path: '/contact' },
@@ -182,20 +257,20 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                   style={{
                     background: 'linear-gradient(135deg, #01aa90 0%, #01806c 100%)',
                     color: '#ffffff',
-                    padding: isMobile ? '12px 20px' : '7px 15px',
+                    padding: isMobile ? '12px 20px' : '6px 13px',
                     borderRadius: '9999px',
                     fontWeight: 700,
-                    fontSize: isMobile ? '16px' : '13.5px',
+                    fontSize: isMobile ? '16px' : '12.5px',
                     textDecoration: 'none',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '6px',
+                    gap: '5px',
                     whiteSpace: 'nowrap',
                     flexShrink: 0,
                     lineHeight: '1.2',
-                    boxShadow: '0 4px 16px rgba(1, 170, 144, 0.35)',
+                    boxShadow: '0 4px 14px rgba(1, 170, 144, 0.3)',
                     transition: 'all 0.25s ease',
-                    marginLeft: isMobile ? '0' : '6px',
+                    marginLeft: isMobile ? '0' : '4px',
                   }}
                 >
                   <span style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
@@ -206,8 +281,13 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
             );
           }
 
+          const isMedicalActive = 
+            location.pathname.startsWith('/tours/medical-trip') || 
+            location.pathname.startsWith('/medical-trip') ||
+            (location.pathname === '/tours' && location.search.includes('medical-tourism'));
+
           if (item.isTours) {
-            const isToursActive = location.pathname.startsWith('/tours');
+            const isToursActive = location.pathname.startsWith('/tours') && !isMedicalActive;
 
             if (isMobile) {
               return (
@@ -415,7 +495,7 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                       if (!isMobile && onLinkClick) onLinkClick();
                     }}
                     className={() => `primary-nav-link ${isToursActive ? 'nav-link-active' : ''}`}
-                    style={{ paddingRight: '26px' }}
+                    style={{ paddingRight: '22px' }}
                   >
                     {item.label}
                   </NavLink>
@@ -429,11 +509,11 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                     }}
                     style={{
                       position: 'absolute',
-                      right: '8px',
+                      right: '6px',
                       background: 'transparent',
                       border: 'none',
                       cursor: 'pointer',
-                      padding: '3px',
+                      padding: '2px',
                       display: 'inline-flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -701,6 +781,272 @@ export default function Navbar({ onLinkClick, className = '', isMobile = false }
                         </div>
                       </div>
                     </button>
+                  </div>
+                )}
+              </li>
+            );
+          }
+
+          if (item.isMedicalTour) {
+            if (isMobile) {
+              return (
+                <li key={item.path} className="primary-nav-item" style={{ width: '100%' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', width: '100%', position: 'relative' }}>
+                    <NavLink
+                      to={item.path}
+                      onClick={() => {
+                        if (onLinkClick) onLinkClick();
+                      }}
+                      className={() =>
+                        `primary-nav-link ${isMedicalActive ? 'nav-link-active' : ''}`
+                      }
+                      style={{ flex: 1, paddingRight: '48px' }}
+                    >
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                        <StethoscopeIcon size={16} color={isMedicalActive ? '#ffffff' : '#01aa90'} />
+                        <span>{item.label}</span>
+                      </span>
+                    </NavLink>
+                    <button
+                      type="button"
+                      aria-label="Toggle Medical Tour Submenu"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsMedicalDropdownOpen((prev) => !prev);
+                      }}
+                      style={{
+                        position: 'absolute',
+                        right: '10px',
+                        background: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '10px',
+                        color: isMedicalActive ? '#ffffff' : '#64748b',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transform: isMedicalDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s ease',
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* Mobile Medical Tour Submenu Accordion */}
+                  {isMedicalDropdownOpen && (
+                    <div
+                      style={{
+                        padding: '8px 0 8px 14px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                        borderLeft: '2px solid #01aa90',
+                        marginLeft: '16px',
+                        marginTop: '6px',
+                        marginBottom: '6px',
+                      }}
+                    >
+                      {medicalTourOptions.map((opt) => {
+                        const IconComp = opt.icon;
+                        return (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => handleSelectMedicalOption(opt.path)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '10px',
+                              padding: '10px 12px',
+                              border: 'none',
+                              background: 'transparent',
+                              color: '#1e293b',
+                              fontSize: '14.5px',
+                              fontWeight: 600,
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                              width: '100%',
+                            }}
+                          >
+                            <IconComp size={16} color={opt.iconColor} />
+                            <span>{opt.name}</span>
+                            <span
+                              style={{
+                                fontSize: '9.5px',
+                                background: opt.badgeBg,
+                                color: '#ffffff',
+                                padding: '1px 6px',
+                                borderRadius: '4px',
+                                marginLeft: 'auto',
+                                fontWeight: 700,
+                              }}
+                            >
+                              {opt.badge}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </li>
+              );
+            }
+
+            // Desktop View with Popover Dropdown
+            return (
+              <li
+                key={item.path}
+                className="primary-nav-item nav-item-medical-dropdown"
+                ref={medicalDropdownRef}
+                onMouseEnter={handleMedicalMouseEnter}
+                onMouseLeave={handleMedicalMouseLeave}
+                style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', flexShrink: 0 }}
+              >
+                <div style={{ display: 'inline-flex', alignItems: 'center', position: 'relative' }}>
+                  <NavLink
+                    to={item.path}
+                    onClick={() => {
+                      if (!isMobile && onLinkClick) onLinkClick();
+                    }}
+                    className={() => `primary-nav-link ${isMedicalActive ? 'nav-link-active' : ''}`}
+                    style={{ paddingRight: '22px' }}
+                  >
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                      <StethoscopeIcon size={13} color={isMedicalActive ? '#ffffff' : '#01aa90'} />
+                      <span>{item.label}</span>
+                    </span>
+                  </NavLink>
+                  <button
+                    type="button"
+                    aria-label="Toggle Medical Tour Dropdown"
+                    aria-expanded={isMedicalDropdownOpen}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsMedicalDropdownOpen((prev) => !prev);
+                    }}
+                    style={{
+                      position: 'absolute',
+                      right: '6px',
+                      background: 'transparent',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '2px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: isMedicalActive ? '#ffffff' : '#64748b',
+                      transform: isMedicalDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                      transition: 'transform 0.2s ease, color 0.2s ease',
+                    }}
+                  >
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Medical Tour Dropdown Menu (Desktop) */}
+                {isMedicalDropdownOpen && (
+                  <div
+                    className="nav-tours-dropdown-menu nav-medical-dropdown-menu"
+                    style={{
+                      position: 'absolute',
+                      top: 'calc(100% + 8px)',
+                      left: '0',
+                      minWidth: '320px',
+                      backgroundColor: '#ffffff',
+                      borderRadius: '16px',
+                      boxShadow: '0 20px 40px -10px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(226, 232, 240, 0.9)',
+                      padding: '10px',
+                      zIndex: 1100,
+                      animation: 'navPopoverFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                    }}
+                  >
+                    <div
+                      style={{
+                        padding: '4px 10px 8px 10px',
+                        fontSize: '11px',
+                        fontWeight: 800,
+                        color: '#01aa90',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                      }}
+                    >
+                      <StethoscopeIcon size={13} color="#01aa90" />
+                      <span>Medical &amp; Healthcare Travel</span>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                      {medicalTourOptions.map((opt) => {
+                        const IconComp = opt.icon;
+                        return (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => handleSelectMedicalOption(opt.path)}
+                            className="nav-dropdown-item-btn"
+                            style={{
+                              width: '100%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '10px',
+                              padding: '9px 12px',
+                              border: '1px solid transparent',
+                              background: 'transparent',
+                              borderRadius: '10px',
+                              cursor: 'pointer',
+                              textAlign: 'left',
+                              transition: 'all 0.15s ease',
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: '32px',
+                                height: '32px',
+                                borderRadius: '8px',
+                                background: `${opt.iconColor}15`,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0,
+                              }}
+                            >
+                              <IconComp size={16} color={opt.iconColor} />
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}>
+                                  {opt.name}
+                                </span>
+                                <span
+                                  style={{
+                                    fontSize: '9.5px',
+                                    fontWeight: 700,
+                                    background: opt.badgeBg,
+                                    color: '#ffffff',
+                                    padding: '1px 5px',
+                                    borderRadius: '4px',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.04em',
+                                  }}
+                                >
+                                  {opt.badge}
+                                </span>
+                              </div>
+                              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500, marginTop: '1px' }}>
+                                {opt.description}
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </li>

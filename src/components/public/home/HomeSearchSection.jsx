@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../context/LanguageContext';
 
-
 export default function HomeSearchSection() {
   const navigate = useNavigate();
   const { t } = useLanguage();
@@ -41,8 +40,9 @@ export default function HomeSearchSection() {
         <form onSubmit={handleSearchSubmit} className="home-search-widget-bar">
           {/* Destination Field */}
           <div className="search-widget-col">
-            <label htmlFor="search-dest-select" className="search-widget-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <MapPinIcon size={14} color="#01aa90" /> <span>WHERE TO?</span>
+            <label htmlFor="search-dest-select" className="search-widget-label">
+              <MapPinIcon size={14} color="#01aa90" />
+              <span>{t('search_where_to', 'WHERE TO?')}</span>
             </label>
             <div className="search-select-wrapper">
               <select
@@ -66,8 +66,9 @@ export default function HomeSearchSection() {
 
           {/* Tour Category Field */}
           <div className="search-widget-col">
-            <label htmlFor="search-cat-select" className="search-widget-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <CompassIcon size={14} color="#01aa90" /> <span>TOUR TYPE</span>
+            <label htmlFor="search-cat-select" className="search-widget-label">
+              <CompassIcon size={14} color="#01aa90" />
+              <span>{t('search_tour_type', 'TOUR TYPE')}</span>
             </label>
             <div className="search-select-wrapper">
               <select
@@ -85,28 +86,33 @@ export default function HomeSearchSection() {
                 <option value="family-tours">{t('cat_family_tours', 'Family Tours')}</option>
                 <option value="historical-tours">{t('cat_historical_tours', 'Historical Tours')}</option>
                 <option value="pilgrimage-temple-tours">{t('cat_pilgrimage_temple', 'Pilgrimage / Temple Tours')}</option>
+                <option value="medical-tourism">{t('cat_medical_tourism', 'Medical & Wellness Tours')}</option>
               </select>
             </div>
           </div>
 
           {/* Travel Date Field */}
           <div className="search-widget-col">
-            <label htmlFor="search-date-picker" className="search-widget-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <CalendarIcon size={14} color="#01aa90" /> <span>TRAVEL DATE</span>
+            <label htmlFor="search-date-picker" className="search-widget-label">
+              <CalendarIcon size={14} color="#01aa90" />
+              <span>{t('search_travel_date', 'TRAVEL DATE')}</span>
             </label>
-            <input
-              id="search-date-picker"
-              type="date"
-              className="search-widget-input"
-              value={searchDate}
-              onChange={(e) => setSearchDate(e.target.value)}
-            />
+            <div className="search-select-wrapper">
+              <input
+                id="search-date-picker"
+                type="date"
+                className="search-widget-input"
+                value={searchDate}
+                onChange={(e) => setSearchDate(e.target.value)}
+              />
+            </div>
           </div>
 
           {/* Duration Field */}
           <div className="search-widget-col">
-            <label htmlFor="search-dur-select" className="search-widget-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <ClockIcon size={14} color="#01aa90" /> <span>DURATION</span>
+            <label htmlFor="search-dur-select" className="search-widget-label">
+              <ClockIcon size={14} color="#01aa90" />
+              <span>{t('search_duration', 'DURATION')}</span>
             </label>
             <div className="search-select-wrapper">
               <select
@@ -126,8 +132,13 @@ export default function HomeSearchSection() {
 
           {/* Submit Action Button */}
           <div className="search-widget-btn-col">
-            <button type="submit" className="btn-home-search-submit" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-              <SearchIcon size={15} color="#ffffff" />
+            <div className="search-widget-btn-spacer" aria-hidden="true" />
+            <button
+              type="submit"
+              className="btn-home-search-submit"
+              aria-label="Find Tours"
+            >
+              <SearchIcon size={16} color="#ffffff" />
               <span>{t('search_btn', 'Find Tours')}</span>
             </button>
           </div>

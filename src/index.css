@@ -1045,21 +1045,30 @@ button {
 }
 
 .public-header {
-  background-color: rgba(255, 255, 255, 0.88);
+  background-color: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.85);
   position: sticky;
   top: 0;
   z-index: 300;
   box-shadow: 0 4px 24px rgba(15, 23, 42, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.95);
-  transition: height 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease, box-shadow 0.3s ease, padding 0.3s ease;
+  transition: height 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease, box-shadow 0.3s ease;
   animation: headerSlideDown 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  width: 100%;
+}
+
+.public-header .container {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding-left: clamp(16px, 2.5vw, 40px) !important;
+  padding-right: clamp(16px, 2.5vw, 40px) !important;
+  box-sizing: border-box;
 }
 
 .public-header.header-scrolled {
-  background-color: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 10px 30px rgba(1, 170, 144, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+  background-color: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 8px 24px rgba(1, 170, 144, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
   border-bottom-color: rgba(1, 170, 144, 0.12);
 }
 
@@ -1067,13 +1076,17 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 84px;
-  gap: 16px;
+  height: 76px;
+  gap: 12px;
+  width: 100%;
+  max-width: 1560px;
+  margin: 0 auto;
+  box-sizing: border-box;
   transition: height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .header-scrolled .header-main-inner {
-  height: 70px;
+  height: 66px;
 }
 
 /* Branding */
@@ -1090,15 +1103,16 @@ button {
 }
 
 .site-brand-logo-img {
-  height: 62px;
-  max-width: 240px;
+  height: 48px;
+  max-width: 180px;
+  width: auto;
   object-fit: contain;
   display: block;
   transition: height 0.3s ease;
 }
 
 .header-scrolled .site-brand-logo-img {
-  height: 50px;
+  height: 40px;
 }
 
 /* Desktop Navigation (Liquid Glass Pill Bar) */
@@ -1111,10 +1125,10 @@ button {
   display: flex;
   align-items: center;
   list-style: none;
-  gap: 4px;
+  gap: 2px;
   margin: 0;
-  padding: 6px 10px;
-  background: rgba(241, 245, 249, 0.82);
+  padding: 4px 6px;
+  background: rgba(241, 245, 249, 0.88);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1.5px solid rgba(255, 255, 255, 0.95);
@@ -1124,28 +1138,31 @@ button {
 
 .primary-nav-item {
   display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
-/* Desktop Links (15px Font Size) */
+/* Desktop Links */
 .navbar-desktop .primary-nav-link {
-  font-size: 15px;
+  font-size: 13.5px;
   font-weight: 700;
   color: #334155;
-  padding: 8px 15px;
+  padding: 6px 10px;
   border-radius: 9999px;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
   position: relative;
   letter-spacing: -0.01em;
   display: inline-flex;
   align-items: center;
   white-space: nowrap;
+  line-height: 1.2;
 }
 
 .navbar-desktop .primary-nav-link:hover {
   color: #01aa90;
   background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 4px 14px rgba(1, 170, 144, 0.15);
+  box-shadow: 0 4px 12px rgba(1, 170, 144, 0.15);
   transform: translateY(-1px);
 }
 
@@ -1153,7 +1170,7 @@ button {
   color: #ffffff;
   background: linear-gradient(135deg, #01aa90 0%, #01806c 100%);
   font-weight: 800;
-  box-shadow: 0 4px 16px rgba(1, 170, 144, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 14px rgba(1, 170, 144, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   border: none;
 }
 
@@ -1418,16 +1435,16 @@ button {
 .header-actions-wrapper {
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
 }
 
 .header-cta-btn {
   background: linear-gradient(135deg, #01aa90 0%, #01806c 100%) !important;
   color: #ffffff !important;
   border-radius: 9999px !important;
-  padding: 9px 20px !important;
-  font-size: 13.5px !important;
+  padding: 7px 16px !important;
+  font-size: 13px !important;
   font-weight: 700 !important;
   letter-spacing: 0.02em !important;
   box-shadow: 0 4px 14px rgba(1, 170, 144, 0.28) !important;
@@ -1437,6 +1454,7 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap !important;
 }
 
 .header-cta-btn:hover {
@@ -1447,14 +1465,15 @@ button {
 
 .header-signin-btn {
   border-radius: 9999px !important;
-  padding: 8px 18px !important;
-  font-size: 13.5px !important;
+  padding: 5px 12px !important;
+  font-size: 12.5px !important;
   font-weight: 600 !important;
   border: 1.5px solid #cbd5e1 !important;
   color: #334155 !important;
   background: transparent !important;
   transition: all 0.2s ease !important;
   text-decoration: none !important;
+  white-space: nowrap !important;
 }
 
 .header-signin-btn:hover {
@@ -1464,17 +1483,29 @@ button {
   transform: translateY(-1px);
 }
 
+.header-signup-btn {
+  border-radius: 9999px !important;
+  padding: 5px 12px !important;
+  font-size: 12.5px !important;
+  white-space: nowrap !important;
+}
+
 .btn-customer-portal,
 .btn-admin-console {
   border-radius: 9999px !important;
-  padding: 8px 16px !important;
-  font-size: 13px !important;
+  padding: 5px 11px !important;
+  font-size: 12.5px !important;
   font-weight: 700 !important;
   border: 1.5px solid #01aa90 !important;
   color: #01806c !important;
   background: #E6F7F4 !important;
   transition: all 0.2s ease !important;
   text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
 }
 
 .btn-customer-portal:hover,
@@ -1487,16 +1518,24 @@ button {
 
 .btn-header-logout {
   border-radius: 9999px !important;
-  padding: 8px 14px !important;
+  padding: 5px 11px !important;
   font-size: 12.5px !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   color: #ef4444 !important;
-  background: transparent !important;
+  background: #fff1f2 !important;
+  border: 1px solid #fecdd3 !important;
   transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  cursor: pointer !important;
 }
 
 .btn-header-logout:hover {
   background: #fee2e2 !important;
+  color: #dc2626 !important;
+  transform: translateY(-1px);
 }
 
 /* Hamburger Button */
@@ -1958,24 +1997,26 @@ button {
   }
 }
 
-@media (max-width: 1024px) {
-  .footer-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-8);
-  }
-
+@media (max-width: 1180px) {
   .header-nav-wrapper {
-    display: none;
+    display: none !important;
   }
 
   .hamburger-btn {
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: center;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 1024px) {
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-8);
+  }
+}
+
+@media (max-width: 768px) {
   .header-top-inner {
     justify-content: space-between;
   }
@@ -2655,16 +2696,18 @@ button {
 
 .home-search-widget-bar {
   display: grid;
-  grid-template-columns: 1.3fr 1.3fr 1.2fr 1.2fr auto;
+  grid-template-columns: 1.25fr 1.25fr 1.15fr 1.15fr auto;
   gap: 16px;
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(24px) saturate(160%);
   -webkit-backdrop-filter: blur(24px) saturate(160%);
-  border-radius: 24px;
-  padding: 18px 26px;
+  border-radius: 20px;
+  padding: 18px 24px;
   box-shadow: 0 20px 50px rgba(7, 24, 21, 0.12), 0 4px 16px rgba(1, 170, 144, 0.06), inset 0 1px 1px rgba(255, 255, 255, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.8);
-  align-items: center;
+  align-items: flex-end;
+  box-sizing: border-box;
+  width: 100%;
   transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
@@ -2675,7 +2718,9 @@ button {
 .search-widget-col {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  justify-content: flex-end;
+  min-width: 0;
+  width: 100%;
 }
 
 .search-widget-label {
@@ -2685,8 +2730,15 @@ button {
   letter-spacing: 0.6px;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   text-transform: uppercase;
+  height: 20px;
+  line-height: 20px;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
 }
 
 .widget-label-icon {
@@ -2696,21 +2748,27 @@ button {
 .search-select-wrapper {
   position: relative;
   width: 100%;
+  height: 48px;
 }
 
 .search-widget-select,
 .search-widget-input {
   background: #ffffff;
-  border: 1px solid #cbd5e1;
+  border: 1.5px solid #cbd5e1;
   border-radius: 12px;
   color: #0f172a;
   font-size: 14px;
   font-weight: 600;
-  padding: 10px 14px;
+  height: 48px;
+  line-height: 48px;
+  padding: 0 14px;
   width: 100%;
+  box-sizing: border-box;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
   font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
 }
 
 .search-widget-select:focus,
@@ -2721,7 +2779,15 @@ button {
 
 .search-widget-btn-col {
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.search-widget-btn-spacer {
+  height: 20px;
+  margin-bottom: 6px;
+  display: block;
 }
 
 .btn-home-search-submit {
@@ -2732,15 +2798,18 @@ button {
   background: #01aa90;
   color: #ffffff;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 14.5px;
+  height: 48px;
+  line-height: 48px;
   border: none;
-  border-radius: 30px;
-  padding: 12px 28px;
+  border-radius: 12px;
+  padding: 0 28px;
   cursor: pointer;
   white-space: nowrap;
+  box-sizing: border-box;
   box-shadow: 0 6px 18px rgba(1, 170, 144, 0.35);
   transition: all 0.2s ease;
-  margin-top: 17px;
+  margin: 0;
 }
 
 .btn-home-search-submit:hover {
@@ -2750,30 +2819,74 @@ button {
 }
 
 @media (max-width: 1024px) {
+  .home-search-standalone-section {
+    margin-top: 16px;
+    margin-bottom: 24px;
+    padding: 0 16px;
+  }
+
   .home-search-widget-bar {
     grid-template-columns: 1fr 1fr;
+    gap: 16px 14px;
+    padding: 20px;
     border-radius: 20px;
-    gap: 14px;
   }
+
+  .search-widget-btn-spacer {
+    display: none !important;
+  }
+
   .search-widget-btn-col {
     grid-column: span 2;
+    width: 100%;
+    margin-top: 4px;
   }
+
   .btn-home-search-submit {
     width: 100%;
-    margin-top: 6px;
+    height: 48px;
   }
 }
 
 @media (max-width: 640px) {
   .home-search-standalone-section {
-    margin-top: -24px;
+    margin-top: 14px;
+    margin-bottom: 20px;
+    padding: 0 12px;
   }
+
   .home-search-widget-bar {
     grid-template-columns: 1fr;
+    gap: 14px;
     padding: 16px;
+    border-radius: 18px;
   }
+
+  .search-widget-btn-spacer {
+    display: none !important;
+  }
+
   .search-widget-btn-col {
     grid-column: span 1;
+    width: 100%;
+    margin-top: 2px;
+  }
+
+  .search-select-wrapper {
+    height: 46px;
+  }
+
+  .search-widget-select,
+  .search-widget-input {
+    height: 46px;
+    line-height: 46px;
+    font-size: 14px;
+  }
+
+  .btn-home-search-submit {
+    width: 100%;
+    height: 48px;
+    font-size: 15px;
   }
 }
 
@@ -5892,6 +6005,8 @@ button {
   display: flex;
   align-items: center;
   gap: 16px;
+  min-width: 0;
+  flex: 1;
 }
 
 .admin-menu-toggle-btn {
@@ -5903,6 +6018,7 @@ button {
   cursor: pointer;
   color: #01aa90;
   transition: background 0.2s;
+  flex-shrink: 0;
 }
 
 .admin-menu-toggle-btn:hover {
@@ -5922,6 +6038,8 @@ button {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .admin-breadcrumb {
@@ -5933,6 +6051,9 @@ button {
   color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .breadcrumb-sep {
@@ -5951,12 +6072,16 @@ button {
   margin: 0;
   line-height: 1.2;
   letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .admin-header-right {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
 .btn-header-site {

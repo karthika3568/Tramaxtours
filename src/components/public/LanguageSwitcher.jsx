@@ -73,24 +73,26 @@ export default function LanguageSwitcher({ isMobile = false }) {
         style={{
           display: 'inline-flex',
           alignItems: 'center',
-          gap: '7px',
-          padding: '7px 15px',
+          gap: '5px',
+          padding: '5px 10px',
           background: 'rgba(248, 250, 252, 0.95)',
           border: '1.5px solid #e2e8f0',
           borderRadius: '9999px',
-          fontSize: '13px',
+          fontSize: '12.5px',
           fontWeight: 700,
           color: '#1e293b',
           cursor: 'pointer',
           transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
+          whiteSpace: 'nowrap',
+          flexShrink: 0,
         }}
       >
-        <span style={{ fontSize: '16px', lineHeight: 1 }}>{currentLang.flag}</span>
-        <span style={{ letterSpacing: '0.04em' }}>{currentLang.code.toUpperCase()}</span>
+        <span style={{ fontSize: '15px', lineHeight: 1 }}>{currentLang.flag}</span>
+        <span style={{ letterSpacing: '0.03em' }}>{currentLang.code.toUpperCase()}</span>
         <svg
-          width="11"
-          height="11"
+          width="10"
+          height="10"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"

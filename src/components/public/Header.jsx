@@ -74,11 +74,11 @@ export default function Header() {
             </div>
 
             {isAuthenticated ? (
-              <div className="header-user-badge-wrap hide-on-mobile" ref={userDropdownRef} style={{ position: 'relative' }}>
+              <div className="header-user-badge-wrap hide-on-mobile" ref={userDropdownRef} style={{ position: 'relative', flexShrink: 0 }}>
                 {isAdmin ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Link to="/admin" className="btn btn-outline btn-sm btn-admin-console" title="Open Admin Console" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                      <SettingsIcon size={14} /> {t('nav_admin_console', 'Admin Console')}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                    <Link to="/admin" className="btn btn-outline btn-sm btn-admin-console" title="Open Admin Console" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      <SettingsIcon size={13} /> {t('nav_admin_console', 'Admin Console')}
                     </Link>
                     <button
                       type="button"
@@ -98,27 +98,31 @@ export default function Header() {
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '8px',
+                        gap: '6px',
                         borderRadius: '9999px',
-                        padding: '0.35rem 0.85rem',
+                        padding: '4px 10px 4px 6px',
                         borderColor: isUserDropdownOpen ? '#0d9488' : '#e2e8f0',
                         background: isUserDropdownOpen ? '#f0fdfa' : '#ffffff',
                         fontWeight: 600,
+                        fontSize: '12.5px',
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0,
                       }}
                     >
                       <div
                         style={{
-                          width: '24px',
-                          height: '24px',
+                          width: '22px',
+                          height: '22px',
                           borderRadius: '50%',
                           background: '#0d9488',
                           color: '#ffffff',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          fontSize: '0.75rem',
+                          fontSize: '0.72rem',
                           fontWeight: 700,
                           overflow: 'hidden',
+                          flexShrink: 0,
                         }}
                       >
                         {user?.avatar_url ? (
@@ -127,10 +131,10 @@ export default function Header() {
                           (user?.name || 'C')[0].toUpperCase()
                         )}
                       </div>
-                      <span style={{ maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <span style={{ maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {user?.name?.split(' ')[0] || 'My Account'}
                       </span>
-                      <span style={{ fontSize: '0.7rem' }}>▼</span>
+                      <span style={{ fontSize: '0.65rem' }}>▼</span>
                     </button>
 
                     {isUserDropdownOpen && (
@@ -285,11 +289,11 @@ export default function Header() {
                 )}
               </div>
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }} className="hide-on-mobile">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }} className="hide-on-mobile">
                 <Link to="/login" className="btn btn-outline btn-sm header-signin-btn">
                   {t('nav_sign_in', 'Sign In')}
                 </Link>
-                <Link to="/register" className="btn btn-primary btn-sm" style={{ fontWeight: 600 }}>
+                <Link to="/register" className="btn btn-primary btn-sm header-signup-btn" style={{ fontWeight: 600 }}>
                   Sign Up
                 </Link>
               </div>
