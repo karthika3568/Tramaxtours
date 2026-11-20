@@ -170,6 +170,7 @@ $router->group('/api/v1', function (Router $router) {
     // Public Medical Trips Routes
     $router->group('/medical-trips', function (Router $router) {
         $router->get('', [MedicalTripController::class, 'index']);
+        $router->get('/addons', [MedicalTripController::class, 'addons']);
         $router->get('/{idOrSlug}', [MedicalTripController::class, 'show']);
         $router->post('/{id}/book', [MedicalTripController::class, 'book']);
         $router->post('/book', [MedicalTripController::class, 'book']);

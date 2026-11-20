@@ -87,11 +87,11 @@ class MedicalTrip extends BaseModel
         $totalPages = (int) ceil($total / $limit) ?: 1;
 
         // Fetch items
-        $orderClause = 'ORDER BY `created_at` DESC';
+        $orderClause = 'ORDER BY mt.`display_order` ASC, mt.`id` ASC';
         if (!empty($filters['sort_by'])) {
-            $col = in_array($filters['sort_by'], ['title', 'price', 'created_at']) ? $filters['sort_by'] : 'created_at';
-            $dir = strtoupper($filters['order'] ?? 'DESC') === 'ASC' ? 'ASC' : 'DESC';
-            $orderClause = "ORDER BY `{$col}` {$dir}";
+            $col = in_array($filters['sort_by'], ['title', 'price', 'created_at', 'display_order']) ? $filters['sort_by'] : 'display_order';
+            $dir = strtoupper($filters['order'] ?? 'ASC') === 'DESC' ? 'DESC' : 'ASC';
+            $orderClause = "ORDER BY mt.`{$col}` {$dir}";
         }
 
         $sql = "
@@ -662,6 +662,19 @@ class MedicalTrip extends BaseModel
             ]);
         }
         return true;
+    }
+
+    /**
+     * Get active medical add-on tests.
+     */
+    public static function getAddons(bool $activeOnly = true): array
+    {
+        $sql = 'SELECT * FROM `medical_addons`';
+        if ($activeOnly) {
+            $sql .= " WHERE `status` = 'active'";
+        }
+        $sql .= ' ORDER BY `display_order` ASC, `id` ASC';
+        return self::fetchAll($sql);
     }
 
     /**

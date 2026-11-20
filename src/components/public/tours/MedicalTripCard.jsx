@@ -13,7 +13,11 @@ export default function MedicalTripCard({ trip }) {
 
   const currencySymbol = trip.currency === 'INR' ? '₹' : trip.currency === 'USD' ? '$' : (trip.currency || '₹');
   const price = trip.price ? Number(trip.price) : 0;
+  const isPriceOnRequest = Boolean(trip.price_on_request || price === 0);
+  const marketPrice = trip.market_price ? Number(trip.market_price) : null;
+  const discountText = trip.discount || null;
   const discountPrice = trip.discount_price ? Number(trip.discount_price) : null;
+  const testCount = trip.test_count || null;
   const assessmentsCount = trip.assessments_count ?? (Array.isArray(trip.assessments) ? trip.assessments.length : 6);
 
   return (
@@ -65,8 +69,23 @@ export default function MedicalTripCard({ trip }) {
           </span>
         </div>
 
-        {/* Diagnostics Badge */}
-        <div style={{ position: 'absolute', bottom: '12px', right: '12px', zIndex: 2 }}>
+        {/* Diagnostics & Test Badges */}
+        <div style={{ position: 'absolute', bottom: '12px', right: '12px', zIndex: 2, display: 'flex', gap: '6px' }}>
+          {testCount && (
+            <span
+              style={{
+                backgroundColor: '#01aa90',
+                color: '#ffffff',
+                padding: '4px 8px',
+                borderRadius: '6px',
+                fontSize: '11px',
+                fontWeight: '700',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+              }}
+            >
+              {testCount}
+            </span>
+          )}
           <span
             style={{
               backgroundColor: 'rgba(15, 23, 42, 0.8)',
@@ -126,18 +145,33 @@ export default function MedicalTripCard({ trip }) {
         >
           <div>
             <div style={{ fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: '600' }}>
-              All-Inclusive
+              {isPriceOnRequest ? 'Clinical Consultation' : 'All-Inclusive'}
             </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-              <span style={{ fontSize: '18px', fontWeight: '800', color: '#01aa90' }}>
-                {currencySymbol}{price.toLocaleString()}
-              </span>
-              {discountPrice && discountPrice > 0 && (
-                <span style={{ fontSize: '12px', textDecoration: 'line-through', color: '#94a3b8' }}>
-                  {currencySymbol}{discountPrice.toLocaleString()}
+            {isPriceOnRequest ? (
+              <div style={{ fontSize: '16px', fontWeight: '800', color: '#01aa90' }}>
+                Price on Request
+              </div>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '18px', fontWeight: '800', color: '#01aa90' }}>
+                  {currencySymbol}{price.toLocaleString()}
                 </span>
-              )}
-            </div>
+                {marketPrice && marketPrice > price ? (
+                  <span style={{ fontSize: '12px', textDecoration: 'line-through', color: '#94a3b8' }}>
+                    {currencySymbol}{marketPrice.toLocaleString()}
+                  </span>
+                ) : discountPrice && discountPrice > 0 ? (
+                  <span style={{ fontSize: '12px', textDecoration: 'line-through', color: '#94a3b8' }}>
+                    {currencySymbol}{discountPrice.toLocaleString()}
+                  </span>
+                ) : null}
+                {discountText && (
+                  <span style={{ fontSize: '11px', fontWeight: '700', color: '#16a34a', backgroundColor: '#dcfce7', padding: '1px 5px', borderRadius: '4px' }}>
+                    {discountText}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           <Link

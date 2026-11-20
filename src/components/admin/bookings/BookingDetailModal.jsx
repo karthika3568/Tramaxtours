@@ -576,7 +576,7 @@ export default function BookingDetailModal({
               </div>
 
               {/* Medical Tour & Clinical Assessment Details */}
-              {(booking.is_medical_booking || booking.medical_trip_id || booking.additional_details?.hospital_preference || booking.tour?.tour_type === 'Medical Tourism') && (
+              {(booking.is_medical_booking || booking.medical_trip_id || booking.additional_details?.hospital_preference || booking.tour?.tour_type === 'Medical Tour' || booking.tour?.tour_type === 'Medical Tourism') && (
                 <div className="detail-card" style={{ border: '1.5px solid #0d9488', background: '#f0fdfa' }}>
                   <div className="detail-card-header-flex">
                     <h3 className="detail-card-heading" style={{ color: '#0f766e', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -584,7 +584,7 @@ export default function BookingDetailModal({
                       <span>Medical &amp; Clinical Package Details</span>
                     </h3>
                     <span className="badge badge-success" style={{ background: '#0d9488', color: '#fff', fontSize: '11px' }}>
-                      Medical Tourism
+                      Medical Tour
                     </span>
                   </div>
                   <div className="detail-fields-list">

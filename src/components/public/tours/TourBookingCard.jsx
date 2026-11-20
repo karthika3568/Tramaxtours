@@ -82,6 +82,7 @@ export default function TourBookingCard({ tour }) {
   const seatsLeft = usesDateAvailability ? selectedDateAvailability?.available_seats : tour.available_seats;
   const travelDays = tour.travel_days || 'Daily';
   const basePrice = Number(tour.base_price || 0);
+  const isPriceOnRequest = Boolean(tour.price_on_request || basePrice === 0);
   const childPrice = Math.round(basePrice * 0.5);
   const totalPrice = (adults * basePrice) + (children * childPrice);
   const destinationName = tour.destination?.name || tour.destination_name || (typeof tour.destination === 'string' ? tour.destination : '') || '';
@@ -156,9 +157,9 @@ export default function TourBookingCard({ tour }) {
       const tourName = tour.title || bookingSuccess?.tour?.title || 'Wanderer South India Tour';
       const bDate = bookingSuccess?.arrival_date || bookingSuccess?.booking_date || selectedDate;
       const guests = bookingSuccess?.tickets_count || (adults + children);
-      const totPrice = bookingSuccess?.total_price || totalPrice;
+      const formattedTotal = isPriceOnRequest ? 'Price on Request' : `${currencySymbol}${(bookingSuccess?.total_price || totalPrice).toLocaleString()}`;
       const msg = encodeURIComponent(
-        `🧾 *WANDERER SOUTH INDIA — BOOKING SUMMARY*\n\n• Order Reference: ${orderRef}\n• Customer: ${custName}\n• Tour: ${tourName}\n• Travel Date: ${bDate}\n• Guests: ${guests}\n• Total: ${currencySymbol}${totPrice.toLocaleString()}\n• Payment: Pay on Arrival\n\nThank you for choosing Wanderer South India! Please reply to confirm pickup details.`
+        `🧾 *WANDERER SOUTH INDIA — BOOKING SUMMARY*\n\n• Order Reference: ${orderRef}\n• Customer: ${custName}\n• Tour: ${tourName}\n• Travel Date: ${bDate}\n• Guests: ${guests}\n• Total: ${formattedTotal}\n• Payment: Pay on Arrival\n\nThank you for choosing Wanderer South India! Please reply to confirm pickup details.`
       );
       toast.info('Opening WhatsApp chat with booking summary...', 'WhatsApp');
       window.open(`https://wa.me/${cleanNum}?text=${msg}`, '_blank');
@@ -203,12 +204,28 @@ export default function TourBookingCard({ tour }) {
     <div className="tour-booking-card-widget">
       {/* Price Header */}
       <div className="booking-widget-header">
-        <span className="widget-price-label">Starting From</span>
+        <span className="widget-price-label">{isPriceOnRequest ? 'Consultation & Package' : 'Starting From'}</span>
         <div className="widget-price-amount">
-          <span className="widget-currency">{currencySymbol}</span>
-          <span className="widget-price-num">{basePrice.toLocaleString()}</span>
-          <span className="widget-unit">/ adult</span>
+          {isPriceOnRequest ? (
+            <span className="widget-price-num" style={{ fontSize: '20px', color: '#01aa90' }}>Price on Request</span>
+          ) : (
+            <>
+              <span className="widget-currency">{currencySymbol}</span>
+              <span className="widget-price-num">{basePrice.toLocaleString()}</span>
+              <span className="widget-unit">/ person</span>
+            </>
+          )}
         </div>
+        {tour.market_price && Number(tour.market_price) > 0 && (
+          <div style={{ fontSize: '13px', color: '#94a3b8', marginTop: '4px' }}>
+            <span style={{ textDecoration: 'line-through' }}>{currencySymbol}{Number(tour.market_price).toLocaleString()}</span>
+            {tour.discount && (
+              <span style={{ marginLeft: '8px', color: '#16a34a', fontWeight: '700' }}>
+                {tour.discount} OFF
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Booking Form Controls */}
@@ -325,22 +342,34 @@ export default function TourBookingCard({ tour }) {
         </div>
 
         {/* Price Breakdown Calculation */}
-        <div className="booking-price-summary">
-          <div className="price-summary-line">
-            <span>{adults} Adult(s) × {currencySymbol}{basePrice.toLocaleString()}</span>
-            <span>{currencySymbol}{(adults * basePrice).toLocaleString()}</span>
-          </div>
-          {children > 0 && (
-            <div className="price-summary-line">
-              <span>{children} Child(ren) × {currencySymbol}{childPrice.toLocaleString()}</span>
-              <span>{currencySymbol}{(children * childPrice).toLocaleString()}</span>
+        {isPriceOnRequest ? (
+          <div className="booking-price-summary">
+            <div className="price-summary-total">
+              <span>Estimated Total:</span>
+              <span className="total-amount" style={{ fontSize: '17px', color: '#01aa90' }}>Price on Request</span>
             </div>
-          )}
-          <div className="price-summary-total">
-            <span>Estimated Total:</span>
-            <span className="total-amount">{currencySymbol}{totalPrice.toLocaleString()}</span>
+            <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#64748b' }}>
+              Final pricing and custom clinical arrangements will be finalized upon consultation.
+            </p>
           </div>
-        </div>
+        ) : (
+          <div className="booking-price-summary">
+            <div className="price-summary-line">
+              <span>{adults} Adult(s) × {currencySymbol}{basePrice.toLocaleString()}</span>
+              <span>{currencySymbol}{(adults * basePrice).toLocaleString()}</span>
+            </div>
+            {children > 0 && (
+              <div className="price-summary-line">
+                <span>{children} Child(ren) × {currencySymbol}{childPrice.toLocaleString()}</span>
+                <span>{currencySymbol}{(children * childPrice).toLocaleString()}</span>
+              </div>
+            )}
+            <div className="price-summary-total">
+              <span>Estimated Total:</span>
+              <span className="total-amount">{currencySymbol}{totalPrice.toLocaleString()}</span>
+            </div>
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="booking-widget-actions">
@@ -522,7 +551,7 @@ export default function TourBookingCard({ tour }) {
                     <p style={{ margin: '0 0 8px' }}><strong>Tour Package:</strong> {tour.title}</p>
                     <p style={{ margin: '0 0 8px' }}><strong>Scheduled Date:</strong> {bookingSuccess?.arrival_date || bookingSuccess?.booking_date || selectedDate} ({selectedTimeSlot})</p>
                     <p style={{ margin: '0 0 8px' }}><strong>Guests / Travelers:</strong> {bookingSuccess?.tickets_count || (adults + children)} ({bookingSuccess?.adults_count || adults} Adults, {bookingSuccess?.children_count || children} Children)</p>
-                    <p style={{ margin: '0 0 8px' }}><strong>Estimated Amount:</strong> {currencySymbol}{(bookingSuccess?.total_price || totalPrice).toLocaleString()}</p>
+                    <p style={{ margin: '0 0 8px' }}><strong>Estimated Amount:</strong> {isPriceOnRequest ? 'Price on Request' : `${currencySymbol}${(bookingSuccess?.total_price || totalPrice).toLocaleString()}`}</p>
                     <p style={{ margin: '0 0 8px' }}><strong>Booking Status:</strong> <span className="badge badge-warning" style={{ fontSize: '11px' }}>PENDING CONFIRMATION</span></p>
                     <p style={{ margin: '0 0 8px' }}><strong>Pickup Location:</strong> {bookingSuccess?.pickup_location || 'Hotel / Airport in South India'}</p>
                     <p style={{ margin: 0 }}><strong>Contact:</strong> {bookingSuccess?.customer?.email || user?.email} • {bookingSuccess?.customer?.phone || user?.phone}</p>

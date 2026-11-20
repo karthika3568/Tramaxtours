@@ -28,6 +28,7 @@ export const COUNTRY_OPTIONS = [
 ];
 
 const TOUR_TYPES = [
+  'Medical Tour',
   'Sightseeing',
   'Cultural Tour',
   'Pilgrimage',
@@ -112,7 +113,9 @@ export default function TripRequestForm({
     adults_count: prefilledData.adults_count !== undefined && prefilledData.adults_count !== '' ? prefilledData.adults_count : '',
     children_count: prefilledData.children_count !== undefined && prefilledData.children_count !== '' ? prefilledData.children_count : '',
     infants_count: prefilledData.infants_count !== undefined && prefilledData.infants_count !== '' ? prefilledData.infants_count : '',
-    tour_types: Array.isArray(prefilledData.tour_types) ? prefilledData.tour_types : [],
+    tour_types: Array.isArray(prefilledData.tour_types) && prefilledData.tour_types.length > 0
+      ? prefilledData.tour_types
+      : (tour?.is_medical_booking || tour?.medical_trip_id ? ['Medical Tour'] : []),
     tour_guide_required: prefilledData.tour_guide_required || '',
     preferred_language: prefilledData.preferred_language || '',
     vehicle_preference: prefilledData.vehicle_preference || '',
@@ -457,13 +460,16 @@ export default function TripRequestForm({
 
       if (isBookingMode && tour) {
         // BOOKING MODE: Dispatch to bookingService.createBooking
+        const isMedical = Boolean(tour.is_medical_booking || tour.medical_trip_id);
         const basePrice = Number(tour.base_price || 0);
         const childPrice = Math.round(basePrice * 0.5);
         const subtotal = (adultsNum * basePrice) + (childrenNum * childPrice);
         const totalPrice = subtotal;
 
         const bookingPayload = {
-          tour_id: tour.id,
+          tour_id: isMedical ? null : tour.id,
+          medical_trip_id: isMedical ? (tour.medical_trip_id || tour.id) : null,
+          is_medical_booking: isMedical ? 1 : 0,
           first_name: formData.first_name.trim(),
           middle_name: formData.middle_name.trim() || null,
           last_name: formData.last_name.trim(),
@@ -481,12 +487,21 @@ export default function TripRequestForm({
           booking_date: formData.arrival_date,
           arrival_date: formData.arrival_date,
           departure_date: formData.departure_date || null,
-          duration_days: calculatedDays || (tour.duration_days ? `${tour.duration_days} Days` : null),
+          duration_days: calculatedDays || (tour.duration_days ? `${tour.duration_days} Days` : (tour.duration || null)),
           tickets_count: totalGuests,
           adults_count: adultsNum,
           children_count: childrenNum,
           infants_count: infantsNum,
-          tour_types: formData.tour_types.length > 0 ? formData.tour_types : null,
+          tour_types: isMedical ? ['Medical Tour'] : (formData.tour_types.length > 0 ? formData.tour_types : null),
+          tour_type: isMedical ? 'Medical Tour' : undefined,
+          additional_details: isMedical ? {
+            package_title: tour.title,
+            package_duration: tour.duration || '1 Day',
+            package_category: tour.category || 'Medical Tourism',
+            test_count: tour.test_count || null,
+            market_price: tour.market_price || null,
+            discount: tour.discount || null,
+          } : undefined,
           tour_guide_required: formData.tour_guide_required === 'Yes',
           preferred_language: formData.preferred_language || null,
           vehicle_preference: formData.vehicle_preference || null,

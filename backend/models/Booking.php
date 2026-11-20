@@ -1064,7 +1064,7 @@ class Booking extends BaseModel
         $sql = 'SELECT b.*,
                        COALESCE(t.`title`, mt.`title`, b.`destination_name`, "Medical Tour") AS tour_title,
                        COALESCE(t.`slug`, mt.`slug`) AS tour_slug,
-                       COALESCE(t.`tour_type`, IF(b.`is_medical_booking` = 1 OR b.`medical_trip_id` IS NOT NULL, "Medical Tourism", "Custom Tour")) AS tour_type,
+                       COALESCE(t.`tour_type`, IF(b.`is_medical_booking` = 1 OR b.`medical_trip_id` IS NOT NULL, "Medical Tour", "Custom Tour")) AS tour_type,
                        COALESCE(t.`duration_days`, mt.`duration`) AS duration_days,
                        COALESCE(t.`duration_text`, mt.`duration`) AS duration_text,
                        t.`featured_image_id`,
@@ -1101,7 +1101,7 @@ class Booking extends BaseModel
         $sql = 'SELECT b.*,
                        COALESCE(t.`title`, mt.`title`, b.`destination_name`, "Medical Tour") AS tour_title,
                        COALESCE(t.`slug`, mt.`slug`) AS tour_slug,
-                       COALESCE(t.`tour_type`, IF(b.`is_medical_booking` = 1 OR b.`medical_trip_id` IS NOT NULL, "Medical Tourism", "Custom Tour")) AS tour_type,
+                       COALESCE(t.`tour_type`, IF(b.`is_medical_booking` = 1 OR b.`medical_trip_id` IS NOT NULL, "Medical Tour", "Custom Tour")) AS tour_type,
                        COALESCE(t.`duration_days`, mt.`duration`) AS duration_days,
                        COALESCE(t.`duration_text`, mt.`duration`) AS duration_text,
                        t.`featured_image_id`,
@@ -1199,8 +1199,13 @@ class Booking extends BaseModel
 
         // Filter by tour_type (Requirement 4)
         if (!empty($filters['tour_type']) && $filters['tour_type'] !== 'all') {
-            $where[] = 'IF(b.`is_medical_booking` = 1 OR b.`medical_trip_id` IS NOT NULL, "Medical Tourism", t.`tour_type`) = :tour_type';
-            $params[':tour_type'] = trim((string) $filters['tour_type']);
+            $filterTourType = trim((string) $filters['tour_type']);
+            if (in_array(strtolower($filterTourType), ['medical tour', 'medical tourism', 'medical'], true)) {
+                $where[] = '(b.`is_medical_booking` = 1 OR b.`medical_trip_id` IS NOT NULL OR t.`tour_type` IN ("Medical Tour", "Medical Tourism"))';
+            } else {
+                $where[] = 'IF(b.`is_medical_booking` = 1 OR b.`medical_trip_id` IS NOT NULL, "Medical Tour", t.`tour_type`) = :tour_type';
+                $params[':tour_type'] = $filterTourType;
+            }
         }
 
         // Filter by date range (booking_date)

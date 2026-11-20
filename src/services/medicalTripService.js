@@ -35,6 +35,14 @@ export const medicalTripService = {
   },
 
   /**
+   * Public: List active medical add-on tests
+   */
+  getAddons: async () => {
+    const res = await client.get('/medical-trips/addons');
+    return Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : []);
+  },
+
+  /**
    * Public: Submit medical trip booking request
    */
   submitBooking: async (firstArg, secondArg) => {

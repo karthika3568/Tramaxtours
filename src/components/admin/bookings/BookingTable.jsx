@@ -261,9 +261,9 @@ export default function BookingTable({
                         {b.tour?.title || b.destination_name || 'Tour Package'}
                       </strong>
                       <span className="tour-sub-txt" style={{ color: '#64748b', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
-                        {(b.is_medical_booking || b.medical_trip_id || b.tour?.tour_type === 'Medical Tourism') ? (
+                        {(b.is_medical_booking || b.medical_trip_id || b.tour?.tour_type === 'Medical Tour' || b.tour?.tour_type === 'Medical Tourism') ? (
                           <span style={{ background: '#ccfbf1', color: '#0f766e', borderRadius: '4px', padding: '1px 5px', fontSize: '10px', fontWeight: '700' }}>
-                            🏥 Medical Tourism
+                            🏥 Medical Tour
                           </span>
                         ) : (
                           b.tour?.tour_type || 'Tour'

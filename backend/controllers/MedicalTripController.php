@@ -24,8 +24,8 @@ class MedicalTripController extends BaseController
             'category' => $params['category'] ?? null,
             'is_published' => 1,
             'is_active' => 1,
-            'sort_by' => $params['sort_by'] ?? 'created_at',
-            'order' => $params['order'] ?? 'DESC',
+            'sort_by' => $params['sort_by'] ?? 'display_order',
+            'order' => $params['order'] ?? 'ASC',
         ];
 
         $result = MedicalTrip::paginate($filters, $page, $limit);
@@ -36,6 +36,16 @@ class MedicalTripController extends BaseController
             200,
             ['pagination' => $result['pagination']]
         );
+    }
+
+    /**
+     * Public: List active medical add-on tests.
+     * GET /api/v1/medical-trips/addons
+     */
+    public function addons(): void
+    {
+        $addons = MedicalTrip::getAddons(true);
+        $this->success($addons, 'Medical addons retrieved successfully');
     }
 
     /**

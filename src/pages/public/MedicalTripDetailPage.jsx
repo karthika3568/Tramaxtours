@@ -7,13 +7,14 @@ import { updatePageMeta } from '../../utils/metadata';
 import { useToast } from '../../context/ToastContext';
 import Loading from '../../components/ui/Loading';
 import ErrorState from '../../components/ui/ErrorState';
-import MedicalTourBookingCard from '../../components/public/tours/MedicalTourBookingCard';
+import TourBookingCard from '../../components/public/tours/TourBookingCard';
 
 export default function MedicalTripDetailPage() {
   const { slug } = useParams();
   const toast = useToast();
 
   const [trip, setTrip] = useState(null);
+  const [addons, setAddons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -31,13 +32,19 @@ export default function MedicalTripDetailPage() {
         setLoading(true);
         setError(null);
 
-        const data = await medicalTripService.getMedicalTrip(slug);
+        const [data, addonsData] = await Promise.all([
+          medicalTripService.getMedicalTrip(slug),
+          medicalTripService.getAddons().catch(() => []),
+        ]);
         if (!data) {
           throw new Error('Medical Trip package not found');
         }
 
         if (mounted) {
           setTrip(data);
+          if (Array.isArray(addonsData)) {
+            setAddons(addonsData);
+          }
 
           // Expand first assessment by default
           if (data.assessments && data.assessments.length > 0) {
@@ -170,6 +177,12 @@ export default function MedicalTripDetailPage() {
 
             {/* Quick Meta Pills */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', alignItems: 'center' }}>
+              {trip.test_count && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#01aa90', color: '#ffffff', padding: '8px 16px', borderRadius: '12px', border: '1px solid #01aa90', boxShadow: '0 2px 6px rgba(1,170,144,0.25)', fontSize: '13px', fontWeight: '700' }}>
+                  <SparklesIcon size={15} color="#ffffff" />
+                  <span>{trip.test_count}</span>
+                </div>
+              )}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#ffffff', padding: '8px 16px', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 2px 6px rgba(0,0,0,0.03)', fontSize: '13px', fontWeight: '600' }}>
                 <ClockIcon size={15} color="#01aa90" />
                 <span>{trip.duration || '1 Day'}</span>
@@ -521,6 +534,70 @@ export default function MedicalTripDetailPage() {
               </div>
             </section>
 
+            {/* SECTION 2.5: Add-on Medical Tests */}
+            {addons.length > 0 && (
+              <section
+                style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '16px',
+                  border: '1px solid #ccfbf1',
+                  padding: '28px',
+                  boxShadow: '0 4px 12px rgba(1, 170, 144, 0.04)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+                  <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <StethoscopeIcon size={20} color="#01aa90" />
+                    <span>Add-on Medical Tests</span>
+                  </h3>
+                  <span style={{ fontSize: '12px', fontWeight: '700', color: '#01aa90', backgroundColor: '#e6f7f5', padding: '4px 10px', borderRadius: '20px' }}>
+                    Optional Diagnostic Upgrades
+                  </span>
+                </div>
+                <p style={{ fontSize: '13.5px', color: '#64748b', margin: '0 0 20px 0' }}>
+                  Enhance your health checkup with precision diagnostic add-ons. You can request any of these tests during your booking consultation.
+                </p>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
+                  {addons.map((addon) => (
+                    <div
+                      key={addon.id}
+                      style={{
+                        padding: '16px',
+                        borderRadius: '12px',
+                        border: '1px solid #e2e8f0',
+                        backgroundColor: '#f8fafc',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '6px' }}>
+                          <h4 style={{ fontSize: '14px', fontWeight: '700', color: '#0f172a', margin: 0 }}>
+                            {addon.addon_name}
+                          </h4>
+                        </div>
+                        {addon.description && (
+                          <p style={{ fontSize: '12.5px', color: '#64748b', lineHeight: 1.5, margin: '0 0 12px 0' }}>
+                            {addon.description}
+                          </p>
+                        )}
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '10px', borderTop: '1px dashed #e2e8f0' }}>
+                        <span style={{ fontSize: '15px', fontWeight: '800', color: '#01aa90' }}>
+                          ₹{Number(addon.price || 1499).toLocaleString()}
+                        </span>
+                        <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '600', backgroundColor: '#ffffff', padding: '2px 8px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                          Add-on Test
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {/* SECTION 3: Package Highlights, Benefits & Preparation Guidelines */}
             {(trip.highlights || trip.benefits || trip.preparation_guidelines) && (
               <section
@@ -568,9 +645,30 @@ export default function MedicalTripDetailPage() {
 
           </div>
 
-          {/* RIGHT COLUMN: Sticky Medical Booking Card */}
+          {/* RIGHT COLUMN: Sticky Unified Tour Booking Card */}
           <aside style={{ position: 'sticky', top: '90px' }}>
-            <MedicalTourBookingCard trip={trip} />
+            <TourBookingCard
+              tour={{
+                ...trip,
+                id: trip.id,
+                medical_trip_id: trip.id,
+                is_medical_booking: true,
+                title: trip.title,
+                tour_type: 'Medical Tour',
+                tour_types: ['Medical Tour'],
+                base_price: Number(trip.price || 0),
+                price_on_request: Boolean(trip.price_on_request || Number(trip.price) === 0),
+                market_price: trip.market_price,
+                discount: trip.discount,
+                test_count: trip.test_count,
+                destination: {
+                  name: trip.location || 'Chennai, Tamil Nadu',
+                },
+                duration_days: trip.duration || 'Full Day',
+                travel_days: 'Daily',
+                available_seats: 50,
+              }}
+            />
           </aside>
 
         </div>

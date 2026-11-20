@@ -263,7 +263,7 @@ class BookingController extends BaseController
                 'adults_count' => $adultsCount,
                 'children_count' => $childrenCount,
                 'infants_count' => $infantsCount,
-                'tour_types' => $body['tour_types'] ?? ($medicalTripId ? ['Medical Tourism', 'Health Check'] : null),
+                'tour_types' => $body['tour_types'] ?? ($medicalTripId ? ['Medical Tour'] : null),
                 'tour_guide_required' => !empty($body['tour_guide_required']),
                 'preferred_language' => $body['preferred_language'] ?? ($body['medical_interpreter'] ?? null),
                 'vehicle_preference' => $body['vehicle_preference'] ?? null,
