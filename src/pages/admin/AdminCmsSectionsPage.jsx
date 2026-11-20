@@ -239,22 +239,6 @@ export default function AdminCmsSectionsPage() {
         </div>
       </div>
 
-      {/* Stats Ribbon */}
-      <div className="admin-stats-ribbon">
-        <div className="stat-pill">
-          <span className="stat-label">Total Sections:</span>
-          <span className="stat-value">{sections.length}</span>
-        </div>
-        <div className="stat-pill">
-          <span className="stat-label">Active / Published:</span>
-          <span className="stat-value text-teal">{sections.filter((s) => s.status === 'active').length}</span>
-        </div>
-        <div className="stat-pill">
-          <span className="stat-label">Inactive / Draft:</span>
-          <span className="stat-value text-muted">{sections.filter((s) => s.status === 'inactive').length}</span>
-        </div>
-      </div>
-
       {/* Visual Sections Grid */}
       {loading ? (
         <Loading message="Loading CMS Content Sections..." />

@@ -6,7 +6,6 @@ import userService from '../../services/userService';
 import { useToast } from '../../context/ToastContext';
 import { updatePageMeta } from '../../utils/metadata';
 
-import UserStats from '../../components/admin/users/UserStats';
 import UserFilters from '../../components/admin/users/UserFilters';
 import UserTable from '../../components/admin/users/UserTable';
 import UserDetailModal from '../../components/admin/users/UserDetailModal';
@@ -182,10 +181,7 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      {/* 2. Real Metrics KPI Grid */}
-      <UserStats stats={usersData.stats} />
-
-      {/* 3. Search & Filter Bar */}
+      {/* 2. Search & Filter Bar */}
       <UserFilters
         filters={filters}
         onFilterChange={handleFilterChange}

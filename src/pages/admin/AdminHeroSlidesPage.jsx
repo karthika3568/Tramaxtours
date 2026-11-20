@@ -235,26 +235,6 @@ export default function AdminHeroSlidesPage() {
         </div>
       </div>
 
-      {/* Quick Metrics Bar */}
-      <div className="admin-stats-ribbon">
-        <div className="stat-pill">
-          <span className="stat-label">Total Slides:</span>
-          <span className="stat-value">{slides.length}</span>
-        </div>
-        <div className="stat-pill">
-          <span className="stat-label">Active / Live:</span>
-          <span className="stat-value text-teal">{activeCount}</span>
-        </div>
-        <div className="stat-pill">
-          <span className="stat-label">Inactive / Draft:</span>
-          <span className="stat-value text-muted">{slides.length - activeCount}</span>
-        </div>
-        <div className="stat-pill">
-          <span className="stat-label">Display Mode:</span>
-          <span className="stat-value font-mono">Images Only (Public)</span>
-        </div>
-      </div>
-
       {/* Main Visual Slide Stack */}
       {loading ? (
         <Loading message="Loading Hero Carousel Slides..." />

@@ -60,14 +60,6 @@ export default function AdminToursPage() {
   const [tourToDelete, setTourToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Compute stats from current loaded list or API
-  const stats = useMemo(() => {
-    const published = tours.filter((t) => t.status === 'published').length;
-    const draft = tours.filter((t) => t.status === 'draft').length;
-    const featured = tours.filter((t) => Boolean(t.is_featured)).length;
-    return { published, draft, featured };
-  }, [tours]);
-
   // Load destinations once for the filter dropdown
   useEffect(() => {
     let isMounted = true;
@@ -280,34 +272,6 @@ export default function AdminToursPage() {
               + New Tour Package
             </Link>
           )}
-        </div>
-      </div>
-
-      {/* Catalog Summary Stats Bar */}
-      <div className="catalog-summary-bar">
-        <div className="summary-stat-box">
-          <span className="summary-stat-label">Total Tours</span>
-          <strong className="summary-stat-val val-total">{totalCount}</strong>
-        </div>
-        <div className="summary-stat-divider" aria-hidden="true" />
-        <div className="summary-stat-box">
-          <span className="summary-stat-label">Published</span>
-          <strong className="summary-stat-val val-published">{stats.published}</strong>
-        </div>
-        <div className="summary-stat-divider" aria-hidden="true" />
-        <div className="summary-stat-box">
-          <span className="summary-stat-label">Draft</span>
-          <strong className="summary-stat-val val-draft">{stats.draft}</strong>
-        </div>
-        <div className="summary-stat-divider" aria-hidden="true" />
-        <div className="summary-stat-box">
-          <span className="summary-stat-label">Featured Spotlight</span>
-          <strong className="summary-stat-val val-featured">{stats.featured}</strong>
-        </div>
-        <div className="summary-stat-divider" aria-hidden="true" />
-        <div className="summary-stat-box">
-          <span className="summary-stat-label">Page</span>
-          <span className="summary-stat-page-txt">{page} of {totalPages}</span>
         </div>
       </div>
 

@@ -4,7 +4,6 @@ import { useToast } from '../../context/ToastContext';
 import bookingService from '../../services/bookingService';
 import tourService from '../../services/tourService';
 import { updatePageMeta } from '../../utils/metadata';
-import BookingStats from '../../components/admin/bookings/BookingStats';
 import BookingFilters from '../../components/admin/bookings/BookingFilters';
 import BookingTable from '../../components/admin/bookings/BookingTable';
 import BookingDetailModal from '../../components/admin/bookings/BookingDetailModal';
@@ -461,9 +460,6 @@ export default function AdminBookingsPage() {
           </button>
         </div>
       </div>
-
-      {/* Summary Stats Cards */}
-      <BookingStats stats={stats} loading={loadingStats} />
 
       {/* Search & Filter Bar (Requirement 3, 4, 6) */}
       <BookingFilters

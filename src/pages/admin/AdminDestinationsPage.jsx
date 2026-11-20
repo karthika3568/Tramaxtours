@@ -212,18 +212,6 @@ export default function AdminDestinationsPage() {
         </div>
       </div>
 
-      {/* Summary Stat Cards */}
-      <div className="dest-stats-row">
-        <div className="dest-stat-pill">
-          <span className="stat-pill-label">Total Destinations:</span>
-          <strong className="stat-pill-value">{totalCount}</strong>
-        </div>
-        <div className="dest-stat-pill">
-          <span className="stat-pill-label">Current Page:</span>
-          <span className="stat-pill-value">{page} of {totalPages}</span>
-        </div>
-      </div>
-
       {/* Filters Toolbar */}
       <DestinationFilters
         search={search}

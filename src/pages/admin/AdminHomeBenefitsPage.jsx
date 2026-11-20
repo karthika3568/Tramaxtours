@@ -209,22 +209,6 @@ export default function AdminHomeBenefitsPage() {
         </div>
       </div>
 
-      {/* Stats Ribbon */}
-      <div className="admin-stats-ribbon">
-        <div className="stat-pill">
-          <span className="stat-label">Total Benefit Cards:</span>
-          <span className="stat-value">{benefits.length}</span>
-        </div>
-        <div className="stat-pill">
-          <span className="stat-label">Active / Live:</span>
-          <span className="stat-value text-teal">{benefits.filter((b) => b.status === 'active').length}</span>
-        </div>
-        <div className="stat-pill">
-          <span className="stat-label">Section Placement:</span>
-          <span className="stat-value font-mono">Homepage #5 (Benefits Grid)</span>
-        </div>
-      </div>
-
       {/* Visual Benefit Cards Grid */}
       {loading ? (
         <Loading message="Loading Homepage Benefit Cards..." />

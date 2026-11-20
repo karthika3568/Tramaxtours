@@ -1,4 +1,4 @@
-import { AwardIcon, CameraIcon, CheckCircleIcon, ClockIcon, ImageIcon, MessageSquareIcon, PlusIcon, RefreshIcon, SearchIcon, StarIcon, UserIcon, XIcon } from '../../components/common/Icons';
+import { CameraIcon, CheckCircleIcon, ClockIcon, ImageIcon, PlusIcon, RefreshIcon, SearchIcon, StarIcon, UserIcon, XIcon } from '../../components/common/Icons';
 import { useState, useEffect, useCallback } from 'react';
 import useAuth from '../../hooks/useAuth';
 import { useToast } from '../../context/ToastContext';
@@ -514,57 +514,6 @@ export default function AdminReviewsPage() {
           >
             Refresh
           </button>
-        </div>
-      </div>
-
-      {/* Real-time Statistics Summary Cards */}
-      <div className="dest-stats-grid review-stats-grid">
-        <div className="dest-stat-card">
-          <div className="dest-stat-icon"><MessageSquareIcon size={24} color="#01aa90" /></div>
-          <div className="dest-stat-info">
-            <span className="dest-stat-label">Total Reviews</span>
-            <strong className="dest-stat-value">{totalCount}</strong>
-          </div>
-        </div>
-
-        <div className="dest-stat-card">
-          <div className="dest-stat-icon stat-icon-published"><CheckCircleIcon size={24} color="#16a34a" /></div>
-          <div className="dest-stat-info">
-            <span className="dest-stat-label">Approved</span>
-            <strong className="dest-stat-value">{approvedCount}</strong>
-          </div>
-        </div>
-
-        <div className="dest-stat-card">
-          <div className="dest-stat-icon stat-icon-draft"><ClockIcon size={24} color="#d97706" /></div>
-          <div className="dest-stat-info">
-            <span className="dest-stat-label">Pending</span>
-            <strong className="dest-stat-value">{pendingCount}</strong>
-          </div>
-        </div>
-
-        <div className="dest-stat-card">
-          <div className="dest-stat-icon"><XIcon size={22} color="#ef4444" /></div>
-          <div className="dest-stat-info">
-            <span className="dest-stat-label">Rejected</span>
-            <strong className="dest-stat-value">{rejectedCount}</strong>
-          </div>
-        </div>
-
-        <div className="dest-stat-card">
-          <div className="dest-stat-icon"><StarIcon size={22} color="#f59e0b" fill="#f59e0b" /></div>
-          <div className="dest-stat-info">
-            <span className="dest-stat-label">Average Rating</span>
-            <strong className="dest-stat-value">{avgRating} / 5.0</strong>
-          </div>
-        </div>
-
-        <div className="dest-stat-card">
-          <div className="dest-stat-icon"><AwardIcon size={22} color="#10b981" /></div>
-          <div className="dest-stat-info">
-            <span className="dest-stat-label">Featured</span>
-            <strong className="dest-stat-value">{featuredCount}</strong>
-          </div>
         </div>
       </div>
 

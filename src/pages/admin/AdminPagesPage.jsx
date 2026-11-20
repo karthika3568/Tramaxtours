@@ -251,33 +251,6 @@ export default function AdminPagesPage() {
         </div>
       </div>
 
-      {/* Summary Stats Cards */}
-      <div className="dest-stats-grid">
-        <div className="dest-stat-card">
-          <div className="dest-stat-icon"><FileTextIcon size={24} /></div>
-          <div className="dest-stat-info">
-            <span className="dest-stat-label">Total CMS Pages</span>
-            <strong className="dest-stat-value">{totalCount}</strong>
-          </div>
-        </div>
-
-        <div className="dest-stat-card">
-          <div className="dest-stat-icon stat-icon-published"><CheckCircleIcon size={24} color="#16a34a" /></div>
-          <div className="dest-stat-info">
-            <span className="dest-stat-label">Published</span>
-            <strong className="dest-stat-value">{publishedCount}</strong>
-          </div>
-        </div>
-
-        <div className="dest-stat-card">
-          <div className="dest-stat-icon stat-icon-draft"><ClockIcon size={24} color="#d97706" /></div>
-          <div className="dest-stat-info">
-            <span className="dest-stat-label">Drafts</span>
-            <strong className="dest-stat-value">{draftCount}</strong>
-          </div>
-        </div>
-      </div>
-
       {/* Filter Toolbar */}
       <PageFilters
         search={search}
