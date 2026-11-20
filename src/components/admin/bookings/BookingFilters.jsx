@@ -40,7 +40,7 @@ export default function BookingFilters({
   return (
     <div className="booking-filters-card" style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', padding: '18px', marginBottom: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
       {/* Quick Status Chips */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '16px', paddingBottom: '14px', borderBottom: '1px solid #f1f5f9' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '10px', paddingBottom: '10px', borderBottom: '1px solid #f1f5f9' }}>
         <span style={{ fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.05em', marginRight: '4px' }}>
           Quick Filter:
         </span>
@@ -81,46 +81,95 @@ export default function BookingFilters({
       >
         {/* Search */}
         <div className="filter-group search-filter-group" style={{ gridColumn: 'span 2', minWidth: '260px' }}>
-          <label htmlFor="booking-search" className="filter-label" style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: '#334155', marginBottom: '5px' }}>
+          <label htmlFor="booking-search" className="filter-label" style={{ display: 'block', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.05em', marginBottom: '6px' }}>
             Search Bookings
           </label>
-          <div className="search-input-wrapper" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-            <span className="search-icon" aria-hidden="true" style={{ position: 'absolute', left: '12px', color: '#94a3b8' }}>
-              <SearchIcon size={15} />
+          <div className="search-input-wrapper booking-search-wrapper" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <span
+              className="search-icon"
+              aria-hidden="true"
+              style={{
+                position: 'absolute',
+                left: '12px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#64748b',
+                pointerEvents: 'none',
+                transition: 'color 0.2s ease',
+              }}
+            >
+              <SearchIcon size={16} />
             </span>
             <input
               type="text"
               id="booking-search"
-              className="form-input form-input-sm"
+              className="form-input form-input-sm booking-search-input-field"
               placeholder="Search by ID, customer, email, phone, tour..."
               value={search}
               onChange={(e) => onFilterChange({ search: e.target.value, page: 1 })}
               style={{
                 width: '100%',
-                paddingLeft: '36px',
-                paddingRight: search ? '32px' : '12px',
-                height: '38px',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
+                paddingLeft: '38px',
+                paddingRight: search ? '36px' : '14px',
+                height: '40px',
+                borderRadius: '10px',
+                border: '1.5px solid #e2e8f0',
                 fontSize: '13px',
+                backgroundColor: '#f8fafc',
+                color: '#0f172a',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
+                outline: 'none',
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.backgroundColor = '#ffffff';
+                e.currentTarget.style.borderColor = '#01aa90';
+                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(1, 170, 144, 0.15)';
+                const icon = e.currentTarget.parentElement?.querySelector('.search-icon');
+                if (icon) icon.style.color = '#01aa90';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.backgroundColor = '#f8fafc';
+                e.currentTarget.style.borderColor = '#e2e8f0';
+                e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.04)';
+                const icon = e.currentTarget.parentElement?.querySelector('.search-icon');
+                if (icon) icon.style.color = '#64748b';
               }}
             />
             {search && (
               <button
                 type="button"
+                className="booking-search-clear-btn"
                 onClick={() => onFilterChange({ search: '', page: 1 })}
                 aria-label="Clear search"
+                title="Clear search"
                 style={{
                   position: 'absolute',
-                  right: '10px',
-                  background: 'none',
+                  right: '9px',
+                  background: '#f1f5f9',
                   border: 'none',
-                  color: '#94a3b8',
+                  borderRadius: '50%',
+                  width: '22px',
+                  height: '22px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#64748b',
                   cursor: 'pointer',
-                  padding: '2px',
+                  padding: 0,
+                  transition: 'all 0.15s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#e2e8f0';
+                  e.currentTarget.style.color = '#0f172a';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#f1f5f9';
+                  e.currentTarget.style.color = '#64748b';
                 }}
               >
-                <XIcon size={14} />
+                <XIcon size={12} />
               </button>
             )}
           </div>
