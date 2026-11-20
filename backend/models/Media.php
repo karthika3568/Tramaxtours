@@ -14,6 +14,14 @@ class Media extends BaseModel
      */
     public static function create(array $data): int
     {
+        $uploaderId = !empty($data['uploaded_by']) && is_numeric($data['uploaded_by']) ? (int) $data['uploaded_by'] : null;
+        if ($uploaderId !== null) {
+            $userExists = (int) self::fetchColumn('SELECT COUNT(*) FROM `users` WHERE `id` = :id', [':id' => $uploaderId]);
+            if ($userExists === 0) {
+                $uploaderId = null;
+            }
+        }
+
         $sql = 'INSERT INTO `media` (`filename`, `original_name`, `file_path`, `file_size`, `mime_type`, `alt_text`, `caption`, `uploaded_by`, `created_at`, `updated_at`)
                 VALUES (:filename, :original_name, :file_path, :file_size, :mime_type, :alt_text, :caption, :uploaded_by, NOW(), NOW())';
 
@@ -25,7 +33,7 @@ class Media extends BaseModel
             ':mime_type' => $data['mime_type'],
             ':alt_text' => $data['alt_text'] ?? null,
             ':caption' => $data['caption'] ?? null,
-            ':uploaded_by' => $data['uploaded_by'] ?? null,
+            ':uploaded_by' => $uploaderId,
         ]);
 
         return (int) self::lastInsertId();

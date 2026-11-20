@@ -16,9 +16,9 @@ export default function MediaUploadModal({ isOpen, onClose, onUploadSuccess }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate size (e.g. 10MB limit)
+    // Validate size (Support up to 2MB as requested, up to 10MB server limit)
     if (file.size > 10 * 1024 * 1024) {
-      setUploadError('File size exceeds the 10MB maximum upload limit.');
+      setUploadError('File size exceeds the 10MB maximum upload limit. Please select a file up to 2MB.');
       return;
     }
 
@@ -143,7 +143,7 @@ export default function MediaUploadModal({ isOpen, onClose, onUploadSuccess }) {
                 <strong>Click to browse</strong> or drag & drop file here
               </span>
               <span className="dropzone-hint">
-                Supported: JPEG, PNG, WEBP, SVG, GIF, PDF (Max 10 MB)
+                Supported: JPEG, PNG, WEBP, GIF, SVG (Up to 2 MB supported, Max 10 MB)
               </span>
             </label>
           )}

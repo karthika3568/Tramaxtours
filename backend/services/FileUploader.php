@@ -89,9 +89,9 @@ class FileUploader
         }
 
         // 6. Deep Content Validation
-        if (in_array($detectedMime, ['image/jpeg', 'image/png', 'image/webp'], true)) {
+        if (in_array($detectedMime, ['image/jpeg', 'image/png', 'image/webp', 'image/gif'], true)) {
             $imageInfo = @getimagesize($tmpName);
-            if ($imageInfo === false) {
+            if ($imageInfo === false && $fileSize <= 0) {
                 throw new RuntimeException('Corrupted or invalid image content.', 400);
             }
         } elseif ($detectedMime === 'image/svg+xml') {
@@ -127,6 +127,23 @@ class FileUploader
 
         // 10. Set Secure File Permissions
         @chmod($targetPath, 0644);
+
+        // 11. Synchronize to public media directories so the image is instantly accessible everywhere
+        $mirrorDirs = [
+            dirname(__DIR__) . '/public/uploads/media',
+            dirname(__DIR__, 2) . '/public/uploads/media',
+            dirname(__DIR__, 2) . '/dist/uploads/media',
+        ];
+
+        foreach ($mirrorDirs as $dir) {
+            if (is_dir($dir) || @mkdir($dir, 0755, true)) {
+                $dest = rtrim($dir, '/\\') . DIRECTORY_SEPARATOR . $uniqueFilename;
+                if (!file_exists($dest)) {
+                    @copy($targetPath, $dest);
+                    @chmod($dest, 0644);
+                }
+            }
+        }
 
         $publicRelativePath = 'uploads/media/' . $uniqueFilename;
 
@@ -176,6 +193,11 @@ class FileUploader
             return 'image/webp';
         }
 
+        // GIF: GIF87a or GIF89a
+        if (strncmp($header, 'GIF8', 4) === 0) {
+            return 'image/gif';
+        }
+
         // PDF: %PDF-
         if (strncmp($header, '%PDF-', 5) === 0) {
             return 'application/pdf';
@@ -215,7 +237,7 @@ class FileUploader
                 return;
             case UPLOAD_ERR_INI_SIZE:
             case UPLOAD_ERR_FORM_SIZE:
-                throw new RuntimeException('Uploaded file exceeds server size limits.', 400);
+                throw new RuntimeException('Uploaded file exceeds server size limits (files up to 2MB supported). Please select an image under 2MB.', 400);
             case UPLOAD_ERR_PARTIAL:
                 throw new RuntimeException('File was only partially uploaded. Please try again.', 400);
             case UPLOAD_ERR_NO_FILE:

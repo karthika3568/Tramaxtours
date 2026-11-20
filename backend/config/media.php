@@ -10,10 +10,11 @@ return [
         'image/jpeg' => ['jpg', 'jpeg'],
         'image/png' => ['png'],
         'image/webp' => ['webp'],
+        'image/gif' => ['gif'],
         'image/svg+xml' => ['svg'],
         'application/pdf' => ['pdf'],
     ],
-    'allowed_extensions' => ['jpg', 'jpeg', 'png', 'webp', 'svg', 'pdf'],
+    'allowed_extensions' => ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'pdf'],
     'document_storage_path' => dirname(__DIR__) . '/storage/documents',
     'document_max_file_size' => 5242880, // 5 MB single source
     'document_allowed_mimes' => [

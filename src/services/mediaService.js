@@ -52,7 +52,7 @@ export const mediaService = {
    */
   uploadMedia: async (formData) => {
     const response = await client.post('/media/upload', formData);
-    return response.data;
+    return response?.data || response;
   },
 
   /**

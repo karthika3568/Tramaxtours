@@ -79,7 +79,12 @@ class MediaController extends BaseController
     public function upload(): void
     {
         if (empty($_FILES['file'])) {
+            if (empty($_FILES) && empty($_POST) && isset($_SERVER['CONTENT_LENGTH']) && (int)$_SERVER['CONTENT_LENGTH'] > 0) {
+                $this->error('The uploaded file exceeds the server post limit. Please select a file under 2MB.', 413, null, 'FILE_TOO_LARGE');
+                return;
+            }
             $this->error('No file was provided in the upload request. Form field must be named [file].', 422, null, 'MISSING_FILE');
+            return;
         }
 
         $altText = isset($_POST['alt_text']) ? trim((string) $_POST['alt_text']) : null;
@@ -87,9 +92,11 @@ class MediaController extends BaseController
 
         if ($altText !== null && strlen($altText) > 255) {
             $this->error('Alt text cannot exceed 255 characters.', 422, null, 'VALIDATION_ERROR');
+            return;
         }
         if ($caption !== null && strlen($caption) > 255) {
             $this->error('Caption cannot exceed 255 characters.', 422, null, 'VALIDATION_ERROR');
+            return;
         }
 
         try {
@@ -97,6 +104,31 @@ class MediaController extends BaseController
             $fileInfo = $uploader->upload($_FILES['file']);
 
             $userId = Request::getUserId();
+            if (!$userId) {
+                $authUser = Request::getAuthenticatedUser();
+                if (!empty($authUser['id'])) {
+                    $userId = (int) $authUser['id'];
+                }
+            }
+            if (!$userId) {
+                $authHeader = Request::getHeader('Authorization');
+                if ($authHeader && preg_match('/^Bearer\s+(.*?)$/i', trim($authHeader), $matches)) {
+                    try {
+                        $payload = \App\Utils\JWT::decode($matches[1]);
+                        $sub = $payload['sub'] ?? $payload['user_id'] ?? null;
+                        if ($sub) {
+                            $userId = (int) $sub;
+                        }
+                    } catch (\Throwable $e) {}
+                }
+            }
+
+            if ($userId) {
+                $exists = \App\Models\User::findById((int) $userId);
+                if (!$exists) {
+                    $userId = null;
+                }
+            }
 
             $mediaId = Media::create([
                 'filename' => $fileInfo['filename'],
@@ -111,20 +143,22 @@ class MediaController extends BaseController
 
             $media = Media::findById($mediaId);
 
-            // Record audit log
-            AuditService::log(
-                $userId,
-                'media_upload',
-                'media',
-                $mediaId,
-                null,
-                [
-                    'filename' => $fileInfo['filename'],
-                    'original_name' => $fileInfo['original_name'],
-                    'file_size' => $fileInfo['file_size'],
-                    'mime_type' => $fileInfo['mime_type'],
-                ]
-            );
+            // Record audit log safely
+            if ($userId) {
+                AuditService::log(
+                    $userId,
+                    'media_upload',
+                    'media',
+                    $mediaId,
+                    null,
+                    [
+                        'filename' => $fileInfo['filename'],
+                        'original_name' => $fileInfo['original_name'],
+                        'file_size' => $fileInfo['file_size'],
+                        'mime_type' => $fileInfo['mime_type'],
+                    ]
+                );
+            }
 
             $this->success($media, 'Media file uploaded successfully', 201);
         } catch (Throwable $e) {
